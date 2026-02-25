@@ -1,8 +1,9 @@
 <?php
 // app/Http/Controllers/AppointmentController.php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Appointment;
 
+use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\TblAppointment;
 use App\Models\TblUser;
