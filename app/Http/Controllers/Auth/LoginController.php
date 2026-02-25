@@ -6,7 +6,7 @@ namespace App\Http\Controllers\Auth;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\TblUser;
-use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Session;
 
 class LoginController extends Controller
 {
@@ -17,6 +17,7 @@ class LoginController extends Controller
 
     public function login(Request $request)
     {
+        // Simple check
         $user = TblUser::where('username', $request->username)
                        ->where('password', $request->password)
                        ->first();
@@ -25,8 +26,11 @@ class LoginController extends Controller
             return back()->with('error', 'Invalid username or password');
         }
 
-        // Login using Auth
-        Auth::login($user);
+        // Store in session
+        Session::put('user_id', $user->user_id);
+        Session::put('full_name', $user->full_name);
+        Session::put('designation', $user->designation);
+        Session::put('window_num', $user->window_num);
 
         // Redirect based on designation
         $designation = strtolower(trim($user->designation));
@@ -44,7 +48,7 @@ class LoginController extends Controller
 
     public function logout()
     {
-        Auth::logout();
+        Session::flush();
         return redirect('/login');
     }
 }
