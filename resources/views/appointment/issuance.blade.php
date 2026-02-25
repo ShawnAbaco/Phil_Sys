@@ -228,7 +228,9 @@
         <div class="user-info">
             <span>{{ session('full_name') }} ({{ session('designation') }})</span>
             <span>Window: {{ session('window_num') }}</span>
-            <form method="POST" action="{{ route('logout') }}" style="display: inline;">
+            <form method="GET" action="/logout">
+    <button type="submit" class="logout-btn">Logout</button>
+</form>
                 @csrf
                 <button type="submit" class="logout-btn">Logout</button>
             </form>
