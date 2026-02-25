@@ -17,51 +17,38 @@ class LoginController extends Controller
 
     public function login(Request $request)
     {
-        // Validate the request
-        $request->validate([
-            'username' => 'required|string',
-            'password' => 'required|string',
-        ]);
-
-        // Get the username and password from the request
-        $username = $request->input('username');
-        $password = $request->input('password');
-
-        // Find user with matching username and password (plain text as in original)
-        $user = TblUser::where('username', $username)
-                       ->where('password', $password)
+        // Simple check
+        $user = TblUser::where('username', $request->username)
+                       ->where('password', $request->password)
                        ->first();
 
-        if ($user) {
-            // Store user data in session
-            Session::put('user_id', $user->user_id);
-            Session::put('full_name', $user->full_name);
-            Session::put('designation', $user->designation);
-            Session::put('window_num', $user->window_num);
+        if (!$user) {
+            return back()->with('error', 'Invalid username or password');
+        }
 
-            // Redirect based on designation
-            $designation = strtolower(trim($user->designation));
+        // Store in session
+        Session::put('user_id', $user->user_id);
+        Session::put('full_name', $user->full_name);
+        Session::put('designation', $user->designation);
+        Session::put('window_num', $user->window_num);
 
-            if ($designation === 'screener') {
-                return redirect()->route('appointment.issuance');
-            } else if ($designation === 'registration kit operator' || $designation === 'registration assistant') {
-                return redirect()->route('operator.dashboard');
-            } else if ($designation === 'client') {
-                return redirect()->route('client.dashboard');
-            } else {
-                return redirect()->route('default.page');
-            }
+        // Redirect based on designation
+        $designation = strtolower(trim($user->designation));
+
+        if ($designation == 'screener') {
+            return redirect('/appointment-issuance');
+        } elseif ($designation == 'registration kit operator' || $designation == 'registration assistant') {
+            return redirect('/operator-dashboard');
+        } elseif ($designation == 'client') {
+            return redirect('/client-dashboard');
         } else {
-            // Return back with error message
-            return back()->withErrors([
-                'login' => 'Invalid username or password',
-            ])->withInput($request->except('password'));
+            return redirect('/dashboard');
         }
     }
 
-    public function logout(Request $request)
+    public function logout()
     {
         Session::flush();
-        return redirect()->route('login');
+        return redirect('/login');
     }
 }

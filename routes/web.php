@@ -12,16 +12,12 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', function () {
     return redirect()->route('login');
 });
+Route::get('/login', [LoginController::class, 'showLoginForm']);
+Route::post('/login', [LoginController::class, 'login']);
+Route::get('/logout', [LoginController::class, 'logout']);
 
-// Login Routes
-Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login');
-Route::post('/login', [LoginController::class, 'login'])->name('login.submit');
-Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
+// Protected pages - add session check in each controller instead
+Route::get('/appointment-issuance', [AppointmentController::class, 'issuance']);
+Route::post('/appointment-issue', [AppointmentController::class, 'issue']);
+Route::post('/appointment/serve/{id}', [AppointmentController::class, 'serve']);
 
-// Protected Routes (require authentication)
-Route::middleware(['auth.session'])->group(function () {
-    // Screener routes
-    Route::get('/appointment-issuance', [AppointmentController::class, 'issuance'])->name('appointment.issuance');
-    Route::post('/appointment-issue', [AppointmentController::class, 'issue'])->name('appointment.issue'); // ADD THIS LINE
-    Route::post('/appointment/serve/{id}', [AppointmentController::class, 'serve'])->name('appointment.serve');
-});
