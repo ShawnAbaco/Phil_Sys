@@ -1,4 +1,4 @@
-name: Force FTP Upload
+name: Force FTP Upload with Binary Mode
 
 on:
   push:
@@ -14,15 +14,14 @@ jobs:
       - name: Install lftp
         run: sudo apt-get update && sudo apt-get install -y lftp
 
-      - name: Force upload all files
+      - name: Force binary upload
         run: |
-          lftp -c "set ftp:ssl-allow false; \
-          set ftp:passive-mode true; \
-          set net:timeout 30; \
-          set net:max-retries 3; \
-          set ftp:list-options -a; \
-          open -u ${{ secrets.PHILSYS_FTP_USERNAME }},${{ secrets.PHILSYS_FTP_PASSWORD }} ${{ secrets.PHILSYS_FTP_HOST }}; \
-          mkdir -p ${{ secrets.PHILSYS_REMOTE_DIR }}; \
-          cd ${{ secrets.PHILSYS_REMOTE_DIR }}; \
-          mirror -R --verbose --no-perms --parallel=2 ./ ./; \
-          quit"
+          lftp -u ${{ secrets.PHILSYS_FTP_USERNAME }},${{ secrets.PHILSYS_FTP_PASSWORD }} ${{ secrets.PHILSYS_FTP_HOST }} <<EOF
+          set ftp:ssl-allow false
+          set ftp:passive-mode true
+          set net:timeout 60
+          set ftp:binary true
+          cd ${{ secrets.PHILSYS_REMOTE_DIR }}
+          mirror -R --verbose --no-perms . .
+          quit
+EOF
