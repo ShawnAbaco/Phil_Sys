@@ -11,13 +11,18 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: 📂 FTP Upload to InfinityFree
-        uses: SamKirkland/FTP-Deploy-Action@v4.3.4
+      - name: 📂 FTP Deploy
+        uses: airvzxf/ftp-deployment-action@latest
         with:
           server: ${{ secrets.PHILSYS_FTP_HOST }}
-          username: ${{ secrets.PHILSYS_FTP_USERNAME }}
+          user: ${{ secrets.PHILSYS_FTP_USERNAME }}
           password: ${{ secrets.PHILSYS_FTP_PASSWORD }}
-          port: ${{ secrets.PHILSYS_FTP_PORT }}
-          local-dir: "./"
-          server-dir: ${{ secrets.PHILSYS_REMOTE_DIR }}
-          dangerous-clean-slate: false
+          local_dir: "./"
+          remote_dir: ${{ secrets.PHILSYS_REMOTE_DIR }}
+          delete: "false"
+          max_retries: 30
+          net_max_retries: 3
+          net_timeout: 60s
+          ftp_passive_mode: "true"
+          no_symlinks: "true"
+          ftp_ssl_allow: "false"
