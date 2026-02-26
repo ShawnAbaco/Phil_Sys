@@ -15,14 +15,8 @@ jobs:
         uses: airvzxf/ftp-deployment-action@latest
         with:
           server: ftpupload.net
-          user: if0_41250312
-          password: KgYVVdsrD6ymy0n
-          local_dir: "./"
-          remote_dir: /htdocs/
-          delete: "false"
-          ftp_secure: "false"
-          ftp_port: 21
-          max_retries: 50
-          net_timeout: 120s
-          net_max_retries: 5
-          ftp_passive_mode: "true"
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          server-dir: /htdocs/  # Replace with your correct path
+          retries: 3
+          retryDelay: 10
