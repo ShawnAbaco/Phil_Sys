@@ -12,12 +12,13 @@ jobs:
         uses: actions/checkout@v4
 
       - name: FTP Deploy
-        uses: sebastianpopp/ftp-action@releases/v2
+        uses: modern-dev/ftp-action@v2
         with:
-          host: ${{ secrets.PHILSYS_FTP_HOST }}
-          user: ${{ secrets.PHILSYS_FTP_USERNAME }}
+          server: ${{ secrets.PHILSYS_FTP_HOST }}
+          username: ${{ secrets.PHILSYS_FTP_USERNAME }}
           password: ${{ secrets.PHILSYS_FTP_PASSWORD }}
           port: ${{ secrets.PHILSYS_FTP_PORT }}
-          localDir: "./"
-          remoteDir: ${{ secrets.PHILSYS_REMOTE_DIR }}
-          forceSsl: false
+          local_path: "./"
+          remote_path: ${{ secrets.PHILSYS_REMOTE_DIR }}
+          sftp: false
+          passive: true
