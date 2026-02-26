@@ -11,20 +11,20 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: FTP Deploy - Full Upload
+      - name: FTP Deploy ALL files
         uses: airvzxf/ftp-deployment-action@latest
         with:
-          server: ${{ secrets.PHILSYS_FTP_HOST }}
-          user: ${{ secrets.PHILSYS_FTP_USERNAME }}
-          password: ${{ secrets.PHILSYS_FTP_PASSWORD }}
+          server: ftpupload.net
+          user: if0_41250312
+          password: KgYVVdsrD6ymy0n
           local_dir: "./"
-          remote_dir: ${{ secrets.PHILSYS_REMOTE_DIR }}
+          remote_dir: /htdocs/
           delete: "false"
-          max_retries: 50
-          net_max_retries: 5
+          ftp_secure: "false"
+          ftp_port: 21
+          max_retries: 30
+          net_max_retries: 3
           net_timeout: 60s
           ftp_passive_mode: "true"
           no_symlinks: "true"
-          mirror_verbose: "true"  # Add this for recursive upload
-          ftp_ssl_allow: "false"
-          transfer_all: "true"     # Transfer all files including hidden
+          mirror_verbose: "true"  # This enables recursive upload
