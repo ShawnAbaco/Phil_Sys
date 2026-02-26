@@ -25,5 +25,3 @@ jobs:
           net_timeout: 30s
           ftp_passive_mode: "true"
           no_symlinks: "true"
-          # Add this line to enable recursive upload:
-          mirror_verbose: "true"
