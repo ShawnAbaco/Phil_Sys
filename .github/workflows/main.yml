@@ -23,9 +23,6 @@ jobs:
           set net:max-retries 10
           set mirror:use-pget-n 5
           cd /htdocs/
-
-          # This will upload ALL files including subdirectories
           mirror -R --verbose --no-perms --parallel=5 . .
-
           quit
 EOF
