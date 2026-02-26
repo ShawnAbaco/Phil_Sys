@@ -1,4 +1,4 @@
-name: Deploy to InfinityFree via FTP
+name: Force FTP Upload
 
 on:
   push:
@@ -11,18 +11,18 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: 📂 FTP Deploy
-        uses: airvzxf/ftp-deployment-action@latest
-        with:
-          server: ${{ secrets.PHILSYS_FTP_HOST }}
-          user: ${{ secrets.PHILSYS_FTP_USERNAME }}
-          password: ${{ secrets.PHILSYS_FTP_PASSWORD }}
-          local_dir: "./"
-          remote_dir: ${{ secrets.PHILSYS_REMOTE_DIR }}
-          delete: "false"
-          max_retries: 30
-          net_max_retries: 3
-          net_timeout: 60s
-          ftp_passive_mode: "true"
-          no_symlinks: "true"
-          ftp_ssl_allow: "false"
+      - name: Install lftp
+        run: sudo apt-get update && sudo apt-get install -y lftp
+
+      - name: Force upload all files
+        run: |
+          lftp -c "set ftp:ssl-allow false; \
+          set ftp:passive-mode true; \
+          set net:timeout 30; \
+          set net:max-retries 3; \
+          set ftp:list-options -a; \
+          open -u ${{ secrets.PHILSYS_FTP_USERNAME }},${{ secrets.PHILSYS_FTP_PASSWORD }} ${{ secrets.PHILSYS_FTP_HOST }}; \
+          mkdir -p ${{ secrets.PHILSYS_REMOTE_DIR }}; \
+          cd ${{ secrets.PHILSYS_REMOTE_DIR }}; \
+          mirror -R --verbose --no-perms --parallel=2 ./ ./; \
+          quit"
