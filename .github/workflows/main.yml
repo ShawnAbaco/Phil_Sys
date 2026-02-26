@@ -11,6 +11,9 @@ jobs:
       - name: Install lftp
         run: sudo apt-get update && sudo apt-get install -y lftp
 
-      - name: Test FTP connection with debug
+      - name: Ping ftpupload.net
+        run: ping -c 4 ftpupload.net || true
+
+      - name: Test FTP connection with IP
         run: |
-          lftp -d -u ${{ secrets.PHILSYS_FTP_USERNAME }},${{ secrets.PHILSYS_FTP_PASSWORD }} ${{ secrets.PHILSYS_FTP_HOST }} -e "set net:timeout 30; set net:max-retries 2; ls ${{ secrets.PHILSYS_REMOTE_DIR }}; quit"
+          lftp -d -u ${{ secrets.PHILSYS_FTP_USERNAME }},${{ secrets.PHILSYS_FTP_PASSWORD }} ftpupload.net -e "set net:timeout 30; set ftp:passive-mode true; ls ${{ secrets.PHILSYS_REMOTE_DIR }}; quit"
