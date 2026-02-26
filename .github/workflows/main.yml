@@ -1,0 +1,38 @@
+name: Deploy to InfinityFree via FTP
+
+# Controls when the action will run.
+on:
+  # Triggers the workflow on push events to the main branch
+  push:
+    branches: [ "main" ] # Use your default branch name (e.g., main, master)
+
+# A workflow run is made up of one or more jobs
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      # Step 1: Checks-out your repository under $GITHUB_WORKSPACE
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # Step 2: (Optional but recommended) If your project needs a build step
+      # - name: Build Project (e.g., for React, Vue, etc.)
+      #   run: |
+      #     npm install
+      #     npm run build
+      #   Note: Your built files would likely be in a folder like 'dist' or 'build'
+      #   You would then change the 'local-dir' in the next step to './dist/'
+
+      # Step 3: Upload to InfinityFree via FTP
+      - name: 📂 Deploy via FTP
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.4
+        with:
+          server: ${{ secrets.FTP_HOST }}
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          port: ${{ secrets.FTP_PORT }}
+          local-dir: ./ # Upload everything from the root of your repo
+          server-dir: ${{ secrets.REMOTE_DIR }}
+          dry-run: false
+          # Be careful with this on first run if you have existing files!
+          # dangerous-clean-slate: true # Uncomment to delete ALL files on server before upload
