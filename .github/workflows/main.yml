@@ -11,7 +11,7 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: FTP Deploy ALL files
+      - name: FTP Deploy with timeout fix
         uses: airvzxf/ftp-deployment-action@latest
         with:
           server: ftpupload.net
@@ -22,9 +22,7 @@ jobs:
           delete: "false"
           ftp_secure: "false"
           ftp_port: 21
-          max_retries: 30
-          net_max_retries: 3
-          net_timeout: 60s
+          max_retries: 50
+          net_timeout: 120s
+          net_max_retries: 5
           ftp_passive_mode: "true"
-          no_symlinks: "true"
-          mirror_verbose: "true"  # This enables recursive upload
