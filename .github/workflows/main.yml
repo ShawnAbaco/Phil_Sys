@@ -1,4 +1,4 @@
-name: Force FTP Upload
+name: Deploy to InfinityFree
 
 on:
   push:
@@ -14,12 +14,10 @@ jobs:
       - name: Install lftp
         run: sudo apt-get update && sudo apt-get install -y lftp
 
-      - name: Upload to root first
+      - name: Upload files
         run: |
-          lftp -c "set ftp:ssl-allow false; \
-          set ftp:passive-mode true; \
-          set net:timeout 60; \
-          set net:max-retries 5; \
-          open -u ${{ secrets.PHILSYS_FTP_USERNAME }},${{ secrets.PHILSYS_FTP_PASSWORD }} ${{ secrets.PHILSYS_FTP_HOST }}; \
-          ls -la; \
+          lftp -c "open -u ${{ secrets.PHILSYS_FTP_USERNAME }},${{ secrets.PHILSYS_FTP_PASSWORD }} ${{ secrets.PHILSYS_FTP_HOST }}; 
+          set ftp:passive-mode true; 
+          set net:timeout 60; 
+          mirror -R --verbose --no-perms ./ ${{ secrets.PHILSYS_REMOTE_DIR }}; 
           quit"
