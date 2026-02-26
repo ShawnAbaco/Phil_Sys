@@ -1,122 +1,172 @@
 {{-- resources/views/auth/login.blade.php --}}
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login - National ID Appointment System</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background: white;
-            color: #333;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            margin: 0;
-        }
-        .login-container {
-            text-align: center;
-            width: 320px;
-        }
-        .logo {
-            max-width: 150px;
-            margin-bottom: 10px;
-        }
-        h1 {
-            margin: 0 0 20px 0;
-            font-size: 24px;
-            color: #007BFF;
-        }
-        .login-box {
-            background: #f0f4f8;
-            padding: 25px 20px;
-            border-radius: 8px;
-            box-shadow: 0 0 10px rgba(0,0,0,0.1);
-        }
-        input[type=text], input[type=password] {
-            width: 100%;
-            padding: 10px;
-            margin: 10px 0;
-            border-radius: 4px;
-            border: 1px solid #ccc;
-            box-sizing: border-box;
-            font-size: 14px;
-        }
-        input[type=submit] {
-            background: #007BFF;
-            color: white;
-            border: none;
-            padding: 12px;
-            width: 100%;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 16px;
-            transition: background 0.3s ease;
-        }
-        input[type=submit]:hover {
-            background: #0056b3;
-        }
-        .error {
-            color: #d9534f;
-            margin-bottom: 15px;
-            font-weight: bold;
-        }
-        .alert {
-            padding: 10px;
-            margin-bottom: 15px;
-            border-radius: 4px;
-        }
-        .alert-danger {
-            background-color: #f8d7da;
-            border-color: #f5c6cb;
-            color: #721c24;
-        }
-    </style>
+    <title>Welcome - National ID Appointment System</title>
+
+    <!-- Favicon / Logo -->
+    <link rel="icon" type="image/png" sizes="32x32" href="{{ asset('images/loading.png') }}">
+    <link rel="apple-touch-icon" href="{{ asset('images/loading.png') }}">
+    <link rel="shortcut icon" href="{{ asset('favicon.ico') }}" type="image/x-icon">
+
+    <!-- For better SEO and social sharing -->
+    <meta property="og:title" content="National ID Appointment System">
+    <meta property="og:description" content="Philippine National ID Appointment and Queue Management System">
+    <meta property="og:image" content="{{ asset('images/loading.png') }}">
+    <meta property="og:type" content="website">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ asset('css/login.css') }}">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
 </head>
+
 <body>
-    <div class="login-container">
-        <img src="{{ asset('logo.png') }}" alt="National ID Logo" class="logo" />
-        <h1>National ID Appointment System</h1>
-        <div class="login-box">
+    <div class="overlay"></div>
 
-            {{-- Display login error --}}
-            @if($errors->has('login'))
-                <div class="alert alert-danger">
-                    {{ $errors->first('login') }}
-                </div>
-            @endif
+    <div class="container sign-in-state" id="container">
+        <!-- Forms Panel -->
+        <div class="panel forms-panel">
+            <div class="panel-header">
+                <h2 id="formTitle">Sign In</h2>
+                <p id="formSubtitle">Welcome back! Please enter your details</p>
+            </div>
 
-            {{-- Display any other validation errors --}}
-            @if($errors->any())
-                <div class="alert alert-danger">
-                    <ul style="margin: 0; padding-left: 20px; text-align: left;">
-                        @foreach($errors->all() as $error)
-                            <li>{{ $error }}</li>
-                        @endforeach
-                    </ul>
-                </div>
-            @endif
+            <!-- Alert Container for messages -->
+            <div id="alertContainer">
+                @if ($errors->has('login'))
+                    <div class="alert alert-error">
+                        <svg class="alert-icon" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd"
+                                d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
+                                clip-rule="evenodd" />
+                        </svg>
+                        <span>{{ $errors->first('login') }}</span>
+                    </div>
+                @endif
 
-            <form method="POST" action="{{ route('login.submit') }}" autocomplete="off">
-                @csrf {{-- Laravel CSRF protection --}}
+                @if ($errors->any() && !$errors->has('login'))
+                    <div class="alert alert-error">
+                        <svg class="alert-icon" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd"
+                                d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
+                                clip-rule="evenodd" />
+                        </svg>
+                        <ul>
+                            @foreach ($errors->all() as $error)
+                                <li>{{ $error }}</li>
+                            @endforeach
+                        </ul>
+                    </div>
+                @endif
+            </div>
 
-                <input type="text"
-                       name="username"
-                       placeholder="Username"
-                       value="{{ old('username') }}"
-                       required
-                       autofocus />
+            <!-- Sign In Form -->
+            <div id="signinForm" class="form-section">
+                <form method="POST" action="{{ route('login.submit') }}" autocomplete="off" id="loginForm">
+                    @csrf
+                    <div class="form-group">
+                        <label for="username">Username</label>
+                        <input type="text" id="username" name="username"
+                            class="form-input @error('username') is-invalid @enderror" placeholder="Enter your username"
+                            value="{{ old('username') }}" required autocomplete="off" autofocus>
+                    </div>
 
-                <input type="password"
-                       name="password"
-                       placeholder="Password"
-                       required />
+                    <div class="form-group">
+                        <label for="password">Password</label>
+                        <input type="password" id="password" name="password"
+                            class="form-input @error('password') is-invalid @enderror" placeholder="••••••••" required
+                            autocomplete="off">
+                    </div>
 
-                <button type="submit">Login</button>
-            </form>
+                    <div class="form-options">
+                        <label class="checkbox-label">
+                            <input type="checkbox" name="remember" class="checkbox">
+                            <span>Remember me</span>
+                        </label>
+                        <button type="button" class="forgot-link" onclick="showForgotPassword()">Forgot
+                            password?</button>
+                    </div>
+
+                    <button type="submit" class="btn-primary" id="signinSubmit">Sign In</button>
+                </form>
+            </div>
+
+            <!-- Sign Up Form -->
+            <div id="signupForm" class="form-section hidden">
+                <form method="POST" action="#" autocomplete="off" id="signupFormElement">
+                    @csrf
+                    <div class="form-group">
+                        <label for="signup-name">Full Name</label>
+                        <input type="text" id="signup-name" name="full_name" class="form-input"
+                            placeholder="John Doe" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="signup-username">Username</label>
+                        <input type="text" id="signup-username" name="username" class="form-input"
+                            placeholder="johndoe" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="signup-password">Password</label>
+                        <input type="password" id="signup-password" name="password" class="form-input"
+                            placeholder="••••••••" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="signup-password_confirmation">Confirm Password</label>
+                        <input type="password" id="signup-password_confirmation" name="password_confirmation"
+                            class="form-input" placeholder="••••••••" required>
+                    </div>
+
+                    <button type="submit" class="btn-primary">Create Account</button>
+                </form>
+            </div>
+
+            <!-- Forgot Password Form -->
+            <div id="forgotForm" class="form-section hidden">
+                <form method="POST" action="#" autocomplete="off" id="forgotFormElement">
+
+                    <div class="form-group">
+                        <label for="forgot-username">Username</label>
+                        <input type="text" id="forgot-username" name="username" class="form-input"
+                            placeholder="Enter your username" required>
+                    </div>
+                    <button type="submit" class="btn-primary">Send Reset Link</button>
+                    <div class="forgot-password-text">
+                        <button type="button" class="forgot-link" onclick="showSignIn()">Back to Sign In</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Welcome Panel with Logo -->
+        <div class="panel welcome-panel" id="welcomePanel">
+            <div class="welcome-logo">
+                <img src="{{ asset('images/logo.png') }}" alt="National ID System" id="mainLogo">
+            </div>
+            <h2 id="welcomeTitle">Hello, Friend!</h2>
+            <p id="welcomeMessage">Register with your personal details to use all of site features</p>
+            <button class="btn-outline" id="toggleButton" onclick="toggleForm()">SIGN UP</button>
         </div>
     </div>
+
+    <!-- Loading Modal - Using loading.png as rotating logo -->
+    <div class="loading-modal" id="loadingModal">
+        <div class="loading-content">
+            <img src="{{ asset('images/loading.png') }}" alt="Loading..." class="loading-logo rotate-logo">
+            <p class="loading-text">Please wait...</p>
+        </div>
+    </div>
+
+    <!-- Include jQuery for AJAX -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="{{ asset('js/login.js') }}"></script>
 </body>
+
 </html>
