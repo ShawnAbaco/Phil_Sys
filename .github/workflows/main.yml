@@ -11,12 +11,20 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: FTP Deploy with timeout fix
+      - name: FTP Deploy ALL files
         uses: airvzxf/ftp-deployment-action@latest
         with:
           server: ftpupload.net
-          username: ${{ secrets.FTP_USERNAME }}
-          password: ${{ secrets.FTP_PASSWORD }}
-          server-dir: /htdocs/  # Replace with your correct path
-          retries: 3
-          retryDelay: 10
+          user: if0_41250312
+          password: KgYVVdsrD6ymy0n
+          local_dir: "./"
+          remote_dir: /htdocs/
+          delete: "false"
+          ftp_secure: "false"
+          ftp_port: 21
+          max_retries: 100
+          net_timeout: 300s
+          net_max_retries: 10
+          ftp_passive_mode: "true"
+          no_symlinks: "true"
+          ftp_ssl_allow: "false"
