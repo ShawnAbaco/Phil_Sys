@@ -11,18 +11,21 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: FTP Sync ALL changes
-        uses: airvzxf/ftp-deployment-action@latest
-        with:
-          server: ftpupload.net
-          user: if0_41250312
-          password: KgYVVdsrD6ymy0n
-          local_dir: "./"
-          remote_dir: /htdocs/
-          delete: "false"
-          max_retries: 100
-          net_timeout: 300s
-          net_max_retries: 10
-          ftp_passive_mode: "true"
-          no_symlinks: "true"
-          ftp_ssl_allow: "false"
+      - name: Install lftp
+        run: sudo apt-get update && sudo apt-get install -y lftp
+
+      - name: Force sync all files
+        run: |
+          lftp -u if0_41250312,KgYVVdsrD6ymy0n ftpupload.net <<EOF
+          set ftp:ssl-allow false
+          set ftp:passive-mode true
+          set net:timeout 300
+          set net:max-retries 10
+          set mirror:use-pget-n 5
+          cd /htdocs/
+
+          # This will upload ALL files including subdirectories
+          mirror -R --verbose --no-perms --parallel=5 . .
+
+          quit
+EOF
