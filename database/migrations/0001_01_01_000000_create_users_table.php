@@ -1,4 +1,5 @@
 <?php
+// database/migrations/0001_01_01_000000_create_users_table.php
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
@@ -12,6 +13,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('users', function (Blueprint $table) {
+            // Laravel default fields
             $table->id();
             $table->string('name');
             $table->string('email')->unique();
@@ -19,6 +21,25 @@ return new class extends Migration
             $table->string('password');
             $table->rememberToken();
             $table->timestamps();
+
+            // YOUR CUSTOM FIELDS (from tbl_user) - NO FOREIGN KEYS YET
+            $table->string('full_name', 999)->nullable();
+            $table->string('designation', 99)->nullable();
+            $table->integer('window_num')->nullable();
+            $table->integer('reg')->nullable();
+            $table->integer('prov')->nullable();
+            $table->integer('mun')->nullable();
+            $table->integer('brgy')->nullable();
+            $table->string('specific_loc', 99)->nullable();
+            $table->string('username', 99)->unique()->nullable();
+            $table->string('password_hashed', 255)->nullable();
+
+            // Add indexes for better performance
+            $table->index('reg');
+            $table->index('prov');
+            $table->index('mun');
+            $table->index('brgy');
+            $table->index('username');
         });
 
         Schema::create('password_reset_tokens', function (Blueprint $table) {
