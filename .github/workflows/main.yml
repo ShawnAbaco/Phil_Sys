@@ -27,12 +27,11 @@ jobs:
       - name: 📂 Deploy via FTP
         uses: SamKirkland/FTP-Deploy-Action@v4.3.4
         with:
-          server: ${{ secrets.FTP_HOST }}
-          username: ${{ secrets.FTP_USERNAME }}
-          password: ${{ secrets.FTP_PASSWORD }}
-          port: ${{ secrets.FTP_PORT }}
-          local-dir: ./ # Upload everything from the root of your repo
-          server-dir: ${{ secrets.REMOTE_DIR }}
+          server: ${{ secrets.PHILSYS_FTP_HOST }}
+          username: ${{ secrets.PHILSYS_FTP_USERNAME }}
+          password: ${{ secrets.PHILSYS_FTP_PASSWORD }}
+          port: ${{ secrets.PHILSYS_FTP_PORT }}
+          server-dir: ${{ secrets.PHILSYS_REMOTE_DIR }}
           dry-run: false
           # Be careful with this on first run if you have existing files!
           # dangerous-clean-slate: true # Uncomment to delete ALL files on server before upload
