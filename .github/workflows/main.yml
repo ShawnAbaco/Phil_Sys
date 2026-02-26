@@ -1,24 +1,16 @@
-name: Deploy to InfinityFree via FTP
+name: Debug FTP Upload
 
 on:
   push:
     branches: [ "main" ]
 
 jobs:
-  deploy:
+  debug:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
       - name: Install lftp
         run: sudo apt-get update && sudo apt-get install -y lftp
 
-      - name: Clean and upload all files
+      - name: Test FTP connection with debug
         run: |
-          lftp -c "open -u ${{ secrets.PHILSYS_FTP_USERNAME }},${{ secrets.PHILSYS_FTP_PASSWORD }} ${{ secrets.PHILSYS_FTP_HOST }}; 
-          # First, clear the directory (BE CAREFUL!)
-          rm -rf ${{ secrets.PHILSYS_REMOTE_DIR }}/*
-          
-          # Then upload everything recursively
-          mirror -R --verbose --no-perms ./ ${{ secrets.PHILSYS_REMOTE_DIR }}"
+          lftp -d -u ${{ secrets.PHILSYS_FTP_USERNAME }},${{ secrets.PHILSYS_FTP_PASSWORD }} ${{ secrets.PHILSYS_FTP_HOST }} -e "set net:timeout 30; set net:max-retries 2; ls ${{ secrets.PHILSYS_REMOTE_DIR }}; quit"
