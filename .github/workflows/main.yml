@@ -14,11 +14,14 @@ jobs:
       - name: FTP Deploy
         uses: airvzxf/ftp-deployment-action@latest
         with:
-          server: ftpupload.net
-          user: if0_41250312
-          password: KgYVVdsrD6ymy0n
+          server: ${{ secrets.PHILSYS_FTP_HOST }}
+          user: ${{ secrets.PHILSYS_FTP_USERNAME }}
+          password: ${{ secrets.PHILSYS_FTP_PASSWORD }}
           local_dir: "./"
-          remote_dir: /htdocs/
+          remote_dir: ${{ secrets.PHILSYS_REMOTE_DIR }}
           delete: "false"
-          ftp_secure: "false"
-          ftp_port: 21
+          max_retries: 30
+          net_max_retries: 3
+          net_timeout: 30s
+          ftp_passive_mode: "true"
+          no_symlinks: "true"
