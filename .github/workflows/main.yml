@@ -11,19 +11,14 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: FTP Deploy
-        uses: airvzxf/ftp-deployment-action@latest
-        with:
-          server: ${{ secrets.PHILSYS_FTP_HOST }}
-          user: ${{ secrets.PHILSYS_FTP_USERNAME }}
-          password: ${{ secrets.PHILSYS_FTP_PASSWORD }}
-          local_dir: "./"
-          remote_dir: ${{ secrets.PHILSYS_REMOTE_DIR }}
-          delete: "false"
-          max_retries: 30
-          net_max_retries: 3
-          net_timeout: 30s
-          ftp_passive_mode: "true"
-          no_symlinks: "true"
-          # Add this line to enable recursive upload:
-          mirror_verbose: "true"
+      - name: Install lftp
+        run: sudo apt-get update && sudo apt-get install -y lftp
+
+      - name: Clean and upload all files
+        run: |
+          lftp -c "open -u ${{ secrets.PHILSYS_FTP_USERNAME }},${{ secrets.PHILSYS_FTP_PASSWORD }} ${{ secrets.PHILSYS_FTP_HOST }}; 
+          # First, clear the directory (BE CAREFUL!)
+          rm -rf ${{ secrets.PHILSYS_REMOTE_DIR }}/*
+          
+          # Then upload everything recursively
+          mirror -R --verbose --no-perms ./ ${{ secrets.PHILSYS_REMOTE_DIR }}"
