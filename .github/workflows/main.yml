@@ -11,7 +11,7 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: FTP Deploy ALL files
+      - name: FTP Sync (only updated files)
         uses: airvzxf/ftp-deployment-action@latest
         with:
           server: ftpupload.net
@@ -19,7 +19,7 @@ jobs:
           password: KgYVVdsrD6ymy0n
           local_dir: "./"
           remote_dir: /htdocs/
-          delete: "false"
+          delete: "false"  # Don't delete existing files
           ftp_secure: "false"
           ftp_port: 21
           max_retries: 100
@@ -28,3 +28,4 @@ jobs:
           ftp_passive_mode: "true"
           no_symlinks: "true"
           ftp_ssl_allow: "false"
+          only_newer: "true"  # ONLY UPLOAD CHANGED FILES!
