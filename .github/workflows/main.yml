@@ -11,12 +11,13 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Install lftp
-        run: sudo apt-get update && sudo apt-get install -y lftp
-
-      - name: Deploy all files including subfolders
-        run: |
-          lftp -c "open -u ${{ secrets.PHILSYS_FTP_USERNAME }},${{ secrets.PHILSYS_FTP_PASSWORD }} ${{ secrets.PHILSYS_FTP_HOST }}; 
-          set ftp:passive-mode true;
-          set net:timeout 60;
-          mirror -R --verbose --no-perms ./ ${{ secrets.PHILSYS_REMOTE_DIR }}"
+      - name: 📂 FTP Upload to InfinityFree
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.4
+        with:
+          server: ${{ secrets.PHILSYS_FTP_HOST }}
+          username: ${{ secrets.PHILSYS_FTP_USERNAME }}
+          password: ${{ secrets.PHILSYS_FTP_PASSWORD }}
+          port: ${{ secrets.PHILSYS_FTP_PORT }}
+          local-dir: "./"
+          server-dir: ${{ secrets.PHILSYS_REMOTE_DIR }}
+          dangerous-clean-slate: false
