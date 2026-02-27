@@ -3,20 +3,31 @@
 
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Appointment\AppointmentController;
+use App\Http\Controllers\Client\ClientController;
 use App\Http\Controllers\Operator\OperatorController;
 use Illuminate\Support\Facades\Route;
 
-// Redirect root to login
+// Public routes (no authentication required)
 Route::get('/', function () {
-    return redirect()->route('login');
+    return redirect()->route('client.dashboard'); // Redirect to client dashboard
 });
 
-// Login Routes
-Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login');
-Route::post('/login', [LoginController::class, 'login'])->name('login.submit');
-Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
+// Client routes - PUBLIC (no middleware)
+Route::get('/client-dashboard', [ClientController::class, 'dashboard'])
+     ->name('client.dashboard');
+Route::get('/client/queues', [ClientController::class, 'getQueues'])
+     ->name('client.queues');
 
-// Protected Routes - Use your custom middleware
+// Guest routes (for non-authenticated users only)
+Route::middleware(['guest'])->group(function () {
+    Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login');
+    Route::post('/login', [LoginController::class, 'login'])->name('login.submit');
+});
+
+// Logout route (requires authentication)
+Route::post('/logout', [LoginController::class, 'logout'])->name('logout')->middleware('auth.session');
+
+// Protected Routes - Require authentication
 Route::middleware(['auth.session'])->group(function () {
     // Screener routes
     Route::get('/appointment-issuance', [AppointmentController::class, 'issuance'])
