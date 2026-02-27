@@ -11,6 +11,43 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Session;
 
 
+Route::get('/debug-appointments', function() {
+    $today = Carbon\Carbon::today()->toDateString();
+
+    $allToday = App\Models\TblAppointment::whereDate('date', $today)->get();
+
+    $called = App\Models\TblAppointment::whereNotNull('window_num')
+        ->whereDate('date', $today)
+        ->get();
+
+    $waiting = App\Models\TblAppointment::whereNull('window_num')
+        ->whereDate('date', $today)
+        ->get();
+
+    return [
+        'total_today' => $allToday->count(),
+        'called_count' => $called->count(),
+        'waiting_count' => $waiting->count(),
+        'called_details' => $called->map(function($item) {
+            return [
+                'q_id' => $item->q_id,
+                'window' => $item->window_num,
+                'name' => $item->lname,
+                'time' => $item->time_catered
+            ];
+        }),
+        'waiting_details' => $waiting->map(function($item) {
+            return [
+                'q_id' => $item->q_id,
+                'name' => $item->lname,
+                'time' => $item->date
+            ];
+        }),
+    ];
+});
+
+
+
 // FORCE LOGOUT - Complete session and cookie cleanup
 Route::get('/force-logout', function() {
     // Clear Laravel Auth

@@ -31,9 +31,11 @@ class ClientController extends Controller
         // Get called queues for windows 1-6
         $calledQueues = [];
         for ($w = 1; $w <= 6; $w++) {
+            // Get the latest appointment for this window today
+            // Look for window_num that matches the current window number as string
             $appointment = TblAppointment::where('window_num', (string)$w)
-                ->whereDate('time_catered', $today)
-                ->orderBy('date', 'desc')
+                ->whereDate('date', $today)
+                ->orderBy('time_catered', 'desc')
                 ->first();
 
             if ($appointment) {
@@ -49,8 +51,12 @@ class ClientController extends Controller
             }
         }
 
-        // Get next queues (unassigned) for today
-        $nextQueuesRaw = TblAppointment::whereNull('window_num')
+        // Get waiting queues - where window_num is '0', empty string, or NULL
+        $nextQueuesRaw = TblAppointment::where(function($query) {
+                $query->whereNull('window_num')
+                      ->orWhere('window_num', '')
+                      ->orWhere('window_num', '0');
+            })
             ->whereDate('date', $today)
             ->orderBy('date', 'asc')
             ->limit(50)
@@ -67,11 +73,11 @@ class ClientController extends Controller
             $lname = $item->lname;
 
             if (stripos($q, 'S') === 0) {
-                if (count($nextQueues['statusInquiry']) < 10) {
+                if (count($nextQueues['statusInquiry']) < 15) {
                     $nextQueues['statusInquiry'][] = ['q_id' => $q, 'lname' => $lname];
                 }
             } elseif (stripos($q, 'R') === 0 || stripos($q, 'U') === 0) {
-                if (count($nextQueues['registrationUpdating']) < 10) {
+                if (count($nextQueues['registrationUpdating']) < 15) {
                     $nextQueues['registrationUpdating'][] = ['q_id' => $q, 'lname' => $lname];
                 }
             }

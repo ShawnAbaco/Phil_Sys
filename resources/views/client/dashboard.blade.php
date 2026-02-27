@@ -104,27 +104,27 @@
             z-index: 10;
             height: 100vh;
             width: 100vw;
-            padding: 15px;
+            padding: 10px;
             display: flex;
             flex-direction: column;
-            gap: 15px;
+            gap: 10px;
         }
 
-        /* Header - Perfectly Centered Design with Larger Elements */
+        /* Header - Perfectly Centered Design with Reduced Sizes */
         .psa-header {
             background: rgba(255, 255, 255, 0.95);
             backdrop-filter: blur(10px);
-            border-radius: 32px;
-            padding: 20px 40px;
+            border-radius: 24px;
+            padding: 12px 25px;
             display: grid;
             grid-template-columns: 1fr auto 1fr;
             align-items: center;
-            border: 4px solid var(--psa-yellow);
-            box-shadow: 0 25px 50px -15px rgba(0, 0, 0, 0.5);
+            border: 3px solid var(--psa-yellow);
+            box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.5);
             position: relative;
             overflow: hidden;
             height: auto;
-            min-height: 130px;
+            min-height: 90px;
             flex-shrink: 0;
         }
 
@@ -134,25 +134,20 @@
             top: 0;
             left: 0;
             right: 0;
-            height: 5px;
+            height: 4px;
             background: linear-gradient(90deg, var(--psa-red), var(--psa-blue), var(--psa-yellow));
         }
 
-        /* Left Section - Larger Logo */
+        /* Left Section - Logo */
         .header-left {
             display: flex;
             justify-content: flex-start;
         }
 
         .header-left img {
-            height: 90px;
+            height: 60px;
             width: auto;
-            filter: drop-shadow(3px 3px 6px rgba(0, 0, 0, 0.25));
-            transition: transform 0.3s ease;
-        }
-
-        .header-left img:hover {
-            transform: scale(1.05);
+            filter: drop-shadow(2px 2px 4px rgba(0, 0, 0, 0.25));
         }
 
         /* Center Section - Title and Welcome Message */
@@ -160,28 +155,28 @@
             text-align: center;
             display: flex;
             flex-direction: column;
-            gap: 10px;
-            padding: 8px 0;
+            gap: 6px;
+            padding: 4px 0;
         }
 
         .header-center h1 {
-            font-size: 2.5rem;
+            font-size: 1.8rem;
             font-weight: 800;
             color: var(--psa-blue);
             letter-spacing: -0.5px;
             line-height: 1.2;
-            text-shadow: 3px 3px 0 var(--psa-yellow-light);
+            text-shadow: 2px 2px 0 var(--psa-yellow-light);
         }
 
         .header-center .subtitle {
             color: var(--psa-red);
             font-weight: 700;
-            font-size: 1.1rem;
+            font-size: 0.9rem;
             text-transform: uppercase;
-            letter-spacing: 3px;
+            letter-spacing: 2px;
             position: relative;
             display: inline-block;
-            padding-bottom: 6px;
+            padding-bottom: 4px;
             margin: 0 auto;
         }
 
@@ -191,21 +186,21 @@
             bottom: 0;
             left: 0;
             width: 100%;
-            height: 3px;
+            height: 2px;
             background: linear-gradient(90deg, var(--psa-red), var(--psa-blue), var(--psa-yellow));
-            border-radius: 3px;
+            border-radius: 2px;
         }
 
         .welcome-message {
             color: #000000;
-            font-size: 1.1rem;
+            font-size: 0.9rem;
             font-weight: 500;
-            margin: 5px 0 0 0;
-            line-height: 1.4;
-            letter-spacing: 0.3px;
+            margin: 2px 0 0 0;
+            line-height: 1.3;
+            letter-spacing: 0.2px;
         }
 
-        /* Right Section - Larger Date/Time */
+        /* Right Section - Date/Time */
         .header-right {
             display: flex;
             justify-content: flex-end;
@@ -213,56 +208,55 @@
 
         .date-time {
             background: linear-gradient(135deg, var(--psa-red), var(--psa-blue));
-            padding: 15px 30px;
-            border-radius: 60px;
+            padding: 10px 20px;
+            border-radius: 40px;
             color: white;
             text-align: center;
-            border: 3px solid var(--psa-yellow);
-            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.25);
+            border: 2px solid var(--psa-yellow);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.25);
         }
 
         .date-time .time {
-            font-size: 2.2rem;
+            font-size: 1.6rem;
             font-weight: 800;
             line-height: 1.2;
             font-family: monospace;
-            text-shadow: 2px 2px 0 var(--psa-red), 3px 3px 0 var(--psa-blue);
-            letter-spacing: 2px;
+            text-shadow: 1px 1px 0 var(--psa-red), 2px 2px 0 var(--psa-blue);
+            letter-spacing: 1px;
         }
 
         .date-time .date {
-            font-size: 1rem;
+            font-size: 0.8rem;
             opacity: 0.95;
             font-weight: 600;
-            letter-spacing: 0.5px;
-            margin-top: 4px;
+            letter-spacing: 0.3px;
+            margin-top: 2px;
         }
 
         /* Content Area - 4 Column Layout */
         .content-area {
             display: grid;
             grid-template-columns: 1.2fr 1.2fr 1.3fr 1.3fr;
-            gap: 15px;
+            gap: 10px;
             flex: 1;
             min-height: 0;
         }
 
-        /* Window Cards */
+        /* Window Cards - Reduced Sizes */
         .window-column {
             display: flex;
             flex-direction: column;
-            gap: 15px;
+            gap: 10px;
         }
 
         .window-card {
             background: rgba(255, 255, 255, 0.95);
             backdrop-filter: blur(10px);
-            border-radius: 28px;
-            padding: 20px 12px;
+            border-radius: 20px;
+            padding: 12px 8px;
             text-align: center;
-            border: 4px solid var(--psa-yellow);
-            box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.5);
-            transition: all 0.3s ease;
+            border: 3px solid var(--psa-yellow);
+            box-shadow: 0 15px 30px -12px rgba(0, 0, 0, 0.5);
             position: relative;
             overflow: hidden;
             display: flex;
@@ -277,77 +271,77 @@
             top: 0;
             left: 0;
             right: 0;
-            height: 5px;
+            height: 4px;
             background: linear-gradient(90deg, var(--psa-red), var(--psa-blue), var(--psa-yellow));
         }
 
         .window-card::after {
             content: '';
             position: absolute;
-            bottom: 15px;
-            right: 15px;
-            width: 50px;
-            height: 50px;
+            bottom: 8px;
+            right: 8px;
+            width: 30px;
+            height: 30px;
             background: var(--psa-yellow);
             opacity: 0.1;
             clip-path: polygon(0 0, 100% 100%, 100% 0);
         }
 
         .window-number {
-            font-size: 1.8rem;
+            font-size: 1.3rem;
             font-weight: 700;
             color: var(--psa-blue);
-            margin-bottom: 8px;
-            text-shadow: 2px 2px 0 var(--psa-yellow);
+            margin-bottom: 4px;
+            text-shadow: 1px 1px 0 var(--psa-yellow);
             letter-spacing: -0.5px;
         }
 
         .serving-label {
             color: var(--psa-red);
-            font-size: 1rem;
-            margin-bottom: 10px;
+            font-size: 0.8rem;
+            margin-bottom: 6px;
             text-transform: uppercase;
-            letter-spacing: 2px;
+            letter-spacing: 1px;
             font-weight: 600;
         }
 
         .queue-number {
-            font-size: 4.5rem;
+            font-size: 3.2rem;
             font-weight: 800;
             color: var(--psa-red);
             line-height: 1;
-            margin-bottom: 8px;
-            text-shadow: 4px 4px 0 var(--psa-yellow), 7px 7px 0 var(--psa-blue);
+            margin-bottom: 4px;
+            text-shadow: 3px 3px 0 var(--psa-yellow), 5px 5px 0 var(--psa-blue);
             font-family: monospace;
-            letter-spacing: -4px;
+            letter-spacing: -3px;
         }
 
         .client-name {
-            font-size: 1.4rem;
+            font-size: 1rem;
             font-weight: 600;
             color: var(--psa-blue);
-            text-shadow: 2px 2px 0 var(--psa-yellow);
+            text-shadow: 1px 1px 0 var(--psa-yellow);
             word-break: break-word;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
-            padding: 0 10px;
+            padding: 0 5px;
         }
 
-        /* Queue Sections */
+        /* Queue Sections - Reduced Sizes */
         .queue-column {
             display: flex;
             flex-direction: column;
-            gap: 15px;
+            gap: 10px;
         }
 
         .queue-section {
             background: rgba(255, 255, 255, 0.95);
             backdrop-filter: blur(10px);
-            border-radius: 28px;
-            padding: 20px;
-            border: 4px solid var(--psa-yellow);
-            box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.5);
+            border-radius: 20px;
+            padding: 12px;
+            border: 3px solid var(--psa-yellow);
+            box-shadow: 0 15px 30px -12px rgba(0, 0, 0, 0.5);
             position: relative;
             overflow: hidden;
             display: flex;
@@ -362,17 +356,17 @@
             top: 0;
             left: 0;
             right: 0;
-            height: 5px;
+            height: 4px;
             background: linear-gradient(90deg, var(--psa-red), var(--psa-blue), var(--psa-yellow));
         }
 
         .queue-section::after {
             content: '';
             position: absolute;
-            bottom: 15px;
-            right: 15px;
-            width: 40px;
-            height: 40px;
+            bottom: 8px;
+            right: 8px;
+            width: 25px;
+            height: 25px;
             background: var(--psa-blue);
             opacity: 0.1;
             clip-path: polygon(0 0, 100% 100%, 100% 0);
@@ -381,24 +375,23 @@
         .queue-header {
             display: flex;
             align-items: center;
-            gap: 12px;
-            margin-bottom: 15px;
-            padding-bottom: 10px;
-            border-bottom: 3px solid var(--psa-yellow);
-            position: relative;
+            gap: 8px;
+            margin-bottom: 10px;
+            padding-bottom: 6px;
+            border-bottom: 2px solid var(--psa-yellow);
             flex-shrink: 0;
         }
 
         .queue-header svg {
-            width: 28px;
-            height: 28px;
+            width: 20px;
+            height: 20px;
             color: var(--psa-red);
             flex-shrink: 0;
         }
 
         .queue-header h2 {
             color: var(--psa-blue);
-            font-size: 1.4rem;
+            font-size: 1rem;
             font-weight: 700;
             letter-spacing: -0.5px;
             white-space: nowrap;
@@ -406,24 +399,25 @@
             text-overflow: ellipsis;
         }
 
-        /* Queue List - Grid Layout */
+        /* Queue List - Grid Layout - UPDATED for numbers only */
         .queue-list {
             list-style: none;
             flex: 1;
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-            gap: 10px;
+            grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+            gap: 8px;
             align-content: start;
             overflow: visible;
         }
 
+        /* UPDATED: Queue items for numbers only */
         .queue-item {
             background: white;
-            border-radius: 16px;
-            padding: 12px 15px;
+            border-radius: 12px;
+            padding: 12px 8px;
             display: flex;
             align-items: center;
-            gap: 8px;
+            justify-content: center;
             border: 2px solid var(--psa-yellow);
             transition: all 0.2s ease;
             animation: slideIn 0.3s ease;
@@ -442,55 +436,37 @@
             background: linear-gradient(135deg, var(--psa-red), var(--psa-blue));
         }
 
+        /* UPDATED: Number only styling - larger and centered */
         .queue-item-number {
-            font-size: 1.2rem;
-            font-weight: 700;
+            font-size: 1.4rem;
+            font-weight: 800;
             color: var(--psa-red);
-            min-width: 70px;
             font-family: monospace;
             text-shadow: 1px 1px 0 var(--psa-yellow);
-            flex-shrink: 0;
+            letter-spacing: -0.5px;
+            text-align: center;
         }
 
-        .queue-item-name {
-            font-size: 1rem;
-            color: var(--psa-blue);
-            flex: 1;
-            font-weight: 500;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-
-        .queue-item-badge {
-            background: var(--psa-yellow);
-            color: var(--psa-blue);
-            padding: 4px 10px;
-            border-radius: 20px;
-            font-size: 0.8rem;
-            font-weight: 700;
-            border: 1px solid var(--psa-red);
-            flex-shrink: 0;
-        }
+        /* REMOVED: queue-item-name and queue-item-badge */
 
         .empty-queue {
             grid-column: 1 / -1;
             text-align: center;
-            padding: 20px;
+            padding: 15px;
             color: var(--psa-blue);
-            font-size: 1rem;
+            font-size: 0.85rem;
             background: var(--psa-yellow-light);
-            border-radius: 16px;
+            border-radius: 12px;
             border: 2px dashed var(--psa-yellow);
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 10px;
+            gap: 6px;
         }
 
         .empty-queue svg {
-            width: 40px;
-            height: 40px;
+            width: 30px;
+            height: 30px;
             color: var(--psa-red);
             opacity: 0.5;
         }
@@ -509,7 +485,7 @@
 
         @keyframes pulse {
             0% { box-shadow: 0 0 0 0 var(--psa-yellow); }
-            70% { box-shadow: 0 0 0 20px rgba(252, 209, 22, 0); }
+            70% { box-shadow: 0 0 0 15px rgba(252, 209, 22, 0); }
             100% { box-shadow: 0 0 0 0 rgba(252, 209, 22, 0); }
         }
 
@@ -549,17 +525,17 @@
 
         .loading-content {
             background: white;
-            padding: 30px 45px;
-            border-radius: 32px;
+            padding: 25px 35px;
+            border-radius: 24px;
             text-align: center;
-            border: 4px solid var(--psa-yellow);
-            box-shadow: 0 25px 50px -15px rgba(0, 0, 0, 0.5);
+            border: 3px solid var(--psa-yellow);
+            box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.5);
         }
 
         .rotate-logo {
-            width: 80px;
-            height: 80px;
-            margin-bottom: 20px;
+            width: 60px;
+            height: 60px;
+            margin-bottom: 15px;
             animation: rotate 1.2s linear infinite;
         }
 
@@ -571,7 +547,7 @@
         .loading-text {
             color: var(--psa-blue);
             font-weight: 600;
-            font-size: 16px;
+            font-size: 14px;
         }
 
         @keyframes fadeIn {
@@ -594,15 +570,23 @@
         /* Responsive adjustments */
         @media (max-width: 1400px) {
             .header-center h1 {
-                font-size: 2.2rem;
+                font-size: 1.6rem;
             }
 
             .date-time .time {
-                font-size: 1.8rem;
+                font-size: 1.4rem;
             }
 
             .queue-number {
-                font-size: 4rem;
+                font-size: 2.8rem;
+            }
+
+            .queue-list {
+                grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
+            }
+
+            .queue-item-number {
+                font-size: 1.2rem;
             }
         }
 
@@ -612,23 +596,39 @@
             }
 
             .header-center h1 {
-                font-size: 1.8rem;
+                font-size: 1.4rem;
             }
 
             .date-time .time {
-                font-size: 1.6rem;
+                font-size: 1.2rem;
             }
 
             .date-time {
-                padding: 12px 20px;
+                padding: 8px 15px;
             }
 
             .header-left img {
-                height: 70px;
+                height: 50px;
             }
 
             .welcome-message {
-                font-size: 1rem;
+                font-size: 0.8rem;
+            }
+
+            .queue-number {
+                font-size: 2.4rem;
+            }
+
+            .client-name {
+                font-size: 0.9rem;
+            }
+
+            .queue-list {
+                grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+            }
+
+            .queue-item-number {
+                font-size: 1.1rem;
             }
         }
     </style>
@@ -659,49 +659,27 @@
         <div class="content-area">
             <!-- Column 1: Windows 1-3 -->
             <div class="window-column">
-                <div class="window-card" data-window="1" id="window-1">
-                    <div class="window-number">WINDOW 1</div>
-                    <div class="serving-label">Now Serving</div>
-                    <div class="queue-number">{{ $calledQueues[1]['q_id'] ?? '-' }}</div>
-                    <div class="client-name">{{ $calledQueues[1]['lname'] ?? '' }}</div>
-                </div>
-                <div class="window-card" data-window="2" id="window-2">
-                    <div class="window-number">WINDOW 2</div>
-                    <div class="serving-label">Now Serving</div>
-                    <div class="queue-number">{{ $calledQueues[2]['q_id'] ?? '-' }}</div>
-                    <div class="client-name">{{ $calledQueues[2]['lname'] ?? '' }}</div>
-                </div>
-                <div class="window-card" data-window="3" id="window-3">
-                    <div class="window-number">WINDOW 3</div>
-                    <div class="serving-label">Now Serving</div>
-                    <div class="queue-number">{{ $calledQueues[3]['q_id'] ?? '-' }}</div>
-                    <div class="client-name">{{ $calledQueues[3]['lname'] ?? '' }}</div>
-                </div>
+                @for($w = 1; $w <= 3; $w++)
+                    <div class="window-card" data-window="{{ $w }}" id="window-{{ $w }}">
+                        <div class="window-number">WINDOW {{ $w }}</div>
+                        <div class="serving-label">Now Serving</div>
+                        <div class="queue-number">{{ $calledQueues[$w]['q_id'] ?? '-' }}</div>
+                    </div>
+                @endfor
             </div>
 
             <!-- Column 2: Windows 4-6 -->
             <div class="window-column">
-                <div class="window-card" data-window="4" id="window-4">
-                    <div class="window-number">WINDOW 4</div>
-                    <div class="serving-label">Now Serving</div>
-                    <div class="queue-number">{{ $calledQueues[4]['q_id'] ?? '-' }}</div>
-                    <div class="client-name">{{ $calledQueues[4]['lname'] ?? '' }}</div>
-                </div>
-                <div class="window-card" data-window="5" id="window-5">
-                    <div class="window-number">WINDOW 5</div>
-                    <div class="serving-label">Now Serving</div>
-                    <div class="queue-number">{{ $calledQueues[5]['q_id'] ?? '-' }}</div>
-                    <div class="client-name">{{ $calledQueues[5]['lname'] ?? '' }}</div>
-                </div>
-                <div class="window-card" data-window="6" id="window-6">
-                    <div class="window-number">WINDOW 6</div>
-                    <div class="serving-label">Now Serving</div>
-                    <div class="queue-number">{{ $calledQueues[6]['q_id'] ?? '-' }}</div>
-                    <div class="client-name">{{ $calledQueues[6]['lname'] ?? '' }}</div>
-                </div>
+                @for($w = 4; $w <= 6; $w++)
+                    <div class="window-card" data-window="{{ $w }}" id="window-{{ $w }}">
+                        <div class="window-number">WINDOW {{ $w }}</div>
+                        <div class="serving-label">Now Serving</div>
+                        <div class="queue-number">{{ $calledQueues[$w]['q_id'] ?? '-' }}</div>
+                    </div>
+                @endfor
             </div>
 
-            <!-- Column 3: Status Inquiry -->
+            <!-- Column 3: Status Inquiry - Numbers Only -->
             <div class="queue-column">
                 <div class="queue-section">
                     <div class="queue-header">
@@ -714,8 +692,6 @@
                         @forelse($nextQueues['statusInquiry'] as $item)
                             <li class="queue-item">
                                 <span class="queue-item-number">{{ $item['q_id'] }}</span>
-                                <span class="queue-item-name">{{ ucfirst(strtolower($item['lname'])) }}</span>
-                                <span class="queue-item-badge">WAITING</span>
                             </li>
                         @empty
                             <li class="empty-queue">
@@ -729,7 +705,7 @@
                 </div>
             </div>
 
-            <!-- Column 4: Registration & Updating -->
+            <!-- Column 4: Registration & Updating - Numbers Only -->
             <div class="queue-column">
                 <div class="queue-section">
                     <div class="queue-header">
@@ -742,8 +718,6 @@
                         @forelse($nextQueues['registrationUpdating'] as $item)
                             <li class="queue-item">
                                 <span class="queue-item-number">{{ $item['q_id'] }}</span>
-                                <span class="queue-item-name">{{ ucfirst(strtolower($item['lname'])) }}</span>
-                                <span class="queue-item-badge">WAITING</span>
                             </li>
                         @empty
                             <li class="empty-queue">
@@ -768,13 +742,6 @@
     </div>
 
     <script>
-        // Sentence case function
-        function sentenceCase(str) {
-            if (!str) return '';
-            str = str.toLowerCase();
-            return str.charAt(0).toUpperCase() + str.slice(1);
-        }
-
         // Update date and time
         function updateDateTime() {
             const now = new Date();
@@ -843,9 +810,8 @@
                             setTimeout(() => windowCard.classList.remove('active'), 2000);
                         }
 
-                        const lnameFormatted = sentenceCase(info.lname);
-                        if (nameElem && nameElem.textContent !== lnameFormatted) {
-                            nameElem.textContent = lnameFormatted;
+                        if (nameElem && nameElem.textContent !== info.lname) {
+                            nameElem.textContent = info.lname;
                         }
 
                         // Announce new queue
@@ -857,8 +823,10 @@
                         }
                     }
 
-                    // Update queue lists
+                    // UPDATED: Update status queue - numbers only
                     updateQueueList('status-queue', nextQueues.statusInquiry);
+
+                    // UPDATED: Update registration queue - numbers only
                     updateQueueList('registration-queue', nextQueues.registrationUpdating);
 
                     // Save current queues
@@ -868,7 +836,7 @@
                 .catch(err => console.error('Error:', err));
         }
 
-        // Update queue list
+        // UPDATED: Update queue list - numbers only
         function updateQueueList(elementId, queueArray) {
             const ul = document.getElementById(elementId);
             ul.innerHTML = '';
@@ -877,10 +845,9 @@
                 queueArray.forEach((item, index) => {
                     const li = document.createElement('li');
                     li.className = 'queue-item' + (index < 3 ? ' new' : '');
+                    // Only show the queue number, no name or badge
                     li.innerHTML = `
                         <span class="queue-item-number">${escapeHtml(item.q_id)}</span>
-                        <span class="queue-item-name">${sentenceCase(item.lname)}</span>
-                        <span class="queue-item-badge">WAITING</span>
                     `;
                     ul.appendChild(li);
                 });
