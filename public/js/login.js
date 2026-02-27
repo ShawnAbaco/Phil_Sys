@@ -165,17 +165,17 @@
                     formSubtitle.text('Enter your details to get started');
                     welcomeTitle.text('Welcome Back!');
                     welcomeMessage.text('Sign in to access your account');
-                    toggleButton.text('SIGN IN');
+                    toggleButton.text('LOG IN');
                 } else {
                     container.removeClass('sign-up-state').addClass('sign-in-state');
                     signinForm.removeClass('hidden');
                     signupForm.addClass('hidden');
 
-                    formTitle.text('Sign In');
+                    formTitle.text('LOG IN');
                     formSubtitle.text('Welcome back! Please enter your details');
                     welcomeTitle.text('Hello, Friend!');
                     welcomeMessage.text('Register with your personal details to use all of site features');
-                    toggleButton.text('SIGN UP');
+                    toggleButton.text('REGISTER');
                 }
 
                 toggleButton.removeClass('loading');
@@ -218,11 +218,11 @@
             forgotForm.addClass('hidden');
             signinForm.removeClass('hidden');
 
-            formTitle.text('Sign In');
+            formTitle.text('LOG IN');
             formSubtitle.text('Welcome back! Please enter your details');
-            welcomeTitle.text('Hello, Friend!');
+            welcomeTitle.text('Hello!');
             welcomeMessage.text('Register with your personal details to use all of site features');
-            toggleButton.text('SIGN IN');
+            toggleButton.text('LOG IN');
             $('#alertContainer').empty();
         }
 

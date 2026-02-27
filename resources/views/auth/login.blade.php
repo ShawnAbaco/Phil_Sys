@@ -32,7 +32,7 @@
         <!-- Forms Panel -->
         <div class="panel forms-panel">
             <div class="panel-header">
-                <h2 id="formTitle">Sign In</h2>
+                <h2 id="formTitle">LOG IN</h2>
                 <p id="formSubtitle">Welcome back! Please enter your details</p>
             </div>
 
@@ -65,7 +65,7 @@
                 @endif
             </div>
 
-            <!-- Sign In Form -->
+            <!-- Log In Form -->
             <div id="signinForm" class="form-section">
                 <form method="POST" action="{{ route('login.submit') }}" autocomplete="off" id="loginForm">
                     @csrf
@@ -92,11 +92,11 @@
                             password?</button>
                     </div>
 
-                    <button type="submit" class="btn-primary" id="signinSubmit">Sign In</button>
+                    <button type="submit" class="btn-primary" id="signinSubmit">LOG IN</button>
                 </form>
             </div>
 
-            <!-- Sign Up Form -->
+            <!-- Register Form -->
             <div id="signupForm" class="form-section hidden">
                 <form method="POST" action="#" autocomplete="off" id="signupFormElement">
                     @csrf
@@ -139,7 +139,10 @@
                     </div>
                     <button type="submit" class="btn-primary">Send Reset Link</button>
                     <div class="forgot-password-text">
-                        <button type="button" class="forgot-link" onclick="showSignIn()">Back to Sign In</button>
+                    </div>
+                    <br>
+                    <div>
+                        <button type="button" class="forgot-link" onclick="showSignIn()">Back to Log In</button>
                     </div>
                 </form>
             </div>
@@ -150,9 +153,9 @@
             <div class="welcome-logo">
                 <img src="{{ asset('images/logo.png') }}" alt="National ID System" id="mainLogo">
             </div>
-            <h2 id="welcomeTitle">Hello, Friend!</h2>
+            <h2 id="welcomeTitle">Hello!</h2>
             <p id="welcomeMessage">Register with your personal details to use all of site features</p>
-            <button class="btn-outline" id="toggleButton" onclick="toggleForm()">SIGN UP</button>
+            <button class="btn-outline" id="toggleButton" onclick="toggleForm()">REGISTER</button>
         </div>
     </div>
 
