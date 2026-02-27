@@ -110,20 +110,21 @@
             gap: 15px;
         }
 
-        /* Header - Fixed height */
+        /* Header - Perfectly Centered Design with Larger Elements */
         .psa-header {
             background: rgba(255, 255, 255, 0.95);
             backdrop-filter: blur(10px);
-            border-radius: 24px;
-            padding: 12px 30px;
-            display: flex;
+            border-radius: 32px;
+            padding: 20px 40px;
+            display: grid;
+            grid-template-columns: 1fr auto 1fr;
             align-items: center;
-            justify-content: space-between;
-            border: 3px solid var(--psa-yellow);
-            box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.5);
+            border: 4px solid var(--psa-yellow);
+            box-shadow: 0 25px 50px -15px rgba(0, 0, 0, 0.5);
             position: relative;
             overflow: hidden;
-            height: 90px;
+            height: auto;
+            min-height: 130px;
             flex-shrink: 0;
         }
 
@@ -133,73 +134,111 @@
             top: 0;
             left: 0;
             right: 0;
-            height: 4px;
+            height: 5px;
             background: linear-gradient(90deg, var(--psa-red), var(--psa-blue), var(--psa-yellow));
         }
 
-        .logo-area {
+        /* Left Section - Larger Logo */
+        .header-left {
             display: flex;
-            align-items: center;
-            gap: 15px;
+            justify-content: flex-start;
         }
 
-        .logo-area img {
-            height: 50px;
+        .header-left img {
+            height: 90px;
             width: auto;
-            filter: drop-shadow(2px 2px 4px rgba(0, 0, 0, 0.2));
+            filter: drop-shadow(3px 3px 6px rgba(0, 0, 0, 0.25));
+            transition: transform 0.3s ease;
         }
 
-        .title-area h1 {
-            font-size: 1.8rem;
-            font-weight: 700;
+        .header-left img:hover {
+            transform: scale(1.05);
+        }
+
+        /* Center Section - Title and Welcome Message */
+        .header-center {
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            padding: 8px 0;
+        }
+
+        .header-center h1 {
+            font-size: 2.5rem;
+            font-weight: 800;
             color: var(--psa-blue);
             letter-spacing: -0.5px;
             line-height: 1.2;
+            text-shadow: 3px 3px 0 var(--psa-yellow-light);
         }
 
-        .title-area p {
+        .header-center .subtitle {
             color: var(--psa-red);
-            font-weight: 600;
-            font-size: 0.9rem;
+            font-weight: 700;
+            font-size: 1.1rem;
+            text-transform: uppercase;
+            letter-spacing: 3px;
             position: relative;
             display: inline-block;
+            padding-bottom: 6px;
+            margin: 0 auto;
         }
 
-        .title-area p::after {
+        .header-center .subtitle::after {
             content: '';
             position: absolute;
-            bottom: -4px;
+            bottom: 0;
             left: 0;
             width: 100%;
-            height: 2px;
+            height: 3px;
             background: linear-gradient(90deg, var(--psa-red), var(--psa-blue), var(--psa-yellow));
+            border-radius: 3px;
+        }
+
+        .welcome-message {
+            color: #000000;
+            font-size: 1.1rem;
+            font-weight: 500;
+            margin: 5px 0 0 0;
+            line-height: 1.4;
+            letter-spacing: 0.3px;
+        }
+
+        /* Right Section - Larger Date/Time */
+        .header-right {
+            display: flex;
+            justify-content: flex-end;
         }
 
         .date-time {
             background: linear-gradient(135deg, var(--psa-red), var(--psa-blue));
-            padding: 10px 25px;
-            border-radius: 50px;
+            padding: 15px 30px;
+            border-radius: 60px;
             color: white;
             text-align: center;
-            border: 2px solid var(--psa-yellow);
-            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+            border: 3px solid var(--psa-yellow);
+            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.25);
         }
 
         .date-time .time {
-            font-size: 1.8rem;
-            font-weight: 700;
+            font-size: 2.2rem;
+            font-weight: 800;
             line-height: 1.2;
             font-family: monospace;
-            text-shadow: 1px 1px 0 var(--psa-red), 2px 2px 0 var(--psa-blue);
+            text-shadow: 2px 2px 0 var(--psa-red), 3px 3px 0 var(--psa-blue);
+            letter-spacing: 2px;
         }
 
         .date-time .date {
-            font-size: 0.85rem;
+            font-size: 1rem;
             opacity: 0.95;
-            font-weight: 500;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            margin-top: 4px;
         }
 
-        /* Content Area - 4 Column Layout with Perfect Centering */
+        /* Content Area - 4 Column Layout */
         .content-area {
             display: grid;
             grid-template-columns: 1.2fr 1.2fr 1.3fr 1.3fr;
@@ -218,10 +257,10 @@
         .window-card {
             background: rgba(255, 255, 255, 0.95);
             backdrop-filter: blur(10px);
-            border-radius: 24px;
-            padding: 15px 10px;
+            border-radius: 28px;
+            padding: 20px 12px;
             text-align: center;
-            border: 3px solid var(--psa-yellow);
+            border: 4px solid var(--psa-yellow);
             box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.5);
             transition: all 0.3s ease;
             position: relative;
@@ -238,56 +277,56 @@
             top: 0;
             left: 0;
             right: 0;
-            height: 4px;
+            height: 5px;
             background: linear-gradient(90deg, var(--psa-red), var(--psa-blue), var(--psa-yellow));
         }
 
         .window-card::after {
             content: '';
             position: absolute;
-            bottom: 10px;
-            right: 10px;
-            width: 40px;
-            height: 40px;
+            bottom: 15px;
+            right: 15px;
+            width: 50px;
+            height: 50px;
             background: var(--psa-yellow);
             opacity: 0.1;
             clip-path: polygon(0 0, 100% 100%, 100% 0);
         }
 
         .window-number {
-            font-size: 1.5rem;
+            font-size: 1.8rem;
             font-weight: 700;
             color: var(--psa-blue);
-            margin-bottom: 5px;
-            text-shadow: 1px 1px 0 var(--psa-yellow);
+            margin-bottom: 8px;
+            text-shadow: 2px 2px 0 var(--psa-yellow);
             letter-spacing: -0.5px;
         }
 
         .serving-label {
             color: var(--psa-red);
-            font-size: 0.9rem;
-            margin-bottom: 8px;
+            font-size: 1rem;
+            margin-bottom: 10px;
             text-transform: uppercase;
-            letter-spacing: 1px;
+            letter-spacing: 2px;
             font-weight: 600;
         }
 
         .queue-number {
-            font-size: 4rem;
+            font-size: 4.5rem;
             font-weight: 800;
             color: var(--psa-red);
             line-height: 1;
-            margin-bottom: 5px;
-            text-shadow: 3px 3px 0 var(--psa-yellow), 6px 6px 0 var(--psa-blue);
+            margin-bottom: 8px;
+            text-shadow: 4px 4px 0 var(--psa-yellow), 7px 7px 0 var(--psa-blue);
             font-family: monospace;
-            letter-spacing: -3px;
+            letter-spacing: -4px;
         }
 
         .client-name {
-            font-size: 1.2rem;
+            font-size: 1.4rem;
             font-weight: 600;
             color: var(--psa-blue);
-            text-shadow: 1px 1px 0 var(--psa-yellow);
+            text-shadow: 2px 2px 0 var(--psa-yellow);
             word-break: break-word;
             white-space: nowrap;
             overflow: hidden;
@@ -305,9 +344,9 @@
         .queue-section {
             background: rgba(255, 255, 255, 0.95);
             backdrop-filter: blur(10px);
-            border-radius: 24px;
-            padding: 15px;
-            border: 3px solid var(--psa-yellow);
+            border-radius: 28px;
+            padding: 20px;
+            border: 4px solid var(--psa-yellow);
             box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.5);
             position: relative;
             overflow: hidden;
@@ -323,17 +362,17 @@
             top: 0;
             left: 0;
             right: 0;
-            height: 4px;
+            height: 5px;
             background: linear-gradient(90deg, var(--psa-red), var(--psa-blue), var(--psa-yellow));
         }
 
         .queue-section::after {
             content: '';
             position: absolute;
-            bottom: 10px;
-            right: 10px;
-            width: 30px;
-            height: 30px;
+            bottom: 15px;
+            right: 15px;
+            width: 40px;
+            height: 40px;
             background: var(--psa-blue);
             opacity: 0.1;
             clip-path: polygon(0 0, 100% 100%, 100% 0);
@@ -342,24 +381,24 @@
         .queue-header {
             display: flex;
             align-items: center;
-            gap: 10px;
-            margin-bottom: 12px;
-            padding-bottom: 8px;
-            border-bottom: 2px solid var(--psa-yellow);
+            gap: 12px;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 3px solid var(--psa-yellow);
             position: relative;
             flex-shrink: 0;
         }
 
         .queue-header svg {
-            width: 24px;
-            height: 24px;
+            width: 28px;
+            height: 28px;
             color: var(--psa-red);
             flex-shrink: 0;
         }
 
         .queue-header h2 {
             color: var(--psa-blue);
-            font-size: 1.2rem;
+            font-size: 1.4rem;
             font-weight: 700;
             letter-spacing: -0.5px;
             white-space: nowrap;
@@ -372,19 +411,19 @@
             list-style: none;
             flex: 1;
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-            gap: 8px;
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            gap: 10px;
             align-content: start;
             overflow: visible;
         }
 
         .queue-item {
             background: white;
-            border-radius: 12px;
-            padding: 8px 10px;
+            border-radius: 16px;
+            padding: 12px 15px;
             display: flex;
             align-items: center;
-            gap: 6px;
+            gap: 8px;
             border: 2px solid var(--psa-yellow);
             transition: all 0.2s ease;
             animation: slideIn 0.3s ease;
@@ -399,22 +438,22 @@
             left: 0;
             top: 0;
             bottom: 0;
-            width: 3px;
+            width: 4px;
             background: linear-gradient(135deg, var(--psa-red), var(--psa-blue));
         }
 
         .queue-item-number {
-            font-size: 1rem;
+            font-size: 1.2rem;
             font-weight: 700;
             color: var(--psa-red);
-            min-width: 55px;
+            min-width: 70px;
             font-family: monospace;
             text-shadow: 1px 1px 0 var(--psa-yellow);
             flex-shrink: 0;
         }
 
         .queue-item-name {
-            font-size: 0.85rem;
+            font-size: 1rem;
             color: var(--psa-blue);
             flex: 1;
             font-weight: 500;
@@ -426,10 +465,10 @@
         .queue-item-badge {
             background: var(--psa-yellow);
             color: var(--psa-blue);
-            padding: 2px 6px;
-            border-radius: 12px;
-            font-size: 0.65rem;
-            font-weight: 600;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 700;
             border: 1px solid var(--psa-red);
             flex-shrink: 0;
         }
@@ -437,21 +476,21 @@
         .empty-queue {
             grid-column: 1 / -1;
             text-align: center;
-            padding: 15px;
+            padding: 20px;
             color: var(--psa-blue);
-            font-size: 0.9rem;
+            font-size: 1rem;
             background: var(--psa-yellow-light);
-            border-radius: 12px;
+            border-radius: 16px;
             border: 2px dashed var(--psa-yellow);
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 8px;
+            gap: 10px;
         }
 
         .empty-queue svg {
-            width: 30px;
-            height: 30px;
+            width: 40px;
+            height: 40px;
             color: var(--psa-red);
             opacity: 0.5;
         }
@@ -470,7 +509,7 @@
 
         @keyframes pulse {
             0% { box-shadow: 0 0 0 0 var(--psa-yellow); }
-            70% { box-shadow: 0 0 0 15px rgba(252, 209, 22, 0); }
+            70% { box-shadow: 0 0 0 20px rgba(252, 209, 22, 0); }
             100% { box-shadow: 0 0 0 0 rgba(252, 209, 22, 0); }
         }
 
@@ -510,17 +549,17 @@
 
         .loading-content {
             background: white;
-            padding: 25px 35px;
-            border-radius: 24px;
+            padding: 30px 45px;
+            border-radius: 32px;
             text-align: center;
-            border: 3px solid var(--psa-yellow);
-            box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.5);
+            border: 4px solid var(--psa-yellow);
+            box-shadow: 0 25px 50px -15px rgba(0, 0, 0, 0.5);
         }
 
         .rotate-logo {
-            width: 60px;
-            height: 60px;
-            margin-bottom: 15px;
+            width: 80px;
+            height: 80px;
+            margin-bottom: 20px;
             animation: rotate 1.2s linear infinite;
         }
 
@@ -532,7 +571,7 @@
         .loading-text {
             color: var(--psa-blue);
             font-weight: 600;
-            font-size: 14px;
+            font-size: 16px;
         }
 
         @keyframes fadeIn {
@@ -551,28 +590,72 @@
                 grid-template-columns: 1.25fr 1.25fr 1.25fr 1.25fr;
             }
         }
+
+        /* Responsive adjustments */
+        @media (max-width: 1400px) {
+            .header-center h1 {
+                font-size: 2.2rem;
+            }
+
+            .date-time .time {
+                font-size: 1.8rem;
+            }
+
+            .queue-number {
+                font-size: 4rem;
+            }
+        }
+
+        @media (max-width: 1200px) {
+            .content-area {
+                grid-template-columns: 1fr 1fr 1.2fr 1.2fr;
+            }
+
+            .header-center h1 {
+                font-size: 1.8rem;
+            }
+
+            .date-time .time {
+                font-size: 1.6rem;
+            }
+
+            .date-time {
+                padding: 12px 20px;
+            }
+
+            .header-left img {
+                height: 70px;
+            }
+
+            .welcome-message {
+                font-size: 1rem;
+            }
+        }
     </style>
 </head>
 <body>
     <div class="overlay"></div>
 
     <div class="main-container">
-        <!-- PSA-themed Header -->
+        <!-- PSA-themed Header - Perfectly Centered -->
         <div class="psa-header">
-            <div class="logo-area">
+            <div class="header-left">
                 <img src="{{ asset('images/logo.png') }}" alt="National ID Logo">
-                <div class="title-area">
-                    <h1>NATIONAL ID SYSTEM</h1>
-                    <p>Queue Monitoring Display</p>
-                </div>
             </div>
-            <div class="date-time">
-                <div class="time" id="time"></div>
-                <div class="date" id="date"></div>
+            <div class="header-center">
+                <h1>NATIONAL ID CENTER</h1>
+                <div class="subtitle">Queue Monitoring Display</div>
+                <div class="welcome-message">We are happy to serve you</div>
+            </div>
+            <div class="header-right">
+                <div class="date-time">
+                    <div class="time" id="time"></div>
+                    <div class="date" id="date"></div>
+                </div>
             </div>
         </div>
 
-        <!-- Content Area - 4 Column Layout with Perfect Centering -->
+        <!-- Content Area - 4 Column Layout -->
         <div class="content-area">
             <!-- Column 1: Windows 1-3 -->
             <div class="window-column">

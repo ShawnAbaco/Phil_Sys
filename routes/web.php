@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\Route;
 
 // Public routes (no authentication required)
 Route::get('/', function () {
-    return redirect()->route('client.dashboard'); // Redirect to client dashboard
+    return redirect()->route('login'); // Redirect to client dashboard
 });
 
 // Client routes - PUBLIC (no middleware)
