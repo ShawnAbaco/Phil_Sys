@@ -6,7 +6,7 @@
     --psa-red-light: rgba(206, 17, 38, 0.1);
     --psa-blue-light: rgba(0, 56, 168, 0.1);
     --psa-yellow-light: rgba(252, 209, 22, 0.1);
-    
+
     --gray-50: #f9fafb;
     --gray-100: #f3f4f6;
     --gray-200: #e5e7eb;
@@ -17,14 +17,14 @@
     --gray-700: #374151;
     --gray-800: #1f2937;
     --gray-900: #111827;
-    
+
     --success: #10b981;
     --success-light: #d1fae5;
     --warning: #f59e0b;
     --warning-light: #fef3c7;
     --error: #ef4444;
     --error-light: #fee2e2;
-    
+
     --header-height: 80px;
     --transition-smooth: cubic-bezier(0.4, 0, 0.2, 1);
 }
@@ -246,9 +246,7 @@ body {
     display: none;
 }
 
-.dropdown-overlay.show {
-    display: block;
-}
+
 
 .window-badge {
     display: flex;
@@ -293,7 +291,7 @@ body {
     .user-section {
         gap: 15px;
     }
-    
+
     .datetime-display {
         display: none;
     }
@@ -306,18 +304,18 @@ body {
         padding: 15px;
         gap: 15px;
     }
-    
+
     .logo-section {
         width: 100%;
         justify-content: center;
     }
-    
+
     .user-section {
         width: 100%;
         flex-wrap: wrap;
         justify-content: center;
     }
-    
+
     .dropdown-menu {
         position: fixed;
         top: auto;
@@ -329,7 +327,7 @@ body {
         border-radius: 20px 20px 0 0;
         transform: translateY(100%);
     }
-    
+
     .dropdown-menu.show {
         transform: translateY(0);
     }
