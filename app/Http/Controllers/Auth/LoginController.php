@@ -38,7 +38,7 @@ class LoginController extends Controller
         if ($designation == 'screener') {
             return redirect('/appointment-issuance');
         } elseif ($designation == 'registration kit operator' || $designation == 'registration assistant') {
-            return redirect('/operator-dashboard');
+            return redirect()->route('operator.dashboard');
         } elseif ($designation == 'client') {
             return redirect('/client-dashboard');
         } else {

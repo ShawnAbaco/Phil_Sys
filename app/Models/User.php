@@ -1,15 +1,14 @@
 <?php
+// app/Models/User.php
 
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
 class User extends Authenticatable
 {
-    /** @use HasFactory<\Database\Factories\UserFactory> */
     use HasFactory, Notifiable;
 
     /**
@@ -21,6 +20,16 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'full_name',
+        'designation',
+        'window_num',
+        'reg',
+        'prov',
+        'mun',
+        'brgy',
+        'specific_loc',
+        'username',
+        'password_hashed',
     ];
 
     /**
@@ -30,6 +39,7 @@ class User extends Authenticatable
      */
     protected $hidden = [
         'password',
+        'password_hashed',
         'remember_token',
     ];
 
@@ -44,5 +54,21 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+    /**
+     * Get the appointments for the user.
+     */
+    public function appointments()
+    {
+        return $this->hasMany(TblAppointment::class, 'user_id', 'id');
+    }
+
+    /**
+     * Get the logsheets for the user.
+     */
+    public function logsheets()
+    {
+        return $this->hasMany(TblLogsheet::class, 'user_id', 'id');
     }
 }

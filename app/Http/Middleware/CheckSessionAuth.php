@@ -14,7 +14,6 @@ class CheckSessionAuth
         if (!Session::has('user_id')) {
             return redirect()->route('login');
         }
-
         return $next($request);
     }
 }

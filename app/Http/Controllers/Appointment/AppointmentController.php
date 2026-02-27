@@ -1,5 +1,5 @@
 <?php
-// app/Http/Controllers/AppointmentController.php
+// app/Http/Controllers/Appointment/AppointmentController.php
 
 namespace App\Http\Controllers\Appointment;
 
@@ -10,7 +10,7 @@ use App\Models\TblUser;
 use Illuminate\Support\Facades\Session;
 use Carbon\Carbon;
 
-class AppointmentController extends Controller
+class AppointmentController extends Controller // This name is fine, but we need to alias it in routes
 {
     public function issuance()
     {
