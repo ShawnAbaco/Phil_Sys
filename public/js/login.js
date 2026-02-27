@@ -173,7 +173,7 @@
 
                     formTitle.text('LOG IN');
                     formSubtitle.text('Welcome back! Please enter your details');
-                    welcomeTitle.text('Hello, Friend!');
+                    welcomeTitle.text('Hello!');
                     welcomeMessage.text('Register with your personal details to use all of site features');
                     toggleButton.text('REGISTER');
                 }
