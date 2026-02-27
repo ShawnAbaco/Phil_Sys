@@ -44,7 +44,8 @@
         <div class="stat-card">
             <div class="stat-icon" style="background: linear-gradient(135deg, var(--psa-blue), var(--psa-red))">
                 <svg viewBox="0 0 20 20" fill="currentColor">
-                    <path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z" />
+                    <path
+                        d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z" />
                 </svg>
             </div>
             <div class="stat-content">
@@ -96,26 +97,6 @@
         </div>
     </div>
 
-    {{-- Date/Time Bar (Specific to Screener) --}}
-    <div class="datetime-bar">
-        <div class="datetime-left">
-            <svg viewBox="0 0 20 20" fill="currentColor">
-                <path fill-rule="evenodd"
-                    d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z"
-                    clip-rule="evenodd" />
-            </svg>
-            <span>{{ now()->setTimezone('Asia/Manila')->format('l, F d, Y') }}</span>
-        </div>
-        <div class="datetime-right">
-            <svg viewBox="0 0 20 20" fill="currentColor">
-                <path fill-rule="evenodd"
-                    d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z"
-                    clip-rule="evenodd" />
-            </svg>
-            <span>{{ now()->setTimezone('Asia/Manila')->format('h:i A') }}</span>
-        </div>
-    </div>
-
     <div class="dashboard-grid">
         {{-- Issue New Appointment Card --}}
         <div class="card">
@@ -163,7 +144,8 @@
                         </div>
                         <div class="form-group">
                             <label for="suffix">Suffix</label>
-                            <input type="text" name="suffix" id="suffix" value="{{ old('suffix') }}" placeholder="Jr., Sr., III">
+                            <input type="text" name="suffix" id="suffix" value="{{ old('suffix') }}"
+                                placeholder="Jr., Sr., III">
                         </div>
                     </div>
 
@@ -181,18 +163,23 @@
                         </div>
                         <div class="form-group">
                             <label for="birthdate">Birthdate</label>
-                            <input type="date" name="birthdate" id="birthdate" value="{{ old('birthdate') }}" required>
+                            <input type="date" name="birthdate" id="birthdate" value="{{ old('birthdate') }}"
+                                required>
                         </div>
                     </div>
 
                     <div class="form-row">
                         <div class="form-group">
-                            <label for="trn">TRN <span class="field-hint">(Transaction Reference Number)</span></label>
-                            <input type="text" name="trn" id="trn" value="{{ old('trn') }}" required>
+                            <label for="trn">TRN <span class="field-hint">(Transaction Reference
+                                    Number)</span></label>
+                            <input type="text" name="trn" id="trn" value="{{ old('trn') }}"
+                                required>
                         </div>
                         <div class="form-group">
-                            <label for="PCN">PCN <span class="field-hint">(Philippine Civil Registration Number)</span></label>
-                            <input type="text" name="PCN" id="PCN" value="{{ old('PCN') }}" required>
+                            <label for="PCN">PCN <span class="field-hint">(Philippine Civil Registration
+                                    Number)</span></label>
+                            <input type="text" name="PCN" id="PCN" value="{{ old('PCN') }}"
+                                required>
                         </div>
                     </div>
 
@@ -215,7 +202,8 @@
             <div class="card-header">
                 <h3>
                     <svg viewBox="0 0 20 20" fill="currentColor">
-                        <path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z" />
+                        <path
+                            d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z" />
                     </svg>
                     Today's Appointments
                 </h3>
@@ -252,7 +240,8 @@
                                     $createdTime = \Carbon\Carbon::parse($appointment->date);
                                     $isCompleted = $servedTime->gt($createdTime);
                                 @endphp
-                                <tr data-search="{{ strtolower($appointment->lname . ' ' . $appointment->fname . ' ' . $appointment->trn) }}">
+                                <tr
+                                    data-search="{{ strtolower($appointment->lname . ' ' . $appointment->fname . ' ' . $appointment->trn) }}">
                                     <td><span class="queue-number">{{ $appointment->q_id }}</span></td>
                                     <td>
                                         <div class="client-name">
@@ -279,8 +268,7 @@
                                     </td>
                                     <td>
                                         @if (!$isCompleted)
-                                            <button class="btn-action serve-btn"
-                                                data-id="{{ $appointment->n_id }}"
+                                            <button class="btn-action serve-btn" data-id="{{ $appointment->n_id }}"
                                                 data-name="{{ $appointment->fname }} {{ $appointment->lname }}">
                                                 <svg viewBox="0 0 20 20" fill="currentColor">
                                                     <path fill-rule="evenodd"

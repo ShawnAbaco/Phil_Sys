@@ -17,19 +17,15 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 
-    <!-- CSS - Load both CSS files or create a unified one -->
-    @if($isOperator())
-        <link rel="stylesheet" href="{{ asset('css/operator.css') }}">
-    @else
-        <link rel="stylesheet" href="{{ asset('css/appointment.css') }}">
-    @endif
-
+    <link rel="stylesheet" href="{{ asset('css/header.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/appointment.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/operator.css') }}">
     <meta name="csrf-token" content="{{ csrf_token() }}">
 </head>
 
 <body>
     <!-- PSA-themed header with arrow pattern (only for screener) -->
-    @if($isScreener())
+    @if ($isScreener())
         <div class="header-overlay"></div>
     @endif
 
@@ -46,9 +42,8 @@
 
             <!-- User Section -->
             <div class="user-section {{ $isScreener() ? 'user-area' : '' }}">
-
                 {{-- WINDOW BADGE - Only show for Operator --}}
-                @if($isOperator() && $windowNum)
+                @if ($isOperator() && $windowNum)
                     <div class="window-badge">
                         <svg class="window-icon" viewBox="0 0 20 20" fill="currentColor">
                             <path fill-rule="evenodd"
@@ -59,46 +54,61 @@
                     </div>
                 @endif
 
-                {{-- Date/Time Display - Only for Operator (since Screener has it in different location) --}}
-                @if($isOperator())
-                    <div class="datetime-display" id="datetime">
-                        <svg viewBox="0 0 20 20" fill="currentColor">
-                            <path fill-rule="evenodd"
-                                d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z"
-                                clip-rule="evenodd" />
-                        </svg>
-                        <span></span>
-                    </div>
-                @endif
 
-                <!-- User Info with Avatar (same for both) -->
-                <div class="user-info">
-                    <div class="user-details">
-                        <span class="user-name">{{ $userName ?? 'User' }}</span>
-                        <span class="user-role">{{ $userDesignation ?? 'Role' }}</span>
+
+                <!-- User Menu Container -->
+                <div class="user-menu-container">
+                    <!-- User Info with Avatar and Arrow -->
+                    <div class="user-info" id="userMenuButton">
+                        <div class="user-details">
+                            <span class="user-name">{{ $userName ?? 'User' }}</span>
+                            <svg class="dropdown-arrow" width="20" height="20" viewBox="0 0 20 20"
+                                fill="currentColor">
+                                <path fill-rule="evenodd"
+                                    d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
+                                    clip-rule="evenodd" />
+                            </svg>
+                        </div>
+                        <div class="user-avatar">
+                            {{ $userName ? substr($userName, 0, 1) : 'U' }}
+                        </div>
+
                     </div>
-                    <div class="user-avatar">
-                        {{ $userName ? substr($userName, 0, 1) : 'U' }}
+
+                    <!-- Dropdown Menu -->
+                    <div class="dropdown-menu" id="userDropdown">
+
+                        <!-- Profile Settings Link (Optional) -->
+                        <a href="#" class="dropdown-item">
+                            <svg class="dropdown-icon" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z"
+                                    clip-rule="evenodd" />
+                            </svg>
+                            Profile Settings
+                        </a>
+
+                        <!-- Logout Form -->
+                        <form method="POST" action="{{ route('logout') }}">
+                            @csrf
+                            <button type="submit" class="dropdown-item logout-item">
+                                <svg class="dropdown-icon" viewBox="0 0 20 20" fill="currentColor">
+                                    <path fill-rule="evenodd"
+                                        d="M3 3a1 1 0 00-1 1v12a1 1 0 001 1h12a1 1 0 001-1V7.414l-5-5H3zm7 10a1 1 0 11-2 0V9.414l-1.293 1.293a1 1 0 01-1.414-1.414l3-3a1 1 0 011.414 0l3 3a1 1 0 01-1.414 1.414L10 9.414V13z"
+                                        clip-rule="evenodd" />
+                                </svg>
+                                Logout
+                            </button>
+                        </form>
                     </div>
                 </div>
-
-                <!-- Logout Button (same for both) -->
-                <form method="POST" action="{{ route('logout') }}" class="{{ $isScreener() ? 'logout-form' : '' }}" style="display: inline;">
-                    @csrf
-                    <button type="submit" class="logout-btn">
-                        <svg class="logout-icon" viewBox="0 0 20 20" fill="currentColor">
-                            <path fill-rule="evenodd"
-                                d="M3 3a1 1 0 00-1 1v12a1 1 0 001 1h12a1 1 0 001-1V7.414l-5-5H3zm7 10a1 1 0 11-2 0V9.414l-1.293 1.293a1 1 0 01-1.414-1.414l3-3a1 1 0 011.414 0l3 3a1 1 0 01-1.414 1.414L10 9.414V13z"
-                                clip-rule="evenodd" />
-                        </svg>
-                        Logout
-                    </button>
-                </form>
             </div>
         </div>
     </header>
 
-    @if($isOperator())
+    <!-- Overlay for clicking outside -->
+    <div class="dropdown-overlay" id="dropdownOverlay"></div>
+
+    @if ($isOperator())
         <script>
             // Update Date and Time for Operator
             function updateDateTime() {
@@ -122,5 +132,64 @@
             updateDateTime();
         </script>
     @endif
+
+    <script>
+        // Dropdown menu functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            const userMenuButton = document.getElementById('userMenuButton');
+            const userDropdown = document.getElementById('userDropdown');
+            const dropdownOverlay = document.getElementById('dropdownOverlay');
+            const dropdownArrow = document.querySelector('.dropdown-arrow');
+
+            function toggleDropdown(show) {
+                if (show) {
+                    userDropdown.classList.add('show');
+                    dropdownOverlay.classList.add('show');
+                    userMenuButton.classList.add('active');
+                    dropdownArrow.classList.add('rotated');
+                } else {
+                    userDropdown.classList.remove('show');
+                    dropdownOverlay.classList.remove('show');
+                    userMenuButton.classList.remove('active');
+                    dropdownArrow.classList.remove('rotated');
+                }
+            }
+
+            // Toggle dropdown on button click
+            userMenuButton.addEventListener('click', function(e) {
+                e.stopPropagation();
+                const isShowing = userDropdown.classList.contains('show');
+                toggleDropdown(!isShowing);
+            });
+
+            // Close dropdown when clicking outside
+            dropdownOverlay.addEventListener('click', function() {
+                toggleDropdown(false);
+            });
+
+            // Close dropdown when pressing Escape key
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape' && userDropdown.classList.contains('show')) {
+                    toggleDropdown(false);
+                }
+            });
+
+            // Prevent dropdown from closing when clicking inside it
+            userDropdown.addEventListener('click', function(e) {
+                e.stopPropagation();
+            });
+
+            // Handle responsive behavior
+            function handleResize() {
+                if (window.innerWidth <= 768) {
+                    // Mobile adjustments if needed
+                }
+            }
+
+            window.addEventListener('resize', handleResize);
+            handleResize();
+        });
+    </script>
 </body>
+
 </html>
