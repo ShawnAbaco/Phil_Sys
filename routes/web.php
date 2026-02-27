@@ -5,7 +5,51 @@ use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Appointment\AppointmentController;
 use App\Http\Controllers\Client\ClientController;
 use App\Http\Controllers\Operator\OperatorController;
+use App\Http\Controllers\Admin\AdminController;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Session;
+
+
+// FORCE LOGOUT - Complete session and cookie cleanup
+Route::get('/force-logout', function() {
+    // Clear Laravel Auth
+    Auth::logout();
+
+    // Clear all session data
+    Session::flush();
+    Session::regenerate(true);
+
+    // Clear all cookies
+    $cookies = [
+        'laravel_session',
+        'XSRF-TOKEN',
+        'remember_web_59ba36addc2b2f9401580f014c7f58ea4e30989d'
+    ];
+
+    foreach ($cookies as $cookie) {
+        if (isset($_COOKIE[$cookie])) {
+            setcookie($cookie, '', time() - 3600, '/');
+        }
+    }
+
+    // Clear any custom session cookies
+    foreach ($_COOKIE as $key => $value) {
+        setcookie($key, '', time() - 3600, '/');
+    }
+
+    // Return response with cache control headers to prevent caching
+    return response()
+        ->json([
+            'success' => true,
+            'message' => 'Force logout completed!',
+            'instructions' => 'Please close your browser completely and open a new one.'
+        ])
+        ->header('Cache-Control', 'no-cache, no-store, must-revalidate')
+        ->header('Pragma', 'no-cache')
+        ->header('Expires', '0');
+});
+
 
 // Public routes (no authentication required)
 Route::get('/', function () {
@@ -45,3 +89,12 @@ Route::middleware(['auth.session'])->group(function () {
     Route::post('/operator/update-window', [OperatorController::class, 'updateWindow'])
          ->name('operator.update-window');
 });
+
+// Admin routes
+    Route::prefix('admin')->name('admin.')->group(function () {
+        Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('dashboard');
+        Route::get('/users', [AdminController::class, 'users'])->name('users');
+        Route::get('/appointments', [AdminController::class, 'appointments'])->name('appointments');
+        Route::get('/reports', [AdminController::class, 'reports'])->name('reports');
+        Route::get('/settings', [AdminController::class, 'settings'])->name('settings');
+    });
