@@ -7,7 +7,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ $title }} - National ID System</title>
-    
+
 
     <!-- Favicon -->
     <link rel="icon" type="image/png" sizes="32x32" href="{{ asset('images/loading.png') }}">
@@ -37,7 +37,7 @@
                 <img src="{{ asset('images/logo.png') }}" alt="National ID Logo" class="header-logo">
                 <div class="logo-text">
                     <h1>National ID System</h1>
-                    <span class="badge">{{ $isOperator() ? 'Operator Portal' : 'Screener Dashboard' }}</span>
+                    <span class="badge">{{ $isOperator() ? 'OPERATOR PORTAL' : 'SCREENER DASHBOARD' }}</span>
                 </div>
             </div>
 

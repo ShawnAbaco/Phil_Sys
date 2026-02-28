@@ -39,64 +39,6 @@
         @endif
     </div>
 
-    {{-- Stats Cards --}}
-    <div class="stats-grid">
-        <div class="stat-card">
-            <div class="stat-icon" style="background: linear-gradient(135deg, var(--psa-blue), var(--psa-red))">
-                <svg viewBox="0 0 20 20" fill="currentColor">
-                    <path
-                        d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z" />
-                </svg>
-            </div>
-            <div class="stat-content">
-                <span class="stat-label">Total Queue Today</span>
-                <span class="stat-value">{{ $queueCount ?? 0 }}</span>
-            </div>
-        </div>
-
-        <div class="stat-card">
-            <div class="stat-icon" style="background: linear-gradient(135deg, #F59E0B, #FBBF24)">
-                <svg viewBox="0 0 20 20" fill="currentColor">
-                    <path fill-rule="evenodd"
-                        d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z"
-                        clip-rule="evenodd" />
-                </svg>
-            </div>
-            <div class="stat-content">
-                <span class="stat-label">Pending</span>
-                <span class="stat-value pending">{{ $pendingCount ?? 0 }}</span>
-            </div>
-        </div>
-
-        <div class="stat-card">
-            <div class="stat-icon" style="background: linear-gradient(135deg, #10B981, #34D399)">
-                <svg viewBox="0 0 20 20" fill="currentColor">
-                    <path fill-rule="evenodd"
-                        d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                        clip-rule="evenodd" />
-                </svg>
-            </div>
-            <div class="stat-content">
-                <span class="stat-label">Completed</span>
-                <span class="stat-value completed">{{ $completedCount ?? 0 }}</span>
-            </div>
-        </div>
-
-        <div class="stat-card">
-            <div class="stat-icon" style="background: linear-gradient(135deg, var(--psa-red), #EF4444)">
-                <svg viewBox="0 0 20 20" fill="currentColor">
-                    <path fill-rule="evenodd"
-                        d="M3 5a2 2 0 012-2h10a2 2 0 012 2v8a2 2 0 01-2 2h-2.22l.123.489.804.804A1 1 0 0113 18H7a1 1 0 01-.707-1.707l.804-.804L7.22 15H5a2 2 0 01-2-2V5zm5.293 6.707a1 1 0 001.414 0L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 000 1.414z"
-                        clip-rule="evenodd" />
-                </svg>
-            </div>
-            <div class="stat-content">
-                <span class="stat-label">Queue at Window {{ session('window_num') }}</span>
-                <span class="stat-value">{{ $windowQueueCount ?? 0 }}</span>
-            </div>
-        </div>
-    </div>
-
     <div class="dashboard-grid">
         {{-- Issue New Appointment Card --}}
         <div class="card">
@@ -172,14 +114,12 @@
                         <div class="form-group">
                             <label for="trn">TRN <span class="field-hint">(Transaction Reference
                                     Number)</span></label>
-                            <input type="text" name="trn" id="trn" value="{{ old('trn') }}"
-                                required>
+                            <input type="text" name="trn" id="trn" value="{{ old('trn') }}" required>
                         </div>
                         <div class="form-group">
                             <label for="PCN">PCN <span class="field-hint">(Philippine Civil Registration
                                     Number)</span></label>
-                            <input type="text" name="PCN" id="PCN" value="{{ old('PCN') }}"
-                                required>
+                            <input type="text" name="PCN" id="PCN" value="{{ old('PCN') }}" required>
                         </div>
                     </div>
 
@@ -207,8 +147,62 @@
                     </svg>
                     Today's Appointments
                 </h3>
-                <div class="card-actions">
-                    <span class="badge">{{ $appointments->count() }} total</span>
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon"
+                            style="background: linear-gradient(135deg, var(--psa-blue), var(--psa-red))">
+                            <svg viewBox="0 0 20 20" fill="currentColor">
+                                <path
+                                    d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z" />
+                            </svg>
+                        </div>
+                        <div class="stat-content">
+                            <span class="stat-label">Total Queue Today</span>
+                            <span class="stat-value">{{ $queueCount ?? 0 }}</span>
+                        </div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-icon" style="background: linear-gradient(135deg, #F59E0B, #FBBF24)">
+                            <svg viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd"
+                                    d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z"
+                                    clip-rule="evenodd" />
+                            </svg>
+                        </div>
+                        <div class="stat-content">
+                            <span class="stat-label">Pending</span>
+                            <span class="stat-value pending">{{ $pendingCount ?? 0 }}</span>
+                        </div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-icon" style="background: linear-gradient(135deg, #10B981, #34D399)">
+                            <svg viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd"
+                                    d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                                    clip-rule="evenodd" />
+                            </svg>
+                        </div>
+                        <div class="stat-content">
+                            <span class="stat-label">Completed</span>
+                            <span class="stat-value completed">{{ $completedCount ?? 0 }}</span>
+                        </div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-icon" style="background: linear-gradient(135deg, var(--psa-red), #EF4444)">
+                            <svg viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd"
+                                    d="M3 5a2 2 0 012-2h10a2 2 0 012 2v8a2 2 0 01-2 2h-2.22l.123.489.804.804A1 1 0 0113 18H7a1 1 0 01-.707-1.707l.804-.804L7.22 15H5a2 2 0 01-2-2V5zm5.293 6.707a1 1 0 001.414 0L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 000 1.414z"
+                                    clip-rule="evenodd" />
+                            </svg>
+                        </div>
+                        <div class="stat-content">
+                            <span class="stat-label">Queue at Window {{ session('window_num') }}</span>
+                            <span class="stat-value">{{ $windowQueueCount ?? 0 }}</span>
+                        </div>
+                    </div>
                 </div>
             </div>
             <div class="card-body">
@@ -218,7 +212,7 @@
                             d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z"
                             clip-rule="evenodd" />
                     </svg>
-                    <input type="text" id="searchAppointments" placeholder="Search by name or TRN...">
+                    <input type="text" id="searchAppointments" placeholder="Search...">
                 </div>
 
                 <div class="table-responsive">
@@ -233,7 +227,7 @@
                                 <th>Action</th>
                             </tr>
                         </thead>
-                        <tbody id="appointmentsTableBody">
+                        <tbody class="appointments-table-body" id="appointmentsTableBody">
                             @forelse($appointments as $appointment)
                                 @php
                                     $servedTime = \Carbon\Carbon::parse($appointment->time_catered);
@@ -388,6 +382,7 @@
         <p class="loading-text">Processing...</p>
     </div>
 </div>
+
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
