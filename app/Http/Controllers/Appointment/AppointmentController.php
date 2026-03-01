@@ -1,5 +1,4 @@
 <?php
-// app/Http/Controllers/Appointment/AppointmentController.php
 
 namespace App\Http\Controllers\Appointment;
 
@@ -8,53 +7,65 @@ use Illuminate\Http\Request;
 use App\Models\TblAppointment;
 use App\Models\TblUser;
 use Illuminate\Support\Facades\Session;
+use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
 
 class AppointmentController extends Controller
 {
     public function issuance()
     {
-        // Get today's date
-        $today = Carbon::today();
+        Carbon::setLocale('en');
+        $today = Carbon::now('Asia/Manila')->toDateString();
 
-        // Sorted NEWEST FIRST (most recent at the top)
+        // Get today's appointments - ONLY PENDING ones (not served/completed)
         $appointments = TblAppointment::whereDate('date', $today)
                                       ->where(function($query) {
-                                          $query->whereIn('window_num', ['0', ''])  // window_num is '0' or empty string
-                                                ->orWhereNull('window_num');        // or window_num is NULL
+                                          // Only show appointments that haven't been served
+                                          $query->whereNull('time_catered')
+                                                ->orWhere('time_catered', '<=', DB::raw('date'));
                                       })
-                                      ->orderBy('date', 'desc')  // DESCENDING = newest first
+                                      ->orderBy('date', 'asc')
                                       ->get();
 
-        // Get recent transactions (last 10 appointments) sorted by newest first
-        $recentTransactions = TblAppointment::orderBy('date', 'desc')
-                                           ->limit(10)
-                                           ->get();
+        // Get RECENT COMPLETED TRANSACTIONS - ONLY those that have been served
+        $completedTransactions = TblAppointment::whereNotNull('time_catered')
+                                              ->where('time_catered', '>', DB::raw('date'))
+                                              ->orderBy('time_catered', 'desc')
+                                              ->limit(20)
+                                              ->get();
 
-        // Get queue count for today
+        // Get queue count for today (all appointments)
         $queueCount = TblAppointment::whereDate('date', $today)->count();
 
-        // Get pending appointments count (window_num is '0' or empty)
+        // Get pending appointments count (not served)
         $pendingCount = TblAppointment::whereDate('date', $today)
-                                      ->whereIn('window_num', ['0', '', null])
+                                      ->where(function($query) {
+                                          $query->whereNull('time_catered')
+                                                ->orWhere('time_catered', '<=', DB::raw('date'));
+                                      })
                                       ->count();
 
-        // Get completed appointments count (window_num is assigned to a real window)
+        // Get completed appointments count (served)
         $completedCount = TblAppointment::whereDate('date', $today)
-                                        ->whereNotIn('window_num', ['0', '', null])
+                                        ->whereNotNull('time_catered')
+                                        ->where('time_catered', '>', DB::raw('date'))
                                         ->count();
 
-        // Get count of appointments at current user's window (if logged in)
+        // Get count of appointments at current user's window (only pending ones)
         $windowQueueCount = 0;
         if (Session::has('window_num') && Session::get('window_num') != '0') {
             $windowQueueCount = TblAppointment::whereDate('date', $today)
                                              ->where('window_num', Session::get('window_num'))
+                                             ->where(function($query) {
+                                                 $query->whereNull('time_catered')
+                                                       ->orWhere('time_catered', '<=', DB::raw('date'));
+                                             })
                                              ->count();
         }
 
         return view('appointment.issuance', compact(
             'appointments',
-            'recentTransactions',
+            'completedTransactions',
             'queueCount',
             'pendingCount',
             'completedCount',
@@ -64,24 +75,63 @@ class AppointmentController extends Controller
 
     public function issue(Request $request)
     {
+        // Get the selected category
+        $category = $request->input('category');
+        
+        // Define validation rules based on category
+        $rules = [
+            'category' => 'required|string|in:NID Registration,Status Inquiry,Updating',
+        ];
+
+        // Add conditional validation rules based on category
+        if ($category === 'NID Registration') {
+            $rules = array_merge($rules, [
+                'fname_nid' => 'required|string|max:99',
+                'mname_nid' => 'nullable|string|max:99',
+                'lname_nid' => 'required|string|max:99',
+                'suffix_nid' => 'nullable|string|max:3',
+                'age_category_nid' => 'required|string|max:99',
+                'birthdate_nid' => 'required|date',
+            ]);
+        } elseif ($category === 'Status Inquiry') {
+            $rules = array_merge($rules, [
+                'fname_status' => 'required|string|max:99',
+                'mname_status' => 'nullable|string|max:99',
+                'lname_status' => 'required|string|max:99',
+                'suffix_status' => 'nullable|string|max:3',
+                'age_category_status' => 'required|string|max:99',
+                'birthdate_status' => 'required|date',
+                'trn' => 'required|string|max:29',
+            ]);
+        } elseif ($category === 'Updating') {
+            $rules = array_merge($rules, [
+                'fname_update' => 'required|string|max:99',
+                'mname_update' => 'nullable|string|max:99',
+                'lname_update' => 'required|string|max:99',
+                'suffix_update' => 'nullable|string|max:3',
+                'age_category_update' => 'required|string|max:99',
+                'birthdate_update' => 'required|date',
+                'pcn' => 'required|string|max:16',
+            ]);
+        }
+
         // Validate the request
-        $validated = $request->validate([
-            'queue_for' => 'required|string',
-            'fname' => 'required|string|max:99',
-            'mname' => 'nullable|string|max:99',
-            'lname' => 'required|string|max:99',
-            'suffix' => 'nullable|string|max:3',
-            'age_category' => 'required|string|max:99',
-            'trn' => 'required|string|max:29',
-            'birthdate' => 'required|date',
-            'PCN' => 'required|string|max:16',
-        ]);
+        $validated = $request->validate($rules);
 
         try {
-            $today = Carbon::today();
+            // Set timezone to Philippine Time
+            Carbon::setLocale('en');
+            $now = Carbon::now('Asia/Manila');
+            $today = $now->toDateString();
 
-            // Determine the prefix based on queue_for
-            $prefix = $this->getQueuePrefix($request->queue_for);
+            // Map category to queue_for display value
+            $queueFor = $category;
+
+            // Get the appropriate field values based on category
+            $formData = $this->extractFormData($request, $category);
+
+            // Determine the prefix based on category
+            $prefix = $this->getQueuePrefix($category);
 
             // Get today's count for this specific queue type
             $todayCount = TblAppointment::whereDate('date', $today)
@@ -94,22 +144,33 @@ class AppointmentController extends Controller
             // Create new appointment
             $appointment = new TblAppointment();
             $appointment->q_id = $queueId;
-            $appointment->date = now();
-            $appointment->queue_for = $request->queue_for;
-            $appointment->fname = $request->fname;
-            $appointment->mname = $request->mname ?? '';
-            $appointment->lname = $request->lname;
-            $appointment->suffix = $request->suffix ?? '';
-            $appointment->age_category = $request->age_category;
-            $appointment->trn = $request->trn;
-            $appointment->birthdate = $request->birthdate;
-            $appointment->PCN = $request->PCN;
-            $appointment->window_num = '0'; // Use '0' as string to indicate not assigned
-            $appointment->time_catered = now();
+            $appointment->date = $now;
+            $appointment->queue_for = $queueFor;
+            $appointment->fname = $formData['fname'];
+            $appointment->mname = $formData['mname'] ?? '';
+            $appointment->lname = $formData['lname'];
+            $appointment->suffix = $formData['suffix'] ?? '';
+            $appointment->age_category = $formData['age_category'];
+            $appointment->birthdate = $formData['birthdate'];
+            $appointment->trn = $formData['trn'] ?? '';
+            $appointment->PCN = $formData['pcn'] ?? '';
+            $appointment->window_num = '0';
+            $appointment->time_catered = $now;
             $appointment->save();
 
+            // Prepare print slip data with PH time
+            $printData = [
+                'header' => 'PSA PHILSYS',
+                'queueNumber' => $queueId,
+                'dateTime' => $now->format('M d, Y h:i A'),
+                'name' => $formData['lname'] . ', ' . $formData['fname'],
+                'service' => $queueFor
+            ];
+
             return redirect()->route('appointment.issuance')
-                           ->with('success', 'Appointment issued successfully! Queue Number: ' . $queueId);
+                           ->with('success', 'Appointment issued successfully! Queue Number: ' . $queueId)
+                           ->with('printSlip', $printData);
+                           
         } catch (\Exception $e) {
             return redirect()->route('appointment.issuance')
                            ->with('error', 'Failed to issue appointment: ' . $e->getMessage())
@@ -117,32 +178,75 @@ class AppointmentController extends Controller
         }
     }
 
-    /**
-     * Get the queue prefix based on the service type
-     */
-    private function getQueuePrefix($queueFor)
+    private function extractFormData(Request $request, $category)
     {
-        switch ($queueFor) {
-            case 'status-inquiry':
+        $data = [
+            'fname' => '',
+            'mname' => '',
+            'lname' => '',
+            'suffix' => '',
+            'age_category' => '',
+            'birthdate' => '',
+            'trn' => '',
+            'pcn' => ''
+        ];
+
+        if ($category === 'NID Registration') {
+            $data['fname'] = $request->input('fname_nid');
+            $data['mname'] = $request->input('mname_nid');
+            $data['lname'] = $request->input('lname_nid');
+            $data['suffix'] = $request->input('suffix_nid');
+            $data['age_category'] = $request->input('age_category_nid');
+            $data['birthdate'] = $request->input('birthdate_nid');
+        } elseif ($category === 'Status Inquiry') {
+            $data['fname'] = $request->input('fname_status');
+            $data['mname'] = $request->input('mname_status');
+            $data['lname'] = $request->input('lname_status');
+            $data['suffix'] = $request->input('suffix_status');
+            $data['age_category'] = $request->input('age_category_status');
+            $data['birthdate'] = $request->input('birthdate_status');
+            $data['trn'] = $request->input('trn');
+        } elseif ($category === 'Updating') {
+            $data['fname'] = $request->input('fname_update');
+            $data['mname'] = $request->input('mname_update');
+            $data['lname'] = $request->input('lname_update');
+            $data['suffix'] = $request->input('suffix_update');
+            $data['age_category'] = $request->input('age_category_update');
+            $data['birthdate'] = $request->input('birthdate_update');
+            $data['pcn'] = $request->input('pcn');
+        }
+
+        return $data;
+    }
+
+    private function getQueuePrefix($category)
+    {
+        switch ($category) {
+            case 'Status Inquiry':
                 return 'S';
-            case 'nid_registration':
+            case 'NID Registration':
                 return 'R';
-            case 'updating':
+            case 'Updating':
                 return 'U';
             default:
-                return 'O'; // O for Other
+                return 'O';
         }
     }
 
     public function serve($id)
     {
         try {
+            $now = Carbon::now('Asia/Manila');
+            
             $appointment = TblAppointment::findOrFail($id);
             $appointment->window_num = Session::get('window_num', '1');
-            $appointment->time_catered = now();
+            $appointment->time_catered = $now;
             $appointment->save();
 
-            return response()->json(['success' => true, 'message' => 'Appointment marked as served']);
+            return response()->json([
+                'success' => true, 
+                'message' => 'Appointment marked as served and moved to recent transactions'
+            ]);
         } catch (\Exception $e) {
             return response()->json(['success' => false, 'message' => $e->getMessage()], 404);
         }
