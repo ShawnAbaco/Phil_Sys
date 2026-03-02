@@ -1,11 +1,11 @@
 <?php
+// app/Http/Controllers/Appointment/AppointmentController.php
 
 namespace App\Http\Controllers\Appointment;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\TblAppointment;
-use App\Models\TblUser;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
@@ -21,15 +21,13 @@ class AppointmentController extends Controller
         $appointments = TblAppointment::whereDate('date', $today)
                                       ->where(function($query) {
                                           // Only show appointments that haven't been served
-                                          $query->whereNull('time_catered')
-                                                ->orWhere('time_catered', '<=', DB::raw('date'));
+                                          $query->whereNull('time_catered');
                                       })
                                       ->orderBy('date', 'asc')
                                       ->get();
 
         // Get RECENT COMPLETED TRANSACTIONS - ONLY those that have been served
         $completedTransactions = TblAppointment::whereNotNull('time_catered')
-                                              ->where('time_catered', '>', DB::raw('date'))
                                               ->orderBy('time_catered', 'desc')
                                               ->limit(20)
                                               ->get();
@@ -39,37 +37,20 @@ class AppointmentController extends Controller
 
         // Get pending appointments count (not served)
         $pendingCount = TblAppointment::whereDate('date', $today)
-                                      ->where(function($query) {
-                                          $query->whereNull('time_catered')
-                                                ->orWhere('time_catered', '<=', DB::raw('date'));
-                                      })
+                                      ->whereNull('time_catered')
                                       ->count();
 
         // Get completed appointments count (served)
         $completedCount = TblAppointment::whereDate('date', $today)
                                         ->whereNotNull('time_catered')
-                                        ->where('time_catered', '>', DB::raw('date'))
                                         ->count();
-
-        // Get count of appointments at current user's window (only pending ones)
-        $windowQueueCount = 0;
-        if (Session::has('window_num') && Session::get('window_num') != '0') {
-            $windowQueueCount = TblAppointment::whereDate('date', $today)
-                                             ->where('window_num', Session::get('window_num'))
-                                             ->where(function($query) {
-                                                 $query->whereNull('time_catered')
-                                                       ->orWhere('time_catered', '<=', DB::raw('date'));
-                                             })
-                                             ->count();
-        }
 
         return view('appointment.issuance', compact(
             'appointments',
             'completedTransactions',
             'queueCount',
             'pendingCount',
-            'completedCount',
-            'windowQueueCount'
+            'completedCount'
         ));
     }
 
@@ -141,7 +122,7 @@ class AppointmentController extends Controller
             // Generate queue ID (format: PREFIX-XXX, resets daily)
             $queueId = $prefix . str_pad($todayCount, 3, '0', STR_PAD_LEFT);
 
-            // Create new appointment
+            // Create new appointment - IMPORTANT: time_catered should be NULL for new appointments
             $appointment = new TblAppointment();
             $appointment->q_id = $queueId;
             $appointment->date = $now;
@@ -154,8 +135,8 @@ class AppointmentController extends Controller
             $appointment->birthdate = $formData['birthdate'];
             $appointment->trn = $formData['trn'] ?? '';
             $appointment->PCN = $formData['pcn'] ?? '';
-            $appointment->window_num = '0';
-            $appointment->time_catered = $now;
+            $appointment->window_num = null; // Not assigned to any window yet
+            $appointment->time_catered = null; // Not served yet - THIS WAS THE BUG!
             $appointment->save();
 
             // Prepare print slip data with PH time

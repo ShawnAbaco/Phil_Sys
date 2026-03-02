@@ -125,6 +125,7 @@ Route::middleware(['auth.session'])->group(function () {
          ->name('operator.fetch-appointments');
     Route::post('/operator/update-window', [OperatorController::class, 'updateWindow'])
          ->name('operator.update-window');
+    Route::get('/operator/queued-appointments', [OperatorController::class, 'getQueuedAppointments'])->name('operator.queued-appointments');
 });
 
 // Admin routes

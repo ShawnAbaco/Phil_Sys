@@ -65,6 +65,8 @@
                     <div class="user-info" id="userMenuButton">
                         <div class="user-details">
                             <span class="user-name">{{ $userName ?? 'User' }}</span>
+                            <span class="user-designation">{{ session('designation') }}</span>
+
                             <svg class="dropdown-arrow" width="20" height="20" viewBox="0 0 20 20"
                                 fill="currentColor">
                                 <path fill-rule="evenodd"

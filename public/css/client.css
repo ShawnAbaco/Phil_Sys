@@ -67,7 +67,7 @@
             padding: 20px;
             display: flex;
             flex-direction: column;
-            gap: 20px;
+            gap: 10px;
         }
 
         /* Header with PSA colors */
@@ -270,7 +270,7 @@
             font-weight: 800;
             color: var(--psa-red);
             line-height: 1;
-            font-family: monospace;
+            font-family: Arial, sans-serif;
             letter-spacing: -2px;
             margin-bottom: 6px;
             text-shadow: 0 5px 8px rgba(178, 34, 34, 0.1);
@@ -281,7 +281,6 @@
             font-weight: 600;
             color: var(--text-primary);
             white-space: nowrap;
-            overflow: hidden;
             text-overflow: ellipsis;
             padding: 0 10px;
             text-transform: uppercase;

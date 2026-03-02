@@ -114,7 +114,11 @@ body {
     transition: all 0.2s var(--transition-smooth);
 }
 
-
+.user-designation {
+    font-size: 0.8rem;
+    color: var(--psa-red);
+    font-weight: 600;
+}
 
 .user-details {
     display: flex;
