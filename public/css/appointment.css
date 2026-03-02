@@ -174,7 +174,7 @@ body {
 /* Today's Appointments Card - Flexible width on right */
 .dashboard-grid .card:last-child {
     width: 100%;
-    height: 670px;
+    height: 572px;
 }
 
 /* ===== CARDS ===== */
@@ -185,6 +185,7 @@ body {
     border: 1px solid var(--gray-200);
     overflow: hidden;
     height: fit-content;
+            margin-top: 30px;
 }
 
 .card-header {

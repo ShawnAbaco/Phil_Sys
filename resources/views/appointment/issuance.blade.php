@@ -2,42 +2,7 @@
 
 <!-- Main Container -->
 <main class="main-container">
-    {{-- Alert Messages --}}
-    <div class="alert-container">
-        @if (session('success'))
-            <div class="alert alert-success">
-                <svg class="alert-icon" viewBox="0 0 20 20" fill="currentColor">
-                    <path fill-rule="evenodd"
-                        d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
-                        clip-rule="evenodd" />
-                </svg>
-                <span>{{ session('success') }}</span>
-                <button type="button" class="alert-close" onclick="this.parentElement.remove()">×</button>
-            </div>
-        @endif
-
-        @if (session('error') || $errors->any())
-            <div class="alert alert-error">
-                <svg class="alert-icon" viewBox="0 0 20 20" fill="currentColor">
-                    <path fill-rule="evenodd"
-                        d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
-                        clip-rule="evenodd" />
-                </svg>
-                <div>
-                    @if (session('error'))
-                        <span>{{ session('error') }}</span>
-                    @else
-                        <ul>
-                            @foreach ($errors->all() as $error)
-                                <li>{{ $error }}</li>
-                            @endforeach
-                        </ul>
-                    @endif
-                </div>
-                <button type="button" class="alert-close" onclick="this.parentElement.remove()">×</button>
-            </div>
-        @endif
-    </div>
+    
 
     <div class="dashboard-grid">
         {{-- Issue New Appointment Card --}}
@@ -431,6 +396,83 @@
             </div>
         </div>
     </div>
+
+    {{-- Recent Transactions --}}
+<div class="card full-width">
+    <div class="card-header">
+        <h3>
+            <svg viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd"
+                    d="M4 4a2 2 0 00-2 2v8a2 2 0 002 2h12a2 2 0 002-2V8a2 2 0 00-2-2h-5L9 4H4zm7 4a1 1 0 10-2 0v3.586l-.293-.293a1 1 0 10-1.414 1.414l2 2a1 1 0 001.414 0l2-2a1 1 0 10-1.414-1.414l-.293.293V8z"
+                    clip-rule="evenodd" />
+            </svg>
+            Recent Transactions
+        </h3>
+        <div class="card-actions">
+          
+        </div> <!-- This div closes properly -->
+    </div> <!-- This div closes properly -->
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Queue #</th>
+                        <th>Client</th>
+                        <th>Service</th>
+                        <th>Served Time</th>
+                        <th>Window</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @forelse($completedTransactions as $transaction)
+                        @php
+                            $servedTime = \Carbon\Carbon::parse($transaction->time_catered)->setTimezone(
+                                'Asia/Manila',
+                            );
+                            $serviceDisplay = $transaction->queue_for;
+                        @endphp
+                        <tr>
+                            <td><span class="queue-number small">{{ $transaction->q_id }}</span></td>
+                            <td>
+                                <div class="client-name">
+                                    {{ $transaction->lname }}, {{ $transaction->fname }}
+                                    @if ($transaction->mname || $transaction->suffix)
+                                        <small>{{ $transaction->mname }} {{ $transaction->suffix }}</small>
+                                    @endif
+                                </div>
+                            </td>
+                            <td>{{ $serviceDisplay }}</td>
+                            <td>{{ $servedTime->format('M d, h:i A') }}</td>
+                            <td>
+                                <span class="window-indicator">Window {{ $transaction->window_num }}</span>
+                            </td>
+                            <td>
+                                <span class="status-badge status-completed">
+                                    <span class="status-dot"></span>
+                                    Completed
+                                </span>
+                            </td>
+                        </tr>
+                    @empty
+                        <tr>
+                            <td colspan="6" class="empty-state">
+                                <svg viewBox="0 0 20 20" fill="currentColor">
+                                    <path fill-rule="evenodd"
+                                        d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z"
+                                        clip-rule="evenodd" />
+                                </svg>
+                                <p>No completed transactions yet</p>
+                            </td>
+                        </tr>
+                    @endforelse
+                </tbody>
+            </table>
+        </div> <!-- This div closes properly -->
+    </div> <!-- This div closes properly -->
+</div> <!-- This div closes properly -->
+
 
     {{-- Loading Modal --}}
     <div class="loading-modal" id="loadingModal">

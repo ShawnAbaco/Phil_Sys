@@ -297,90 +297,115 @@
         });
     }
 
-    // Handle Serve Button Click
+// Handle Serve Button Click
 function handleServeClick(e) {
     const button = e.currentTarget;
     const n_id = button.getAttribute('data-id');
     const name = button.getAttribute('data-name');
     const row = button.closest('tr');
 
-    if (!confirm(`Call ${name} to window #${windowNum}?`)) {
-        return;
-    }
+    // Show confirmation dialog using SweetAlert2
+    Swal.fire({
+        title: 'Confirm Call',
+        html: `<div style="text-align: center; font-size: 16px;">
+                Call <strong>${name}</strong> to window <strong>#${windowNum}</strong>?
+               </div>`,
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonColor: '#2563eb',
+        cancelButtonColor: '#dc2626',
+        confirmButtonText: 'Yes, Call Now!',
+        cancelButtonText: 'Cancel'
+        // Removed reverseButtons: true - this puts Confirm on left, Cancel on right (default)
+    }).then((result) => {
+        if (result.isConfirmed) {
+            // Disable button to prevent double-click
+            button.disabled = true;
+            const originalHtml = button.innerHTML;
+            button.innerHTML =
+                '<svg viewBox="0 0 20 20" fill="currentColor" class="animate-spin"><path fill-rule="evenodd" d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z" clip-rule="evenodd"/></svg> Processing...';
 
-    // Disable button to prevent double-click
-    button.disabled = true;
-    const originalHtml = button.innerHTML;
-    button.innerHTML =
-        '<svg viewBox="0 0 20 20" fill="currentColor" class="animate-spin"><path fill-rule="evenodd" d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z" clip-rule="evenodd"/></svg> Processing...';
-
-    // Store the button reference and row for later use
-    const buttonContainer = button.parentNode;
-    
-    fetch('{{ route('operator.update-window') }}', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': csrfToken,
-                'Accept': 'application/json'
-            },
-            body: JSON.stringify({
-                n_id: n_id,
-                window_num: windowNum
+            fetch('{{ route('operator.update-window') }}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': csrfToken,
+                    'Accept': 'application/json'
+                },
+                body: JSON.stringify({
+                    n_id: n_id,
+                    window_num: windowNum
+                })
             })
-        })
-        .then(response => {
-            if (!response.ok) {
-                throw new Error('Network response was not ok');
-            }
-            return response.json();
-        })
-        .then(data => {
-            if (data.success) {
-                showMessage(data.message, 'success');
-                
-                // Immediately remove the row to provide instant feedback
-                if (row) {
-                    row.remove();
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
                 }
-                
-                // Check if table is empty
-                const remainingRows = document.querySelectorAll('#appointmentsTableBody tr:not(.empty-state)');
-                if (remainingRows.length === 0) {
-                    appointmentsTableBody.innerHTML = `
-                        <tr>
-                            <td colspan="10" class="empty-state">
-                                <svg viewBox="0 0 20 20" fill="currentColor">
-                                    <path fill-rule="evenodd"
-                                        d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z"
-                                        clip-rule="evenodd" />
-                                </svg>
-                                <p>No pending appointments for today</p>
-                            </td>
-                        </tr>
-                    `;
+                return response.json();
+            })
+            .then(data => {
+                if (data.success) {
+                    // Show success popup
+                    showCallSuccessPopup(name, windowNum);
+                    
+                    // Immediately remove the row to provide instant feedback
+                    if (row) {
+                        row.remove();
+                    }
+                    
+                    // Check if table is empty
+                    const remainingRows = document.querySelectorAll('#appointmentsTableBody tr:not(.empty-state)');
+                    if (remainingRows.length === 0) {
+                        appointmentsTableBody.innerHTML = `
+                            <tr>
+                                <td colspan="10" class="empty-state">
+                                    <svg viewBox="0 0 20 20" fill="currentColor">
+                                        <path fill-rule="evenodd"
+                                            d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z"
+                                            clip-rule="evenodd" />
+                                    </svg>
+                                    <p>No pending appointments for today</p>
+                                </td>
+                            </tr>
+                        `;
+                    }
+                    
+                    // Update statistics immediately
+                    updatePendingCount();
+                    
+                    // Then fetch fresh data in the background
+                    setTimeout(() => {
+                        fetchDashboardData();
+                    }, 500);
+                } else {
+                    showMessage(data.message || 'Failed to update.', 'error');
+                    button.disabled = false;
+                    button.innerHTML = originalHtml;
                 }
-                
-                // Update statistics immediately
-                updatePendingCount();
-                
-                // Then fetch fresh data in the background
-                // Use setTimeout to avoid race conditions
-                setTimeout(() => {
-                    fetchDashboardData();
-                }, 500);
-            } else {
-                showMessage(data.message || 'Failed to update.', 'error');
+            })
+            .catch(err => {
+                console.error('Error:', err);
+                showMessage('Error connecting to server. Please try again.', 'error');
                 button.disabled = false;
                 button.innerHTML = originalHtml;
-            }
-        })
-        .catch(err => {
-            console.error('Error:', err);
-            showMessage('Error connecting to server. Please try again.', 'error');
-            button.disabled = false;
-            button.innerHTML = originalHtml;
-        });
+            });
+        }
+    });
+}
+// Clean and minimal success popup matching your style
+function showCallSuccessPopup() {
+    Swal.fire({
+        title: 'Served Successfully!',
+        
+        icon: 'success',
+        confirmButtonColor: '#2563eb',
+        confirmButtonText: 'OK',
+        timer: 5000,
+        timerProgressBar: true,
+        showCloseButton: true,
+        width: 500,
+        padding: '2rem'
+    });
 }
 
 // Helper function to update pending count
