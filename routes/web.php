@@ -46,8 +46,6 @@ Route::get('/debug-appointments', function() {
     ];
 });
 
-
-
 // FORCE LOGOUT - Complete session and cookie cleanup
 Route::get('/force-logout', function() {
     // Clear Laravel Auth
@@ -87,10 +85,9 @@ Route::get('/force-logout', function() {
         ->header('Expires', '0');
 });
 
-
 // Public routes (no authentication required)
 Route::get('/', function () {
-    return redirect()->route('login'); // Redirect to client dashboard
+    return redirect()->route('login');
 });
 
 // Client routes - PUBLIC (no middleware)
@@ -105,11 +102,11 @@ Route::middleware(['guest'])->group(function () {
     Route::post('/login', [LoginController::class, 'login'])->name('login.submit');
 });
 
-// Logout route (requires authentication)
-Route::post('/logout', [LoginController::class, 'logout'])->name('logout')->middleware('auth.session');
+// Logout route
+Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 
-// Protected Routes - Require authentication
-Route::middleware(['auth.session'])->group(function () {
+// Protected Routes - Require authentication using Laravel's 'auth' middleware
+Route::middleware(['auth'])->group(function () {
     // Screener routes
     Route::get('/appointment-issuance', [AppointmentController::class, 'issuance'])
          ->name('appointment.issuance');
@@ -117,8 +114,8 @@ Route::middleware(['auth.session'])->group(function () {
          ->name('appointment.issue');
     Route::post('/appointment/serve/{id}', [AppointmentController::class, 'serve'])
          ->name('appointment.serve');
-         Route::get('/appointment/today', [AppointmentController::class, 'getTodayAppointments'])
-    ->name('appointment.today');
+    Route::get('/appointment/today', [AppointmentController::class, 'getTodayAppointments'])
+         ->name('appointment.today');
 
     // Operator routes
     Route::get('/operator/dashboard', [OperatorController::class, 'dashboard'])
@@ -127,12 +124,12 @@ Route::middleware(['auth.session'])->group(function () {
          ->name('operator.fetch-appointments');
     Route::post('/operator/update-window', [OperatorController::class, 'updateWindow'])
          ->name('operator.update-window');
-    Route::get('/operator/queued-appointments', [OperatorController::class, 'getQueuedAppointments'])->name('operator.queued-appointments');
+    Route::get('/operator/queued-appointments', [OperatorController::class, 'getQueuedAppointments'])
+         ->name('operator.queued-appointments');
     Route::get('/operator/recent-transactions', [OperatorController::class, 'recentTransactions'])
-    ->name('operator.recent-transactions');
-});
+         ->name('operator.recent-transactions');
 
-// Admin routes
+    // Admin routes
     Route::prefix('admin')->name('admin.')->group(function () {
         Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('dashboard');
         Route::get('/users', [AdminController::class, 'users'])->name('users');
@@ -140,3 +137,4 @@ Route::middleware(['auth.session'])->group(function () {
         Route::get('/reports', [AdminController::class, 'reports'])->name('reports');
         Route::get('/settings', [AdminController::class, 'settings'])->name('settings');
     });
+});
