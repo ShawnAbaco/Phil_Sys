@@ -65,29 +65,63 @@ class OperatorController extends Controller
     }
 
     public function fetchAppointments()
-    {
-        try {
-            $today = Carbon::now('Asia/Manila')->toDateString();
+{
+    try {
+        $today = Carbon::now('Asia/Manila')->toDateString();
 
-            // Get today's appointments that are not assigned to any window
-            $appointments = TblAppointment::whereDate('date', $today)
+        // Get today's appointments that are not assigned to any window and not served
+        $appointments = TblAppointment::whereDate('date', $today)
+            ->whereNull('window_num')
+            ->whereNull('time_catered')
+            ->orderBy('date', 'asc')
+            ->get();
+
+        // Get statistics
+        $stats = [
+            'total' => TblAppointment::whereDate('date', $today)->count(),
+            'pending' => TblAppointment::whereDate('date', $today)
                 ->whereNull('window_num')
                 ->whereNull('time_catered')
-                ->orderBy('date', 'asc')
-                ->get();
+                ->count(),
+            'completed' => TblAppointment::whereDate('date', $today)
+                ->whereNotNull('time_catered')
+                ->count(),
+        ];
 
-            return response()->json([
-                'success' => true,
-                'appointments' => $appointments
-            ]);
+        return response()->json([
+            'success' => true,
+            'appointments' => $appointments,
+            'stats' => $stats
+        ]);
 
-        } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Error fetching appointments: ' . $e->getMessage()
-            ]);
-        }
+    } catch (\Exception $e) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Error fetching appointments: ' . $e->getMessage()
+        ]);
     }
+}
+public function recentTransactions()
+{
+    try {
+        // Get RECENT COMPLETED TRANSACTIONS (served appointments)
+        $transactions = TblAppointment::whereNotNull('time_catered')
+            ->orderBy('time_catered', 'desc')
+            ->limit(10)
+            ->get();
+
+        return response()->json([
+            'success' => true,
+            'transactions' => $transactions
+        ]);
+
+    } catch (\Exception $e) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Error fetching transactions: ' . $e->getMessage()
+        ]);
+    }
+}
 
     public function updateWindow(Request $request)
     {

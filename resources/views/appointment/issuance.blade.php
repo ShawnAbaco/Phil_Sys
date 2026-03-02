@@ -193,25 +193,6 @@
                                 </div>
                             </div>
                         </div>
-
-                        <!-- QR Scanner Container -->
-                        <div id="qr-reader-container"
-                            style="display: none; margin-top: 15px; padding: 15px; border: 2px dashed #2563eb; border-radius: 8px; background: #f8fafc;">
-                            <div
-                                style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-                                <span style="font-weight: 600; color: #2563eb;">Scan QR Code</span>
-                                <button type="button" id="closeScannerBtn"
-                                    style="padding: 4px 8px; font-size: 12px; background-color: #6b7280; color: white; border: none; border-radius: 4px; cursor: pointer; display: inline-flex; align-items: center; gap: 4px;">
-                                    <svg viewBox="0 0 20 20" fill="currentColor" width="14" height="14">
-                                        <path fill-rule="evenodd"
-                                            d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
-                                            clip-rule="evenodd" />
-                                    </svg>
-                                    Close
-                                </button>
-                            </div>
-                            <div id="qr-reader" style="width: 100%; min-height: 300px;"></div>
-                        </div>
                     </div>
 
                     <!-- Updating Form -->
@@ -310,7 +291,7 @@
                         </div>
                         <div class="stat-content">
                             <span class="stat-label">Total Queue Today</span>
-                            <span class="stat-value">{{ $queueCount ?? 0 }}</span>
+                            <span class="stat-value" id="totalQueue">{{ $queueCount ?? 0 }}</span>
                         </div>
                     </div>
 
@@ -324,7 +305,7 @@
                         </div>
                         <div class="stat-content">
                             <span class="stat-label">Pending</span>
-                            <span class="stat-value pending">{{ $pendingCount ?? 0 }}</span>
+                            <span class="stat-value pending" id="pendingCount">{{ $pendingCount ?? 0 }}</span>
                         </div>
                     </div>
 
@@ -338,7 +319,7 @@
                         </div>
                         <div class="stat-content">
                             <span class="stat-label">Completed</span>
-                            <span class="stat-value completed">{{ $completedCount ?? 0 }}</span>
+                            <span class="stat-value completed" id="completedCount">{{ $completedCount ?? 0 }}</span>
                         </div>
                     </div>
                 </div>
@@ -651,6 +632,7 @@
     <script>
         let html5QrcodeScanner = null;
         let isScanning = false;
+        let currentSearchTerm = '';
 
         function toggleForm() {
             var category = document.getElementById('category').value;
@@ -876,6 +858,140 @@
             stopQRScanner();
         }
 
+        // Fetch today's appointments
+        function fetchAppointments() {
+            fetch('{{ route("appointment.today") }}', {
+                method: 'GET',
+                headers: {
+                    'Accept': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    updateAppointmentsTable(data.appointments);
+                    updateStatistics(data.stats);
+                }
+            })
+            .catch(error => {
+                console.error('Error fetching appointments:', error);
+            });
+        }
+
+        // Update appointments table
+        function updateAppointmentsTable(appointments) {
+            const tbody = document.getElementById('appointmentsTableBody');
+            
+            if (!appointments || appointments.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="6" class="empty-state">
+                            <svg viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd"
+                                    d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z"
+                                    clip-rule="evenodd" />
+                            </svg>
+                            <p>No pending appointments for today</p>
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            let html = '';
+            appointments.forEach(app => {
+                // Only show if NOT completed
+                if (!app.time_catered) {
+                    const createdTime = new Date(app.date).toLocaleTimeString('en-US', { 
+                        hour: '2-digit', 
+                        minute: '2-digit',
+                        hour12: true,
+                        timeZone: 'Asia/Manila'
+                    });
+                    
+                    const fullName = app.lname + ', ' + app.fname + 
+                        (app.suffix ? ' ' + app.suffix : '') + 
+                        (app.mname ? ' ' + app.mname.charAt(0) + '.' : '');
+                    
+                    const searchData = (app.lname + ' ' + app.fname + ' ' + (app.trn || '')).toLowerCase();
+                    
+                    html += `
+                        <tr data-search="${searchData}">
+                            <td><span class="queue-number">${app.q_id}</span></td>
+                            <td>
+                                <div class="client-name">
+                                    ${fullName}
+                                </div>
+                            </td>
+                            <td>${app.queue_for}</td>
+                            <td>${createdTime}</td>
+                            <td>
+                                <span class="status-badge status-pending">
+                                    <span class="status-dot"></span>
+                                    Pending
+                                </span>
+                            </td>
+                        </tr>
+                    `;
+                }
+            });
+
+            if (html === '') {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="6" class="empty-state">
+                            <svg viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd"
+                                    d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z"
+                                    clip-rule="evenodd" />
+                            </svg>
+                            <p>No pending appointments for today</p>
+                        </td>
+                    </tr>
+                `;
+            } else {
+                tbody.innerHTML = html;
+                
+                // Re-apply search filter
+                if (currentSearchTerm) {
+                    filterTableRows();
+                }
+            }
+        }
+
+        // Update statistics
+        function updateStatistics(stats) {
+            if (!stats) return;
+            
+            if (stats.total !== undefined) {
+                document.getElementById('totalQueue').textContent = stats.total;
+            }
+            if (stats.pending !== undefined) {
+                document.getElementById('pendingCount').textContent = stats.pending;
+            }
+            if (stats.completed !== undefined) {
+                document.getElementById('completedCount').textContent = stats.completed;
+            }
+        }
+
+        // Search functionality
+        function filterTableRows() {
+            const rows = document.querySelectorAll('#appointmentsTableBody tr');
+            
+            rows.forEach(row => {
+                // Skip empty state row
+                if (row.classList.contains('empty-state')) return;
+
+                const searchData = row.getAttribute('data-search') || row.textContent.toLowerCase();
+                if (searchData.includes(currentSearchTerm)) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+        }
+
         document.addEventListener('DOMContentLoaded', function() {
             @if (session('success'))
                 showSuccessPopup(
@@ -988,56 +1104,14 @@
                 }, 500);
             @endif
 
-            function searchAppointments() {
-                const searchTerm = document.getElementById('searchAppointments').value.toLowerCase();
-                const rows = document.querySelectorAll('#appointmentsTableBody tr');
-                rows.forEach(row => {
-                    const searchData = row.dataset.search || row.textContent.toLowerCase();
-                    row.style.display = searchData.includes(searchTerm) ? '' : 'none';
+            // Search functionality
+            const searchInput = document.getElementById('searchAppointments');
+            if (searchInput) {
+                searchInput.addEventListener('keyup', function() {
+                    currentSearchTerm = this.value.toLowerCase();
+                    filterTableRows();
                 });
             }
-
-            document.getElementById('searchAppointments')?.addEventListener('keyup', searchAppointments);
-
-            document.querySelectorAll('.serve-btn').forEach(button => {
-                button.addEventListener('click', function() {
-                    const id = this.dataset.id;
-                    const name = this.dataset.name;
-
-                    showConfirmPopup(
-                        'Serve Appointment',
-                        `Mark appointment for ${name} as served?`,
-                        function() {
-                            showLoading();
-                            fetch(`/appointment/serve/${id}`, {
-                                    method: 'POST',
-                                    headers: {
-                                        'X-CSRF-TOKEN': document.querySelector(
-                                            'meta[name="csrf-token"]')?.content,
-                                        'Content-Type': 'application/json',
-                                        'Accept': 'application/json'
-                                    }
-                                })
-                                .then(response => response.json())
-                                .then(data => {
-                                    hideLoading();
-                                    if (data.success) {
-                                        showSuccessPopup('Appointment marked as served!');
-                                        setTimeout(() => location.reload(), 1500);
-                                    } else {
-                                        showErrorPopup(data.message ||
-                                            'Error marking appointment');
-                                    }
-                                })
-                                .catch(error => {
-                                    hideLoading();
-                                    showErrorPopup('Connection error. Please try again.');
-                                    console.error(error);
-                                });
-                        }
-                    );
-                });
-            });
 
             document.getElementById('appointmentForm')?.addEventListener('submit', function(e) {
                 const category = document.getElementById('category').value;
@@ -1048,6 +1122,33 @@
                 }
                 showLoading();
             });
+
+            // Start auto-refresh
+            startAutoRefresh();
+        });
+
+        // Auto-refresh functionality
+        let refreshInterval;
+
+        function startAutoRefresh() {
+            // Refresh every 10 seconds
+            refreshInterval = setInterval(function() {
+                fetchAppointments();
+            }, 10000);
+
+            // Also refresh when user returns to the tab
+            document.addEventListener('visibilitychange', function() {
+                if (!document.hidden) {
+                    fetchAppointments();
+                }
+            });
+        }
+
+        // Clean up interval when page unloads
+        window.addEventListener('beforeunload', function() {
+            if (refreshInterval) {
+                clearInterval(refreshInterval);
+            }
         });
 
         // Popup functions (keep your existing popup functions here)

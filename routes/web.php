@@ -117,6 +117,8 @@ Route::middleware(['auth.session'])->group(function () {
          ->name('appointment.issue');
     Route::post('/appointment/serve/{id}', [AppointmentController::class, 'serve'])
          ->name('appointment.serve');
+         Route::get('/appointment/today', [AppointmentController::class, 'getTodayAppointments'])
+    ->name('appointment.today');
 
     // Operator routes
     Route::get('/operator/dashboard', [OperatorController::class, 'dashboard'])
@@ -126,6 +128,8 @@ Route::middleware(['auth.session'])->group(function () {
     Route::post('/operator/update-window', [OperatorController::class, 'updateWindow'])
          ->name('operator.update-window');
     Route::get('/operator/queued-appointments', [OperatorController::class, 'getQueuedAppointments'])->name('operator.queued-appointments');
+    Route::get('/operator/recent-transactions', [OperatorController::class, 'recentTransactions'])
+    ->name('operator.recent-transactions');
 });
 
 // Admin routes

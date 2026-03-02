@@ -25,7 +25,7 @@
                     </div>
                     <div class="stat-content">
                         <span class="stat-label">Total Queue Today</span>
-                        <span class="stat-value">{{ $queueCount ?? 0 }}</span>
+                        <span class="stat-value" id="totalQueue">{{ $queueCount ?? 0 }}</span>
                     </div>
                 </div>
 
@@ -39,7 +39,7 @@
                     </div>
                     <div class="stat-content">
                         <span class="stat-label">Pending</span>
-                        <span class="stat-value pending">{{ $pendingCount ?? 0 }}</span>
+                        <span class="stat-value pending" id="pendingCount">{{ $pendingCount ?? 0 }}</span>
                     </div>
                 </div>
 
@@ -53,7 +53,7 @@
                     </div>
                     <div class="stat-content">
                         <span class="stat-label">Completed</span>
-                        <span class="stat-value completed">{{ $completedCount ?? 0 }}</span>
+                        <span class="stat-value completed" id="completedCount">{{ $completedCount ?? 0 }}</span>
                     </div>
                 </div>
             </div>
@@ -186,7 +186,7 @@
                             <th>Status</th>
                         </tr>
                     </thead>
-                    <tbody>
+                    <tbody id="recentTransactionsBody">
                         @forelse($completedTransactions as $transaction)
                             @php
                                 $servedTime = \Carbon\Carbon::parse($transaction->time_catered)->setTimezone(
@@ -250,6 +250,10 @@
     const messageContainer = document.getElementById('messageContainer');
     const appointmentsTableBody = document.getElementById('appointmentsTableBody');
     const searchInput = document.getElementById('searchAppointments');
+    const recentTransactionsBody = document.getElementById('recentTransactionsBody');
+
+    // Store current search term
+    let currentSearchTerm = '';
 
     // Show Message
     function showMessage(text, type = 'success') {
@@ -278,97 +282,124 @@
     // Search Functionality
     if (searchInput) {
         searchInput.addEventListener('keyup', function() {
-            const searchTerm = this.value.toLowerCase();
-            const rows = document.querySelectorAll('#appointmentsTableBody tr');
+            currentSearchTerm = this.value.toLowerCase();
+            filterTableRows();
+        });
+    }
 
-            rows.forEach(row => {
-                // Skip empty state row
-                if (row.classList.contains('empty-state')) return;
+    function filterTableRows() {
+        const rows = document.querySelectorAll('#appointmentsTableBody tr');
+        
+        rows.forEach(row => {
+            // Skip empty state row
+            if (row.classList.contains('empty-state')) return;
 
-                const searchData = row.getAttribute('data-search') || row.textContent.toLowerCase();
-                if (searchData.includes(searchTerm)) {
-                    row.style.display = '';
-                } else {
-                    row.style.display = 'none';
-                }
-            });
+            const searchData = row.getAttribute('data-search') || row.textContent.toLowerCase();
+            if (searchData.includes(currentSearchTerm)) {
+                row.style.display = '';
+            } else {
+                row.style.display = 'none';
+            }
         });
     }
 
     // Handle Serve Button Click
-    function handleServeClick(e) {
-        const button = e.currentTarget;
-        const n_id = button.getAttribute('data-id');
-        const name = button.getAttribute('data-name');
+function handleServeClick(e) {
+    const button = e.currentTarget;
+    const n_id = button.getAttribute('data-id');
+    const name = button.getAttribute('data-name');
+    const row = button.closest('tr');
 
-        if (!confirm(`Call ${name} to window #${windowNum}?`)) {
-            return;
-        }
+    if (!confirm(`Call ${name} to window #${windowNum}?`)) {
+        return;
+    }
 
-        // Disable button to prevent double-click
-        button.disabled = true;
-        const originalHtml = button.innerHTML;
-        button.innerHTML =
-            '<svg viewBox="0 0 20 20" fill="currentColor" class="animate-spin"><path fill-rule="evenodd" d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z" clip-rule="evenodd"/></svg> Processing...';
+    // Disable button to prevent double-click
+    button.disabled = true;
+    const originalHtml = button.innerHTML;
+    button.innerHTML =
+        '<svg viewBox="0 0 20 20" fill="currentColor" class="animate-spin"><path fill-rule="evenodd" d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z" clip-rule="evenodd"/></svg> Processing...';
 
-        fetch('{{ route('operator.update-window') }}', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': csrfToken,
-                    'Accept': 'application/json'
-                },
-                body: JSON.stringify({
-                    n_id: n_id,
-                    window_num: windowNum
-                })
+    // Store the button reference and row for later use
+    const buttonContainer = button.parentNode;
+    
+    fetch('{{ route('operator.update-window') }}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': csrfToken,
+                'Accept': 'application/json'
+            },
+            body: JSON.stringify({
+                n_id: n_id,
+                window_num: windowNum
             })
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error('Network response was not ok');
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.json();
+        })
+        .then(data => {
+            if (data.success) {
+                showMessage(data.message, 'success');
+                
+                // Immediately remove the row to provide instant feedback
+                if (row) {
+                    row.remove();
                 }
-                return response.json();
-            })
-            .then(data => {
-                if (data.success) {
-                    showMessage(data.message, 'success');
-                    // Remove the row
-                    const row = button.closest('tr');
-                    if (row) {
-                        row.remove();
-                    }
-
-                    // Check if table is empty
-                    const remainingRows = document.querySelectorAll('#appointmentsTableBody tr:not(.empty-state)');
-                    if (remainingRows.length === 0) {
-                        // Add empty state
-                        const tbody = document.getElementById('appointmentsTableBody');
-                        tbody.innerHTML = `
-                            <tr>
-                                <td colspan="10" class="empty-state">
-                                    <svg viewBox="0 0 20 20" fill="currentColor">
-                                        <path fill-rule="evenodd"
-                                            d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z"
-                                            clip-rule="evenodd" />
-                                    </svg>
-                                    <p>No pending appointments for today</p>
-                                </td>
-                            </tr>
-                        `;
-                    }
-                } else {
-                    showMessage(data.message || 'Failed to update.', 'error');
-                    button.disabled = false;
-                    button.innerHTML = originalHtml;
+                
+                // Check if table is empty
+                const remainingRows = document.querySelectorAll('#appointmentsTableBody tr:not(.empty-state)');
+                if (remainingRows.length === 0) {
+                    appointmentsTableBody.innerHTML = `
+                        <tr>
+                            <td colspan="10" class="empty-state">
+                                <svg viewBox="0 0 20 20" fill="currentColor">
+                                    <path fill-rule="evenodd"
+                                        d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z"
+                                        clip-rule="evenodd" />
+                                </svg>
+                                <p>No pending appointments for today</p>
+                            </td>
+                        </tr>
+                    `;
                 }
-            })
-            .catch(err => {
-                console.error('Error:', err);
-                showMessage('Error connecting to server. Please try again.', 'error');
+                
+                // Update statistics immediately
+                updatePendingCount();
+                
+                // Then fetch fresh data in the background
+                // Use setTimeout to avoid race conditions
+                setTimeout(() => {
+                    fetchDashboardData();
+                }, 500);
+            } else {
+                showMessage(data.message || 'Failed to update.', 'error');
                 button.disabled = false;
                 button.innerHTML = originalHtml;
-            });
+            }
+        })
+        .catch(err => {
+            console.error('Error:', err);
+            showMessage('Error connecting to server. Please try again.', 'error');
+            button.disabled = false;
+            button.innerHTML = originalHtml;
+        });
+}
+
+// Helper function to update pending count
+function updatePendingCount() {
+    const pendingCount = document.querySelectorAll('#appointmentsTableBody tr:not(.empty-state)').length;
+    document.getElementById('pendingCount').textContent = pendingCount;
+    
+    // Update total queue count (optional - you might want to fetch this from server)
+    const totalQueue = parseInt(document.getElementById('totalQueue').textContent);
+    if (totalQueue > 0) {
+        document.getElementById('totalQueue').textContent = totalQueue - 1;
     }
+}
 
     // Attach Serve Button Listeners
     function attachServeButtonListeners() {
@@ -378,16 +409,224 @@
         });
     }
 
+    // Fetch dashboard data
+function fetchDashboardData() {
+    fetch('{{ route('operator.fetch-appointments') }}', {
+        method: 'GET',
+        headers: {
+            'Accept': 'application/json',
+            'X-Requested-With': 'XMLHttpRequest'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            updateAppointmentsTable(data.appointments);
+            updateStatistics(data.stats);
+        }
+    })
+    .catch(error => {
+        console.error('Error fetching dashboard data:', error);
+    });
+
+    // Also fetch recent transactions
+    fetch('{{ route('operator.recent-transactions') }}', {
+        method: 'GET',
+        headers: {
+            'Accept': 'application/json',
+            'X-Requested-With': 'XMLHttpRequest'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            updateRecentTransactions(data.transactions);
+        }
+    })
+    .catch(error => {
+        console.error('Error fetching recent transactions:', error);
+    });
+}
+
+    // Update appointments table
+function updateAppointmentsTable(appointments) {
+    if (!appointments || appointments.length === 0) {
+        appointmentsTableBody.innerHTML = `
+            <tr>
+                <td colspan="10" class="empty-state">
+                    <svg viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd"
+                            d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z"
+                            clip-rule="evenodd" />
+                    </svg>
+                    <p>No pending appointments for today</p>
+                </td>
+            </tr>
+        `;
+        return;
+    }
+
+    let html = '';
+    
+    appointments.forEach(app => {
+        const createdTime = new Date(app.date).toLocaleTimeString('en-US', { 
+            hour: '2-digit', 
+            minute: '2-digit',
+            hour12: true,
+            timeZone: 'Asia/Manila'
+        });
+        
+        const fullName = app.lname + ', ' + app.fname + 
+            (app.suffix ? ' ' + app.suffix : '') + 
+            (app.mname ? ' ' + app.mname.charAt(0) + '.' : '');
+        
+        const birthdate = app.birthdate ? new Date(app.birthdate).toLocaleDateString('en-US', { 
+            month: 'short', 
+            day: 'numeric', 
+            year: 'numeric' 
+        }) : 'N/A';
+        
+        const searchData = (app.lname + ' ' + app.fname + ' ' + (app.trn || '')).toLowerCase();
+        
+        html += `
+            <tr data-search="${searchData}">
+                <td><span class="queue-number">${app.q_id || 'N/A'}</span></td>
+                <td>
+                    <div class="client-name">
+                        ${fullName}
+                    </div>
+                </td>
+                <td>${app.age_category || 'N/A'}</td>
+                <td>${birthdate}</td>
+                <td>${app.trn || 'N/A'}</td>
+                <td>${app.pcn || 'N/A'}</td>
+                <td>${app.queue_for || 'N/A'}</td>
+                <td>${createdTime}</td>
+                <td>
+                    <span class="status-badge status-pending">
+                        <span class="status-dot"></span>
+                        Pending
+                    </span>
+                </td>
+                <td>
+                    <button class="btn-action serve-btn" data-id="${app.n_id}" data-name="${app.fname} ${app.lname}">
+                        <svg viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd"
+                                d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                                clip-rule="evenodd" />
+                        </svg>
+                        Next
+                    </button>
+                </td>
+            </tr>
+        `;
+    });
+
+    appointmentsTableBody.innerHTML = html;
+    
+    // Re-attach event listeners to all serve buttons
+    attachServeButtonListeners();
+    
+    // Re-apply search filter if there's a search term
+    if (currentSearchTerm) {
+        filterTableRows();
+    }
+}
+
+    // Update statistics
+    function updateStatistics(stats) {
+        if (!stats) return;
+        
+        if (stats.total !== undefined) {
+            document.getElementById('totalQueue').textContent = stats.total;
+        }
+        if (stats.pending !== undefined) {
+            document.getElementById('pendingCount').textContent = stats.pending;
+        }
+        if (stats.completed !== undefined) {
+            document.getElementById('completedCount').textContent = stats.completed;
+        }
+    }
+
+    // Update recent transactions
+    function updateRecentTransactions(transactions) {
+        if (!transactions || transactions.length === 0) {
+            recentTransactionsBody.innerHTML = `
+                <tr>
+                    <td colspan="6" class="empty-state">
+                        <svg viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd"
+                                d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z"
+                                clip-rule="evenodd" />
+                        </svg>
+                        <p>No completed transactions yet</p>
+                    </td>
+                </tr>
+            `;
+            return;
+        }
+
+        let html = '';
+        transactions.forEach(trans => {
+            const servedTime = new Date(trans.time_catered).toLocaleDateString('en-US', { 
+                month: 'short', 
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit',
+                hour12: true,
+                timeZone: 'Asia/Manila'
+            });
+            
+            const fullName = trans.lname + ', ' + trans.fname + 
+                (trans.suffix ? ' ' + trans.suffix : '') + 
+                (trans.mname ? ' ' + trans.mname.charAt(0) + '.' : '');
+            
+            html += `
+                <tr>
+                    <td><span class="queue-number small">${trans.q_id}</span></td>
+                    <td>
+                        <div class="client-name">
+                            ${fullName}
+                        </div>
+                    </td>
+                    <td>${trans.queue_for}</td>
+                    <td>${servedTime}</td>
+                    <td>
+                        <span class="window-indicator">Window ${trans.window_num}</span>
+                    </td>
+                    <td>
+                        <span class="status-badge status-completed">
+                            <span class="status-dot"></span>
+                            Completed
+                        </span>
+                    </td>
+                </tr>
+            `;
+        });
+
+        recentTransactionsBody.innerHTML = html;
+    }
+
     // Initialize on page load
     document.addEventListener('DOMContentLoaded', function() {
         attachServeButtonListeners();
     });
 
-    // Refresh every 30 seconds (but don't interrupt user actions)
+    // Auto-refresh dashboard every 10 seconds (without page reload)
     let refreshInterval = setInterval(function() {
-        // Only refresh if there are no active requests
+        // Only refresh if there are no active serve actions
         if (!document.querySelector('.serve-btn[disabled]')) {
-            location.reload();
+            fetchDashboardData();
         }
-    }, 30000);
+    }, 10000); // Refresh every 10 seconds
+
+    // Also refresh when user returns to the tab
+    document.addEventListener('visibilitychange', function() {
+        if (!document.hidden && !document.querySelector('.serve-btn[disabled]')) {
+            fetchDashboardData();
+        }
+    });
+
+    // Initial fetch after 5 seconds to ensure everything is loaded
+    setTimeout(fetchDashboardData, 5000);
 </script>

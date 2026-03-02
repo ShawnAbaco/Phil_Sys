@@ -54,6 +54,58 @@ class AppointmentController extends Controller
         ));
     }
 
+    public function getTodayAppointments()
+{
+    try {
+        $today = Carbon::now('Asia/Manila')->toDateString();
+
+        // Get today's appointments that are NOT served (pending)
+        $appointments = TblAppointment::whereDate('date', $today)
+            ->whereNull('time_catered')
+            ->orderBy('date', 'asc')
+            ->get();
+
+        // Format appointments for JSON response
+        $formattedAppointments = $appointments->map(function($appointment) {
+            return [
+                'n_id' => $appointment->n_id,
+                'q_id' => $appointment->q_id,
+                'fname' => $appointment->fname,
+                'mname' => $appointment->mname,
+                'lname' => $appointment->lname,
+                'suffix' => $appointment->suffix,
+                'queue_for' => $appointment->queue_for,
+                'date' => $appointment->date,
+                'trn' => $appointment->trn,
+                'time_catered' => $appointment->time_catered
+            ];
+        });
+
+        // Get statistics
+        $stats = [
+            'total' => TblAppointment::whereDate('date', $today)->count(),
+            'pending' => TblAppointment::whereDate('date', $today)
+                ->whereNull('time_catered')
+                ->count(),
+            'completed' => TblAppointment::whereDate('date', $today)
+                ->whereNotNull('time_catered')
+                ->count(),
+        ];
+
+        return response()->json([
+            'success' => true,
+            'appointments' => $formattedAppointments,
+            'stats' => $stats
+        ]);
+
+    } catch (\Exception $e) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Error fetching appointments: ' . $e->getMessage()
+        ], 500);
+    }
+}
+
     public function issue(Request $request)
     {
         // Get the selected category
