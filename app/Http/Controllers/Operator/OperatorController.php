@@ -15,6 +15,7 @@ class OperatorController extends Controller
     {
         // Get operator's window number from users table
         $windowNum = Auth::user()->window_num ?? '1';
+        $userId = Auth::id(); // Get the logged-in user's ID from users table
         
         // Set timezone to Philippine Time
         Carbon::setLocale('en');
@@ -27,8 +28,9 @@ class OperatorController extends Controller
                                       ->orderBy('date', 'asc')
                                       ->get();
 
-        // Get RECENT COMPLETED TRANSACTIONS (served appointments)
+        // Get RECENT COMPLETED TRANSACTIONS - ONLY for this logged-in user
         $completedTransactions = TblAppointment::whereNotNull('time_catered')
+                                              ->where('user_id', $userId) // Filter by logged-in user
                                               ->orderBy('time_catered', 'desc')
                                               ->limit(10)
                                               ->get();
@@ -42,15 +44,17 @@ class OperatorController extends Controller
                                       ->whereNull('time_catered')
                                       ->count();
 
-        // Get completed appointments count (served)
+        // Get completed appointments count - ONLY for this logged-in user
         $completedCount = TblAppointment::whereDate('date', $today)
                                         ->whereNotNull('time_catered')
+                                        ->where('user_id', $userId) // Filter by logged-in user
                                         ->count();
 
-        // Get count of appointments at current user's window (served at this window)
+        // Get count of appointments at current user's window (served at this window by this user)
         $windowQueueCount = TblAppointment::whereDate('date', $today)
                                          ->where('window_num', $windowNum)
                                          ->whereNotNull('time_catered')
+                                         ->where('user_id', $userId) // Filter by logged-in user
                                          ->count();
 
         return view('operator.dashboard', compact(
@@ -65,70 +69,76 @@ class OperatorController extends Controller
     }
 
     public function fetchAppointments()
-{
-    try {
-        $today = Carbon::now('Asia/Manila')->toDateString();
+    {
+        try {
+            $today = Carbon::now('Asia/Manila')->toDateString();
+            $userId = Auth::id(); // Get the logged-in user's ID
 
-        // Get today's appointments that are not assigned to any window and not served
-        $appointments = TblAppointment::whereDate('date', $today)
-            ->whereNull('window_num')
-            ->whereNull('time_catered')
-            ->orderBy('date', 'asc')
-            ->get();
-
-        // Get statistics
-        $stats = [
-            'total' => TblAppointment::whereDate('date', $today)->count(),
-            'pending' => TblAppointment::whereDate('date', $today)
+            // Get today's appointments that are not assigned to any window and not served
+            $appointments = TblAppointment::whereDate('date', $today)
                 ->whereNull('window_num')
                 ->whereNull('time_catered')
-                ->count(),
-            'completed' => TblAppointment::whereDate('date', $today)
-                ->whereNotNull('time_catered')
-                ->count(),
-        ];
+                ->orderBy('date', 'asc')
+                ->get();
 
-        return response()->json([
-            'success' => true,
-            'appointments' => $appointments,
-            'stats' => $stats
-        ]);
+            // Get statistics - completed count only for this user
+            $stats = [
+                'total' => TblAppointment::whereDate('date', $today)->count(),
+                'pending' => TblAppointment::whereDate('date', $today)
+                    ->whereNull('window_num')
+                    ->whereNull('time_catered')
+                    ->count(),
+                'completed' => TblAppointment::whereDate('date', $today)
+                    ->whereNotNull('time_catered')
+                    ->where('user_id', $userId) // Filter by logged-in user
+                    ->count(),
+            ];
 
-    } catch (\Exception $e) {
-        return response()->json([
-            'success' => false,
-            'message' => 'Error fetching appointments: ' . $e->getMessage()
-        ]);
+            return response()->json([
+                'success' => true,
+                'appointments' => $appointments,
+                'stats' => $stats
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error fetching appointments: ' . $e->getMessage()
+            ]);
+        }
     }
-}
-public function recentTransactions()
-{
-    try {
-        // Get RECENT COMPLETED TRANSACTIONS (served appointments)
-        $transactions = TblAppointment::whereNotNull('time_catered')
-            ->orderBy('time_catered', 'desc')
-            ->limit(10)
-            ->get();
 
-        return response()->json([
-            'success' => true,
-            'transactions' => $transactions
-        ]);
+    public function recentTransactions()
+    {
+        try {
+            $userId = Auth::id(); // Get the logged-in user's ID
+            
+            // Get RECENT COMPLETED TRANSACTIONS - ONLY for this logged-in user
+            $transactions = TblAppointment::whereNotNull('time_catered')
+                ->where('user_id', $userId) // Filter by logged-in user
+                ->orderBy('time_catered', 'desc')
+                ->limit(10)
+                ->get();
 
-    } catch (\Exception $e) {
-        return response()->json([
-            'success' => false,
-            'message' => 'Error fetching transactions: ' . $e->getMessage()
-        ]);
+            return response()->json([
+                'success' => true,
+                'transactions' => $transactions
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error fetching transactions: ' . $e->getMessage()
+            ]);
+        }
     }
-}
 
     public function updateWindow(Request $request)
     {
         try {
             $validated = $request->validate([
                 'n_id' => 'required|integer|exists:tbl_appointment,n_id',
-                'window_num' => 'required' // Remove string validation, accept any type
+                'window_num' => 'required'
             ]);
 
             $appointment = TblAppointment::find($validated['n_id']);
@@ -143,10 +153,10 @@ public function recentTransactions()
             // Convert window_num to string to ensure it's stored properly
             $windowNum = (string) $validated['window_num'];
 
-            // Update the appointment - assign to window and mark as served
+            // Update the appointment - assign to window, mark as served, and associate with logged-in user
             $appointment->window_num = $windowNum;
             $appointment->time_catered = Carbon::now('Asia/Manila');
-            $appointment->user_id = Auth::id();
+            $appointment->user_id = Auth::id(); // This stores the users.id
             $appointment->save();
 
             return response()->json([
@@ -167,6 +177,7 @@ public function recentTransactions()
         try {
             $today = Carbon::now('Asia/Manila')->toDateString();
             $windowNum = Auth::user()->window_num;
+            $userId = Auth::id(); // Get the logged-in user's ID
 
             if (!$windowNum) {
                 return response()->json([
@@ -178,6 +189,7 @@ public function recentTransactions()
             $queued = TblAppointment::whereDate('date', $today)
                 ->where('window_num', (string) $windowNum)
                 ->whereNotNull('time_catered')
+                ->where('user_id', $userId) // Filter by logged-in user
                 ->orderBy('time_catered', 'desc')
                 ->get();
 

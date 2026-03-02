@@ -1,4 +1,6 @@
 <?php
+
+
 // database/migrations/2024_01_01_000000_create_nid_operation_tables.php
 
 use Illuminate\Database\Migrations\Migration;
@@ -97,10 +99,24 @@ return new class extends Migration
             $table->string('trn', 29);
             $table->date('birthdate');
             $table->string('PCN', 16);
-            $table->string('window_num', 9);
-            $table->dateTime('time_catered')->default(DB::raw('CURRENT_TIMESTAMP'));
+            $table->string('window_num', 9)->nullable();
+            $table->dateTime('time_catered')->nullable();
             $table->unsignedBigInteger('user_id')->nullable();
             $table->timestamps();
+
+            // Add indexes for better performance
+            $table->index('q_id');
+            $table->index('date');
+            $table->index('window_num');
+            $table->index('user_id');
+            $table->index('time_catered');
+            
+            // Fix: Add foreign key constraint referencing users.id
+            // Note: This assumes the 'users' table is created before this migration
+            $table->foreign('user_id')
+                  ->references('id')
+                  ->on('users')
+                  ->onDelete('set null');
         });
 
         // =============================================
@@ -142,6 +158,15 @@ return new class extends Migration
             $table->date('ls_birthdate');
             $table->unsignedBigInteger('user_id')->nullable();
             $table->timestamps();
+
+            // Add indexes for tbl_logsheet
+            $table->index('user_id');
+            
+            // Add foreign key for tbl_logsheet
+            $table->foreign('user_id')
+                  ->references('id')
+                  ->on('users')
+                  ->onDelete('set null');
         });
     }
 
@@ -150,6 +175,16 @@ return new class extends Migration
      */
     public function down(): void
     {
+        // Drop foreign keys first
+        Schema::table('tbl_logsheet', function (Blueprint $table) {
+            $table->dropForeign(['user_id']);
+        });
+        
+        Schema::table('tbl_appointment', function (Blueprint $table) {
+            $table->dropForeign(['user_id']);
+        });
+        
+        // Drop tables
         Schema::dropIfExists('tbl_logsheet');
         Schema::dropIfExists('tbl_appointment');
         Schema::dropIfExists('tbl_typeofrc');
