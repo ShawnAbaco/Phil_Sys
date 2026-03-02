@@ -86,63 +86,58 @@
                     </thead>
                     <tbody class="appointments-table-body" id="appointmentsTableBody">
                         @forelse($appointments as $appointment)
-                            @php
-                                $servedTime = $appointment->time_catered
-                                    ? \Carbon\Carbon::parse($appointment->time_catered)->setTimezone('Asia/Manila')
-                                    : null;
-                                $createdTime = \Carbon\Carbon::parse($appointment->date)->setTimezone('Asia/Manila');
-                                $isCompleted = $servedTime && $servedTime->gt($createdTime);
-                                $serviceDisplay = $appointment->queue_for;
+                            {{-- In the Today's Appointments table (around line 70-90) --}}
+@php
+    $servedTime = $appointment->time_catered
+        ? \Carbon\Carbon::parse($appointment->time_catered)->setTimezone('Asia/Manila')
+        : null;
+    $createdTime = \Carbon\Carbon::parse($appointment->date)->setTimezone('Asia/Manila');
+    $isCompleted = $servedTime && $servedTime->gt($createdTime);
+    $serviceDisplay = $appointment->queue_for;
 
-                                // Format suffix properly
-                                $fullName = $appointment->lname . ', ' . $appointment->fname;
-                                if ($appointment->suffix) {
-                                    $fullName .= ' ' . $appointment->suffix;
-                                }
-                                if ($appointment->mname) {
-                                    $fullName .= ' ' . substr($appointment->mname, 0, 1) . '.';
-                                }
-                            @endphp
-                            {{-- Only show if NOT completed --}}
-                            @if (!$isCompleted)
-                                <tr
-                                    data-search="{{ strtolower($appointment->lname . ' ' . $appointment->fname . ' ' . ($appointment->trn ?? '')) }}">
-                                    <td><span class="queue-number">{{ $appointment->q_id }}</span></td>
-                                    <td>
-                                        <div class="client-name">
-                                            {{ $appointment->lname }}, {{ $appointment->fname }}
-                                            @if ($appointment->mname || $appointment->suffix)
-                                                <small>{{ $appointment->mname }}
-                                                    {{ $appointment->suffix }}</small>
-                                            @endif
-                                        </div>
-                                    </td>
-                                    <td>{{ $appointment->age_category ?? 'N/A' }}</td>
-                                    <td>{{ $appointment->birthdate ? \Carbon\Carbon::parse($appointment->birthdate)->format('M d, Y') : 'N/A' }}
-                                    </td>
-                                    <td>{{ $appointment->trn ?? 'N/A' }}</td>
-                                    <td>{{ $appointment->pcn ?? 'N/A' }}</td>
-                                    <td>{{ $serviceDisplay }}</td>
-                                    <td>{{ $createdTime->format('h:i A') }}</td>
-                                    <td>
-                                        <span class="status-badge status-pending">
-                                            <span class="status-dot"></span>
-                                            Pending
-                                        </span>
-                                    </td>
-                                    <td>
-                                        <button class="btn-action serve-btn" data-id="{{ $appointment->n_id }}"
-                                            data-name="{{ $appointment->fname }} {{ $appointment->lname }}">
-                                            <svg viewBox="0 0 20 20" fill="currentColor">
-                                                <path fill-rule="evenodd"
-                                                    d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                                                    clip-rule="evenodd" />
-                                            </svg>
-                                            Next
-                                        </button>
-                                    </td>
-                                </tr>
-                            @endif
+    // Format name properly with FULL middle name (not just initial)
+    $fullName = $appointment->lname . ', ' . $appointment->fname;
+    if ($appointment->mname && trim($appointment->mname) !== '') {
+        $fullName .= ' ' . $appointment->mname;
+    }
+    if ($appointment->suffix && trim($appointment->suffix) !== '') {
+        $fullName .= ' ' . $appointment->suffix;
+    }
+@endphp
+{{-- Only show if NOT completed --}}
+@if (!$isCompleted)
+    <tr data-search="{{ strtolower($appointment->lname . ' ' . $appointment->fname . ' ' . ($appointment->trn ?? '')) }}">
+        <td><span class="queue-number">{{ $appointment->q_id }}</span></td>
+        <td>
+            <div class="client-name">
+                {{ $fullName }}
+            </div>
+        </td>
+        <td>{{ $appointment->age_category ?? 'N/A' }}</td>
+        <td>{{ $appointment->birthdate ? \Carbon\Carbon::parse($appointment->birthdate)->format('M d, Y') : 'N/A' }}</td>
+        <td>{{ $appointment->trn ?? 'N/A' }}</td>
+        <td>{{ $appointment->pcn ?? 'N/A' }}</td>
+        <td>{{ $serviceDisplay }}</td>
+        <td>{{ $createdTime->format('h:i A') }}</td>
+        <td>
+            <span class="status-badge status-pending">
+                <span class="status-dot"></span>
+                Pending
+            </span>
+        </td>
+        <td>
+            <button class="btn-action serve-btn" data-id="{{ $appointment->n_id }}"
+                data-name="{{ $appointment->fname }} {{ $appointment->lname }}">
+                <svg viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd"
+                        d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                        clip-rule="evenodd" />
+                </svg>
+                Next
+            </button>
+        </td>
+    </tr>
+@endif
                         @empty
                             <tr>
                                 <td colspan="10" class="empty-state">
@@ -187,53 +182,52 @@
                         </tr>
                     </thead>
                     <tbody id="recentTransactionsBody">
-                        @forelse($completedTransactions as $transaction)
-                            @php
-                                $servedTime = \Carbon\Carbon::parse($transaction->time_catered)->setTimezone(
-                                    'Asia/Manila',
-                                );
-                                $serviceDisplay = $transaction->queue_for;
+                        {{-- Recent Transactions --}}
+@forelse($completedTransactions as $transaction)
+    @php
+        $servedTime = \Carbon\Carbon::parse($transaction->time_catered)->setTimezone('Asia/Manila');
+        $serviceDisplay = $transaction->queue_for;
 
-                                // Format suffix properly
-                                $fullName = $transaction->lname . ', ' . $transaction->fname;
-                                if ($transaction->suffix) {
-                                    $fullName .= ' ' . $transaction->suffix;
-                                }
-                                if ($transaction->mname) {
-                                    $fullName .= ' ' . substr($transaction->mname, 0, 1) . '.';
-                                }
-                            @endphp
-                            <tr>
-                                <td><span class="queue-number small">{{ $transaction->q_id }}</span></td>
-                                <td>
-                                    <div class="client-name">
-                                        {{ $fullName }}
-                                    </div>
-                                </td>
-                                <td>{{ $serviceDisplay }}</td>
-                                <td>{{ $servedTime->format('M d, h:i A') }}</td>
-                                <td>
-                                    <span class="window-indicator">Window {{ $transaction->window_num }}</span>
-                                </td>
-                                <td>
-                                    <span class="status-badge status-completed">
-                                        <span class="status-dot"></span>
-                                        Completed
-                                    </span>
-                                </td>
-                            </tr>
-                        @empty
-                            <tr>
-                                <td colspan="6" class="empty-state">
-                                    <svg viewBox="0 0 20 20" fill="currentColor">
-                                        <path fill-rule="evenodd"
-                                            d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z"
-                                            clip-rule="evenodd" />
-                                    </svg>
-                                    <p>No completed transactions yet</p>
-                                </td>
-                            </tr>
-                        @endforelse
+        // Format name properly with FULL middle name (not just initial)
+        $fullName = $transaction->lname . ', ' . $transaction->fname;
+        if ($transaction->mname && trim($transaction->mname) !== '') {
+            $fullName .= ' ' . $transaction->mname;
+        }
+        if ($transaction->suffix && trim($transaction->suffix) !== '') {
+            $fullName .= ' ' . $transaction->suffix;
+        }
+    @endphp
+    <tr>
+        <td><span class="queue-number small">{{ $transaction->q_id }}</span></td>
+        <td>
+            <div class="client-name">
+                {{ $fullName }}
+            </div>
+        </td>
+        <td>{{ $serviceDisplay }}</td>
+        <td>{{ $servedTime->format('M d, h:i A') }}</td>
+        <td>
+            <span class="window-indicator">Window {{ $transaction->window_num }}</span>
+        </td>
+        <td>
+            <span class="status-badge status-completed">
+                <span class="status-dot"></span>
+                Completed
+            </span>
+        </td>
+    </tr>
+@empty
+    <tr>
+        <td colspan="6" class="empty-state">
+            <svg viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd"
+                    d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z"
+                    clip-rule="evenodd" />
+            </svg>
+            <p>No completed transactions yet</p>
+        </td>
+    </tr>
+@endforelse
                     </tbody>
                 </table>
             </div>
@@ -448,7 +442,7 @@ function fetchDashboardData() {
     });
 }
 
-    // Update appointments table
+// Update appointments table
 function updateAppointmentsTable(appointments) {
     if (!appointments || appointments.length === 0) {
         appointmentsTableBody.innerHTML = `
@@ -476,9 +470,18 @@ function updateAppointmentsTable(appointments) {
             timeZone: 'Asia/Manila'
         });
         
-        const fullName = app.lname + ', ' + app.fname + 
-            (app.suffix ? ' ' + app.suffix : '') + 
-            (app.mname ? ' ' + app.mname.charAt(0) + '.' : '');
+        // Format name with FULL middle name (not just initial)
+        let fullName = app.lname + ', ' + app.fname;
+        
+        // Add full middle name if it exists
+        if (app.mname && app.mname.trim() !== '') {
+            fullName += ' ' + app.mname;
+        }
+        
+        // Add suffix if it exists
+        if (app.suffix && app.suffix.trim() !== '') {
+            fullName += ' ' + app.suffix;
+        }
         
         const birthdate = app.birthdate ? new Date(app.birthdate).toLocaleDateString('en-US', { 
             month: 'short', 
@@ -548,65 +551,73 @@ function updateAppointmentsTable(appointments) {
         }
     }
 
-    // Update recent transactions
-    function updateRecentTransactions(transactions) {
-        if (!transactions || transactions.length === 0) {
-            recentTransactionsBody.innerHTML = `
-                <tr>
-                    <td colspan="6" class="empty-state">
-                        <svg viewBox="0 0 20 20" fill="currentColor">
-                            <path fill-rule="evenodd"
-                                d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z"
-                                clip-rule="evenodd" />
-                        </svg>
-                        <p>No completed transactions yet</p>
-                    </td>
-                </tr>
-            `;
-            return;
-        }
-
-        let html = '';
-        transactions.forEach(trans => {
-            const servedTime = new Date(trans.time_catered).toLocaleDateString('en-US', { 
-                month: 'short', 
-                day: 'numeric',
-                hour: '2-digit',
-                minute: '2-digit',
-                hour12: true,
-                timeZone: 'Asia/Manila'
-            });
-            
-            const fullName = trans.lname + ', ' + trans.fname + 
-                (trans.suffix ? ' ' + trans.suffix : '') + 
-                (trans.mname ? ' ' + trans.mname.charAt(0) + '.' : '');
-            
-            html += `
-                <tr>
-                    <td><span class="queue-number small">${trans.q_id}</span></td>
-                    <td>
-                        <div class="client-name">
-                            ${fullName}
-                        </div>
-                    </td>
-                    <td>${trans.queue_for}</td>
-                    <td>${servedTime}</td>
-                    <td>
-                        <span class="window-indicator">Window ${trans.window_num}</span>
-                    </td>
-                    <td>
-                        <span class="status-badge status-completed">
-                            <span class="status-dot"></span>
-                            Completed
-                        </span>
-                    </td>
-                </tr>
-            `;
-        });
-
-        recentTransactionsBody.innerHTML = html;
+// Update recent transactions
+function updateRecentTransactions(transactions) {
+    if (!transactions || transactions.length === 0) {
+        recentTransactionsBody.innerHTML = `
+            <tr>
+                <td colspan="6" class="empty-state">
+                    <svg viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd"
+                            d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z"
+                            clip-rule="evenodd" />
+                    </svg>
+                    <p>No completed transactions yet</p>
+                </td>
+            </tr>
+        `;
+        return;
     }
 
+    let html = '';
+    transactions.forEach(trans => {
+        const servedTime = new Date(trans.time_catered).toLocaleDateString('en-US', { 
+            month: 'short', 
+            day: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit',
+            hour12: true,
+            timeZone: 'Asia/Manila'
+        });
+        
+        // Format name with FULL middle name (not just initial)
+        let fullName = trans.lname + ', ' + trans.fname;
+        
+        // Add full middle name if it exists
+        if (trans.mname && trans.mname.trim() !== '') {
+            fullName += ' ' + trans.mname;
+        }
+        
+        // Add suffix if it exists
+        if (trans.suffix && trans.suffix.trim() !== '') {
+            fullName += ' ' + trans.suffix;
+        }
+        
+        html += `
+            <tr>
+                <td><span class="queue-number small">${trans.q_id}</span></td>
+                <td>
+                    <div class="client-name">
+                        ${fullName}
+                    </div>
+                </td>
+                <td>${trans.queue_for}</td>
+                <td>${servedTime}</td>
+                <td>
+                    <span class="window-indicator">Window ${trans.window_num}</span>
+                </td>
+                <td>
+                    <span class="status-badge status-completed">
+                        <span class="status-dot"></span>
+                        Completed
+                    </span>
+                </td>
+            </tr>
+        `;
+    });
+
+    recentTransactionsBody.innerHTML = html;
+}
     // Initialize on page load
     document.addEventListener('DOMContentLoaded', function() {
         attachServeButtonListeners();

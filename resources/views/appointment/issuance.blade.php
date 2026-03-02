@@ -880,86 +880,94 @@
         }
 
         // Update appointments table
-        function updateAppointmentsTable(appointments) {
-            const tbody = document.getElementById('appointmentsTableBody');
-            
-            if (!appointments || appointments.length === 0) {
-                tbody.innerHTML = `
-                    <tr>
-                        <td colspan="6" class="empty-state">
-                            <svg viewBox="0 0 20 20" fill="currentColor">
-                                <path fill-rule="evenodd"
-                                    d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z"
-                                    clip-rule="evenodd" />
-                            </svg>
-                            <p>No pending appointments for today</p>
-                        </td>
-                    </tr>
-                `;
-                return;
-            }
+function updateAppointmentsTable(appointments) {
+    const tbody = document.getElementById('appointmentsTableBody');
+    
+    if (!appointments || appointments.length === 0) {
+        tbody.innerHTML = `
+            <tr>
+                <td colspan="6" class="empty-state">
+                    <svg viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd"
+                            d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z"
+                            clip-rule="evenodd" />
+                    </svg>
+                    <p>No pending appointments for today</p>
+                </td>
+            </tr>
+        `;
+        return;
+    }
 
-            let html = '';
-            appointments.forEach(app => {
-                // Only show if NOT completed
-                if (!app.time_catered) {
-                    const createdTime = new Date(app.date).toLocaleTimeString('en-US', { 
-                        hour: '2-digit', 
-                        minute: '2-digit',
-                        hour12: true,
-                        timeZone: 'Asia/Manila'
-                    });
-                    
-                    const fullName = app.lname + ', ' + app.fname + 
-                        (app.suffix ? ' ' + app.suffix : '') + 
-                        if (app.mname && app.mname.trim() !== '') {
-                            fullName += ' ' + app.mname;
-                        }                    
-                    const searchData = (app.lname + ' ' + app.fname + ' ' + (app.trn || '')).toLowerCase();
-                    
-                    html += `
-                        <tr data-search="${searchData}">
-                            <td><span class="queue-number">${app.q_id}</span></td>
-                            <td>
-                                <div class="client-name">
-                                    ${fullName}
-                                </div>
-                            </td>
-                            <td>${app.queue_for}</td>
-                            <td>${createdTime}</td>
-                            <td>
-                                <span class="status-badge status-pending">
-                                    <span class="status-dot"></span>
-                                    Pending
-                                </span>
-                            </td>
-                        </tr>
-                    `;
-                }
+    let html = '';
+    appointments.forEach(app => {
+        // Only show if NOT completed
+        if (!app.time_catered) {
+            const createdTime = new Date(app.date).toLocaleTimeString('en-US', { 
+                hour: '2-digit', 
+                minute: '2-digit',
+                hour12: true,
+                timeZone: 'Asia/Manila'
             });
-
-            if (html === '') {
-                tbody.innerHTML = `
-                    <tr>
-                        <td colspan="6" class="empty-state">
-                            <svg viewBox="0 0 20 20" fill="currentColor">
-                                <path fill-rule="evenodd"
-                                    d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z"
-                                    clip-rule="evenodd" />
-                            </svg>
-                            <p>No pending appointments for today</p>
-                        </td>
-                    </tr>
-                `;
-            } else {
-                tbody.innerHTML = html;
-                
-                // Re-apply search filter
-                if (currentSearchTerm) {
-                    filterTableRows();
-                }
+            
+            // UPDATED: Show full middle name instead of just initial
+            let fullName = app.lname + ', ' + app.fname;
+            
+            // Add middle name if it exists (full name, not just initial)
+            if (app.mname && app.mname.trim() !== '') {
+                fullName += ' ' + app.mname;
             }
+            
+            // Add suffix if it exists
+            if (app.suffix && app.suffix.trim() !== '') {
+                fullName += ' ' + app.suffix;
+            }
+            
+            const searchData = (app.lname + ' ' + app.fname + ' ' + (app.trn || '')).toLowerCase();
+            
+            html += `
+                <tr data-search="${searchData}">
+                    <td><span class="queue-number">${app.q_id}</span></td>
+                    <td>
+                        <div class="client-name">
+                            ${fullName}
+                        </div>
+                    </td>
+                    <td>${app.queue_for}</td>
+                    <td>${createdTime}</td>
+                    <td>
+                        <span class="status-badge status-pending">
+                            <span class="status-dot"></span>
+                            Pending
+                        </span>
+                    </td>
+                </tr>
+            `;
         }
+    });
+
+    if (html === '') {
+        tbody.innerHTML = `
+            <tr>
+                <td colspan="6" class="empty-state">
+                    <svg viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd"
+                            d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z"
+                            clip-rule="evenodd" />
+                    </svg>
+                    <p>No pending appointments for today</p>
+                </td>
+            </tr>
+        `;
+    } else {
+        tbody.innerHTML = html;
+        
+        // Re-apply search filter
+        if (currentSearchTerm) {
+            filterTableRows();
+        }
+    }
+}
 
         // Update statistics
         function updateStatistics(stats) {
