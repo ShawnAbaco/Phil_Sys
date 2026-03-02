@@ -912,8 +912,9 @@
                     
                     const fullName = app.lname + ', ' + app.fname + 
                         (app.suffix ? ' ' + app.suffix : '') + 
-                        (app.mname ? ' ' + app.mname.charAt(0) + '.' : '');
-                    
+                        if (app.mname && app.mname.trim() !== '') {
+                            fullName += ' ' + app.mname;
+                        }                    
                     const searchData = (app.lname + ' ' + app.fname + ' ' + (app.trn || '')).toLowerCase();
                     
                     html += `
