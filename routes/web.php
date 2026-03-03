@@ -116,6 +116,7 @@ Route::middleware(['auth'])->group(function () {
          ->name('appointment.serve');
     Route::get('/appointment/today', [AppointmentController::class, 'getTodayAppointments'])
          ->name('appointment.today');
+    Route::get('/appointments/transactions-page', [AppointmentController::class, 'getTransactionsPage'])->name('appointment.transactions-page');
 
     // Operator routes
     Route::get('/operator/dashboard', [OperatorController::class, 'dashboard'])

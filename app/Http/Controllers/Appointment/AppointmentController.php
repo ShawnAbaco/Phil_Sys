@@ -12,7 +12,7 @@ use Carbon\Carbon;
 
 class AppointmentController extends Controller
 {
-    public function issuance()
+    public function issuance(Request $request)
     {
         Carbon::setLocale('en');
         $today = Carbon::now('Asia/Manila')->toDateString();
@@ -26,11 +26,10 @@ class AppointmentController extends Controller
                                       ->orderBy('date', 'asc')
                                       ->get();
 
-        // Get RECENT COMPLETED TRANSACTIONS - ONLY those that have been served
+        // Get RECENT COMPLETED TRANSACTIONS with pagination (10 items per page)
         $completedTransactions = TblAppointment::whereNotNull('time_catered')
                                               ->orderBy('time_catered', 'desc')
-                                              ->limit(20)
-                                              ->get();
+                                              ->paginate(10); // Change 10 to your preferred items per page
 
         // Get queue count for today (all appointments)
         $queueCount = TblAppointment::whereDate('date', $today)->count();
@@ -55,56 +54,56 @@ class AppointmentController extends Controller
     }
 
     public function getTodayAppointments()
-{
-    try {
-        $today = Carbon::now('Asia/Manila')->toDateString();
+    {
+        try {
+            $today = Carbon::now('Asia/Manila')->toDateString();
 
-        // Get today's appointments that are NOT served (pending)
-        $appointments = TblAppointment::whereDate('date', $today)
-            ->whereNull('time_catered')
-            ->orderBy('date', 'asc')
-            ->get();
-
-        // Format appointments for JSON response
-        $formattedAppointments = $appointments->map(function($appointment) {
-            return [
-                'n_id' => $appointment->n_id,
-                'q_id' => $appointment->q_id,
-                'fname' => $appointment->fname,
-                'mname' => $appointment->mname,
-                'lname' => $appointment->lname,
-                'suffix' => $appointment->suffix,
-                'queue_for' => $appointment->queue_for,
-                'date' => $appointment->date,
-                'trn' => $appointment->trn,
-                'time_catered' => $appointment->time_catered
-            ];
-        });
-
-        // Get statistics
-        $stats = [
-            'total' => TblAppointment::whereDate('date', $today)->count(),
-            'pending' => TblAppointment::whereDate('date', $today)
+            // Get today's appointments that are NOT served (pending)
+            $appointments = TblAppointment::whereDate('date', $today)
                 ->whereNull('time_catered')
-                ->count(),
-            'completed' => TblAppointment::whereDate('date', $today)
-                ->whereNotNull('time_catered')
-                ->count(),
-        ];
+                ->orderBy('date', 'asc')
+                ->get();
 
-        return response()->json([
-            'success' => true,
-            'appointments' => $formattedAppointments,
-            'stats' => $stats
-        ]);
+            // Format appointments for JSON response
+            $formattedAppointments = $appointments->map(function($appointment) {
+                return [
+                    'n_id' => $appointment->n_id,
+                    'q_id' => $appointment->q_id,
+                    'fname' => $appointment->fname,
+                    'mname' => $appointment->mname,
+                    'lname' => $appointment->lname,
+                    'suffix' => $appointment->suffix,
+                    'queue_for' => $appointment->queue_for,
+                    'date' => $appointment->date,
+                    'trn' => $appointment->trn,
+                    'time_catered' => $appointment->time_catered
+                ];
+            });
 
-    } catch (\Exception $e) {
-        return response()->json([
-            'success' => false,
-            'message' => 'Error fetching appointments: ' . $e->getMessage()
-        ], 500);
+            // Get statistics
+            $stats = [
+                'total' => TblAppointment::whereDate('date', $today)->count(),
+                'pending' => TblAppointment::whereDate('date', $today)
+                    ->whereNull('time_catered')
+                    ->count(),
+                'completed' => TblAppointment::whereDate('date', $today)
+                    ->whereNotNull('time_catered')
+                    ->count(),
+            ];
+
+            return response()->json([
+                'success' => true,
+                'appointments' => $formattedAppointments,
+                'stats' => $stats
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error fetching appointments: ' . $e->getMessage()
+            ], 500);
+        }
     }
-}
 
     public function issue(Request $request)
     {
@@ -188,7 +187,7 @@ class AppointmentController extends Controller
             $appointment->trn = $formData['trn'] ?? '';
             $appointment->PCN = $formData['pcn'] ?? '';
             $appointment->window_num = null; // Not assigned to any window yet
-            $appointment->time_catered = null; // Not served yet - THIS WAS THE BUG!
+            $appointment->time_catered = null; // Not served yet
             $appointment->save();
 
             // Prepare print slip data with PH time
@@ -299,4 +298,30 @@ class AppointmentController extends Controller
 
         return response()->json($appointments);
     }
+
+public function getTransactionsPage(Request $request)
+{
+    $perPage = $request->get('per_page', 10);
+    $perPage = in_array($perPage, [10, 20, 50, 100]) ? $perPage : 10;
+    
+    $completedTransactions = TblAppointment::whereNotNull('time_catered')
+        ->orderBy('time_catered', 'desc')
+        ->paginate($perPage)
+        ->withQueryString();
+    
+    if ($request->ajax()) {
+        // Return only the necessary parts, not the entire page
+        $tableHtml = view('appointment.partials.transactions-table', compact('completedTransactions'))->render();
+        $paginationHtml = view('appointment.partials.pagination-links', compact('completedTransactions'))->render();
+        $showingInfo = 'Showing ' . $completedTransactions->firstItem() . '-' . $completedTransactions->lastItem() . ' of ' . $completedTransactions->total();
+        
+        return response()->json([
+            'table' => $tableHtml,
+            'pagination' => $paginationHtml,
+            'showing' => $showingInfo
+        ]);
+    }
+    
+    return $completedTransactions;
+}
 }
