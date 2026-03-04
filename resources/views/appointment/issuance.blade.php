@@ -212,9 +212,9 @@
 
                         <div class="form-row">
                             <div class="form-group">
-                                <label for="pcn">PhilSys Card Number (PCN)</label>
-                                <input type="text" name="pcn" id="pcn" value="{{ old('pcn') }}"
-                                    data-required="true" class="@error('pcn') is-invalid @enderror">
+                                <label for="PCN">PhilSys Card Number (PCN)</label>
+                                <input type="text" name="PCN" id="PCN" value="{{ old('PCN') }}"
+                                    data-required="true" class="@error('PCN') is-invalid @enderror">
                             </div>
                         </div>
                     </div>

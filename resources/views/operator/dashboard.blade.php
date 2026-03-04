@@ -115,7 +115,7 @@
                                     <td>{{ $appointment->age_category ?? 'N/A' }}</td>
                                     <td>{{ $appointment->birthdate ? \Carbon\Carbon::parse($appointment->birthdate)->format('M d, Y') : 'N/A' }}</td>
                                     <td>{{ $appointment->trn ?? 'N/A' }}</td>
-                                    <td>{{ $appointment->pcn ?? 'N/A' }}</td>
+                                    <td>{{ $appointment->PCN ?? 'N/A' }}</td>
                                     <td>{{ $serviceDisplay }}</td>
                                     <td>{{ $createdTime->format('h:i A') }}</td>
                                     <td>
@@ -619,7 +619,7 @@
                     <td>${app.age_category || 'N/A'}</td>
                     <td>${birthdate}</td>
                     <td>${app.trn || 'N/A'}</td>
-                    <td>${app.pcn || 'N/A'}</td>
+                    <td>${app.PCN || 'N/A'}</td>
                     <td>${app.queue_for || 'N/A'}</td>
                     <td>${createdTime}</td>
                     <td>

@@ -144,7 +144,7 @@ class AppointmentController extends Controller
                 'suffix_update' => 'nullable|string|max:3',
                 'age_category_update' => 'required|string|max:99',
                 'birthdate_update' => 'required|date',
-                'pcn' => 'required|string|max:16',
+                'PCN' => 'required|string|max:16',
             ]);
         }
 
@@ -186,7 +186,7 @@ class AppointmentController extends Controller
             $appointment->age_category = $formData['age_category'];
             $appointment->birthdate = $formData['birthdate'];
             $appointment->trn = $formData['trn'] ?? '';
-            $appointment->PCN = $formData['pcn'] ?? '';
+            $appointment->PCN = $formData['PCN'] ?? '';
             $appointment->window_num = null; // Not assigned to any window yet
             $appointment->time_catered = null; // Not served yet
             $appointment->save();
@@ -221,7 +221,7 @@ class AppointmentController extends Controller
             'age_category' => '',
             'birthdate' => '',
             'trn' => '',
-            'pcn' => ''
+            'PCN' => ''
         ];
 
         if ($category === 'NID Registration') {
@@ -246,7 +246,7 @@ class AppointmentController extends Controller
             $data['suffix'] = $request->input('suffix_update');
             $data['age_category'] = $request->input('age_category_update');
             $data['birthdate'] = $request->input('birthdate_update');
-            $data['pcn'] = $request->input('pcn');
+            $data['PCN'] = $request->input('PCN');
         }
 
         return $data;
