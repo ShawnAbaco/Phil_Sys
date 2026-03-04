@@ -129,6 +129,8 @@ Route::middleware(['auth'])->group(function () {
          ->name('operator.queued-appointments');
     Route::get('/operator/recent-transactions', [OperatorController::class, 'recentTransactions'])
          ->name('operator.recent-transactions');
+    Route::get('/operator/transactions-page', [OperatorController::class, 'getTransactionsPage'])
+     ->name('operator.transactions-page');
 
     // Admin routes
     Route::prefix('admin')->name('admin.')->group(function () {

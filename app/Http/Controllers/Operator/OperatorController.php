@@ -12,61 +12,61 @@ use Carbon\Carbon;
 class OperatorController extends Controller
 {
     public function dashboard()
-    {
-        // Get operator's window number from users table
-        $windowNum = Auth::user()->window_num ?? '1';
-        $userId = Auth::id(); // Get the logged-in user's ID from users table
-        
-        // Set timezone to Philippine Time
-        Carbon::setLocale('en');
-        $today = Carbon::now('Asia/Manila')->toDateString();
+{
+    // Get operator's window number from users table
+    $windowNum = Auth::user()->window_num ?? '1';
+    $userId = Auth::id(); // Get the logged-in user's ID from users table
+    
+    // Set timezone to Philippine Time
+    Carbon::setLocale('en');
+    $today = Carbon::now('Asia/Manila')->toDateString();
 
-        // Get today's appointments - ONLY PENDING ones (not assigned to any window and not served)
-        $appointments = TblAppointment::whereDate('date', $today)
-                                      ->whereNull('window_num')  // Not assigned to any window
-                                      ->whereNull('time_catered') // Not served
-                                      ->orderBy('date', 'asc')
-                                      ->get();
+    // Get today's appointments - ONLY PENDING ones (not assigned to any window and not served)
+    $appointments = TblAppointment::whereDate('date', $today)
+                                  ->whereNull('window_num')  // Not assigned to any window
+                                  ->whereNull('time_catered') // Not served
+                                  ->orderBy('date', 'asc')
+                                  ->get();
 
-        // Get RECENT COMPLETED TRANSACTIONS - ONLY for this logged-in user
-        $completedTransactions = TblAppointment::whereNotNull('time_catered')
-                                              ->where('user_id', $userId) // Filter by logged-in user
-                                              ->orderBy('time_catered', 'desc')
-                                              ->limit(10)
-                                              ->get();
+    // Get RECENT COMPLETED TRANSACTIONS - WITH PAGINATION (10 items per page)
+    $completedTransactions = TblAppointment::whereNotNull('time_catered')
+                                          ->where('user_id', $userId) // Filter by logged-in user
+                                          ->orderBy('time_catered', 'desc')
+                                          ->paginate(10); // Use paginate() instead of limit()->get()
 
-        // Get queue count for today (all appointments)
-        $queueCount = TblAppointment::whereDate('date', $today)->count();
+    // Get queue count for today (all appointments)
+    $queueCount = TblAppointment::whereDate('date', $today)->count();
 
-        // Get pending appointments count (not assigned to any window)
-        $pendingCount = TblAppointment::whereDate('date', $today)
-                                      ->whereNull('window_num')
-                                      ->whereNull('time_catered')
-                                      ->count();
+    // Get pending appointments count (not assigned to any window)
+    $pendingCount = TblAppointment::whereDate('date', $today)
+                                  ->whereNull('window_num')
+                                  ->whereNull('time_catered')
+                                  ->count();
 
-        // Get completed appointments count - ONLY for this logged-in user
-        $completedCount = TblAppointment::whereDate('date', $today)
-                                        ->whereNotNull('time_catered')
-                                        ->where('user_id', $userId) // Filter by logged-in user
-                                        ->count();
+    // Get completed appointments count - ONLY for this logged-in user
+    $completedCount = TblAppointment::whereDate('date', $today)
+                                    ->whereNotNull('time_catered')
+                                    ->where('user_id', $userId) // Filter by logged-in user
+                                    ->count();
 
-        // Get count of appointments at current user's window (served at this window by this user)
-        $windowQueueCount = TblAppointment::whereDate('date', $today)
-                                         ->where('window_num', $windowNum)
-                                         ->whereNotNull('time_catered')
-                                         ->where('user_id', $userId) // Filter by logged-in user
-                                         ->count();
+    // Get count of appointments at current user's window (served at this window by this user)
+    $windowQueueCount = TblAppointment::whereDate('date', $today)
+                                     ->where('window_num', $windowNum)
+                                     ->whereNotNull('time_catered')
+                                     ->where('user_id', $userId) // Filter by logged-in user
+                                     ->count();
 
-        return view('operator.dashboard', compact(
-            'windowNum',
-            'appointments',
-            'completedTransactions',
-            'queueCount',
-            'pendingCount',
-            'completedCount',
-            'windowQueueCount'
-        ));
-    }
+    return view('operator.dashboard', compact(
+        'windowNum',
+        'appointments',
+        'completedTransactions',
+        'queueCount',
+        'pendingCount',
+        'completedCount',
+        'windowQueueCount'
+    ));
+}
+
 
     public function fetchAppointments()
     {
@@ -108,30 +108,29 @@ class OperatorController extends Controller
         }
     }
 
-    public function recentTransactions()
-    {
-        try {
-            $userId = Auth::id(); // Get the logged-in user's ID
-            
-            // Get RECENT COMPLETED TRANSACTIONS - ONLY for this logged-in user
-            $transactions = TblAppointment::whereNotNull('time_catered')
-                ->where('user_id', $userId) // Filter by logged-in user
-                ->orderBy('time_catered', 'desc')
-                ->limit(10)
-                ->get();
+public function recentTransactions()
+{
+    try {
+        $userId = Auth::id(); // Get the logged-in user's ID
+        
+        // Get RECENT COMPLETED TRANSACTIONS - WITH PAGINATION for AJAX
+        $transactions = TblAppointment::whereNotNull('time_catered')
+            ->where('user_id', $userId) // Filter by logged-in user
+            ->orderBy('time_catered', 'desc')
+            ->paginate(10); // Use paginate() instead of limit()->get()
 
-            return response()->json([
-                'success' => true,
-                'transactions' => $transactions
-            ]);
+        return response()->json([
+            'success' => true,
+            'transactions' => $transactions
+        ]);
 
-        } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Error fetching transactions: ' . $e->getMessage()
-            ]);
-        }
+    } catch (\Exception $e) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Error fetching transactions: ' . $e->getMessage()
+        ]);
     }
+}
 
     public function updateWindow(Request $request)
     {
@@ -205,4 +204,30 @@ class OperatorController extends Controller
             ]);
         }
     }
+public function getTransactionsPage(Request $request)
+{
+    $perPage = $request->get('per_page', 10);
+    $perPage = in_array($perPage, [10, 20, 50, 100]) ? $perPage : 10;
+    $userId = Auth::id();
+    
+    $completedTransactions = TblAppointment::whereNotNull('time_catered')
+        ->where('user_id', $userId)
+        ->orderBy('time_catered', 'desc')
+        ->paginate($perPage)
+        ->withQueryString();
+    
+    if ($request->ajax()) {
+        $tableHtml = view('operator.partials.transactions-table', compact('completedTransactions'))->render();
+        $paginationHtml = view('operator.partials.pagination-links', compact('completedTransactions'))->render();
+        $showingInfo = 'Showing ' . $completedTransactions->firstItem() . '-' . $completedTransactions->lastItem() . ' of ' . $completedTransactions->total();
+        
+        return response()->json([
+            'table' => $tableHtml,
+            'pagination' => $paginationHtml,
+            'showing' => $showingInfo
+        ]);
+    }
+    
+    return $completedTransactions;
+}
 }

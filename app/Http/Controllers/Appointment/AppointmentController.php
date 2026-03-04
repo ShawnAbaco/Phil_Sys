@@ -26,10 +26,11 @@ class AppointmentController extends Controller
                                       ->orderBy('date', 'asc')
                                       ->get();
 
-        // Get RECENT COMPLETED TRANSACTIONS with pagination (10 items per page)
-        $completedTransactions = TblAppointment::whereNotNull('time_catered')
+        // Get RECENT COMPLETED TRANSACTIONS - ONLY FOR TODAY with pagination (10 items per page)
+        $completedTransactions = TblAppointment::whereDate('date', $today)
+                                              ->whereNotNull('time_catered')
                                               ->orderBy('time_catered', 'desc')
-                                              ->paginate(10); // Change 10 to your preferred items per page
+                                              ->paginate(10);
 
         // Get queue count for today (all appointments)
         $queueCount = TblAppointment::whereDate('date', $today)->count();
@@ -39,7 +40,7 @@ class AppointmentController extends Controller
                                       ->whereNull('time_catered')
                                       ->count();
 
-        // Get completed appointments count (served)
+        // Get completed appointments count (served) - ONLY FOR TODAY
         $completedCount = TblAppointment::whereDate('date', $today)
                                         ->whereNotNull('time_catered')
                                         ->count();
@@ -80,7 +81,7 @@ class AppointmentController extends Controller
                 ];
             });
 
-            // Get statistics
+            // Get statistics - completed count ONLY FOR TODAY
             $stats = [
                 'total' => TblAppointment::whereDate('date', $today)->count(),
                 'pending' => TblAppointment::whereDate('date', $today)
@@ -299,29 +300,32 @@ class AppointmentController extends Controller
         return response()->json($appointments);
     }
 
-public function getTransactionsPage(Request $request)
-{
-    $perPage = $request->get('per_page', 10);
-    $perPage = in_array($perPage, [10, 20, 50, 100]) ? $perPage : 10;
-    
-    $completedTransactions = TblAppointment::whereNotNull('time_catered')
-        ->orderBy('time_catered', 'desc')
-        ->paginate($perPage)
-        ->withQueryString();
-    
-    if ($request->ajax()) {
-        // Return only the necessary parts, not the entire page
-        $tableHtml = view('appointment.partials.transactions-table', compact('completedTransactions'))->render();
-        $paginationHtml = view('appointment.partials.pagination-links', compact('completedTransactions'))->render();
-        $showingInfo = 'Showing ' . $completedTransactions->firstItem() . '-' . $completedTransactions->lastItem() . ' of ' . $completedTransactions->total();
+    public function getTransactionsPage(Request $request)
+    {
+        $today = Carbon::now('Asia/Manila')->toDateString();
+        $perPage = $request->get('per_page', 10);
+        $perPage = in_array($perPage, [10, 20, 50, 100]) ? $perPage : 10;
         
-        return response()->json([
-            'table' => $tableHtml,
-            'pagination' => $paginationHtml,
-            'showing' => $showingInfo
-        ]);
+        // Get ONLY TODAY'S completed transactions with pagination
+        $completedTransactions = TblAppointment::whereDate('date', $today)
+                                              ->whereNotNull('time_catered')
+                                              ->orderBy('time_catered', 'desc')
+                                              ->paginate($perPage)
+                                              ->withQueryString();
+        
+        if ($request->ajax()) {
+            // Return only the necessary parts, not the entire page
+            $tableHtml = view('appointment.partials.transactions-table', compact('completedTransactions'))->render();
+            $paginationHtml = view('appointment.partials.pagination-links', compact('completedTransactions'))->render();
+            $showingInfo = 'Showing ' . $completedTransactions->firstItem() . '-' . $completedTransactions->lastItem() . ' of ' . $completedTransactions->total();
+            
+            return response()->json([
+                'table' => $tableHtml,
+                'pagination' => $paginationHtml,
+                'showing' => $showingInfo
+            ]);
+        }
+        
+        return $completedTransactions;
     }
-    
-    return $completedTransactions;
-}
 }

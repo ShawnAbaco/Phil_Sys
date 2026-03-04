@@ -86,58 +86,57 @@
                     </thead>
                     <tbody class="appointments-table-body" id="appointmentsTableBody">
                         @forelse($appointments as $appointment)
-                            {{-- In the Today's Appointments table (around line 70-90) --}}
-@php
-    $servedTime = $appointment->time_catered
-        ? \Carbon\Carbon::parse($appointment->time_catered)->setTimezone('Asia/Manila')
-        : null;
-    $createdTime = \Carbon\Carbon::parse($appointment->date)->setTimezone('Asia/Manila');
-    $isCompleted = $servedTime && $servedTime->gt($createdTime);
-    $serviceDisplay = $appointment->queue_for;
+                            @php
+                                $servedTime = $appointment->time_catered
+                                    ? \Carbon\Carbon::parse($appointment->time_catered)->setTimezone('Asia/Manila')
+                                    : null;
+                                $createdTime = \Carbon\Carbon::parse($appointment->date)->setTimezone('Asia/Manila');
+                                $isCompleted = $servedTime && $servedTime->gt($createdTime);
+                                $serviceDisplay = $appointment->queue_for;
 
-    // Format name properly with FULL middle name (not just initial)
-    $fullName = $appointment->lname . ', ' . $appointment->fname;
-    if ($appointment->mname && trim($appointment->mname) !== '') {
-        $fullName .= ' ' . $appointment->mname;
-    }
-    if ($appointment->suffix && trim($appointment->suffix) !== '') {
-        $fullName .= ' ' . $appointment->suffix;
-    }
-@endphp
-{{-- Only show if NOT completed --}}
-@if (!$isCompleted)
-    <tr data-search="{{ strtolower($appointment->lname . ' ' . $appointment->fname . ' ' . ($appointment->trn ?? '')) }}">
-        <td><span class="queue-number">{{ $appointment->q_id }}</span></td>
-        <td>
-            <div class="client-name">
-                {{ $fullName }}
-            </div>
-        </td>
-        <td>{{ $appointment->age_category ?? 'N/A' }}</td>
-        <td>{{ $appointment->birthdate ? \Carbon\Carbon::parse($appointment->birthdate)->format('M d, Y') : 'N/A' }}</td>
-        <td>{{ $appointment->trn ?? 'N/A' }}</td>
-        <td>{{ $appointment->pcn ?? 'N/A' }}</td>
-        <td>{{ $serviceDisplay }}</td>
-        <td>{{ $createdTime->format('h:i A') }}</td>
-        <td>
-            <span class="status-badge status-pending">
-                <span class="status-dot"></span>
-                Pending
-            </span>
-        </td>
-        <td>
-            <button class="btn-action serve-btn" data-id="{{ $appointment->n_id }}"
-                data-name="{{ $appointment->fname }} {{ $appointment->lname }}">
-                <svg viewBox="0 0 20 20" fill="currentColor">
-                    <path fill-rule="evenodd"
-                        d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                        clip-rule="evenodd" />
-                </svg>
-                Next
-            </button>
-        </td>
-    </tr>
-@endif
+                                // Format name properly with FULL middle name (not just initial)
+                                $fullName = $appointment->lname . ', ' . $appointment->fname;
+                                if ($appointment->mname && trim($appointment->mname) !== '') {
+                                    $fullName .= ' ' . $appointment->mname;
+                                }
+                                if ($appointment->suffix && trim($appointment->suffix) !== '') {
+                                    $fullName .= ' ' . $appointment->suffix;
+                                }
+                            @endphp
+                            {{-- Only show if NOT completed --}}
+                            @if (!$isCompleted)
+                                <tr data-search="{{ strtolower($appointment->lname . ' ' . $appointment->fname . ' ' . ($appointment->trn ?? '')) }}">
+                                    <td><span class="queue-number">{{ $appointment->q_id }}</span></td>
+                                    <td>
+                                        <div class="client-name">
+                                            {{ $fullName }}
+                                        </div>
+                                    </td>
+                                    <td>{{ $appointment->age_category ?? 'N/A' }}</td>
+                                    <td>{{ $appointment->birthdate ? \Carbon\Carbon::parse($appointment->birthdate)->format('M d, Y') : 'N/A' }}</td>
+                                    <td>{{ $appointment->trn ?? 'N/A' }}</td>
+                                    <td>{{ $appointment->pcn ?? 'N/A' }}</td>
+                                    <td>{{ $serviceDisplay }}</td>
+                                    <td>{{ $createdTime->format('h:i A') }}</td>
+                                    <td>
+                                        <span class="status-badge status-pending">
+                                            <span class="status-dot"></span>
+                                            Pending
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <button class="btn-action serve-btn" data-id="{{ $appointment->n_id }}"
+                                            data-name="{{ $appointment->fname }} {{ $appointment->lname }}">
+                                            <svg viewBox="0 0 20 20" fill="currentColor">
+                                                <path fill-rule="evenodd"
+                                                    d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                                                    clip-rule="evenodd" />
+                                            </svg>
+                                            Next
+                                        </button>
+                                    </td>
+                                </tr>
+                            @endif
                         @empty
                             <tr>
                                 <td colspan="10" class="empty-state">
@@ -156,23 +155,27 @@
         </div>
     </div>
 
-    {{-- Recent Transactions --}}
-    <div class="card full-width">
+    {{-- Recent Transactions with Smooth AJAX Pagination --}}
+    <div class="card full-width" id="recentTransactionsCard">
         <div class="card-header">
             <h3>
                 <svg viewBox="0 0 20 20" fill="currentColor">
                     <path fill-rule="evenodd"
                         d="M4 4a2 2 0 00-2 2v8a2 2 0 002 2h12a2 2 0 002-2V8a2 2 0 00-2-2h-5L9 4H4zm7 4a1 1 0 10-2 0v3.586l-.293-.293a1 1 0 10-1.414 1.414l2 2a1 1 0 001.414 0l2-2a1 1 0 10-1.414-1.414l-.293.293V8z"
-                        clip-rule="evenodd" />
+                            clip-rule="evenodd" />
                 </svg>
                 Recent Transactions
             </h3>
+            <div class="card-actions">
+                <span class="badge" id="showingInfo">Showing {{ $completedTransactions->firstItem() }}-{{ $completedTransactions->lastItem() }} of {{ $completedTransactions->total() }}</span>
+            </div>
         </div>
         <div class="card-body">
             <div class="table-responsive">
                 <table class="table">
                     <thead>
                         <tr>
+                            <th>#</th>
                             <th>Queue #</th>
                             <th>Client</th>
                             <th>Service</th>
@@ -181,56 +184,64 @@
                             <th>Status</th>
                         </tr>
                     </thead>
-                    <tbody id="recentTransactionsBody">
-                        {{-- Recent Transactions --}}
-@forelse($completedTransactions as $transaction)
-    @php
-        $servedTime = \Carbon\Carbon::parse($transaction->time_catered)->setTimezone('Asia/Manila');
-        $serviceDisplay = $transaction->queue_for;
+                    <tbody id="transactionsTableContainer">
+                        @forelse($completedTransactions as $index => $transaction)
+                            @php
+                                $servedTime = \Carbon\Carbon::parse($transaction->time_catered)->setTimezone('Asia/Manila');
+                                $serviceDisplay = $transaction->queue_for;
+                                $rowNumber = ($completedTransactions->currentPage() - 1) * $completedTransactions->perPage() + $loop->iteration;
 
-        // Format name properly with FULL middle name (not just initial)
-        $fullName = $transaction->lname . ', ' . $transaction->fname;
-        if ($transaction->mname && trim($transaction->mname) !== '') {
-            $fullName .= ' ' . $transaction->mname;
-        }
-        if ($transaction->suffix && trim($transaction->suffix) !== '') {
-            $fullName .= ' ' . $transaction->suffix;
-        }
-    @endphp
-    <tr>
-        <td><span class="queue-number small">{{ $transaction->q_id }}</span></td>
-        <td>
-            <div class="client-name">
-                {{ $fullName }}
-            </div>
-        </td>
-        <td>{{ $serviceDisplay }}</td>
-        <td>{{ $servedTime->format('M d, h:i A') }}</td>
-        <td>
-            <span class="window-indicator">Window {{ $transaction->window_num }}</span>
-        </td>
-        <td>
-            <span class="status-badge status-completed">
-                <span class="status-dot"></span>
-                Completed
-            </span>
-        </td>
-    </tr>
-@empty
-    <tr>
-        <td colspan="6" class="empty-state">
-            <svg viewBox="0 0 20 20" fill="currentColor">
-                <path fill-rule="evenodd"
-                    d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z"
-                    clip-rule="evenodd" />
-            </svg>
-            <p>No completed transactions yet</p>
-        </td>
-    </tr>
-@endforelse
+                                // Format name properly with FULL middle name (not just initial)
+                                $fullName = $transaction->lname . ', ' . $transaction->fname;
+                                if ($transaction->mname && trim($transaction->mname) !== '') {
+                                    $fullName .= ' ' . $transaction->mname;
+                                }
+                                if ($transaction->suffix && trim($transaction->suffix) !== '') {
+                                    $fullName .= ' ' . $transaction->suffix;
+                                }
+                            @endphp
+                            <tr>
+                                <td><span class="row-number">{{ $rowNumber }}</span></td>
+                                <td><span class="queue-number small">{{ $transaction->q_id }}</span></td>
+                                <td>
+                                    <div class="client-name">
+                                        {{ $fullName }}
+                                    </div>
+                                </td>
+                                <td>{{ $serviceDisplay }}</td>
+                                <td>{{ $servedTime->format('M d, h:i A') }}</td>
+                                <td>
+                                    <span class="window-indicator">Window {{ $transaction->window_num }}</span>
+                                </td>
+                                <td>
+                                    <span class="status-badge status-completed">
+                                        <span class="status-dot"></span>
+                                        Completed
+                                    </span>
+                                </td>
+                            </tr>
+                        @empty
+                            <tr>
+                                <td colspan="7" class="empty-state">
+                                    <svg viewBox="0 0 20 20" fill="currentColor">
+                                        <path fill-rule="evenodd"
+                                            d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z"
+                                            clip-rule="evenodd" />
+                                    </svg>
+                                    <p>No completed transactions yet</p>
+                                </td>
+                            </tr>
+                        @endforelse
                     </tbody>
                 </table>
             </div>
+            
+            {{-- Enhanced Pagination with Strict 5-Page Blocks --}}
+            <div class="enhanced-pagination" id="paginationContainer">
+                @include('operator.partials.pagination-links', ['completedTransactions' => $completedTransactions])
+            </div>
+            
+            
         </div>
     </div>
 </main>
@@ -245,9 +256,11 @@
     const appointmentsTableBody = document.getElementById('appointmentsTableBody');
     const searchInput = document.getElementById('searchAppointments');
     const recentTransactionsBody = document.getElementById('recentTransactionsBody');
+    const showingInfo = document.getElementById('showingInfo');
 
     // Store current search term
     let currentSearchTerm = '';
+    let isLoading = false;
 
     // Show Message
     function showMessage(text, type = 'success') {
@@ -297,128 +310,127 @@
         });
     }
 
-// Handle Serve Button Click
-function handleServeClick(e) {
-    const button = e.currentTarget;
-    const n_id = button.getAttribute('data-id');
-    const name = button.getAttribute('data-name');
-    const row = button.closest('tr');
+    // Handle Serve Button Click
+    function handleServeClick(e) {
+        const button = e.currentTarget;
+        const n_id = button.getAttribute('data-id');
+        const name = button.getAttribute('data-name');
+        const row = button.closest('tr');
 
-    // Show confirmation dialog using SweetAlert2
-    Swal.fire({
-        title: 'Confirm Call',
-        html: `<div style="text-align: center; font-size: 16px;">
-                Call <strong>${name}</strong> to window <strong>#${windowNum}</strong>?
-               </div>`,
-        icon: 'question',
-        showCancelButton: true,
-        confirmButtonColor: '#2563eb',
-        cancelButtonColor: '#dc2626',
-        confirmButtonText: 'Yes, Call Now!',
-        cancelButtonText: 'Cancel'
-        // Removed reverseButtons: true - this puts Confirm on left, Cancel on right (default)
-    }).then((result) => {
-        if (result.isConfirmed) {
-            // Disable button to prevent double-click
-            button.disabled = true;
-            const originalHtml = button.innerHTML;
-            button.innerHTML =
-                '<svg viewBox="0 0 20 20" fill="currentColor" class="animate-spin"><path fill-rule="evenodd" d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z" clip-rule="evenodd"/></svg> Processing...';
+        // Show confirmation dialog using SweetAlert2
+        Swal.fire({
+            title: 'Confirm Call',
+            html: `<div style="text-align: center; font-size: 16px;">
+                    Call <strong>${name}</strong> to window <strong>#${windowNum}</strong>?
+                   </div>`,
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonColor: '#2563eb',
+            cancelButtonColor: '#dc2626',
+            confirmButtonText: 'Yes, Call Now!',
+            cancelButtonText: 'Cancel'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                // Disable button to prevent double-click
+                button.disabled = true;
+                const originalHtml = button.innerHTML;
+                button.innerHTML =
+                    '<svg viewBox="0 0 20 20" fill="currentColor" class="animate-spin"><path fill-rule="evenodd" d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z" clip-rule="evenodd"/></svg> Processing...';
 
-            fetch('{{ route('operator.update-window') }}', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': csrfToken,
-                    'Accept': 'application/json'
-                },
-                body: JSON.stringify({
-                    n_id: n_id,
-                    window_num: windowNum
+                fetch('{{ route('operator.update-window') }}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': csrfToken,
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        n_id: n_id,
+                        window_num: windowNum
+                    })
                 })
-            })
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error('Network response was not ok');
-                }
-                return response.json();
-            })
-            .then(data => {
-                if (data.success) {
-                    // Show success popup
-                    showCallSuccessPopup(name, windowNum);
-                    
-                    // Immediately remove the row to provide instant feedback
-                    if (row) {
-                        row.remove();
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
                     }
-                    
-                    // Check if table is empty
-                    const remainingRows = document.querySelectorAll('#appointmentsTableBody tr:not(.empty-state)');
-                    if (remainingRows.length === 0) {
-                        appointmentsTableBody.innerHTML = `
-                            <tr>
-                                <td colspan="10" class="empty-state">
-                                    <svg viewBox="0 0 20 20" fill="currentColor">
-                                        <path fill-rule="evenodd"
-                                            d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z"
-                                            clip-rule="evenodd" />
-                                    </svg>
-                                    <p>No pending appointments for today</p>
-                                </td>
-                            </tr>
-                        `;
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.success) {
+                        // Show success popup
+                        showCallSuccessPopup();
+                        
+                        // Immediately remove the row to provide instant feedback
+                        if (row) {
+                            row.remove();
+                        }
+                        
+                        // Check if table is empty
+                        const remainingRows = document.querySelectorAll('#appointmentsTableBody tr:not(.empty-state)');
+                        if (remainingRows.length === 0) {
+                            appointmentsTableBody.innerHTML = `
+                                <tr>
+                                    <td colspan="10" class="empty-state">
+                                        <svg viewBox="0 0 20 20" fill="currentColor">
+                                            <path fill-rule="evenodd"
+                                                d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z"
+                                                clip-rule="evenodd" />
+                                        </svg>
+                                        <p>No pending appointments for today</p>
+                                    </td>
+                                </tr>
+                            `;
+                        }
+                        
+                        // Update statistics immediately
+                        updatePendingCount();
+                        
+                        // Then fetch fresh data in the background
+                        setTimeout(() => {
+                            fetchDashboardData();
+                        }, 500);
+                    } else {
+                        showMessage(data.message || 'Failed to update.', 'error');
+                        button.disabled = false;
+                        button.innerHTML = originalHtml;
                     }
-                    
-                    // Update statistics immediately
-                    updatePendingCount();
-                    
-                    // Then fetch fresh data in the background
-                    setTimeout(() => {
-                        fetchDashboardData();
-                    }, 500);
-                } else {
-                    showMessage(data.message || 'Failed to update.', 'error');
+                })
+                .catch(err => {
+                    console.error('Error:', err);
+                    showMessage('Error connecting to server. Please try again.', 'error');
                     button.disabled = false;
                     button.innerHTML = originalHtml;
-                }
-            })
-            .catch(err => {
-                console.error('Error:', err);
-                showMessage('Error connecting to server. Please try again.', 'error');
-                button.disabled = false;
-                button.innerHTML = originalHtml;
-            });
-        }
-    });
-}
-// Clean and minimal success popup matching your style
-function showCallSuccessPopup() {
-    Swal.fire({
-        title: 'Served Successfully!',
-        
-        icon: 'success',
-        confirmButtonColor: '#2563eb',
-        confirmButtonText: 'OK',
-        timer: 5000,
-        timerProgressBar: true,
-        showCloseButton: true,
-        width: 500,
-        padding: '2rem'
-    });
-}
-
-// Helper function to update pending count
-function updatePendingCount() {
-    const pendingCount = document.querySelectorAll('#appointmentsTableBody tr:not(.empty-state)').length;
-    document.getElementById('pendingCount').textContent = pendingCount;
-    
-    // Update total queue count (optional - you might want to fetch this from server)
-    const totalQueue = parseInt(document.getElementById('totalQueue').textContent);
-    if (totalQueue > 0) {
-        document.getElementById('totalQueue').textContent = totalQueue - 1;
+                });
+            }
+        });
     }
-}
+
+    // Clean and minimal success popup matching your style
+    function showCallSuccessPopup() {
+        Swal.fire({
+            title: 'Served Successfully!',
+            icon: 'success',
+            confirmButtonColor: '#2563eb',
+            confirmButtonText: 'OK',
+            timer: 5000,
+            timerProgressBar: true,
+            showCloseButton: true,
+            width: 500,
+            padding: '2rem'
+        });
+    }
+
+    // Helper function to update pending count
+    function updatePendingCount() {
+        const pendingCount = document.querySelectorAll('#appointmentsTableBody tr:not(.empty-state)').length;
+        document.getElementById('pendingCount').textContent = pendingCount;
+        
+        // Update total queue count (optional - you might want to fetch this from server)
+        const totalQueue = parseInt(document.getElementById('totalQueue').textContent);
+        if (totalQueue > 0) {
+            document.getElementById('totalQueue').textContent = totalQueue - 1;
+        }
+    }
 
     // Attach Serve Button Listeners
     function attachServeButtonListeners() {
@@ -429,137 +441,217 @@ function updatePendingCount() {
     }
 
     // Fetch dashboard data
-function fetchDashboardData() {
-    fetch('{{ route('operator.fetch-appointments') }}', {
-        method: 'GET',
-        headers: {
-            'Accept': 'application/json',
-            'X-Requested-With': 'XMLHttpRequest'
-        }
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            updateAppointmentsTable(data.appointments);
-            updateStatistics(data.stats);
-        }
-    })
-    .catch(error => {
-        console.error('Error fetching dashboard data:', error);
-    });
-
-    // Also fetch recent transactions
-    fetch('{{ route('operator.recent-transactions') }}', {
-        method: 'GET',
-        headers: {
-            'Accept': 'application/json',
-            'X-Requested-With': 'XMLHttpRequest'
-        }
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            updateRecentTransactions(data.transactions);
-        }
-    })
-    .catch(error => {
-        console.error('Error fetching recent transactions:', error);
-    });
-}
-
-// Update appointments table
-function updateAppointmentsTable(appointments) {
-    if (!appointments || appointments.length === 0) {
-        appointmentsTableBody.innerHTML = `
-            <tr>
-                <td colspan="10" class="empty-state">
-                    <svg viewBox="0 0 20 20" fill="currentColor">
-                        <path fill-rule="evenodd"
-                            d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z"
-                            clip-rule="evenodd" />
-                    </svg>
-                    <p>No pending appointments for today</p>
-                </td>
-            </tr>
-        `;
-        return;
+    function fetchDashboardData() {
+        fetch('{{ route('operator.fetch-appointments') }}', {
+            method: 'GET',
+            headers: {
+                'Accept': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                updateAppointmentsTable(data.appointments);
+                updateStatistics(data.stats);
+            }
+        })
+        .catch(error => {
+            console.error('Error fetching dashboard data:', error);
+        });
     }
 
-    let html = '';
-    
-    appointments.forEach(app => {
-        const createdTime = new Date(app.date).toLocaleTimeString('en-US', { 
-            hour: '2-digit', 
-            minute: '2-digit',
-            hour12: true,
-            timeZone: 'Asia/Manila'
+    // Smooth AJAX Pagination for Recent Transactions
+    function loadTransactionsPage(url) {
+        if (isLoading) return;
+        isLoading = true;
+        
+        // Add loading states with smooth fade
+        const tableContainer = document.getElementById('transactionsTableContainer');
+        const paginationContainer = document.getElementById('paginationContainer');
+        const showingInfo = document.getElementById('showingInfo');
+        
+        tableContainer.classList.add('loading');
+        paginationContainer.classList.add('loading');
+        
+        fetch(url, {
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            // Smooth fade out/in
+            tableContainer.style.opacity = '0';
+            paginationContainer.style.opacity = '0';
+            
+            setTimeout(() => {
+                // Update content
+                tableContainer.innerHTML = data.table;
+                paginationContainer.innerHTML = data.pagination;
+                showingInfo.textContent = data.showing;
+                
+                // Fade back in
+                tableContainer.style.opacity = '1';
+                paginationContainer.style.opacity = '1';
+                
+                // Add success animation
+                tableContainer.classList.add('page-change-success');
+                paginationContainer.classList.add('page-change-success');
+                
+                setTimeout(() => {
+                    tableContainer.classList.remove('page-change-success');
+                    paginationContainer.classList.remove('page-change-success');
+                }, 500);
+                
+                // Remove loading states
+                tableContainer.classList.remove('loading');
+                paginationContainer.classList.remove('loading');
+                
+                // Re-attach event listeners
+                attachPaginationListeners();
+                
+                isLoading = false;
+            }, 150);
+        })
+        .catch(error => {
+            console.error('Error loading page:', error);
+            
+            // Remove loading states on error
+            tableContainer.classList.remove('loading');
+            paginationContainer.classList.remove('loading');
+            tableContainer.style.opacity = '1';
+            paginationContainer.style.opacity = '1';
+            
+            isLoading = false;
+            
+            // Show error message
+            Swal.fire({
+                title: 'Error!',
+                text: 'Failed to load page. Please try again.',
+                icon: 'error',
+                confirmButtonColor: '#dc2626',
+                timer: 2000,
+                showConfirmButton: false
+            });
         });
+    }
+
+    function attachPaginationListeners() {
+        // Handle all pagination links
+        document.querySelectorAll('.pagination-nav-btn:not(.disabled), .pagination-arrow:not(.disabled), .page-number:not(.active)').forEach(link => {
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                if (!isLoading) {
+                    loadTransactionsPage(this.href);
+                }
+            });
+        });
+    }
+
+    // Handle items per page change
+    function handlePerPageChange() {
+        const perPage = document.getElementById('perPageSelect').value;
+        const url = new URL(window.location.href);
+        url.searchParams.set('per_page', perPage);
+        url.searchParams.set('page', 1);
         
-        // Format name with FULL middle name (not just initial)
-        let fullName = app.lname + ', ' + app.fname;
-        
-        // Add full middle name if it exists
-        if (app.mname && app.mname.trim() !== '') {
-            fullName += ' ' + app.mname;
-        }
-        
-        // Add suffix if it exists
-        if (app.suffix && app.suffix.trim() !== '') {
-            fullName += ' ' + app.suffix;
-        }
-        
-        const birthdate = app.birthdate ? new Date(app.birthdate).toLocaleDateString('en-US', { 
-            month: 'short', 
-            day: 'numeric', 
-            year: 'numeric' 
-        }) : 'N/A';
-        
-        const searchData = (app.lname + ' ' + app.fname + ' ' + (app.trn || '')).toLowerCase();
-        
-        html += `
-            <tr data-search="${searchData}">
-                <td><span class="queue-number">${app.q_id || 'N/A'}</span></td>
-                <td>
-                    <div class="client-name">
-                        ${fullName}
-                    </div>
-                </td>
-                <td>${app.age_category || 'N/A'}</td>
-                <td>${birthdate}</td>
-                <td>${app.trn || 'N/A'}</td>
-                <td>${app.pcn || 'N/A'}</td>
-                <td>${app.queue_for || 'N/A'}</td>
-                <td>${createdTime}</td>
-                <td>
-                    <span class="status-badge status-pending">
-                        <span class="status-dot"></span>
-                        Pending
-                    </span>
-                </td>
-                <td>
-                    <button class="btn-action serve-btn" data-id="${app.n_id}" data-name="${app.fname} ${app.lname}">
+        loadTransactionsPage(url.toString());
+    }
+
+    // Update appointments table
+    function updateAppointmentsTable(appointments) {
+        if (!appointments || appointments.length === 0) {
+            appointmentsTableBody.innerHTML = `
+                <tr>
+                    <td colspan="10" class="empty-state">
                         <svg viewBox="0 0 20 20" fill="currentColor">
                             <path fill-rule="evenodd"
-                                d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                                d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z"
                                 clip-rule="evenodd" />
                         </svg>
-                        Next
-                    </button>
-                </td>
-            </tr>
-        `;
-    });
+                        <p>No pending appointments for today</p>
+                    </td>
+                </tr>
+            `;
+            return;
+        }
 
-    appointmentsTableBody.innerHTML = html;
-    
-    // Re-attach event listeners to all serve buttons
-    attachServeButtonListeners();
-    
-    // Re-apply search filter if there's a search term
-    if (currentSearchTerm) {
-        filterTableRows();
+        let html = '';
+        
+        appointments.forEach(app => {
+            const createdTime = new Date(app.date).toLocaleTimeString('en-US', { 
+                hour: '2-digit', 
+                minute: '2-digit',
+                hour12: true,
+                timeZone: 'Asia/Manila'
+            });
+            
+            // Format name with FULL middle name (not just initial)
+            let fullName = app.lname + ', ' + app.fname;
+            
+            // Add full middle name if it exists
+            if (app.mname && app.mname.trim() !== '') {
+                fullName += ' ' + app.mname;
+            }
+            
+            // Add suffix if it exists
+            if (app.suffix && app.suffix.trim() !== '') {
+                fullName += ' ' + app.suffix;
+            }
+            
+            const birthdate = app.birthdate ? new Date(app.birthdate).toLocaleDateString('en-US', { 
+                month: 'short', 
+                day: 'numeric', 
+                year: 'numeric' 
+            }) : 'N/A';
+            
+            const searchData = (app.lname + ' ' + app.fname + ' ' + (app.trn || '')).toLowerCase();
+            
+            html += `
+                <tr data-search="${searchData}">
+                    <td><span class="queue-number">${app.q_id || 'N/A'}</span></td>
+                    <td>
+                        <div class="client-name">
+                            ${fullName}
+                        </div>
+                    </td>
+                    <td>${app.age_category || 'N/A'}</td>
+                    <td>${birthdate}</td>
+                    <td>${app.trn || 'N/A'}</td>
+                    <td>${app.pcn || 'N/A'}</td>
+                    <td>${app.queue_for || 'N/A'}</td>
+                    <td>${createdTime}</td>
+                    <td>
+                        <span class="status-badge status-pending">
+                            <span class="status-dot"></span>
+                            Pending
+                        </span>
+                    </td>
+                    <td>
+                        <button class="btn-action serve-btn" data-id="${app.n_id}" data-name="${app.fname} ${app.lname}">
+                            <svg viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd"
+                                    d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                                    clip-rule="evenodd" />
+                            </svg>
+                            Next
+                        </button>
+                    </td>
+                </tr>
+            `;
+        });
+
+        appointmentsTableBody.innerHTML = html;
+        
+        // Re-attach event listeners to all serve buttons
+        attachServeButtonListeners();
+        
+        // Re-apply search filter if there's a search term
+        if (currentSearchTerm) {
+            filterTableRows();
+        }
     }
-}
 
     // Update statistics
     function updateStatistics(stats) {
@@ -576,76 +668,13 @@ function updateAppointmentsTable(appointments) {
         }
     }
 
-// Update recent transactions
-function updateRecentTransactions(transactions) {
-    if (!transactions || transactions.length === 0) {
-        recentTransactionsBody.innerHTML = `
-            <tr>
-                <td colspan="6" class="empty-state">
-                    <svg viewBox="0 0 20 20" fill="currentColor">
-                        <path fill-rule="evenodd"
-                            d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z"
-                            clip-rule="evenodd" />
-                    </svg>
-                    <p>No completed transactions yet</p>
-                </td>
-            </tr>
-        `;
-        return;
-    }
-
-    let html = '';
-    transactions.forEach(trans => {
-        const servedTime = new Date(trans.time_catered).toLocaleDateString('en-US', { 
-            month: 'short', 
-            day: 'numeric',
-            hour: '2-digit',
-            minute: '2-digit',
-            hour12: true,
-            timeZone: 'Asia/Manila'
-        });
-        
-        // Format name with FULL middle name (not just initial)
-        let fullName = trans.lname + ', ' + trans.fname;
-        
-        // Add full middle name if it exists
-        if (trans.mname && trans.mname.trim() !== '') {
-            fullName += ' ' + trans.mname;
-        }
-        
-        // Add suffix if it exists
-        if (trans.suffix && trans.suffix.trim() !== '') {
-            fullName += ' ' + trans.suffix;
-        }
-        
-        html += `
-            <tr>
-                <td><span class="queue-number small">${trans.q_id}</span></td>
-                <td>
-                    <div class="client-name">
-                        ${fullName}
-                    </div>
-                </td>
-                <td>${trans.queue_for}</td>
-                <td>${servedTime}</td>
-                <td>
-                    <span class="window-indicator">Window ${trans.window_num}</span>
-                </td>
-                <td>
-                    <span class="status-badge status-completed">
-                        <span class="status-dot"></span>
-                        Completed
-                    </span>
-                </td>
-            </tr>
-        `;
-    });
-
-    recentTransactionsBody.innerHTML = html;
-}
     // Initialize on page load
     document.addEventListener('DOMContentLoaded', function() {
         attachServeButtonListeners();
+        attachPaginationListeners();
+        
+        // Handle items per page change
+        document.getElementById('perPageSelect').addEventListener('change', handlePerPageChange);
     });
 
     // Auto-refresh dashboard every 10 seconds (without page reload)
