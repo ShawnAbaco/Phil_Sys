@@ -395,89 +395,124 @@
         </div>
     </div>
 
-{{-- Recent Transactions with Smooth AJAX Pagination --}}
-<div class="card full-width" id="recentTransactionsCard">
-    <div class="card-header">
-        <h3>
-            <svg viewBox="0 0 20 20" fill="currentColor">
-                <path fill-rule="evenodd"
-                    d="M4 4a2 2 0 00-2 2v8a2 2 0 002 2h12a2 2 0 002-2V8a2 2 0 00-2-2h-5L9 4H4zm7 4a1 1 0 10-2 0v3.586l-.293-.293a1 1 0 10-1.414 1.414l2 2a1 1 0 001.414 0l2-2a1 1 0 10-1.414-1.414l-.293.293V8z"
+
+
+    {{-- Add this in the card-header of Recent Transactions --}}
+    <div class="card full-width" id="recentTransactionsCard">
+        <div class="card-header">
+            <h3>
+                <svg viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd"
+                        d="M4 4a2 2 0 00-2 2v8a2 2 0 002 2h12a2 2 0 002-2V8a2 2 0 00-2-2h-5L9 4H4zm7 4a1 1 0 10-2 0v3.586l-.293-.293a1 1 0 10-1.414 1.414l2 2a1 1 0 001.414 0l2-2a1 1 0 10-1.414-1.414l-.293.293V8z"
                         clip-rule="evenodd" />
-            </svg>
-            Recent Transactions
-        </h3>
-        <div class="card-actions">
-            <span class="badge" id="showingInfo">Showing {{ $completedTransactions->firstItem() }}-{{ $completedTransactions->lastItem() }} of {{ $completedTransactions->total() }}</span>
+                </svg>
+                Recent Transactions
+            </h3>
+            <div class="card-actions" style="display: flex; gap: 10px; align-items: center;">
+                <span class="badge" id="showingInfo">Showing
+                    {{ $completedTransactions->firstItem() }}-{{ $completedTransactions->lastItem() }} of
+                    {{ $completedTransactions->total() }}</span>
+
+                {{-- EXPORT BUTTONS --}}
+                <div class="export-buttons" style="display: flex; gap: 8px;">
+                    <a href="{{ route('appointment.export.pdf') }}" class="btn btn-danger"
+                        style="padding: 6px 12px; background-color: #dc2626; color: white; border: none; border-radius: 4px; cursor: pointer; display: inline-flex; align-items: center; gap: 5px; text-decoration: none;"
+                        onclick="showLoading()">
+                        <svg viewBox="0 0 20 20" fill="currentColor" width="16" height="16">
+                            <path fill-rule="evenodd"
+                                d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm2 6a1 1 0 011-1h6a1 1 0 110 2H7a1 1 0 01-1-1zm1 3a1 1 0 100 2h6a1 1 0 100-2H7z"
+                                clip-rule="evenodd" />
+                        </svg>
+                        Export PDF
+                    </a>
+                    <a href="{{ route('appointment.export.csv') }}" class="btn btn-success"
+                        style="padding: 6px 12px; background-color: #059669; color: white; border: none; border-radius: 4px; cursor: pointer; display: inline-flex; align-items: center; gap: 5px; text-decoration: none;"
+                        onclick="showLoading()">
+                        <svg viewBox="0 0 20 20" fill="currentColor" width="16" height="16">
+                            <path fill-rule="evenodd"
+                                d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z"
+                                clip-rule="evenodd" />
+                        </svg>
+                        Export CSV
+                    </a>
+                </div>
+            </div>
         </div>
-    </div>
-    <div class="card-body">
-        <div class="table-responsive">
-            <table class="table">
-                <thead>
-                    <tr>
-                        <th>#</th>
-                        <th>Queue #</th>
-                        <th>Client</th>
-                        <th>Service</th>
-                        <th>Served Time</th>
-                        <th>Window</th>
-                        <th>Status</th>
-                    </tr>
-                </thead>
-                <tbody id="transactionsTableContainer">
-                    @forelse($completedTransactions as $index => $transaction)
-                        @php
-                            $servedTime = \Carbon\Carbon::parse($transaction->time_catered)->setTimezone('Asia/Manila');
-                            $serviceDisplay = $transaction->queue_for;
-                            $rowNumber = ($completedTransactions->currentPage() - 1) * $completedTransactions->perPage() + $loop->iteration;
-                        @endphp
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table">
+                    <thead>
                         <tr>
-                            <td><span class="row-number">{{ $rowNumber }}</span></td>
-                            <td><span class="queue-number small">{{ $transaction->q_id }}</span></td>
-                            <td>
-                                <div class="client-name">
-                                    {{ $transaction->lname }}, {{ $transaction->fname }}
-                                    @if ($transaction->mname || $transaction->suffix)
-                                        <small>{{ $transaction->mname }} {{ $transaction->suffix }}</small>
-                                    @endif
-                                </div>
-                            </td>
-                            <td>{{ $serviceDisplay }}</td>
-                            <td>{{ $servedTime->format('M d, h:i A') }}</td>
-                            <td>
-                                <span class="window-indicator">Window {{ $transaction->window_num }}</span>
-                            </td>
-                            <td>
-                                <span class="status-badge status-completed">
-                                    <span class="status-dot"></span>
-                                    Completed
-                                </span>
-                            </td>
+                            <th>#</th>
+                            <th>Queue #</th>
+                            <th>Client</th>
+                            <th>Service</th>
+                            <th>Served Time</th>
+                            <th>Window</th>
+                            <th>Status</th>
                         </tr>
-                    @empty
-                        <tr>
-                            <td colspan="7" class="empty-state">
-                                <svg viewBox="0 0 20 20" fill="currentColor">
-                                    <path fill-rule="evenodd"
-                                        d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z"
-                                        clip-rule="evenodd" />
-                                </svg>
-                                <p>No completed transactions yet</p>
-                            </td>
-                        </tr>
-                    @endforelse
-                </tbody>
-            </table>
+                    </thead>
+                    <tbody id="transactionsTableContainer">
+                        @forelse($completedTransactions as $index => $transaction)
+                            @php
+                                $servedTime = \Carbon\Carbon::parse($transaction->time_catered)->setTimezone(
+                                    'Asia/Manila',
+                                );
+                                $serviceDisplay = $transaction->queue_for;
+                                $rowNumber =
+                                    ($completedTransactions->currentPage() - 1) * $completedTransactions->perPage() +
+                                    $loop->iteration;
+                            @endphp
+                            <tr>
+                                <td><span class="row-number">{{ $rowNumber }}</span></td>
+                                <td><span class="queue-number small">{{ $transaction->q_id }}</span></td>
+                                <td>
+                                    <div class="client-name">
+                                        {{ $transaction->lname }}, {{ $transaction->fname }}
+                                        @if ($transaction->mname || $transaction->suffix)
+                                            <small>{{ $transaction->mname }} {{ $transaction->suffix }}</small>
+                                        @endif
+                                    </div>
+                                </td>
+                                <td>{{ $serviceDisplay }}</td>
+                                <td>{{ $servedTime->format('M d, h:i A') }}</td>
+                                <td>
+                                    <span class="window-indicator">Window {{ $transaction->window_num }}</span>
+                                </td>
+                                <td>
+                                    <span class="status-badge status-completed">
+                                        <span class="status-dot"></span>
+                                        Completed
+                                    </span>
+                                </td>
+                            </tr>
+                        @empty
+                            <tr>
+                                <td colspan="7" class="empty-state">
+                                    <svg viewBox="0 0 20 20" fill="currentColor">
+                                        <path fill-rule="evenodd"
+                                            d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z"
+                                            clip-rule="evenodd" />
+                                    </svg>
+                                    <p>No completed transactions yet</p>
+                                </td>
+                            </tr>
+                        @endforelse
+                    </tbody>
+                </table>
+            </div>
         </div>
-        
+
         {{-- Enhanced Pagination with Strict 5-Page Blocks --}}
         <div class="enhanced-pagination" id="paginationContainer">
-            @include('appointment.partials.pagination-links', ['completedTransactions' => $completedTransactions])
+            @include('appointment.partials.pagination-links', [
+                'completedTransactions' => $completedTransactions,
+            ])
         </div>
-        
-       
+
+
     </div>
-</div>
+    </div>
 
     {{-- Loading Modal --}}
     <div class="loading-modal" id="loadingModal">
@@ -507,85 +542,85 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html5-qrcode/2.3.4/html5-qrcode.min.js"></script>
 
-<script>
-    let html5QrcodeScanner = null;
-    let isScanning = false;
-    let currentSearchTerm = '';
-    let isLoading = false;
-    let refreshInterval;
+    <script>
+        let html5QrcodeScanner = null;
+        let isScanning = false;
+        let currentSearchTerm = '';
+        let isLoading = false;
+        let refreshInterval;
 
-    function toggleForm() {
-        var category = document.getElementById('category').value;
-        var nidForm = document.getElementById('nidForm');
-        var statusForm = document.getElementById('statusForm');
-        var updatingForm = document.getElementById('updatingForm');
+        function toggleForm() {
+            var category = document.getElementById('category').value;
+            var nidForm = document.getElementById('nidForm');
+            var statusForm = document.getElementById('statusForm');
+            var updatingForm = document.getElementById('updatingForm');
 
-        if (nidForm) nidForm.style.display = 'none';
-        if (statusForm) statusForm.style.display = 'none';
-        if (updatingForm) updatingForm.style.display = 'none';
+            if (nidForm) nidForm.style.display = 'none';
+            if (statusForm) statusForm.style.display = 'none';
+            if (updatingForm) updatingForm.style.display = 'none';
 
-        [nidForm, statusForm, updatingForm].forEach(formDiv => {
-            if (!formDiv) return;
-            var inputs = formDiv.querySelectorAll('input, select');
-            inputs.forEach(input => {
-                input.removeAttribute('required');
+            [nidForm, statusForm, updatingForm].forEach(formDiv => {
+                if (!formDiv) return;
+                var inputs = formDiv.querySelectorAll('input, select');
+                inputs.forEach(input => {
+                    input.removeAttribute('required');
+                });
             });
-        });
 
-        if (category !== 'Status Inquiry' && isScanning) {
-            closeScannerModal();
-        }
+            if (category !== 'Status Inquiry' && isScanning) {
+                closeScannerModal();
+            }
 
-        var activeForm;
-        if (category === 'NID Registration') {
-            activeForm = nidForm;
-        } else if (category === 'Status Inquiry') {
-            activeForm = statusForm;
-        } else if (category === 'Updating') {
-            activeForm = updatingForm;
-        }
+            var activeForm;
+            if (category === 'NID Registration') {
+                activeForm = nidForm;
+            } else if (category === 'Status Inquiry') {
+                activeForm = statusForm;
+            } else if (category === 'Updating') {
+                activeForm = updatingForm;
+            }
 
-        if (activeForm) {
-            activeForm.style.display = 'block';
-            var inputs = activeForm.querySelectorAll('input, select');
-            inputs.forEach(input => {
-                if (input.dataset.required === "true") {
-                    input.setAttribute('required', 'required');
-                }
-            });
-        }
-    }
-
-    async function stopQRScanner() {
-        if (html5QrcodeScanner && isScanning) {
-            try {
-                await html5QrcodeScanner.stop();
-                await html5QrcodeScanner.clear();
-                html5QrcodeScanner = null;
-                isScanning = false;
-            } catch (err) {
-                console.error('Error stopping scanner:', err);
+            if (activeForm) {
+                activeForm.style.display = 'block';
+                var inputs = activeForm.querySelectorAll('input, select');
+                inputs.forEach(input => {
+                    if (input.dataset.required === "true") {
+                        input.setAttribute('required', 'required');
+                    }
+                });
             }
         }
 
-        const qrReader = document.getElementById('qr-reader');
-        if (qrReader) {
-            qrReader.innerHTML = '';
+        async function stopQRScanner() {
+            if (html5QrcodeScanner && isScanning) {
+                try {
+                    await html5QrcodeScanner.stop();
+                    await html5QrcodeScanner.clear();
+                    html5QrcodeScanner = null;
+                    isScanning = false;
+                } catch (err) {
+                    console.error('Error stopping scanner:', err);
+                }
+            }
+
+            const qrReader = document.getElementById('qr-reader');
+            if (qrReader) {
+                qrReader.innerHTML = '';
+            }
         }
-    }
 
-    async function startQRScanner() {
-        const qrReader = document.getElementById('qr-reader');
-        const trnInput = document.getElementById('trn');
+        async function startQRScanner() {
+            const qrReader = document.getElementById('qr-reader');
+            const trnInput = document.getElementById('trn');
 
-        if (!qrReader) {
-            console.error('QR reader element not found');
-            return;
-        }
+            if (!qrReader) {
+                console.error('QR reader element not found');
+                return;
+            }
 
-        await stopQRScanner();
+            await stopQRScanner();
 
-        qrReader.innerHTML = `
+            qrReader.innerHTML = `
         <div class="scanner-loading" style="text-align: center; padding: 60px 20px; color: #2563eb;">
             <svg viewBox="0 0 20 20" fill="currentColor" width="48" height="48" style="animation: spin 1s linear infinite; margin-bottom: 15px;">
                 <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd" />
@@ -594,95 +629,95 @@
         </div>
     `;
 
-        try {
-            if (typeof Html5Qrcode === 'undefined') {
-                throw new Error('QR Scanner library not loaded. Please refresh the page.');
-            }
-
-            if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-                throw new Error(
-                    'Your browser does not support camera access. Please use a modern browser like Chrome, Firefox, or Safari.'
-                );
-            }
-
-            html5QrcodeScanner = new Html5Qrcode("qr-reader");
-
-            const qrCodeSuccessCallback = (decodedText) => {
-                trnInput.value = decodedText;
-                closeScannerModal();
-
-                Swal.fire({
-                    title: 'Success!',
-                    text: 'QR Code scanned successfully!',
-                    icon: 'success',
-                    timer: 1500,
-                    showConfirmButton: false,
-                    position: 'top-end',
-                    toast: true,
-                    showCloseButton: true
-                });
-            };
-
-            const config = {
-                fps: 10,
-                qrbox: {
-                    width: 250,
-                    height: 250
-                },
-                aspectRatio: 1.0
-            };
-
-            const cameras = await Html5Qrcode.getCameras();
-
-            if (cameras && cameras.length > 0) {
-                let selectedCameraId = cameras[0].id;
-
-                for (const camera of cameras) {
-                    const label = camera.label.toLowerCase();
-                    if (label.includes('back') || label.includes('environment') || label.includes('rear')) {
-                        selectedCameraId = camera.id;
-                        break;
-                    }
+            try {
+                if (typeof Html5Qrcode === 'undefined') {
+                    throw new Error('QR Scanner library not loaded. Please refresh the page.');
                 }
 
-                await html5QrcodeScanner.start({
-                        deviceId: selectedCameraId
+                if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+                    throw new Error(
+                        'Your browser does not support camera access. Please use a modern browser like Chrome, Firefox, or Safari.'
+                    );
+                }
+
+                html5QrcodeScanner = new Html5Qrcode("qr-reader");
+
+                const qrCodeSuccessCallback = (decodedText) => {
+                    trnInput.value = decodedText;
+                    closeScannerModal();
+
+                    Swal.fire({
+                        title: 'Success!',
+                        text: 'QR Code scanned successfully!',
+                        icon: 'success',
+                        timer: 1500,
+                        showConfirmButton: false,
+                        position: 'top-end',
+                        toast: true,
+                        showCloseButton: true
+                    });
+                };
+
+                const config = {
+                    fps: 10,
+                    qrbox: {
+                        width: 250,
+                        height: 250
                     },
-                    config,
-                    qrCodeSuccessCallback,
-                    (errorMessage) => {}
-                );
+                    aspectRatio: 1.0
+                };
 
-                isScanning = true;
-            } else {
-                await html5QrcodeScanner.start({
-                        facingMode: "environment"
-                    },
-                    config,
-                    qrCodeSuccessCallback,
-                    (errorMessage) => {}
-                );
+                const cameras = await Html5Qrcode.getCameras();
 
-                isScanning = true;
-            }
+                if (cameras && cameras.length > 0) {
+                    let selectedCameraId = cameras[0].id;
 
-        } catch (err) {
-            console.error('Scanner error:', err);
+                    for (const camera of cameras) {
+                        const label = camera.label.toLowerCase();
+                        if (label.includes('back') || label.includes('environment') || label.includes('rear')) {
+                            selectedCameraId = camera.id;
+                            break;
+                        }
+                    }
 
-            let errorMessage = 'Unable to access camera. ';
+                    await html5QrcodeScanner.start({
+                            deviceId: selectedCameraId
+                        },
+                        config,
+                        qrCodeSuccessCallback,
+                        (errorMessage) => {}
+                    );
 
-            if (err.name === 'NotAllowedError' || err.message.includes('permission')) {
-                errorMessage =
-                    'Camera access denied. Please allow camera access in your browser settings and try again.';
-            } else if (err.name === 'NotFoundError' || err.message.includes('not found')) {
-                errorMessage = 'No camera found on this device.';
-            } else if (err.name === 'NotReadableError' || err.message.includes('in use')) {
-                errorMessage = 'Camera is already in use by another application.';
-            } else {
-                errorMessage += err.message || 'Please check your camera and try again.';
-            }
+                    isScanning = true;
+                } else {
+                    await html5QrcodeScanner.start({
+                            facingMode: "environment"
+                        },
+                        config,
+                        qrCodeSuccessCallback,
+                        (errorMessage) => {}
+                    );
 
-            qrReader.innerHTML = `
+                    isScanning = true;
+                }
+
+            } catch (err) {
+                console.error('Scanner error:', err);
+
+                let errorMessage = 'Unable to access camera. ';
+
+                if (err.name === 'NotAllowedError' || err.message.includes('permission')) {
+                    errorMessage =
+                        'Camera access denied. Please allow camera access in your browser settings and try again.';
+                } else if (err.name === 'NotFoundError' || err.message.includes('not found')) {
+                    errorMessage = 'No camera found on this device.';
+                } else if (err.name === 'NotReadableError' || err.message.includes('in use')) {
+                    errorMessage = 'Camera is already in use by another application.';
+                } else {
+                    errorMessage += err.message || 'Please check your camera and try again.';
+                }
+
+                qrReader.innerHTML = `
             <div class="scanner-error" style="text-align: center; padding: 40px 20px; color: #dc2626;">
                 <svg viewBox="0 0 20 20" fill="currentColor" width="48" height="48" style="margin-bottom: 15px;">
                     <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
@@ -698,102 +733,103 @@
                 </div>
             </div>
         `;
+            }
         }
-    }
 
-    function showScannerModal() {
-        const modal = document.getElementById('scannerModal');
-        if (modal) {
-            modal.style.display = 'flex';
-            setTimeout(() => {
-                startQRScanner();
-            }, 200);
+        function showScannerModal() {
+            const modal = document.getElementById('scannerModal');
+            if (modal) {
+                modal.style.display = 'flex';
+                setTimeout(() => {
+                    startQRScanner();
+                }, 200);
+            }
         }
-    }
 
-    function closeScannerModal() {
-        const modal = document.getElementById('scannerModal');
-        if (modal) {
-            modal.style.display = 'none';
+        function closeScannerModal() {
+            const modal = document.getElementById('scannerModal');
+            if (modal) {
+                modal.style.display = 'none';
+            }
+            stopQRScanner();
         }
-        stopQRScanner();
-    }
 
-    // ENHANCED AUTO-REFRESH FUNCTION with cache busting
-    function fetchAppointments() {
-        // Don't fetch if we're in the middle of pagination loading
-        if (isLoading) return;
-        
-        // Add cache-busting timestamp
-        const timestamp = new Date().getTime();
-        
-        fetch('{{ route("appointment.today") }}?_=' + timestamp, {
-            method: 'GET',
-            headers: {
-                'Accept': 'application/json',
-                'X-Requested-With': 'XMLHttpRequest',
-                'Cache-Control': 'no-cache, no-store, must-revalidate',
-                'Pragma': 'no-cache',
-                'Expires': '0'
-            }
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                updateAppointmentsTable(data.appointments);
-                updateStatistics(data.stats);
-                console.log('Auto-refresh completed at', new Date().toLocaleTimeString(), 'Appointments:', data.appointments.length);
-            }
-        })
-        .catch(error => {
-            console.error('Error fetching appointments:', error);
-        });
-    }
+        // ENHANCED AUTO-REFRESH FUNCTION with cache busting
+        function fetchAppointments() {
+            // Don't fetch if we're in the middle of pagination loading
+            if (isLoading) return;
 
-    // NEW FUNCTION to fetch recent transactions
-    function fetchRecentTransactions() {
-        if (isLoading) return;
-        
-        const timestamp = new Date().getTime();
-        const currentUrl = window.location.href;
-        
-        fetch(currentUrl + (currentUrl.includes('?') ? '&' : '?') + '_=' + timestamp, {
-            method: 'GET',
-            headers: {
-                'Accept': 'application/json',
-                'X-Requested-With': 'XMLHttpRequest',
-                'Cache-Control': 'no-cache, no-store, must-revalidate'
-            }
-        })
-        .then(response => response.text())
-        .then(html => {
-            const parser = new DOMParser();
-            const doc = parser.parseFromString(html, 'text/html');
-            
-            const newTransactions = doc.querySelector('#transactionsTableContainer');
-            const newShowingInfo = doc.querySelector('#showingInfo');
-            const newPagination = doc.querySelector('#paginationContainer');
-            
-            if (newTransactions) {
-                document.getElementById('transactionsTableContainer').innerHTML = newTransactions.innerHTML;
-            }
-            if (newShowingInfo) {
-                document.getElementById('showingInfo').textContent = newShowingInfo.textContent;
-            }
-            if (newPagination) {
-                document.getElementById('paginationContainer').innerHTML = newPagination.innerHTML;
-            }
-            
-            console.log('Recent transactions refreshed');
-        })
-        .catch(error => console.error('Error fetching recent transactions:', error));
-    }
+            // Add cache-busting timestamp
+            const timestamp = new Date().getTime();
 
-    function updateAppointmentsTable(appointments) {
-        const tbody = document.getElementById('appointmentsTableBody');
-        
-        if (!appointments || appointments.length === 0) {
-            tbody.innerHTML = `
+            fetch('{{ route('appointment.today') }}?_=' + timestamp, {
+                    method: 'GET',
+                    headers: {
+                        'Accept': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'Cache-Control': 'no-cache, no-store, must-revalidate',
+                        'Pragma': 'no-cache',
+                        'Expires': '0'
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        updateAppointmentsTable(data.appointments);
+                        updateStatistics(data.stats);
+                        console.log('Auto-refresh completed at', new Date().toLocaleTimeString(), 'Appointments:', data
+                            .appointments.length);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error fetching appointments:', error);
+                });
+        }
+
+        // NEW FUNCTION to fetch recent transactions
+        function fetchRecentTransactions() {
+            if (isLoading) return;
+
+            const timestamp = new Date().getTime();
+            const currentUrl = window.location.href;
+
+            fetch(currentUrl + (currentUrl.includes('?') ? '&' : '?') + '_=' + timestamp, {
+                    method: 'GET',
+                    headers: {
+                        'Accept': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'Cache-Control': 'no-cache, no-store, must-revalidate'
+                    }
+                })
+                .then(response => response.text())
+                .then(html => {
+                    const parser = new DOMParser();
+                    const doc = parser.parseFromString(html, 'text/html');
+
+                    const newTransactions = doc.querySelector('#transactionsTableContainer');
+                    const newShowingInfo = doc.querySelector('#showingInfo');
+                    const newPagination = doc.querySelector('#paginationContainer');
+
+                    if (newTransactions) {
+                        document.getElementById('transactionsTableContainer').innerHTML = newTransactions.innerHTML;
+                    }
+                    if (newShowingInfo) {
+                        document.getElementById('showingInfo').textContent = newShowingInfo.textContent;
+                    }
+                    if (newPagination) {
+                        document.getElementById('paginationContainer').innerHTML = newPagination.innerHTML;
+                    }
+
+                    console.log('Recent transactions refreshed');
+                })
+                .catch(error => console.error('Error fetching recent transactions:', error));
+        }
+
+        function updateAppointmentsTable(appointments) {
+            const tbody = document.getElementById('appointmentsTableBody');
+
+            if (!appointments || appointments.length === 0) {
+                tbody.innerHTML = `
                 <tr>
                     <td colspan="6" class="empty-state">
                         <svg viewBox="0 0 20 20" fill="currentColor">
@@ -805,32 +841,32 @@
                     </td>
                 </tr>
             `;
-            return;
-        }
+                return;
+            }
 
-        let html = '';
-        appointments.forEach(app => {
-            if (!app.time_catered) {
-                const createdTime = new Date(app.date).toLocaleTimeString('en-US', { 
-                    hour: '2-digit', 
-                    minute: '2-digit',
-                    hour12: true,
-                    timeZone: 'Asia/Manila'
-                });
-                
-                let fullName = app.lname + ', ' + app.fname;
-                
-                if (app.mname && app.mname.trim() !== '') {
-                    fullName += ' ' + app.mname;
-                }
-                
-                if (app.suffix && app.suffix.trim() !== '') {
-                    fullName += ' ' + app.suffix;
-                }
-                
-                const searchData = (app.lname + ' ' + app.fname + ' ' + (app.trn || '')).toLowerCase();
-                
-                html += `
+            let html = '';
+            appointments.forEach(app => {
+                if (!app.time_catered) {
+                    const createdTime = new Date(app.date).toLocaleTimeString('en-US', {
+                        hour: '2-digit',
+                        minute: '2-digit',
+                        hour12: true,
+                        timeZone: 'Asia/Manila'
+                    });
+
+                    let fullName = app.lname + ', ' + app.fname;
+
+                    if (app.mname && app.mname.trim() !== '') {
+                        fullName += ' ' + app.mname;
+                    }
+
+                    if (app.suffix && app.suffix.trim() !== '') {
+                        fullName += ' ' + app.suffix;
+                    }
+
+                    const searchData = (app.lname + ' ' + app.fname + ' ' + (app.trn || '')).toLowerCase();
+
+                    html += `
                     <tr data-search="${searchData}">
                         <td><span class="queue-number">${app.q_id}</span></td>
                         <td>
@@ -848,11 +884,11 @@
                         </td>
                     </tr>
                 `;
-            }
-        });
+                }
+            });
 
-        if (html === '') {
-            tbody.innerHTML = `
+            if (html === '') {
+                tbody.innerHTML = `
                 <tr>
                     <td colspan="6" class="empty-state">
                         <svg viewBox="0 0 20 20" fill="currentColor">
@@ -864,249 +900,251 @@
                     </td>
                 </tr>
             `;
-        } else {
-            tbody.innerHTML = html;
-            
-            if (currentSearchTerm) {
-                filterTableRows();
-            }
-        }
-    }
-
-    function updateStatistics(stats) {
-        if (!stats) return;
-        
-        if (stats.total !== undefined) {
-            document.getElementById('totalQueue').textContent = stats.total;
-        }
-        if (stats.pending !== undefined) {
-            document.getElementById('pendingCount').textContent = stats.pending;
-        }
-        if (stats.completed !== undefined) {
-            document.getElementById('completedCount').textContent = stats.completed;
-        }
-    }
-
-    function filterTableRows() {
-        const rows = document.querySelectorAll('#appointmentsTableBody tr');
-        
-        rows.forEach(row => {
-            if (row.classList.contains('empty-state')) return;
-
-            const searchData = row.getAttribute('data-search') || row.textContent.toLowerCase();
-            if (searchData.includes(currentSearchTerm)) {
-                row.style.display = '';
             } else {
-                row.style.display = 'none';
+                tbody.innerHTML = html;
+
+                if (currentSearchTerm) {
+                    filterTableRows();
+                }
             }
-        });
-    }
-
-    // Smooth AJAX Pagination
-    function loadPage(url) {
-        if (isLoading) return;
-        isLoading = true;
-        
-        // Add loading states with smooth fade
-        const tableContainer = document.getElementById('transactionsTableContainer');
-        const paginationContainer = document.getElementById('paginationContainer');
-        const showingInfo = document.getElementById('showingInfo');
-        
-        tableContainer.classList.add('loading');
-        paginationContainer.classList.add('loading');
-        
-        fetch(url, {
-            headers: {
-                'X-Requested-With': 'XMLHttpRequest'
-            }
-        })
-        .then(response => response.text())
-        .then(html => {
-            // Parse the HTML response
-            const parser = new DOMParser();
-            const doc = parser.parseFromString(html, 'text/html');
-            
-            // Extract the new table rows (tbody content)
-            const newTableBody = doc.querySelector('#transactionsTableContainer');
-            const newPagination = doc.querySelector('#paginationContainer');
-            const newShowingInfo = doc.querySelector('#showingInfo');
-            
-            // Smooth fade out/in
-            tableContainer.style.opacity = '0';
-            paginationContainer.style.opacity = '0';
-            
-            setTimeout(() => {
-                // Update content
-                if (newTableBody) {
-                    tableContainer.innerHTML = newTableBody.innerHTML;
-                }
-                if (newPagination) {
-                    paginationContainer.innerHTML = newPagination.innerHTML;
-                }
-                if (newShowingInfo) {
-                    showingInfo.textContent = newShowingInfo.textContent;
-                }
-                
-                // Fade back in
-                tableContainer.style.opacity = '1';
-                paginationContainer.style.opacity = '1';
-                
-                // Add success animation
-                tableContainer.classList.add('page-change-success');
-                paginationContainer.classList.add('page-change-success');
-                
-                setTimeout(() => {
-                    tableContainer.classList.remove('page-change-success');
-                    paginationContainer.classList.remove('page-change-success');
-                }, 500);
-                
-                // Remove loading states
-                tableContainer.classList.remove('loading');
-                paginationContainer.classList.remove('loading');
-                
-                // Re-attach event listeners
-                attachPaginationListeners();
-                
-                isLoading = false;
-            }, 150);
-        })
-        .catch(error => {
-            console.error('Error loading page:', error);
-            
-            // Remove loading states on error
-            tableContainer.classList.remove('loading');
-            paginationContainer.classList.remove('loading');
-            tableContainer.style.opacity = '1';
-            paginationContainer.style.opacity = '1';
-            
-            isLoading = false;
-            
-            // Show error message
-            Swal.fire({
-                title: 'Error!',
-                text: 'Failed to load page. Please try again.',
-                icon: 'error',
-                confirmButtonColor: '#dc2626',
-                timer: 2000,
-                showConfirmButton: false
-            });
-        });
-    }
-
-    function attachPaginationListeners() {
-        // Handle all pagination links
-        document.querySelectorAll('.pagination-nav-btn:not(.disabled), .pagination-arrow:not(.disabled), .page-number:not(.active)').forEach(link => {
-            link.addEventListener('click', function(e) {
-                e.preventDefault();
-                if (!isLoading) {
-                    loadPage(this.href);
-                }
-            });
-        });
-    }
-
-    // ENHANCED AUTO-REFRESH FUNCTION
-    function startAutoRefresh() {
-        console.log('Auto-refresh started');
-        
-        // Clear any existing interval
-        if (refreshInterval) {
-            clearInterval(refreshInterval);
         }
-        
-        // Set new interval - refresh every 10 seconds
-        refreshInterval = setInterval(function() {
-            console.log('Auto-refresh triggered');
-            fetchAppointments();
-            fetchRecentTransactions(); // Also refresh recent transactions
-        }, 10000); // 10000ms = 10 seconds
 
-        // Also refresh when user returns to the tab
-        document.addEventListener('visibilitychange', function() {
-            if (!document.hidden && !isLoading) {
-                console.log('Tab became visible, refreshing');
+        function updateStatistics(stats) {
+            if (!stats) return;
+
+            if (stats.total !== undefined) {
+                document.getElementById('totalQueue').textContent = stats.total;
+            }
+            if (stats.pending !== undefined) {
+                document.getElementById('pendingCount').textContent = stats.pending;
+            }
+            if (stats.completed !== undefined) {
+                document.getElementById('completedCount').textContent = stats.completed;
+            }
+        }
+
+        function filterTableRows() {
+            const rows = document.querySelectorAll('#appointmentsTableBody tr');
+
+            rows.forEach(row => {
+                if (row.classList.contains('empty-state')) return;
+
+                const searchData = row.getAttribute('data-search') || row.textContent.toLowerCase();
+                if (searchData.includes(currentSearchTerm)) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+        }
+
+        // Smooth AJAX Pagination
+        function loadPage(url) {
+            if (isLoading) return;
+            isLoading = true;
+
+            // Add loading states with smooth fade
+            const tableContainer = document.getElementById('transactionsTableContainer');
+            const paginationContainer = document.getElementById('paginationContainer');
+            const showingInfo = document.getElementById('showingInfo');
+
+            tableContainer.classList.add('loading');
+            paginationContainer.classList.add('loading');
+
+            fetch(url, {
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                })
+                .then(response => response.text())
+                .then(html => {
+                    // Parse the HTML response
+                    const parser = new DOMParser();
+                    const doc = parser.parseFromString(html, 'text/html');
+
+                    // Extract the new table rows (tbody content)
+                    const newTableBody = doc.querySelector('#transactionsTableContainer');
+                    const newPagination = doc.querySelector('#paginationContainer');
+                    const newShowingInfo = doc.querySelector('#showingInfo');
+
+                    // Smooth fade out/in
+                    tableContainer.style.opacity = '0';
+                    paginationContainer.style.opacity = '0';
+
+                    setTimeout(() => {
+                        // Update content
+                        if (newTableBody) {
+                            tableContainer.innerHTML = newTableBody.innerHTML;
+                        }
+                        if (newPagination) {
+                            paginationContainer.innerHTML = newPagination.innerHTML;
+                        }
+                        if (newShowingInfo) {
+                            showingInfo.textContent = newShowingInfo.textContent;
+                        }
+
+                        // Fade back in
+                        tableContainer.style.opacity = '1';
+                        paginationContainer.style.opacity = '1';
+
+                        // Add success animation
+                        tableContainer.classList.add('page-change-success');
+                        paginationContainer.classList.add('page-change-success');
+
+                        setTimeout(() => {
+                            tableContainer.classList.remove('page-change-success');
+                            paginationContainer.classList.remove('page-change-success');
+                        }, 500);
+
+                        // Remove loading states
+                        tableContainer.classList.remove('loading');
+                        paginationContainer.classList.remove('loading');
+
+                        // Re-attach event listeners
+                        attachPaginationListeners();
+
+                        isLoading = false;
+                    }, 150);
+                })
+                .catch(error => {
+                    console.error('Error loading page:', error);
+
+                    // Remove loading states on error
+                    tableContainer.classList.remove('loading');
+                    paginationContainer.classList.remove('loading');
+                    tableContainer.style.opacity = '1';
+                    paginationContainer.style.opacity = '1';
+
+                    isLoading = false;
+
+                    // Show error message
+                    Swal.fire({
+                        title: 'Error!',
+                        text: 'Failed to load page. Please try again.',
+                        icon: 'error',
+                        confirmButtonColor: '#dc2626',
+                        timer: 2000,
+                        showConfirmButton: false
+                    });
+                });
+        }
+
+        function attachPaginationListeners() {
+            // Handle all pagination links
+            document.querySelectorAll(
+                    '.pagination-nav-btn:not(.disabled), .pagination-arrow:not(.disabled), .page-number:not(.active)')
+                .forEach(link => {
+                    link.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        if (!isLoading) {
+                            loadPage(this.href);
+                        }
+                    });
+                });
+        }
+
+        // ENHANCED AUTO-REFRESH FUNCTION
+        function startAutoRefresh() {
+            console.log('Auto-refresh started');
+
+            // Clear any existing interval
+            if (refreshInterval) {
+                clearInterval(refreshInterval);
+            }
+
+            // Set new interval - refresh every 10 seconds
+            refreshInterval = setInterval(function() {
+                console.log('Auto-refresh triggered');
                 fetchAppointments();
-                fetchRecentTransactions();
-            }
-        });
-    }
+                fetchRecentTransactions(); // Also refresh recent transactions
+            }, 10000); // 10000ms = 10 seconds
 
-    document.addEventListener('DOMContentLoaded', function() {
-        console.log('DOM loaded, initializing...');
-        
-        @if (session('success'))
-            showSuccessPopup(
-                '{{ session('success') }}',
-                @if (session('printSlip'))
-                    '{{ session('printSlip')['queueNumber'] }}'
-                @else
-                    null
-                @endif
-            );
-        @endif
-
-        @if (session('error'))
-            showErrorPopup('{{ session('error') }}');
-        @endif
-
-        @if ($errors->any())
-            let errors = @json($errors->all());
-            showErrorPopup('Please fix the following errors:', errors);
-        @endif
-
-        const oldCategory = '{{ old('category') }}';
-        if (oldCategory) {
-            document.getElementById('category').value = oldCategory;
-        }
-        toggleForm();
-
-        const inlineScanner = document.getElementById('qr-reader-container');
-        if (inlineScanner) {
-            inlineScanner.remove();
-        }
-
-        const openScannerBtn = document.getElementById('openScannerBtn');
-        const closeModalBtn = document.getElementById('closeModalBtn');
-        const cancelScannerBtn = document.getElementById('cancelScannerBtn');
-        const modal = document.getElementById('scannerModal');
-
-        if (openScannerBtn) {
-            openScannerBtn.addEventListener('click', () => {
-                const category = document.getElementById('category').value;
-
-                if (category !== 'Status Inquiry') {
-                    showWarningPopup('Please select Status Inquiry category first.');
-                    document.getElementById('category').value = 'Status Inquiry';
-                    toggleForm();
-                    return;
+            // Also refresh when user returns to the tab
+            document.addEventListener('visibilitychange', function() {
+                if (!document.hidden && !isLoading) {
+                    console.log('Tab became visible, refreshing');
+                    fetchAppointments();
+                    fetchRecentTransactions();
                 }
-
-                showScannerModal();
             });
         }
 
-        if (closeModalBtn) {
-            closeModalBtn.addEventListener('click', closeScannerModal);
-        }
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('DOM loaded, initializing...');
 
-        if (cancelScannerBtn) {
-            cancelScannerBtn.addEventListener('click', closeScannerModal);
-        }
+            @if (session('success'))
+                showSuccessPopup(
+                    '{{ session('success') }}',
+                    @if (session('printSlip'))
+                        '{{ session('printSlip')['queueNumber'] }}'
+                    @else
+                        null
+                    @endif
+                );
+            @endif
 
-        window.addEventListener('click', (event) => {
-            if (event.target === modal) {
-                closeScannerModal();
+            @if (session('error'))
+                showErrorPopup('{{ session('error') }}');
+            @endif
+
+            @if ($errors->any())
+                let errors = @json($errors->all());
+                showErrorPopup('Please fix the following errors:', errors);
+            @endif
+
+            const oldCategory = '{{ old('category') }}';
+            if (oldCategory) {
+                document.getElementById('category').value = oldCategory;
             }
-        });
+            toggleForm();
 
-        // Initialize pagination listeners
-        attachPaginationListeners();
+            const inlineScanner = document.getElementById('qr-reader-container');
+            if (inlineScanner) {
+                inlineScanner.remove();
+            }
 
-        @if (session('printSlip'))
-            setTimeout(() => {
-                const printContent = document.getElementById('printContent').innerHTML;
-                const printWindow = window.open('', '_blank', 'width=300,height=250');
-                printWindow.document.write(`
+            const openScannerBtn = document.getElementById('openScannerBtn');
+            const closeModalBtn = document.getElementById('closeModalBtn');
+            const cancelScannerBtn = document.getElementById('cancelScannerBtn');
+            const modal = document.getElementById('scannerModal');
+
+            if (openScannerBtn) {
+                openScannerBtn.addEventListener('click', () => {
+                    const category = document.getElementById('category').value;
+
+                    if (category !== 'Status Inquiry') {
+                        showWarningPopup('Please select Status Inquiry category first.');
+                        document.getElementById('category').value = 'Status Inquiry';
+                        toggleForm();
+                        return;
+                    }
+
+                    showScannerModal();
+                });
+            }
+
+            if (closeModalBtn) {
+                closeModalBtn.addEventListener('click', closeScannerModal);
+            }
+
+            if (cancelScannerBtn) {
+                cancelScannerBtn.addEventListener('click', closeScannerModal);
+            }
+
+            window.addEventListener('click', (event) => {
+                if (event.target === modal) {
+                    closeScannerModal();
+                }
+            });
+
+            // Initialize pagination listeners
+            attachPaginationListeners();
+
+            @if (session('printSlip'))
+                setTimeout(() => {
+                    const printContent = document.getElementById('printContent').innerHTML;
+                    const printWindow = window.open('', '_blank', 'width=300,height=250');
+                    printWindow.document.write(`
             <html>
             <head>
                 <title>Appointment Slip</title>
@@ -1128,52 +1166,52 @@
             <body>${printContent}</body>
             </html>
         `);
-                printWindow.document.close();
-                printWindow.focus();
-                printWindow.onload = () => printWindow.print();
-                printWindow.onafterprint = () => printWindow.close();
-            }, 500);
-        @endif
+                    printWindow.document.close();
+                    printWindow.focus();
+                    printWindow.onload = () => printWindow.print();
+                    printWindow.onafterprint = () => printWindow.close();
+                }, 500);
+            @endif
 
-        const searchInput = document.getElementById('searchAppointments');
-        if (searchInput) {
-            searchInput.addEventListener('keyup', function() {
-                currentSearchTerm = this.value.toLowerCase();
-                filterTableRows();
-            });
-        }
-
-        document.getElementById('appointmentForm')?.addEventListener('submit', function(e) {
-            const category = document.getElementById('category').value;
-            if (!category) {
-                e.preventDefault();
-                showWarningPopup('Please select a category');
-                return;
+            const searchInput = document.getElementById('searchAppointments');
+            if (searchInput) {
+                searchInput.addEventListener('keyup', function() {
+                    currentSearchTerm = this.value.toLowerCase();
+                    filterTableRows();
+                });
             }
-            showLoading();
+
+            document.getElementById('appointmentForm')?.addEventListener('submit', function(e) {
+                const category = document.getElementById('category').value;
+                if (!category) {
+                    e.preventDefault();
+                    showWarningPopup('Please select a category');
+                    return;
+                }
+                showLoading();
+            });
+
+            // Start auto-refresh
+            startAutoRefresh();
+
+            // Initial fetch
+            setTimeout(() => {
+                fetchAppointments();
+                fetchRecentTransactions();
+            }, 1000);
         });
 
-        // Start auto-refresh
-        startAutoRefresh();
-        
-        // Initial fetch
-        setTimeout(() => {
-            fetchAppointments();
-            fetchRecentTransactions();
-        }, 1000);
-    });
+        window.addEventListener('beforeunload', function() {
+            if (refreshInterval) {
+                clearInterval(refreshInterval);
+            }
+        });
 
-    window.addEventListener('beforeunload', function() {
-        if (refreshInterval) {
-            clearInterval(refreshInterval);
-        }
-    });
+        function showSuccessPopup(message, queueNumber = null) {
+            let html = `<div style="text-align: center;">${message}</div>`;
 
-    function showSuccessPopup(message, queueNumber = null) {
-        let html = `<div style="text-align: center;">${message}</div>`;
-
-        if (queueNumber) {
-            html = `
+            if (queueNumber) {
+                html = `
             <div style="text-align: center;">
                 <div style="font-size: 18px; margin-bottom: 10px;">${message}</div>
                 <div style="font-size: 32px; font-weight: bold; color: #059669; background: #ecfdf5; padding: 15px; border-radius: 10px; margin: 10px 0;">
@@ -1181,85 +1219,85 @@
                 </div>
             </div>
         `;
+            }
+
+            Swal.fire({
+                title: 'Success!',
+                html: html,
+                icon: 'success',
+                confirmButtonColor: '#2563eb',
+                confirmButtonText: 'OK',
+                timer: 5000,
+                timerProgressBar: true,
+                showCloseButton: true
+            }).then(() => {
+                location.reload();
+            });
         }
 
-        Swal.fire({
-            title: 'Success!',
-            html: html,
-            icon: 'success',
-            confirmButtonColor: '#2563eb',
-            confirmButtonText: 'OK',
-            timer: 5000,
-            timerProgressBar: true,
-            showCloseButton: true
-        }).then(() => {
-            location.reload();
-        });
-    }
+        function showErrorPopup(message, errors = null) {
+            let html = `<div style="text-align: center; color: #991b1b;">${message}</div>`;
 
-    function showErrorPopup(message, errors = null) {
-        let html = `<div style="text-align: center; color: #991b1b;">${message}</div>`;
-
-        if (errors) {
-            let errorsList = '<ul style="text-align: left; margin-top: 10px; color: #991b1b;">';
-            if (typeof errors === 'object') {
-                Object.values(errors).forEach(error => {
-                    if (Array.isArray(error)) {
-                        error.forEach(err => {
-                            errorsList += `<li>${err}</li>`;
-                        });
-                    } else {
-                        errorsList += `<li>${error}</li>`;
-                    }
-                });
+            if (errors) {
+                let errorsList = '<ul style="text-align: left; margin-top: 10px; color: #991b1b;">';
+                if (typeof errors === 'object') {
+                    Object.values(errors).forEach(error => {
+                        if (Array.isArray(error)) {
+                            error.forEach(err => {
+                                errorsList += `<li>${err}</li>`;
+                            });
+                        } else {
+                            errorsList += `<li>${error}</li>`;
+                        }
+                    });
+                }
+                errorsList += '</ul>';
+                html += errorsList;
             }
-            errorsList += '</ul>';
-            html += errorsList;
+
+            Swal.fire({
+                title: 'Error!',
+                html: html,
+                icon: 'error',
+                confirmButtonColor: '#dc2626',
+                confirmButtonText: 'Try Again',
+                showCloseButton: true
+            });
         }
 
-        Swal.fire({
-            title: 'Error!',
-            html: html,
-            icon: 'error',
-            confirmButtonColor: '#dc2626',
-            confirmButtonText: 'Try Again',
-            showCloseButton: true
-        });
-    }
+        function showWarningPopup(message) {
+            Swal.fire({
+                title: 'Warning!',
+                text: message,
+                icon: 'warning',
+                confirmButtonColor: '#d97706',
+                confirmButtonText: 'OK'
+            });
+        }
 
-    function showWarningPopup(message) {
-        Swal.fire({
-            title: 'Warning!',
-            text: message,
-            icon: 'warning',
-            confirmButtonColor: '#d97706',
-            confirmButtonText: 'OK'
-        });
-    }
+        function showConfirmPopup(title, text, callback) {
+            Swal.fire({
+                title: title,
+                text: text,
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#2563eb',
+                cancelButtonColor: '#dc2626',
+                confirmButtonText: 'Yes, proceed!',
+                cancelButtonText: 'Cancel'
+            }).then((result) => {
+                if (result.isConfirmed && callback) {
+                    callback();
+                }
+            });
+        }
 
-    function showConfirmPopup(title, text, callback) {
-        Swal.fire({
-            title: title,
-            text: text,
-            icon: 'question',
-            showCancelButton: true,
-            confirmButtonColor: '#2563eb',
-            cancelButtonColor: '#dc2626',
-            confirmButtonText: 'Yes, proceed!',
-            cancelButtonText: 'Cancel'
-        }).then((result) => {
-            if (result.isConfirmed && callback) {
-                callback();
-            }
-        });
-    }
+        function showLoading() {
+            document.getElementById('loadingModal')?.classList.add('show');
+        }
 
-    function showLoading() {
-        document.getElementById('loadingModal')?.classList.add('show');
-    }
-
-    function hideLoading() {
-        document.getElementById('loadingModal')?.classList.remove('show');
-    }
-</script>
+        function hideLoading() {
+            document.getElementById('loadingModal')?.classList.remove('show');
+        }
+    </script>
 </main>

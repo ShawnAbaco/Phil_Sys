@@ -564,6 +564,46 @@
             margin-bottom: 2px;
         }
 
+        /* Password toggle functionality */
+.password-wrapper {
+    position: relative;
+    width: 100%;
+}
+
+.password-wrapper .form-input {
+    padding-right: 40px;
+}
+
+.password-toggle {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 5px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #666;
+    transition: color 0.3s ease;
+}
+
+.password-toggle:hover {
+    color: #333;
+}
+
+.eye-icon {
+    width: 20px;
+    height: 20px;
+}
+
+/* Active state for password toggle */
+.password-toggle.active {
+    color: #007bff;
+}
+
         /* Forgot password text */
         .forgot-password-text {
             text-align: center;

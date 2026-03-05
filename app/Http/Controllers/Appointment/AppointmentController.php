@@ -8,6 +8,8 @@ use Illuminate\Http\Request;
 use App\Models\TblAppointment;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\DB;
+use Barryvdh\DomPDF\Facade\Pdf;
+use Illuminate\Http\Response;
 use Carbon\Carbon;
 
 class AppointmentController extends Controller
@@ -328,4 +330,42 @@ class AppointmentController extends Controller
         
         return $completedTransactions;
     }
+    
+public function exportPDF()
+{
+    $today = Carbon::now('Asia/Manila')->toDateString();
+    
+    // Get ONLY completed appointments for today
+    $completedAppointments = TblAppointment::whereDate('date', $today)
+                                        ->whereNotNull('time_catered')
+                                        ->orderBy('time_catered', 'desc')
+                                        ->get();
+    
+    // Add row numbers to completed appointments
+    $completedAppointments = $completedAppointments->map(function($appointment, $index) {
+        $appointment->row_number = $index + 1;
+        return $appointment;
+    });
+    
+    // Get summary statistics
+    $totalToday = TblAppointment::whereDate('date', $today)->count();
+    $completedCount = $completedAppointments->count();
+    $pendingCount = $totalToday - $completedCount;
+    
+    $dateToday = Carbon::now('Asia/Manila')->format('F j, Y');
+    $timeGenerated = Carbon::now('Asia/Manila')->format('h:i A');
+    
+    $pdf = Pdf::loadView('appointment.exports.appointments-pdf', compact(
+        'completedAppointments',
+        'completedCount',
+        'pendingCount',
+        'totalToday',
+        'dateToday',
+        'timeGenerated'
+    ));
+    
+    $pdf->setPaper('A4', 'landscape');
+    
+    return $pdf->download('completed-appointments-' . Carbon::now('Asia/Manila')->format('Y-m-d') . '.pdf');
+}
 }
