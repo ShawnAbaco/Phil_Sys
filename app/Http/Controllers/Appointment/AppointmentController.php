@@ -366,6 +366,6 @@ public function exportPDF()
     
     $pdf->setPaper('A4', 'landscape');
     
-    return $pdf->download('completed-appointments-' . Carbon::now('Asia/Manila')->format('Y-m-d') . '.pdf');
+    return $pdf->download('RECENT TRANSACTIONS ' . Carbon::now('Asia/Manila')->format('Y-m-d') . '.pdf');
 }
 }

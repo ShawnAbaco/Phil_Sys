@@ -415,26 +415,24 @@
 
                 {{-- EXPORT BUTTONS --}}
                 <div class="export-buttons" style="display: flex; gap: 8px;">
-                    <a href="{{ route('appointment.export.pdf') }}" class="btn btn-danger"
-                        style="padding: 6px 12px; background-color: #dc2626; color: white; border: none; border-radius: 4px; cursor: pointer; display: inline-flex; align-items: center; gap: 5px; text-decoration: none;"
-                        onclick="showLoading()">
+                    <button type="button" class="btn btn-danger" id="exportPdfBtn"
+                        style="padding: 6px 12px; background-color: #dc2626; color: white; border: none; border-radius: 4px; cursor: pointer; display: inline-flex; align-items: center; gap: 5px;">
                         <svg viewBox="0 0 20 20" fill="currentColor" width="16" height="16">
                             <path fill-rule="evenodd"
                                 d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm2 6a1 1 0 011-1h6a1 1 0 110 2H7a1 1 0 01-1-1zm1 3a1 1 0 100 2h6a1 1 0 100-2H7z"
                                 clip-rule="evenodd" />
                         </svg>
                         Export PDF
-                    </a>
-                    <a href="{{ route('appointment.export.csv') }}" class="btn btn-success"
-                        style="padding: 6px 12px; background-color: #059669; color: white; border: none; border-radius: 4px; cursor: pointer; display: inline-flex; align-items: center; gap: 5px; text-decoration: none;"
-                        onclick="showLoading()">
+                    </button>
+                    <button type="button" class="btn btn-success" id="exportCsvBtn"
+                        style="padding: 6px 12px; background-color: #059669; color: white; border: none; border-radius: 4px; cursor: pointer; display: inline-flex; align-items: center; gap: 5px;">
                         <svg viewBox="0 0 20 20" fill="currentColor" width="16" height="16">
                             <path fill-rule="evenodd"
                                 d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z"
                                 clip-rule="evenodd" />
                         </svg>
                         Export CSV
-                    </a>
+                    </button>
                 </div>
             </div>
         </div>
@@ -1181,14 +1179,90 @@
                 });
             }
 
-            document.getElementById('appointmentForm')?.addEventListener('submit', function(e) {
-                const category = document.getElementById('category').value;
-                if (!category) {
-                    e.preventDefault();
-                    showWarningPopup('Please select a category');
-                    return;
-                }
-                showLoading();
+            // Export PDF with confirmation
+            document.getElementById('exportPdfBtn')?.addEventListener('click', function(e) {
+                e.preventDefault();
+
+                Swal.fire({
+                    title: 'Export PDF',
+                    text: 'Are you sure you want to export the completed transactions report?',
+                    icon: 'question',
+                    showCancelButton: true,
+                    confirmButtonColor: '#2563eb',
+                    cancelButtonColor: '#dc2626',
+                    confirmButtonText: 'Yes, Export!',
+                    cancelButtonText: 'Cancel',
+                    showLoaderOnConfirm: true,
+                    preConfirm: () => {
+                        return new Promise((resolve) => {
+                            // Create a temporary anchor element
+                            const link = document.createElement('a');
+                            link.href = '{{ route('appointment.export.pdf') }}';
+                            link.download = ''; // Let the server set the filename
+                            document.body.appendChild(link);
+                            link.click();
+                            document.body.removeChild(link);
+
+                            // Simulate a short delay for the download to start
+                            setTimeout(resolve, 1000);
+                        });
+                    }
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        Swal.fire({
+                            title: 'Exported Successfully!',
+                            text: 'Your PDF report has been downloaded.',
+                            icon: 'success',
+                            confirmButtonColor: '#2563eb',
+                            timer: 3000,
+                            timerProgressBar: true,
+                            showCloseButton: true
+                        });
+                    }
+                });
+            });
+
+            // Export CSV with confirmation
+            document.getElementById('exportCsvBtn')?.addEventListener('click', function(e) {
+                e.preventDefault();
+
+                Swal.fire({
+                    title: 'Export CSV',
+                    text: 'Are you sure you want to export the completed transactions report?',
+                    icon: 'question',
+                    showCancelButton: true,
+                    confirmButtonColor: '#2563eb',
+                    cancelButtonColor: '#dc2626',
+                    confirmButtonText: 'Yes, Export!',
+                    cancelButtonText: 'Cancel',
+                    showLoaderOnConfirm: true,
+                    preConfirm: () => {
+                        return new Promise((resolve) => {
+                            // Create a temporary anchor element
+                            const link = document.createElement('a');
+                            link.href = '{{ route('appointment.export.csv') }}';
+                            link.download = ''; // Let the server set the filename
+                            document.body.appendChild(link);
+                            link.click();
+                            document.body.removeChild(link);
+
+                            // Simulate a short delay for the download to start
+                            setTimeout(resolve, 1000);
+                        });
+                    }
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        Swal.fire({
+                            title: 'Exported Successfully!',
+                            text: 'Your CSV report has been downloaded.',
+                            icon: 'success',
+                            confirmButtonColor: '#2563eb',
+                            timer: 3000,
+                            timerProgressBar: true,
+                            showCloseButton: true
+                        });
+                    }
+                });
             });
 
             // Start auto-refresh

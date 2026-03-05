@@ -105,7 +105,8 @@
                             @endphp
                             {{-- Only show if NOT completed --}}
                             @if (!$isCompleted)
-                                <tr data-search="{{ strtolower($appointment->lname . ' ' . $appointment->fname . ' ' . ($appointment->trn ?? '')) }}">
+                                <tr
+                                    data-search="{{ strtolower($appointment->lname . ' ' . $appointment->fname . ' ' . ($appointment->trn ?? '')) }}">
                                     <td><span class="queue-number">{{ $appointment->q_id }}</span></td>
                                     <td>
                                         <div class="client-name">
@@ -113,7 +114,8 @@
                                         </div>
                                     </td>
                                     <td>{{ $appointment->age_category ?? 'N/A' }}</td>
-                                    <td>{{ $appointment->birthdate ? \Carbon\Carbon::parse($appointment->birthdate)->format('M d, Y') : 'N/A' }}</td>
+                                    <td>{{ $appointment->birthdate ? \Carbon\Carbon::parse($appointment->birthdate)->format('M d, Y') : 'N/A' }}
+                                    </td>
                                     <td>{{ $appointment->trn ?? 'N/A' }}</td>
                                     <td>{{ $appointment->PCN ?? 'N/A' }}</td>
                                     <td>{{ $serviceDisplay }}</td>
@@ -162,12 +164,34 @@
                 <svg viewBox="0 0 20 20" fill="currentColor">
                     <path fill-rule="evenodd"
                         d="M4 4a2 2 0 00-2 2v8a2 2 0 002 2h12a2 2 0 002-2V8a2 2 0 00-2-2h-5L9 4H4zm7 4a1 1 0 10-2 0v3.586l-.293-.293a1 1 0 10-1.414 1.414l2 2a1 1 0 001.414 0l2-2a1 1 0 10-1.414-1.414l-.293.293V8z"
-                            clip-rule="evenodd" />
+                        clip-rule="evenodd" />
                 </svg>
                 Recent Transactions
             </h3>
-            <div class="card-actions">
-                <span class="badge" id="showingInfo">Showing {{ $completedTransactions->firstItem() }}-{{ $completedTransactions->lastItem() }} of {{ $completedTransactions->total() }}</span>
+            <div class="card-actions" style="display: flex; gap: 10px; align-items: center;">
+                <span class="badge" id="showingInfo">Showing
+                    {{ $completedTransactions->firstItem() }}-{{ $completedTransactions->lastItem() }} of
+                    {{ $completedTransactions->total() }}</span>
+
+                {{-- EXPORT PDF BUTTON --}}
+                <button type="button" class="btn btn-danger" id="operatorExportPdfBtn"
+                    style="padding: 6px 12px; background-color: #dc2626; color: white; border: none; border-radius: 4px; cursor: pointer; display: inline-flex; align-items: center; gap: 5px;">
+                    <svg viewBox="0 0 20 20" fill="currentColor" width="16" height="16">
+                        <path fill-rule="evenodd"
+                            d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm2 6a1 1 0 011-1h6a1 1 0 110 2H7a1 1 0 01-1-1zm1 3a1 1 0 100 2h6a1 1 0 100-2H7z"
+                            clip-rule="evenodd" />
+                    </svg>
+                    Export PDF
+                </button>
+                <button type="button" class="btn btn-success" id="exportCsvBtn"
+                    style="padding: 6px 12px; background-color: #059669; color: white; border: none; border-radius: 4px; cursor: pointer; display: inline-flex; align-items: center; gap: 5px;">
+                    <svg viewBox="0 0 20 20" fill="currentColor" width="16" height="16">
+                        <path fill-rule="evenodd"
+                            d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z"
+                            clip-rule="evenodd" />
+                    </svg>
+                    Export CSV
+                </button>
             </div>
         </div>
         <div class="card-body">
@@ -187,9 +211,13 @@
                     <tbody id="transactionsTableContainer">
                         @forelse($completedTransactions as $index => $transaction)
                             @php
-                                $servedTime = \Carbon\Carbon::parse($transaction->time_catered)->setTimezone('Asia/Manila');
+                                $servedTime = \Carbon\Carbon::parse($transaction->time_catered)->setTimezone(
+                                    'Asia/Manila',
+                                );
                                 $serviceDisplay = $transaction->queue_for;
-                                $rowNumber = ($completedTransactions->currentPage() - 1) * $completedTransactions->perPage() + $loop->iteration;
+                                $rowNumber =
+                                    ($completedTransactions->currentPage() - 1) * $completedTransactions->perPage() +
+                                    $loop->iteration;
 
                                 // Format name properly with FULL middle name (not just initial)
                                 $fullName = $transaction->lname . ', ' . $transaction->fname;
@@ -235,16 +263,19 @@
                     </tbody>
                 </table>
             </div>
-            
+
             {{-- Enhanced Pagination with Strict 5-Page Blocks --}}
             <div class="enhanced-pagination" id="paginationContainer">
-                @include('operator.partials.pagination-links', ['completedTransactions' => $completedTransactions])
+                @include('operator.partials.pagination-links', [
+                    'completedTransactions' => $completedTransactions,
+                ])
             </div>
-            
-            
+
+
         </div>
     </div>
-</main><script>
+</main>
+<script>
     // Configuration - Ensure windowNum is a string
     const windowNum = String({{ Js::from(session('window_num') ?? ($windowNum ?? '1')) }});
     const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
@@ -296,7 +327,7 @@
 
     function filterTableRows() {
         const rows = document.querySelectorAll('#appointmentsTableBody tr');
-        
+
         rows.forEach(row => {
             // Skip empty state row
             if (row.classList.contains('empty-state')) return;
@@ -338,37 +369,38 @@
                     '<svg viewBox="0 0 20 20" fill="currentColor" class="animate-spin"><path fill-rule="evenodd" d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z" clip-rule="evenodd"/></svg> Processing...';
 
                 fetch('{{ route('operator.update-window') }}', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': csrfToken,
-                        'Accept': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        n_id: n_id,
-                        window_num: windowNum
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': csrfToken,
+                            'Accept': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            n_id: n_id,
+                            window_num: windowNum
+                        })
                     })
-                })
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error('Network response was not ok');
-                    }
-                    return response.json();
-                })
-                .then(data => {
-                    if (data.success) {
-                        // Show success popup
-                        showCallSuccessPopup();
-                        
-                        // Immediately remove the row to provide instant feedback
-                        if (row) {
-                            row.remove();
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error('Network response was not ok');
                         }
-                        
-                        // Check if table is empty
-                        const remainingRows = document.querySelectorAll('#appointmentsTableBody tr:not(.empty-state)');
-                        if (remainingRows.length === 0) {
-                            appointmentsTableBody.innerHTML = `
+                        return response.json();
+                    })
+                    .then(data => {
+                        if (data.success) {
+                            // Show success popup
+                            showCallSuccessPopup();
+
+                            // Immediately remove the row to provide instant feedback
+                            if (row) {
+                                row.remove();
+                            }
+
+                            // Check if table is empty
+                            const remainingRows = document.querySelectorAll(
+                                '#appointmentsTableBody tr:not(.empty-state)');
+                            if (remainingRows.length === 0) {
+                                appointmentsTableBody.innerHTML = `
                                 <tr>
                                     <td colspan="10" class="empty-state">
                                         <svg viewBox="0 0 20 20" fill="currentColor">
@@ -380,26 +412,26 @@
                                     </td>
                                 </tr>
                             `;
+                            }
+
+                            // Update statistics immediately
+                            updatePendingCount();
+
+                            // Refresh both tables
+                            fetchDashboardData();
+                            fetchRecentTransactionsPage(1); // Refresh first page of recent transactions
+                        } else {
+                            showMessage(data.message || 'Failed to update.', 'error');
+                            button.disabled = false;
+                            button.innerHTML = originalHtml;
                         }
-                        
-                        // Update statistics immediately
-                        updatePendingCount();
-                        
-                        // Refresh both tables
-                        fetchDashboardData();
-                        fetchRecentTransactionsPage(1); // Refresh first page of recent transactions
-                    } else {
-                        showMessage(data.message || 'Failed to update.', 'error');
+                    })
+                    .catch(err => {
+                        console.error('Error:', err);
+                        showMessage('Error connecting to server. Please try again.', 'error');
                         button.disabled = false;
                         button.innerHTML = originalHtml;
-                    }
-                })
-                .catch(err => {
-                    console.error('Error:', err);
-                    showMessage('Error connecting to server. Please try again.', 'error');
-                    button.disabled = false;
-                    button.innerHTML = originalHtml;
-                });
+                    });
             }
         });
     }
@@ -423,7 +455,7 @@
     function updatePendingCount() {
         const pendingCount = document.querySelectorAll('#appointmentsTableBody tr:not(.empty-state)').length;
         document.getElementById('pendingCount').textContent = pendingCount;
-        
+
         // Update total queue count (optional - you might want to fetch this from server)
         const totalQueue = parseInt(document.getElementById('totalQueue').textContent);
         if (totalQueue > 0) {
@@ -442,227 +474,315 @@
     // Fetch dashboard data
     function fetchDashboardData() {
         fetch('{{ route('operator.fetch-appointments') }}', {
-            method: 'GET',
-            headers: {
-                'Accept': 'application/json',
-                'X-Requested-With': 'XMLHttpRequest'
-            }
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                updateAppointmentsTable(data.appointments);
-                updateStatistics(data.stats);
-            }
-        })
-        .catch(error => {
-            console.error('Error fetching dashboard data:', error);
-        });
+                method: 'GET',
+                headers: {
+                    'Accept': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    updateAppointmentsTable(data.appointments);
+                    updateStatistics(data.stats);
+                }
+            })
+            .catch(error => {
+                console.error('Error fetching dashboard data:', error);
+            });
     }
 
-  // Smooth AJAX Pagination for Recent Transactions
-function loadTransactionsPage(url) {
-    if (isLoading) return;
-    isLoading = true;
-    
-    // Add loading states with smooth fade
-    const tableContainer = document.getElementById('transactionsTableContainer');
-    const paginationContainer = document.getElementById('paginationContainer');
-    const showingInfo = document.getElementById('showingInfo');
-    
-    if (!tableContainer || !paginationContainer) {
-        isLoading = false;
-        return;
-    }
-    
-    tableContainer.classList.add('loading');
-    paginationContainer.classList.add('loading');
-    
-    // Add cache-busting parameter
-    const separator = url.includes('?') ? '&' : '?';
-    const fetchUrl = url + separator + '_=' + new Date().getTime();
-    
-    console.log('Fetching URL:', fetchUrl); // Debug log
-    
-    // Add proper headers
-    fetch(fetchUrl, {
-        headers: {
-            'X-Requested-With': 'XMLHttpRequest',
-            'Accept': 'application/json',
-            'X-CSRF-TOKEN': csrfToken
-        }
-    })
-    .then(async response => {
-        console.log('Response status:', response.status);
-        console.log('Response headers:', response.headers);
-        
-        // Check if response is OK
-        if (!response.ok) {
-            const text = await response.text();
-            console.error('Error response text:', text.substring(0, 200));
-            throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        
-        // Check content type
-        const contentType = response.headers.get('content-type');
-        console.log('Content-Type:', contentType);
-        
-        if (!contentType || !contentType.includes('application/json')) {
-            const text = await response.text();
-            console.error('Non-JSON response:', text.substring(0, 200));
-            throw new Error('Received non-JSON response from server');
-        }
-        
-        return response.json();
-    })
-    .then(data => {
-        console.log('Response data:', data);
-        
-        // Check if the response indicates success
-        if (!data.success) {
-            throw new Error(data.message || 'Unknown error occurred');
-        }
-        
-        // Smooth fade out/in
-        tableContainer.style.opacity = '0';
-        paginationContainer.style.opacity = '0';
-        
-        setTimeout(() => {
-            // Update content
-            if (data.table) {
-                tableContainer.innerHTML = data.table;
-            }
-            if (data.pagination) {
-                paginationContainer.innerHTML = data.pagination;
-            }
-            if (data.showing && showingInfo) {
-                showingInfo.textContent = data.showing;
-            }
-            
-            // Fade back in
-            tableContainer.style.opacity = '1';
-            paginationContainer.style.opacity = '1';
-            
-            // Add success animation
-            tableContainer.classList.add('page-change-success');
-            paginationContainer.classList.add('page-change-success');
-            
-            setTimeout(() => {
-                tableContainer.classList.remove('page-change-success');
-                paginationContainer.classList.remove('page-change-success');
-            }, 500);
-            
-            // Remove loading states
-            tableContainer.classList.remove('loading');
-            paginationContainer.classList.remove('loading');
-            
-            // Re-attach event listeners
-            attachPaginationListeners();
-            
-            isLoading = false;
-        }, 150);
-    })
-    .catch(error => {
-        console.error('Error loading page:', error);
-        
-        // Remove loading states on error
-        if (tableContainer) {
-            tableContainer.classList.remove('loading');
-            tableContainer.style.opacity = '1';
-        }
-        if (paginationContainer) {
-            paginationContainer.classList.remove('loading');
-            paginationContainer.style.opacity = '1';
-        }
-        
-        isLoading = false;
-        
-        // Show user-friendly error message
+    // Export PDF with confirmation - same as appointment
+    document.getElementById('operatorExportPdfBtn')?.addEventListener('click', function(e) {
+        e.preventDefault();
+
         Swal.fire({
-            title: 'Error!',
-            text: 'Failed to load page. Please try refreshing the page.',
-            icon: 'error',
-            confirmButtonColor: '#dc2626',
-            confirmButtonText: 'Refresh Page'
+            title: 'Export PDF',
+            text: 'Are you sure you want to export your completed transactions report?',
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonColor: '#2563eb',
+            cancelButtonColor: '#dc2626',
+            confirmButtonText: 'Yes, Export!',
+            cancelButtonText: 'Cancel',
+            showLoaderOnConfirm: true,
+            preConfirm: () => {
+                return new Promise((resolve) => {
+                    // Create a temporary anchor element
+                    const link = document.createElement('a');
+                    link.href = '{{ route('operator.export.pdf') }}';
+                    link.download = ''; // Let the server set the filename
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+
+                    // Simulate a short delay for the download to start
+                    setTimeout(resolve, 1000);
+                });
+            }
         }).then((result) => {
             if (result.isConfirmed) {
-                window.location.reload();
+                Swal.fire({
+                    title: 'Exported Successfully!',
+                    text: 'Your PDF report has been downloaded.',
+                    icon: 'success',
+                    confirmButtonColor: '#2563eb',
+                    timer: 3000,
+                    timerProgressBar: true,
+                    showCloseButton: true
+                });
             }
         });
     });
-}
+
+    // Export CSV with confirmation
+    document.getElementById('exportCsvBtn')?.addEventListener('click', function(e) {
+        e.preventDefault();
+
+        Swal.fire({
+            title: 'Export CSV',
+            text: 'Are you sure you want to export the completed transactions report?',
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonColor: '#2563eb',
+            cancelButtonColor: '#dc2626',
+            confirmButtonText: 'Yes, Export!',
+            cancelButtonText: 'Cancel',
+            showLoaderOnConfirm: true,
+            preConfirm: () => {
+                return new Promise((resolve) => {
+                    // Create a temporary anchor element
+                    const link = document.createElement('a');
+                    link.href = '{{ route('appointment.export.csv') }}';
+                    link.download = ''; // Let the server set the filename
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+
+                    // Simulate a short delay for the download to start
+                    setTimeout(resolve, 1000);
+                });
+            }
+        }).then((result) => {
+            if (result.isConfirmed) {
+                Swal.fire({
+                    title: 'Exported Successfully!',
+                    text: 'Your CSV report has been downloaded.',
+                    icon: 'success',
+                    confirmButtonColor: '#2563eb',
+                    timer: 3000,
+                    timerProgressBar: true,
+                    showCloseButton: true
+                });
+            }
+        });
+    });
+
+    // Smooth AJAX Pagination for Recent Transactions
+    function loadTransactionsPage(url) {
+        if (isLoading) return;
+        isLoading = true;
+
+        // Add loading states with smooth fade
+        const tableContainer = document.getElementById('transactionsTableContainer');
+        const paginationContainer = document.getElementById('paginationContainer');
+        const showingInfo = document.getElementById('showingInfo');
+
+        if (!tableContainer || !paginationContainer) {
+            isLoading = false;
+            return;
+        }
+
+        tableContainer.classList.add('loading');
+        paginationContainer.classList.add('loading');
+
+        // Add cache-busting parameter
+        const separator = url.includes('?') ? '&' : '?';
+        const fetchUrl = url + separator + '_=' + new Date().getTime();
+
+        console.log('Fetching URL:', fetchUrl); // Debug log
+
+        // Add proper headers
+        fetch(fetchUrl, {
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'Accept': 'application/json',
+                    'X-CSRF-TOKEN': csrfToken
+                }
+            })
+            .then(async response => {
+                console.log('Response status:', response.status);
+                console.log('Response headers:', response.headers);
+
+                // Check if response is OK
+                if (!response.ok) {
+                    const text = await response.text();
+                    console.error('Error response text:', text.substring(0, 200));
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                // Check content type
+                const contentType = response.headers.get('content-type');
+                console.log('Content-Type:', contentType);
+
+                if (!contentType || !contentType.includes('application/json')) {
+                    const text = await response.text();
+                    console.error('Non-JSON response:', text.substring(0, 200));
+                    throw new Error('Received non-JSON response from server');
+                }
+
+                return response.json();
+            })
+            .then(data => {
+                console.log('Response data:', data);
+
+                // Check if the response indicates success
+                if (!data.success) {
+                    throw new Error(data.message || 'Unknown error occurred');
+                }
+
+                // Smooth fade out/in
+                tableContainer.style.opacity = '0';
+                paginationContainer.style.opacity = '0';
+
+                setTimeout(() => {
+                    // Update content
+                    if (data.table) {
+                        tableContainer.innerHTML = data.table;
+                    }
+                    if (data.pagination) {
+                        paginationContainer.innerHTML = data.pagination;
+                    }
+                    if (data.showing && showingInfo) {
+                        showingInfo.textContent = data.showing;
+                    }
+
+                    // Fade back in
+                    tableContainer.style.opacity = '1';
+                    paginationContainer.style.opacity = '1';
+
+                    // Add success animation
+                    tableContainer.classList.add('page-change-success');
+                    paginationContainer.classList.add('page-change-success');
+
+                    setTimeout(() => {
+                        tableContainer.classList.remove('page-change-success');
+                        paginationContainer.classList.remove('page-change-success');
+                    }, 500);
+
+                    // Remove loading states
+                    tableContainer.classList.remove('loading');
+                    paginationContainer.classList.remove('loading');
+
+                    // Re-attach event listeners
+                    attachPaginationListeners();
+
+                    isLoading = false;
+                }, 150);
+            })
+            .catch(error => {
+                console.error('Error loading page:', error);
+
+                // Remove loading states on error
+                if (tableContainer) {
+                    tableContainer.classList.remove('loading');
+                    tableContainer.style.opacity = '1';
+                }
+                if (paginationContainer) {
+                    paginationContainer.classList.remove('loading');
+                    paginationContainer.style.opacity = '1';
+                }
+
+                isLoading = false;
+
+                // Show user-friendly error message
+                Swal.fire({
+                    title: 'Error!',
+                    text: 'Failed to load page. Please try refreshing the page.',
+                    icon: 'error',
+                    confirmButtonColor: '#dc2626',
+                    confirmButtonText: 'Refresh Page'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        window.location.reload();
+                    }
+                });
+            });
+    }
 
     // Function to fetch recent transactions page (for auto-refresh)
-function fetchRecentTransactionsPage(page = null) {
-    if (isLoading) return;
-    
-    const tableContainer = document.getElementById('transactionsTableContainer');
-    const paginationContainer = document.getElementById('paginationContainer');
-    const showingInfo = document.getElementById('showingInfo');
-    
-    if (!tableContainer || !paginationContainer) return;
-    
-    // Build URL
-    let url = '{{ route('operator.transactions-page') }}';
-    const params = new URLSearchParams();
-    
-    if (page) {
-        params.append('page', page);
+    function fetchRecentTransactionsPage(page = null) {
+        if (isLoading) return;
+
+        const tableContainer = document.getElementById('transactionsTableContainer');
+        const paginationContainer = document.getElementById('paginationContainer');
+        const showingInfo = document.getElementById('showingInfo');
+
+        if (!tableContainer || !paginationContainer) return;
+
+        // Build URL
+        let url = '{{ route('operator.transactions-page') }}';
+        const params = new URLSearchParams();
+
+        if (page) {
+            params.append('page', page);
+        }
+
+        const queryString = params.toString();
+        if (queryString) {
+            url += '?' + queryString;
+        }
+
+        // Add cache-busting
+        url += (url.includes('?') ? '&' : '?') + '_=' + new Date().getTime();
+
+        fetch(url, {
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'Accept': 'application/json',
+                    'X-CSRF-TOKEN': csrfToken
+                }
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                const contentType = response.headers.get('content-type');
+                if (!contentType || !contentType.includes('application/json')) {
+                    throw new Error('Received non-JSON response');
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.success && data.table) {
+                    tableContainer.innerHTML = data.table;
+                }
+                if (data.success && data.pagination) {
+                    paginationContainer.innerHTML = data.pagination;
+                }
+                if (data.success && data.showing && showingInfo) {
+                    showingInfo.textContent = data.showing;
+                }
+
+                // Re-attach event listeners
+                attachPaginationListeners();
+            })
+            .catch(error => {
+                console.error('Error fetching recent transactions:', error);
+                // Don't show error to user for auto-refresh, just log it
+            });
     }
-    
-    const queryString = params.toString();
-    if (queryString) {
-        url += '?' + queryString;
-    }
-    
-    // Add cache-busting
-    url += (url.includes('?') ? '&' : '?') + '_=' + new Date().getTime();
-    
-    fetch(url, {
-        headers: {
-            'X-Requested-With': 'XMLHttpRequest',
-            'Accept': 'application/json',
-            'X-CSRF-TOKEN': csrfToken
-        }
-    })
-    .then(response => {
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        const contentType = response.headers.get('content-type');
-        if (!contentType || !contentType.includes('application/json')) {
-            throw new Error('Received non-JSON response');
-        }
-        return response.json();
-    })
-    .then(data => {
-        if (data.success && data.table) {
-            tableContainer.innerHTML = data.table;
-        }
-        if (data.success && data.pagination) {
-            paginationContainer.innerHTML = data.pagination;
-        }
-        if (data.success && data.showing && showingInfo) {
-            showingInfo.textContent = data.showing;
-        }
-        
-        // Re-attach event listeners
-        attachPaginationListeners();
-    })
-    .catch(error => {
-        console.error('Error fetching recent transactions:', error);
-        // Don't show error to user for auto-refresh, just log it
-    });
-}
 
     function attachPaginationListeners() {
         // Handle all pagination links
-        document.querySelectorAll('.pagination-nav-btn:not(.disabled), .pagination-arrow:not(.disabled), .page-number:not(.active)').forEach(link => {
-            link.removeEventListener('click', handlePaginationClick);
-            link.addEventListener('click', handlePaginationClick);
-        });
+        document.querySelectorAll(
+                '.pagination-nav-btn:not(.disabled), .pagination-arrow:not(.disabled), .page-number:not(.active)')
+            .forEach(link => {
+                link.removeEventListener('click', handlePaginationClick);
+                link.addEventListener('click', handlePaginationClick);
+            });
     }
-    
+
     function handlePaginationClick(e) {
         e.preventDefault();
         if (!isLoading) {
@@ -689,36 +809,36 @@ function fetchRecentTransactionsPage(page = null) {
         }
 
         let html = '';
-        
+
         appointments.forEach(app => {
-            const createdTime = new Date(app.date).toLocaleTimeString('en-US', { 
-                hour: '2-digit', 
+            const createdTime = new Date(app.date).toLocaleTimeString('en-US', {
+                hour: '2-digit',
                 minute: '2-digit',
                 hour12: true,
                 timeZone: 'Asia/Manila'
             });
-            
+
             // Format name with FULL middle name (not just initial)
             let fullName = app.lname + ', ' + app.fname;
-            
+
             // Add full middle name if it exists
             if (app.mname && app.mname.trim() !== '') {
                 fullName += ' ' + app.mname;
             }
-            
+
             // Add suffix if it exists
             if (app.suffix && app.suffix.trim() !== '') {
                 fullName += ' ' + app.suffix;
             }
-            
-            const birthdate = app.birthdate ? new Date(app.birthdate).toLocaleDateString('en-US', { 
-                month: 'short', 
-                day: 'numeric', 
-                year: 'numeric' 
+
+            const birthdate = app.birthdate ? new Date(app.birthdate).toLocaleDateString('en-US', {
+                month: 'short',
+                day: 'numeric',
+                year: 'numeric'
             }) : 'N/A';
-            
+
             const searchData = (app.lname + ' ' + app.fname + ' ' + (app.trn || '')).toLowerCase();
-            
+
             html += `
                 <tr data-search="${searchData}">
                     <td><span class="queue-number">${app.q_id || 'N/A'}</span></td>
@@ -754,10 +874,10 @@ function fetchRecentTransactionsPage(page = null) {
         });
 
         appointmentsTableBody.innerHTML = html;
-        
+
         // Re-attach event listeners to all serve buttons
         attachServeButtonListeners();
-        
+
         // Re-apply search filter if there's a search term
         if (currentSearchTerm) {
             filterTableRows();
@@ -767,7 +887,7 @@ function fetchRecentTransactionsPage(page = null) {
     // Update statistics
     function updateStatistics(stats) {
         if (!stats) return;
-        
+
         if (stats.total !== undefined) {
             document.getElementById('totalQueue').textContent = stats.total;
         }

@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Completed Appointments Report - {{ $dateToday }}</title>
+    <title>Operator Completed Transactions - {{ $dateToday }}</title>
     <style>
         * {
             margin: 0;
@@ -25,7 +25,7 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 20px;
+            margin-bottom: 15px;
             padding-bottom: 10px;
             border-bottom: 2px solid #000;
         }
@@ -37,7 +37,7 @@
         }
 
         .logo {
-            width: 80px;
+            width: 150px;
             height: auto;
         }
 
@@ -59,6 +59,19 @@
 
         .date-section div {
             margin-bottom: 3px;
+        }
+
+        /* Operator Info */
+        .operator-info {
+            margin-bottom: 20px;
+            padding: 10px;
+            display: flex;
+            justify-content: space-between;
+            font-size: 13px;
+        }
+
+        .operator-info strong {
+            font-weight: bold;
         }
 
         /* Table */
@@ -86,24 +99,23 @@
         table {
             width: 100%;
             border-collapse: collapse;
-            font-size: 12px;
+            font-size: 11px;
         }
 
         th {
             background: #f2f2f2;
             font-weight: bold;
-            padding: 8px;
+            padding: 8px 5px;
             text-align: left;
             border: 1px solid #ddd;
         }
 
         td {
-            padding: 6px 8px;
+            padding: 6px 5px;
             border: 1px solid #ddd;
         }
 
         .number-cell {
-            font-weight: normal;
             text-align: center;
         }
 
@@ -117,13 +129,13 @@
         }
 
         .client-name small {
-            font-size: 10px;
+            font-size: 9px;
             color: #666;
             display: block;
         }
 
-        .window-cell {
-            text-align: center;
+        .time-cell {
+            font-family: Arial, Helvetica, sans-serif;
         }
 
         /* Footer */
@@ -131,8 +143,9 @@
             margin-top: 20px;
             padding-top: 10px;
             border-top: 1px solid #ddd;
-            text-align: right;
-            font-size: 11px;
+            display: flex;
+            justify-content: space-between;
+            font-size: 10px;
             color: #666;
         }
 
@@ -152,33 +165,40 @@
         <div class="logo-section">
             <img src="{{ public_path('images/logo.png') }}" alt="PSA PHILSYS Logo" class="logo">
             <div class="title-section">
-                <p>Completed Transactions Report</p>
+                <p>Operator Completed Transactions Report</p>
             </div>
         </div>
         <div class="date-section">
             <div><strong>Date:</strong> {{ $dateToday }}</div>
             <div><strong>Generated:</strong> {{ $timeGenerated }}</div>
-            <div><strong>Report ID:</strong> COMP-{{ date('YmdHis') }}</div>
+            <div><strong>Report ID:</strong> OPR-{{ date('YmdHis') }}</div>
         </div>
+    </div>
+
+    <div class="operator-info">
+        <span><strong>Window Number:</strong> {{ $windowNum }}</span>
     </div>
 
     <!-- Completed Transactions Table -->
     <div class="table-container">
         <div class="table-header">
             <h2>Completed Transactions</h2>
-            <span class="record-count">Total Records: {{ $completedCount }}</span>
+            <span class="record-count">Total Records: {{ $totalCompleted }}</span>
         </div>
 
         @if ($completedAppointments->count() > 0)
             <table>
                 <thead>
                     <tr>
-                        <th style="width: 40px;">#</th>
-                        <th style="width: 90px;">Queue #</th>
+                        <th style="width: 30px;">#</th>
+                        <th style="width: 80px;">Queue #</th>
                         <th>Client Name</th>
-                        <th style="width: 120px;">Service</th>
-                        <th style="width: 100px;">Served Time</th>
-                        <th style="width: 70px;">Window</th>
+                        <th style="width: 90px;">Age Category</th>
+                        <th style="width: 80px;">Birthdate</th>
+                        <th style="width: 100px;">TRN</th>
+                        <th style="width: 100px;">PCN</th>
+                        <th style="width: 100px;">Service</th>
+                        <th style="width: 80px;">Served Time</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -196,10 +216,15 @@
                                     @endif
                                 </span>
                             </td>
-                            <td>{{ $app->queue_for }}</td>
-                            <td>{{ \Carbon\Carbon::parse($app->time_catered)->setTimezone('Asia/Manila')->format('h:i A') }}
+                            <td>{{ $app->age_category ?? 'N/A' }}</td>
+                            <td>{{ $app->birthdate ? \Carbon\Carbon::parse($app->birthdate)->format('M d, Y') : 'N/A' }}
                             </td>
-                            <td class="window-cell">{{ $app->window_num ?? '—' }}</td>
+                            <td>{{ $app->trn ?? 'N/A' }}</td>
+                            <td>{{ $app->PCN ?? 'N/A' }}</td>
+                            <td>{{ $app->queue_for }}</td>
+                            <td class="time-cell">
+                                {{ \Carbon\Carbon::parse($app->time_catered)->setTimezone('Asia/Manila')->format('h:i A') }}
+                            </td>
                         </tr>
                     @endforeach
                 </tbody>
@@ -207,8 +232,8 @@
         @else
             <table>
                 <tr>
-                    <td colspan="6" class="empty-state">
-                        No completed transactions for today
+                    <td colspan="9" class="empty-state">
+                        No completed transactions found
                     </td>
                 </tr>
             </table>
@@ -217,7 +242,8 @@
 
     <!-- Footer -->
     <div class="footer">
-        Page 1 of 1
+        <div>PSA PHILSYS - Queue Management System</div>
+        <div>Page 1 of 1</div>
     </div>
 </body>
 

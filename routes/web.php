@@ -145,6 +145,9 @@ Route::middleware(['auth'])->group(function () {
          ->name('operator.recent-transactions');
     Route::get('/operator/transactions-page', [OperatorController::class, 'getTransactionsPage'])
      ->name('operator.transactions-page');
+    // Export routes
+    Route::get('/operator/export/pdf', [OperatorController::class, 'exportPDF'])->name('operator.export.pdf');
+    Route::get('/operator/export/csv', [OperatorController::class, 'exportCSV'])->name('operator.export.csv');
 
     // Admin routes
     Route::prefix('admin')->name('admin.')->group(function () {
