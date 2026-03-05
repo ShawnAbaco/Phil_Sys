@@ -10,6 +10,8 @@ use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\DB;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Response;
+use Maatwebsite\Excel\Facades\Excel;
+use App\Exports\AppointmentsExport;
 use Carbon\Carbon;
 
 class AppointmentController extends Controller
@@ -367,5 +369,42 @@ public function exportPDF()
     $pdf->setPaper('A4', 'landscape');
     
     return $pdf->download('RECENT TRANSACTIONS ' . Carbon::now('Asia/Manila')->format('Y-m-d') . '.pdf');
+}
+
+/**
+ * Export completed appointments as Excel
+ */
+public function exportExcel()
+{
+    $today = Carbon::now('Asia/Manila')->toDateString();
+    $now = Carbon::now('Asia/Manila');
+    
+    // Get completed appointments for today
+    $completedAppointments = TblAppointment::whereDate('date', $today)
+        ->whereNotNull('time_catered')
+        ->orderBy('time_catered', 'desc')
+        ->get();
+    
+    // Add row numbers to completed appointments
+    $completedAppointments = $completedAppointments->map(function($appointment, $index) {
+        $appointment->row_number = $index + 1;
+        return $appointment;
+    });
+    
+    // Get statistics (only total and completed, no pending)
+    $totalToday = TblAppointment::whereDate('date', $today)->count();
+    $completedCount = $completedAppointments->count();
+    $dateToday = $now->format('F j, Y');
+    
+    $export = new AppointmentsExport(
+        $completedAppointments, 
+        $totalToday, 
+        $completedCount,
+        $dateToday
+    );
+    
+    $filename = 'RECENT-TRANSACTIONS-' . $now->format('Y-m-d-H-i') . '.xlsx';
+    
+    return Excel::download($export, $filename);
 }
 }

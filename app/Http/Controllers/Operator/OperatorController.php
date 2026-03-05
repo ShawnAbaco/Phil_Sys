@@ -11,6 +11,8 @@ use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\DB;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Response;
+use Maatwebsite\Excel\Facades\Excel; // Add this
+use App\Exports\OperatorAppointmentsExport; // Add this
 use Carbon\Carbon;
 
 class OperatorController extends Controller
@@ -321,10 +323,17 @@ public function exportPDF()
     // Changed filename format to match appointment style
     return $pdf->download('RECENT TRANSACTIONS - ' . Carbon::now('Asia/Manila')->format('Y-m-d') . '.pdf');
 }
-public function exportCSV()
+
+
+
+/**
+ * Export completed appointments as Excel
+ */
+public function exportExcel()
 {
     $userId = Auth::id();
     $windowNum = Auth::user()->window_num ?? '1';
+    $now = Carbon::now('Asia/Manila');
     
     // Get completed transactions for this operator
     $completedAppointments = TblAppointment::whereNotNull('time_catered')
@@ -339,70 +348,21 @@ public function exportCSV()
     });
     
     $totalCompleted = $completedAppointments->count();
-    $dateToday = Carbon::now('Asia/Manila')->format('F j, Y');
-    $timeGenerated = Carbon::now('Asia/Manila')->format('h:i A');
+    $dateToday = $now->format('F j, Y');
+    $timeGenerated = $now->format('h:i A');
     
-    $headers = [
-        'Content-Type' => 'text/csv',
-        'Content-Disposition' => 'attachment; filename="RECENT TRANSACTIONS - ' . Carbon::now('Asia/Manila')->format('Y-m-d') . '.csv"',
-    ];
+    $export = new OperatorAppointmentsExport(
+        $completedAppointments,
+        $totalCompleted,
+        $dateToday,
+        $timeGenerated,
+        $windowNum,
+        $userId
+    );
     
-    $callback = function() use ($completedAppointments, $totalCompleted, $dateToday, $timeGenerated, $windowNum) {
-        $file = fopen('php://output', 'w');
-        
-        // Add UTF-8 BOM for Excel compatibility
-        fprintf($file, chr(0xEF).chr(0xBB).chr(0xBF));
-        
-        // Add header information as comments
-        fputcsv($file, ['# PSA PHILSYS - Operator Recent Transactions Report']);
-        fputcsv($file, ['# Date: ' . $dateToday]);
-        fputcsv($file, ['# Generated: ' . $timeGenerated]);
-        fputcsv($file, ['# Window Number: ' . $windowNum]);
-        fputcsv($file, ['# Total Records: ' . $totalCompleted]);
-        fputcsv($file, ['# Report ID: OPR-CSV-' . date('YmdHis')]);
-        fputcsv($file, ['#']);
-        
-        // Add column headers
-        fputcsv($file, [
-            '#',
-            'Queue #',
-            'Client Name',
-            'Age Category',
-            'Birthdate',
-            'TRN',
-            'PCN',
-            'Service',
-            'Served Time',
-            'Window'
-        ]);
-        
-        // Add data rows
-        foreach ($completedAppointments as $app) {
-            $fullName = trim($app->lname . ', ' . $app->fname . 
-                        ($app->mname ? ' ' . $app->mname : '') . 
-                        ($app->suffix ? ' ' . $app->suffix : ''));
-            
-            $servedTime = Carbon::parse($app->time_catered)->setTimezone('Asia/Manila')->format('h:i A');
-            $birthdate = $app->birthdate ? Carbon::parse($app->birthdate)->format('Y-m-d') : 'N/A';
-            
-            fputcsv($file, [
-                $app->row_number,
-                $app->q_id,
-                $fullName,
-                $app->age_category ?? 'N/A',
-                $birthdate,
-                $app->trn ?? 'N/A',
-                $app->PCN ?? 'N/A',
-                $app->queue_for,
-                $servedTime,
-                $app->window_num ?? 'N/A'
-            ]);
-        }
-        
-        fclose($file);
-    };
+    $filename = 'RECENT-TRANSACTIONS-' . $now->format('Y-m-d-H-i') . '.xlsx';
     
-    return response()->stream($callback, 200, $headers);
+    // This will trigger download directly to browser's default download folder
+    return Excel::download($export, $filename);
 }
-
 }

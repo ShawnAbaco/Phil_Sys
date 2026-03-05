@@ -424,15 +424,15 @@
                         </svg>
                         Export PDF
                     </button>
-                    <button type="button" class="btn btn-success" id="exportCsvBtn"
-                        style="padding: 6px 12px; background-color: #059669; color: white; border: none; border-radius: 4px; cursor: pointer; display: inline-flex; align-items: center; gap: 5px;">
-                        <svg viewBox="0 0 20 20" fill="currentColor" width="16" height="16">
-                            <path fill-rule="evenodd"
-                                d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z"
-                                clip-rule="evenodd" />
-                        </svg>
-                        Export CSV
-                    </button>
+                    <button type="button" class="btn btn-success" id="exportExcelBtn"
+    style="padding: 6px 12px; background-color: #059669; color: white; border: none; border-radius: 4px; cursor: pointer; display: inline-flex; align-items: center; gap: 5px;">
+    <svg viewBox="0 0 20 20" fill="currentColor" width="16" height="16">
+        <path fill-rule="evenodd"
+            d="M4 4a2 2 0 012-2h8a2 2 0 012 2v12a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm2 2v2h2V6H6zm6 0v2h2V6h-2zm-6 4v2h2v-2H6zm6 0v2h2v-2h-2zm-6 4v2h2v-2H6zm6 0v2h2v-2h-2z"
+            clip-rule="evenodd" />
+    </svg>
+    Export Excel
+</button>
                 </div>
             </div>
         </div>
@@ -512,13 +512,7 @@
     </div>
     </div>
 
-    {{-- Loading Modal --}}
-    <div class="loading-modal" id="loadingModal">
-        <div class="loading-content">
-            <img src="{{ asset('images/loading.png') }}" alt="Loading..." class="loading-logo rotate-logo">
-            <p class="loading-text">Processing...</p>
-        </div>
-    </div>
+    
 
     {{-- Print Slip Modal (Hidden by default) --}}
     @if (session('printSlip'))
@@ -1222,48 +1216,69 @@
                 });
             });
 
-            // Export CSV with confirmation
-            document.getElementById('exportCsvBtn')?.addEventListener('click', function(e) {
-                e.preventDefault();
+            // Export Excel with confirmation
+document.getElementById('exportExcelBtn')?.addEventListener('click', function(e) {
+    e.preventDefault();
+    
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = String(now.getMonth() + 1).padStart(2, '0');
+    const day = String(now.getDate()).padStart(2, '0');
+    const hours = String(now.getHours()).padStart(2, '0');
+    const minutes = String(now.getMinutes()).padStart(2, '0');
+    const filename = `RECENT-TRANSACTIONS-${year}-${month}-${day}-${hours}-${minutes}.xlsx`;
 
-                Swal.fire({
-                    title: 'Export CSV',
-                    text: 'Are you sure you want to export the completed transactions report?',
-                    icon: 'question',
-                    showCancelButton: true,
-                    confirmButtonColor: '#2563eb',
-                    cancelButtonColor: '#dc2626',
-                    confirmButtonText: 'Yes, Export!',
-                    cancelButtonText: 'Cancel',
-                    showLoaderOnConfirm: true,
-                    preConfirm: () => {
-                        return new Promise((resolve) => {
-                            // Create a temporary anchor element
-                            const link = document.createElement('a');
-                            link.href = '{{ route('appointment.export.csv') }}';
-                            link.download = ''; // Let the server set the filename
-                            document.body.appendChild(link);
-                            link.click();
-                            document.body.removeChild(link);
-
-                            // Simulate a short delay for the download to start
-                            setTimeout(resolve, 1000);
-                        });
-                    }
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        Swal.fire({
-                            title: 'Exported Successfully!',
-                            text: 'Your CSV report has been downloaded.',
-                            icon: 'success',
-                            confirmButtonColor: '#2563eb',
-                            timer: 3000,
-                            timerProgressBar: true,
-                            showCloseButton: true
-                        });
-                    }
-                });
+    Swal.fire({
+        title: 'Export to Excel',
+        html: `<div style="text-align: center;">
+                Are you sure you want to export the completed transactions report?<br>
+                <small style="color: #666; display: block; margin-top: 8px; padding: 8px; background: #f3f4f6; border-radius: 4px;">
+                    Filename: ${filename}
+                </small>
+               </div>`,
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonColor: '#059669',
+        cancelButtonColor: '#dc2626',
+        confirmButtonText: 'Yes, Export!',
+        cancelButtonText: 'Cancel',
+        showLoaderOnConfirm: true,
+        preConfirm: () => {
+            showLoading();
+            return new Promise((resolve) => {
+                // Create a temporary anchor element
+                const link = document.createElement('a');
+                link.href = '{{ route('appointment.export.excel') }}';
+                link.download = '';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                
+                // Simulate a short delay for the download to start
+                setTimeout(() => {
+                    hideLoading();
+                    resolve();
+                }, 1500);
             });
+        }
+    }).then((result) => {
+        if (result.isConfirmed) {
+            Swal.fire({
+                title: 'Exported Successfully!',
+                html: `<div style="text-align: center;">
+                        Your Excel file <strong>${filename}</strong> has been downloaded.<br>
+                        <small style="color: #666;">The file includes formatted headers, summary statistics, and styled cells.</small>
+                       </div>`,
+                icon: 'success',
+                confirmButtonColor: '#2563eb',
+                confirmButtonText: 'OK',
+                timer: 5000,
+                timerProgressBar: true,
+                showCloseButton: true
+            });
+        }
+    });
+});
 
             // Start auto-refresh
             startAutoRefresh();

@@ -125,7 +125,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/appointments/transactions-page', [AppointmentController::class, 'getTransactionsPage'])->name('appointment.transactions-page');
     // Export routes
     Route::get('/appointment/export/pdf', [AppointmentController::class, 'exportPDF'])->name('appointment.export.pdf');
-    Route::get('/appointment/export/csv', [AppointmentController::class, 'exportCSV'])->name('appointment.export.csv');
+Route::get('/appointment/export/excel', [AppointmentController::class, 'exportExcel'])->name('appointment.export.excel');
 
     //profile routes
     Route::get('/profile/settings', [ProfileController::class, 'settings'])->name('profile.settings');
@@ -147,7 +147,7 @@ Route::middleware(['auth'])->group(function () {
      ->name('operator.transactions-page');
     // Export routes
     Route::get('/operator/export/pdf', [OperatorController::class, 'exportPDF'])->name('operator.export.pdf');
-    Route::get('/operator/export/csv', [OperatorController::class, 'exportCSV'])->name('operator.export.csv');
+Route::get('/operator/export/excel', [OperatorController::class, 'exportExcel'])->name('operator.export.excel');
 
     // Admin routes
     Route::prefix('admin')->name('admin.')->group(function () {
