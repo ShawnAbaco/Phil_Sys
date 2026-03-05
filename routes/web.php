@@ -12,6 +12,11 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Session;
 
 
+Route::get('/test-json', function() {
+    return response()->json(['message' => 'JSON is working']);
+});
+
+
 Route::get('/debug-appointments', function() {
     $today = Carbon\Carbon::today()->toDateString();
 

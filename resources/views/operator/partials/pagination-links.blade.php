@@ -26,7 +26,7 @@
         Previous
     </button>
 @else
-    <a href="{{ $completedTransactions->previousPageUrl() }}" class="pagination-nav-btn">
+    <a href="{{ route('operator.transactions-page', ['page' => $completedTransactions->currentPage() - 1]) }}" class="pagination-nav-btn">
         <svg viewBox="0 0 20 20" fill="currentColor" width="20" height="20">
             <path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd" />
         </svg>
@@ -34,19 +34,21 @@
     </a>
 @endif
 
-{{-- Center Group: Arrow + Page Numbers + Arrow --}}
+{{-- Center Group: Double Left Arrow + Page Numbers + Double Right Arrow --}}
 <div class="pagination-center-group">
-    {{-- Left Arrow for Previous Block --}}
+    {{-- Double Left Arrow for Previous Block (<<) --}}
     @if ($blockStart > 1)
-        <a href="{{ $completedTransactions->url($prevBlockStart) }}" class="pagination-arrow" title="Previous 5 pages">
+        <a href="{{ route('operator.transactions-page', ['page' => $prevBlockStart]) }}" class="pagination-arrow" title="Previous 5 pages">
             <svg viewBox="0 0 20 20" fill="currentColor" width="18" height="18">
-                <path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd" />
+                <path fill-rule="evenodd" d="M15.707 15.707a1 1 0 01-1.414 0l-5-5a1 1 0 010-1.414l5-5a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 010 1.414z" clip-rule="evenodd" />
+                <path fill-rule="evenodd" d="M9.707 15.707a1 1 0 01-1.414 0l-5-5a1 1 0 010-1.414l5-5a1 1 0 011.414 1.414L5.414 10l4.293 4.293a1 1 0 010 1.414z" clip-rule="evenodd" />
             </svg>
         </a>
     @else
         <span class="pagination-arrow disabled">
             <svg viewBox="0 0 20 20" fill="currentColor" width="18" height="18">
-                <path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd" />
+                <path fill-rule="evenodd" d="M15.707 15.707a1 1 0 01-1.414 0l-5-5a1 1 0 010-1.414l5-5a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 010 1.414z" clip-rule="evenodd" />
+                <path fill-rule="evenodd" d="M9.707 15.707a1 1 0 01-1.414 0l-5-5a1 1 0 010-1.414l5-5a1 1 0 011.414 1.414L5.414 10l4.293 4.293a1 1 0 010 1.414z" clip-rule="evenodd" />
             </svg>
         </span>
     @endif
@@ -55,7 +57,7 @@
     <div class="pagination-numbers">
         {{-- Show first page if not in first block --}}
         @if ($blockStart > 1)
-            <a href="{{ $completedTransactions->url(1) }}" class="page-number">1</a>
+            <a href="{{ route('operator.transactions-page', ['page' => 1]) }}" class="page-number">1</a>
             @if ($blockStart > 2)
                 <span class="page-dots">...</span>
             @endif
@@ -66,7 +68,7 @@
             @if ($i == $currentPage)
                 <span class="page-number active">{{ $i }}</span>
             @else
-                <a href="{{ $completedTransactions->url($i) }}" class="page-number">{{ $i }}</a>
+                <a href="{{ route('operator.transactions-page', ['page' => $i]) }}" class="page-number">{{ $i }}</a>
             @endif
         @endfor
         
@@ -75,21 +77,23 @@
             @if ($blockEnd < $lastPage - 1)
                 <span class="page-dots">...</span>
             @endif
-            <a href="{{ $completedTransactions->url($lastPage) }}" class="page-number">{{ $lastPage }}</a>
+            <a href="{{ route('operator.transactions-page', ['page' => $lastPage]) }}" class="page-number">{{ $lastPage }}</a>
         @endif
     </div>
 
-    {{-- Right Arrow for Next Block --}}
+    {{-- Double Right Arrow for Next Block (>>) --}}
     @if ($blockEnd < $lastPage)
-        <a href="{{ $completedTransactions->url($nextBlockStart) }}" class="pagination-arrow" title="Next 5 pages">
+        <a href="{{ route('operator.transactions-page', ['page' => $nextBlockStart]) }}" class="pagination-arrow" title="Next 5 pages">
             <svg viewBox="0 0 20 20" fill="currentColor" width="18" height="18">
-                <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
+                <path fill-rule="evenodd" d="M4.293 15.707a1 1 0 010-1.414L8.586 10 4.293 5.707a1 1 0 011.414-1.414l5 5a1 1 0 010 1.414l-5 5a1 1 0 01-1.414 0z" clip-rule="evenodd" />
+                <path fill-rule="evenodd" d="M10.293 15.707a1 1 0 010-1.414L14.586 10l-4.293-4.293a1 1 0 011.414-1.414l5 5a1 1 0 010 1.414l-5 5a1 1 0 01-1.414 0z" clip-rule="evenodd" />
             </svg>
         </a>
     @else
         <span class="pagination-arrow disabled">
             <svg viewBox="0 0 20 20" fill="currentColor" width="18" height="18">
-                <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
+                <path fill-rule="evenodd" d="M4.293 15.707a1 1 0 010-1.414L8.586 10 4.293 5.707a1 1 0 011.414-1.414l5 5a1 1 0 010 1.414l-5 5a1 1 0 01-1.414 0z" clip-rule="evenodd" />
+                <path fill-rule="evenodd" d="M10.293 15.707a1 1 0 010-1.414L14.586 10l-4.293-4.293a1 1 0 011.414-1.414l5 5a1 1 0 010 1.414l-5 5a1 1 0 01-1.414 0z" clip-rule="evenodd" />
             </svg>
         </span>
     @endif
@@ -97,7 +101,7 @@
 
 {{-- Next Button (far right) --}}
 @if ($completedTransactions->hasMorePages())
-    <a href="{{ $completedTransactions->nextPageUrl() }}" class="pagination-nav-btn">
+    <a href="{{ route('operator.transactions-page', ['page' => $completedTransactions->currentPage() + 1]) }}" class="pagination-nav-btn">
         Next
         <svg viewBox="0 0 20 20" fill="currentColor" width="20" height="20">
             <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />

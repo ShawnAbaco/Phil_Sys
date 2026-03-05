@@ -206,28 +206,79 @@ public function recentTransactions()
     }
 public function getTransactionsPage(Request $request)
 {
-    $perPage = $request->get('per_page', 10);
-    $perPage = in_array($perPage, [10, 20, 50, 100]) ? $perPage : 10;
-    $userId = Auth::id();
+    // Log the request for debugging
+    \Log::info('getTransactionsPage called', [
+        'ajax' => $request->ajax(),
+        'wants_json' => $request->wantsJson(),
+        'headers' => $request->headers->all(),
+        'url' => $request->fullUrl()
+    ]);
     
-    $completedTransactions = TblAppointment::whereNotNull('time_catered')
-        ->where('user_id', $userId)
-        ->orderBy('time_catered', 'desc')
-        ->paginate($perPage)
-        ->withQueryString();
-    
-    if ($request->ajax()) {
-        $tableHtml = view('operator.partials.transactions-table', compact('completedTransactions'))->render();
-        $paginationHtml = view('operator.partials.pagination-links', compact('completedTransactions'))->render();
-        $showingInfo = 'Showing ' . $completedTransactions->firstItem() . '-' . $completedTransactions->lastItem() . ' of ' . $completedTransactions->total();
-        
-        return response()->json([
-            'table' => $tableHtml,
-            'pagination' => $paginationHtml,
-            'showing' => $showingInfo
-        ]);
+    // Always return JSON for AJAX requests
+    if ($request->ajax() || $request->wantsJson()) {
+        try {
+            $perPage = $request->get('per_page', 10);
+            $perPage = in_array($perPage, [10, 20, 50, 100]) ? $perPage : 10;
+            $userId = Auth::id();
+            
+            if (!$userId) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'User not authenticated'
+                ], 401);
+            }
+            
+            $completedTransactions = TblAppointment::whereNotNull('time_catered')
+                ->where('user_id', $userId)
+                ->orderBy('time_catered', 'desc')
+                ->paginate($perPage)
+                ->withQueryString();
+            
+            // Check if views exist
+            if (!view()->exists('operator.partials.transactions-table')) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Transactions table view not found'
+                ], 500);
+            }
+            
+            if (!view()->exists('operator.partials.pagination-links')) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Pagination links view not found'
+                ], 500);
+            }
+            
+            $tableHtml = view('operator.partials.transactions-table', compact('completedTransactions'))->render();
+            $paginationHtml = view('operator.partials.pagination-links', compact('completedTransactions'))->render();
+            $showingInfo = 'Showing ' . $completedTransactions->firstItem() . '-' . $completedTransactions->lastItem() . ' of ' . $completedTransactions->total();
+            
+            return response()->json([
+                'success' => true,
+                'table' => $tableHtml,
+                'pagination' => $paginationHtml,
+                'showing' => $showingInfo
+            ]);
+        } catch (\Exception $e) {
+            \Log::error('Error in getTransactionsPage: ' . $e->getMessage(), [
+                'file' => $e->getFile(),
+                'line' => $e->getLine(),
+                'trace' => $e->getTraceAsString()
+            ]);
+            
+            return response()->json([
+                'success' => false,
+                'message' => 'Error loading transactions: ' . $e->getMessage()
+            ], 500);
+        }
     }
     
-    return $completedTransactions;
+    // For non-AJAX requests, return the view with paginator
+    $completedTransactions = TblAppointment::whereNotNull('time_catered')
+        ->where('user_id', Auth::id())
+        ->orderBy('time_catered', 'desc')
+        ->paginate(10);
+        
+    return view('operator.dashboard', compact('completedTransactions'));
 }
 }
