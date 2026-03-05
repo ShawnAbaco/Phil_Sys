@@ -244,9 +244,7 @@
             
         </div>
     </div>
-</main>
-
-<script>
+</main><script>
     // Configuration - Ensure windowNum is a string
     const windowNum = String({{ Js::from(session('window_num') ?? ($windowNum ?? '1')) }});
     const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
@@ -255,12 +253,14 @@
     const messageContainer = document.getElementById('messageContainer');
     const appointmentsTableBody = document.getElementById('appointmentsTableBody');
     const searchInput = document.getElementById('searchAppointments');
-    const recentTransactionsBody = document.getElementById('recentTransactionsBody');
     const showingInfo = document.getElementById('showingInfo');
+    const transactionsTableContainer = document.getElementById('transactionsTableContainer');
+    const paginationContainer = document.getElementById('paginationContainer');
 
     // Store current search term
     let currentSearchTerm = '';
     let isLoading = false;
+    let refreshInterval;
 
     // Show Message
     function showMessage(text, type = 'success') {
@@ -385,10 +385,9 @@
                         // Update statistics immediately
                         updatePendingCount();
                         
-                        // Then fetch fresh data in the background
-                        setTimeout(() => {
-                            fetchDashboardData();
-                        }, 500);
+                        // Refresh both tables
+                        fetchDashboardData();
+                        fetchRecentTransactionsPage(1); // Refresh first page of recent transactions
                     } else {
                         showMessage(data.message || 'Failed to update.', 'error');
                         button.disabled = false;
@@ -471,15 +470,30 @@
         const paginationContainer = document.getElementById('paginationContainer');
         const showingInfo = document.getElementById('showingInfo');
         
+        if (!tableContainer || !paginationContainer) {
+            isLoading = false;
+            return;
+        }
+        
         tableContainer.classList.add('loading');
         paginationContainer.classList.add('loading');
         
-        fetch(url, {
+        // Add cache-busting parameter
+        const separator = url.includes('?') ? '&' : '?';
+        const fetchUrl = url + separator + '_=' + new Date().getTime();
+        
+        fetch(fetchUrl, {
             headers: {
-                'X-Requested-With': 'XMLHttpRequest'
+                'X-Requested-With': 'XMLHttpRequest',
+                'Accept': 'application/json'
             }
         })
-        .then(response => response.json())
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.json();
+        })
         .then(data => {
             // Smooth fade out/in
             tableContainer.style.opacity = '0';
@@ -487,9 +501,15 @@
             
             setTimeout(() => {
                 // Update content
-                tableContainer.innerHTML = data.table;
-                paginationContainer.innerHTML = data.pagination;
-                showingInfo.textContent = data.showing;
+                if (data.table) {
+                    tableContainer.innerHTML = data.table;
+                }
+                if (data.pagination) {
+                    paginationContainer.innerHTML = data.pagination;
+                }
+                if (data.showing && showingInfo) {
+                    showingInfo.textContent = data.showing;
+                }
                 
                 // Fade back in
                 tableContainer.style.opacity = '1';
@@ -518,45 +538,84 @@
             console.error('Error loading page:', error);
             
             // Remove loading states on error
-            tableContainer.classList.remove('loading');
-            paginationContainer.classList.remove('loading');
-            tableContainer.style.opacity = '1';
-            paginationContainer.style.opacity = '1';
+            if (tableContainer) {
+                tableContainer.classList.remove('loading');
+                tableContainer.style.opacity = '1';
+            }
+            if (paginationContainer) {
+                paginationContainer.classList.remove('loading');
+                paginationContainer.style.opacity = '1';
+            }
             
             isLoading = false;
+        });
+    }
+
+    // Function to fetch recent transactions page (for auto-refresh)
+    function fetchRecentTransactionsPage(page = null) {
+        if (isLoading) return;
+        
+        const tableContainer = document.getElementById('transactionsTableContainer');
+        const paginationContainer = document.getElementById('paginationContainer');
+        const showingInfo = document.getElementById('showingInfo');
+        
+        if (!tableContainer || !paginationContainer) return;
+        
+        // Build URL
+        let url = '{{ route('operator.transactions-page') }}';
+        const params = new URLSearchParams();
+        
+        if (page) {
+            params.append('page', page);
+        }
+        
+        const queryString = params.toString();
+        if (queryString) {
+            url += '?' + queryString;
+        }
+        
+        // Add cache-busting
+        url += (url.includes('?') ? '&' : '?') + '_=' + new Date().getTime();
+        
+        fetch(url, {
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+                'Accept': 'application/json'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.table) {
+                tableContainer.innerHTML = data.table;
+            }
+            if (data.pagination) {
+                paginationContainer.innerHTML = data.pagination;
+            }
+            if (data.showing && showingInfo) {
+                showingInfo.textContent = data.showing;
+            }
             
-            // Show error message
-            Swal.fire({
-                title: 'Error!',
-                text: 'Failed to load page. Please try again.',
-                icon: 'error',
-                confirmButtonColor: '#dc2626',
-                timer: 2000,
-                showConfirmButton: false
-            });
+            // Re-attach event listeners
+            attachPaginationListeners();
+        })
+        .catch(error => {
+            console.error('Error fetching recent transactions:', error);
         });
     }
 
     function attachPaginationListeners() {
         // Handle all pagination links
         document.querySelectorAll('.pagination-nav-btn:not(.disabled), .pagination-arrow:not(.disabled), .page-number:not(.active)').forEach(link => {
-            link.addEventListener('click', function(e) {
-                e.preventDefault();
-                if (!isLoading) {
-                    loadTransactionsPage(this.href);
-                }
-            });
+            link.removeEventListener('click', handlePaginationClick);
+            link.addEventListener('click', handlePaginationClick);
         });
     }
-
-    // Handle items per page change
-    function handlePerPageChange() {
-        const perPage = document.getElementById('perPageSelect').value;
-        const url = new URL(window.location.href);
-        url.searchParams.set('per_page', perPage);
-        url.searchParams.set('page', 1);
-        
-        loadTransactionsPage(url.toString());
+    
+    function handlePaginationClick(e) {
+        e.preventDefault();
+        if (!isLoading) {
+            loadTransactionsPage(this.href);
+        }
     }
 
     // Update appointments table
@@ -672,26 +731,25 @@
     document.addEventListener('DOMContentLoaded', function() {
         attachServeButtonListeners();
         attachPaginationListeners();
-        
-        // Handle items per page change
-        document.getElementById('perPageSelect').addEventListener('change', handlePerPageChange);
     });
 
     // Auto-refresh dashboard every 10 seconds (without page reload)
-    let refreshInterval = setInterval(function() {
+    refreshInterval = setInterval(function() {
         // Only refresh if there are no active serve actions
-        if (!document.querySelector('.serve-btn[disabled]')) {
+        if (!document.querySelector('.serve-btn[disabled]') && !isLoading) {
             fetchDashboardData();
         }
     }, 10000); // Refresh every 10 seconds
 
     // Also refresh when user returns to the tab
     document.addEventListener('visibilitychange', function() {
-        if (!document.hidden && !document.querySelector('.serve-btn[disabled]')) {
+        if (!document.hidden && !document.querySelector('.serve-btn[disabled]') && !isLoading) {
             fetchDashboardData();
         }
     });
 
-    // Initial fetch after 5 seconds to ensure everything is loaded
-    setTimeout(fetchDashboardData, 5000);
+    // Initial fetch after 2 seconds to ensure everything is loaded
+    setTimeout(function() {
+        fetchDashboardData();
+    }, 2000);
 </script>
