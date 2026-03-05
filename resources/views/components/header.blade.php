@@ -83,14 +83,14 @@
                     <!-- Dropdown Menu -->
                     <div class="dropdown-menu" id="userDropdown">
 
-                        <!-- Profile Settings Link (Optional) -->
-                        <a href="#" class="dropdown-item">
-                            <svg class="dropdown-icon" viewBox="0 0 20 20" fill="currentColor">
-                                <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z"
-                                    clip-rule="evenodd" />
-                            </svg>
-                            Profile Settings
-                        </a>
+                        <!-- Profile Settings Link -->
+<a href="{{ route('profile.settings') }}" class="dropdown-item">
+    <svg class="dropdown-icon" viewBox="0 0 20 20" fill="currentColor">
+        <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z"
+            clip-rule="evenodd" />
+    </svg>
+    Profile Settings
+</a>
 
                         <!-- Logout Form -->
                         <form method="POST" action="{{ route('logout') }}">

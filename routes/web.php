@@ -6,6 +6,7 @@ use App\Http\Controllers\Appointment\AppointmentController;
 use App\Http\Controllers\Client\ClientController;
 use App\Http\Controllers\Operator\OperatorController;
 use App\Http\Controllers\Admin\AdminController;
+use App\Http\Controllers\Profile\ProfileController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Session;
@@ -117,6 +118,14 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/appointment/today', [AppointmentController::class, 'getTodayAppointments'])
          ->name('appointment.today');
     Route::get('/appointments/transactions-page', [AppointmentController::class, 'getTransactionsPage'])->name('appointment.transactions-page');
+    // Export routes
+    Route::get('/appointment/export/pdf', [AppointmentController::class, 'exportPDF'])->name('appointment.export.pdf');
+    Route::get('/appointment/export/csv', [AppointmentController::class, 'exportCSV'])->name('appointment.export.csv');
+
+    //profile routes
+    Route::get('/profile/settings', [ProfileController::class, 'settings'])->name('profile.settings');
+    Route::put('/profile/update', [ProfileController::class, 'update'])->name('profile.update');
+    Route::put('/profile/password', [ProfileController::class, 'password'])->name('profile.password');
 
     // Operator routes
     Route::get('/operator/dashboard', [OperatorController::class, 'dashboard'])
