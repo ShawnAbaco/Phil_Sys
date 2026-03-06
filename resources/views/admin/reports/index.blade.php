@@ -177,13 +177,13 @@
     <div class="chart-card">
         <div class="chart-header">
             <h3>Appointment Trends</h3>
-            <select class="chart-period">
+            <select class="chart-period" id="trendPeriod">
                 <option>Last 7 days</option>
                 <option>Last 30 days</option>
                 <option>Last 3 months</option>
             </select>
         </div>
-        <canvas id="trendsChart" style="height: 300px; width: 100%; max-width: 800px; max-height: 400px;"></canvas>
+<canvas id="trendsChart" style="height: 300px; width: 100%; max-width: 800px; max-height: 400px;"></canvas>
     </div>
 
     <div class="chart-card">
@@ -394,7 +394,7 @@
             // Simulate report generation
             setTimeout(() => {
                 hideLoading();
-                alert(`Generating ${type} report...`);
+                window.location.href = `{{ url('admin/reports') }}/${type}`;
             }, 1500);
         }
     }
@@ -418,7 +418,7 @@
         showLoading();
         setTimeout(() => {
             hideLoading();
-            alert(`Generating ${name} in ${format.toUpperCase()} format...`);
+            window.location.href = `{{ url('admin/reports/custom') }}?start=${start}&end=${end}&type=${type}&format=${format}`;
             hideCustomBuilder();
         }, 2000);
     }

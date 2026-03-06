@@ -34,4 +34,16 @@ class TblAppointment extends Model
         'time_catered' => 'datetime',
         'birthdate' => 'date'
     ];
+
+    // Define the relationship with User
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'user_id', 'id');
+    }
+    
+    // If you need to get the operator who served the appointment
+    public function operator()
+    {
+        return $this->belongsTo(User::class, 'user_id', 'id');
+    }
 }

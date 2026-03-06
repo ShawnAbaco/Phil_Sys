@@ -1,4 +1,4 @@
-@props(['title' => 'National ID System'])
+@props(['title' => 'PSA - Queue Management System'])
 
 <!DOCTYPE html>
 <html lang="en">
@@ -6,7 +6,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ $title }} - National ID System</title>
+    <title>{{ $title }} - PSA - Queue Management System</title>
 
 
     <!-- Favicon -->
@@ -38,7 +38,7 @@
             <div class="logo-section {{ $isScreener() ? 'logo-area' : '' }}">
                 <img src="{{ asset('images/logo.png') }}" alt="National ID Logo" class="header-logo">
                 <div class="logo-text">
-                    <h1>National ID System</h1>
+                    <h1>Queue Management System</h1>
                     <span class="badge">{{ $isOperator() ? 'OPERATOR PORTAL' : 'SCREENER DASHBOARD' }}</span>
                 </div>
             </div>

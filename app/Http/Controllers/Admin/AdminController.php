@@ -1,62 +1,51 @@
 <?php
+// app/Http/Controllers/Admin/AdminController.php
 
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use App\Models\User;
-use App\Models\TblAppointment;
-use Carbon\Carbon;
+use Illuminate\Support\Facades\Auth;
 
 class AdminController extends Controller
 {
-    public function dashboard()
+    
+
+    /**
+     * Format success response
+     */
+    protected function sendSuccess($message, $data = null, $code = 200)
     {
-        // Get statistics
-        $totalUsers = User::count();
-        $appointmentsToday = TblAppointment::whereDate('date', Carbon::today())->count();
-        $pendingQueues = TblAppointment::whereDate('date', Carbon::today())
-            ->whereNull('window_num')
-            ->count();
-        $completedToday = TblAppointment::whereDate('date', Carbon::today())
-            ->whereNotNull('window_num')
-            ->count();
-
-        // Get recent users
-        $recentUsers = User::orderBy('created_at', 'desc')
-            ->limit(10)
-            ->get();
-
-        return view('admin.dashboard', compact(
-            'totalUsers',
-            'appointmentsToday',
-            'pendingQueues',
-            'completedToday',
-            'recentUsers'
-        ));
+        return response()->json([
+            'success' => true,
+            'message' => $message,
+            'data' => $data
+        ], $code);
     }
 
-    public function users()
+    /**
+     * Format error response
+     */
+    protected function sendError($message, $errors = null, $code = 404)
     {
-        $users = User::orderBy('created_at', 'desc')->paginate(20);
-        return view('admin.users', compact('users'));
+        return response()->json([
+            'success' => false,
+            'message' => $message,
+            'errors' => $errors
+        ], $code);
     }
 
-    public function appointments()
+    /**
+     * Get pagination data
+     */
+    protected function getPaginationData($paginator)
     {
-        $appointments = TblAppointment::with('user')
-            ->orderBy('date', 'desc')
-            ->paginate(20);
-        return view('admin.appointments', compact('appointments'));
-    }
-
-    public function reports()
-    {
-        return view('admin.reports');
-    }
-
-    public function settings()
-    {
-        return view('admin.settings');
+        return [
+            'current_page' => $paginator->currentPage(),
+            'last_page' => $paginator->lastPage(),
+            'per_page' => $paginator->perPage(),
+            'total' => $paginator->total(),
+            'has_more_pages' => $paginator->hasMorePages()
+        ];
     }
 }
