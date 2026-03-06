@@ -13,6 +13,7 @@ use Illuminate\Http\Response;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Exports\AppointmentsExport;
 use Carbon\Carbon;
+use Symfony\Component\HttpFoundation\ResponseHeaderBag;
 
 class AppointmentController extends Controller
 {
@@ -333,42 +334,62 @@ class AppointmentController extends Controller
         return $completedTransactions;
     }
     
+/**
+ * Export completed appointments as PDF
+ */
 public function exportPDF()
 {
-    $today = Carbon::now('Asia/Manila')->toDateString();
-    
-    // Get ONLY completed appointments for today
-    $completedAppointments = TblAppointment::whereDate('date', $today)
-                                        ->whereNotNull('time_catered')
-                                        ->orderBy('time_catered', 'desc')
-                                        ->get();
-    
-    // Add row numbers to completed appointments
-    $completedAppointments = $completedAppointments->map(function($appointment, $index) {
-        $appointment->row_number = $index + 1;
-        return $appointment;
-    });
-    
-    // Get summary statistics
-    $totalToday = TblAppointment::whereDate('date', $today)->count();
-    $completedCount = $completedAppointments->count();
-    $pendingCount = $totalToday - $completedCount;
-    
-    $dateToday = Carbon::now('Asia/Manila')->format('F j, Y');
-    $timeGenerated = Carbon::now('Asia/Manila')->format('h:i A');
-    
-    $pdf = Pdf::loadView('appointment.exports.appointments-pdf', compact(
-        'completedAppointments',
-        'completedCount',
-        'pendingCount',
-        'totalToday',
-        'dateToday',
-        'timeGenerated'
-    ));
-    
-    $pdf->setPaper('A4', 'landscape');
-    
-    return $pdf->download('RECENT TRANSACTIONS ' . Carbon::now('Asia/Manila')->format('Y-m-d') . '.pdf');
+    try {
+        $today = Carbon::now('Asia/Manila')->toDateString();
+        
+        // Get ONLY completed appointments for today
+        $completedAppointments = TblAppointment::whereDate('date', $today)
+                                            ->whereNotNull('time_catered')
+                                            ->orderBy('time_catered', 'desc')
+                                            ->get();
+        
+        // Add row numbers to completed appointments
+        $completedAppointments = $completedAppointments->map(function($appointment, $index) {
+            $appointment->row_number = $index + 1;
+            return $appointment;
+        });
+        
+        // Get summary statistics
+        $totalToday = TblAppointment::whereDate('date', $today)->count();
+        $completedCount = $completedAppointments->count();
+        $pendingCount = $totalToday - $completedCount;
+        
+        $dateToday = Carbon::now('Asia/Manila')->format('F j, Y');
+        $timeGenerated = Carbon::now('Asia/Manila')->format('h:i A');
+        
+        $pdf = Pdf::loadView('appointment.exports.appointments-pdf', compact(
+            'completedAppointments',
+            'completedCount',
+            'pendingCount',
+            'totalToday',
+            'dateToday',
+            'timeGenerated'
+        ));
+        
+        $pdf->setPaper('A4', 'landscape');
+        
+        // Generate filename
+        $filename = 'RECENT-TRANSACTIONS-' . Carbon::now('Asia/Manila')->format('Y-m-d') . '.pdf';
+        
+        // Set headers to force download and correct MIME type
+        return response($pdf->output(), 200, [
+            'Content-Type' => 'application/pdf',
+            'Content-Disposition' => 'attachment; filename="' . $filename . '"',
+            'Content-Transfer-Encoding' => 'binary',
+            'Accept-Ranges' => 'bytes',
+            'Cache-Control' => 'private, max-age=0, must-revalidate',
+            'Pragma' => 'public'
+        ]);
+        
+    } catch (\Exception $e) {
+        \Log::error('PDF Export Error: ' . $e->getMessage());
+        return response()->json(['error' => 'Failed to generate PDF'], 500);
+    }
 }
 
 /**
@@ -376,35 +397,47 @@ public function exportPDF()
  */
 public function exportExcel()
 {
-    $today = Carbon::now('Asia/Manila')->toDateString();
-    $now = Carbon::now('Asia/Manila');
-    
-    // Get completed appointments for today
-    $completedAppointments = TblAppointment::whereDate('date', $today)
-        ->whereNotNull('time_catered')
-        ->orderBy('time_catered', 'desc')
-        ->get();
-    
-    // Add row numbers to completed appointments
-    $completedAppointments = $completedAppointments->map(function($appointment, $index) {
-        $appointment->row_number = $index + 1;
-        return $appointment;
-    });
-    
-    // Get statistics (only total and completed, no pending)
-    $totalToday = TblAppointment::whereDate('date', $today)->count();
-    $completedCount = $completedAppointments->count();
-    $dateToday = $now->format('F j, Y');
-    
-    $export = new AppointmentsExport(
-        $completedAppointments, 
-        $totalToday, 
-        $completedCount,
-        $dateToday
-    );
-    
-    $filename = 'RECENT-TRANSACTIONS-' . $now->format('Y-m-d-H-i') . '.xlsx';
-    
-    return Excel::download($export, $filename);
+    try {
+        $today = Carbon::now('Asia/Manila')->toDateString();
+        $now = Carbon::now('Asia/Manila');
+        
+        // Get completed appointments for today
+        $completedAppointments = TblAppointment::whereDate('date', $today)
+            ->whereNotNull('time_catered')
+            ->orderBy('time_catered', 'desc')
+            ->get();
+        
+        // Add row numbers to completed appointments
+        $completedAppointments = $completedAppointments->map(function($appointment, $index) {
+            $appointment->row_number = $index + 1;
+            return $appointment;
+        });
+        
+        // Get statistics
+        $totalToday = TblAppointment::whereDate('date', $today)->count();
+        $completedCount = $completedAppointments->count();
+        $dateToday = $now->format('F j, Y');
+        
+        $export = new AppointmentsExport(
+            $completedAppointments, 
+            $totalToday, 
+            $completedCount,
+            $dateToday
+        );
+        
+        $filename = 'RECENT-TRANSACTIONS-' . $now->format('Y-m-d-H-i') . '.xlsx';
+        
+        // For Excel - using the package but with explicit headers
+        return Excel::download($export, $filename, \Maatwebsite\Excel\Excel::XLSX, [
+            'Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+            'Content-Disposition' => 'attachment; filename="' . $filename . '"',
+            'Cache-Control' => 'max-age=0',
+            'Content-Transfer-Encoding' => 'binary',
+        ]);
+        
+    } catch (\Exception $e) {
+        \Log::error('Excel Export Error: ' . $e->getMessage());
+        return response()->json(['error' => 'Failed to generate Excel file'], 500);
+    }
 }
 }

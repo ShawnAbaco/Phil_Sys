@@ -14,6 +14,7 @@ use Illuminate\Http\Response;
 use Maatwebsite\Excel\Facades\Excel; // Add this
 use App\Exports\OperatorAppointmentsExport; // Add this
 use Carbon\Carbon;
+use Symfony\Component\HttpFoundation\ResponseHeaderBag;
 
 class OperatorController extends Controller
 {
@@ -288,81 +289,149 @@ public function getTransactionsPage(Request $request)
     return view('operator.dashboard', compact('completedTransactions'));
 }
 
+/**
+ * Export completed appointments as PDF
+ */
 public function exportPDF()
 {
-    $userId = Auth::id();
-    $windowNum = Auth::user()->window_num ?? '1';
-    
-    // Get completed transactions for this operator
-    $completedAppointments = TblAppointment::whereNotNull('time_catered')
-                                          ->where('user_id', $userId)
-                                          ->orderBy('time_catered', 'desc')
-                                          ->get();
-    
-    // Add row numbers
-    $completedAppointments = $completedAppointments->map(function($appointment, $index) {
-        $appointment->row_number = $index + 1;
-        return $appointment;
-    });
-    
-    $totalCompleted = $completedAppointments->count();
-    $dateToday = Carbon::now('Asia/Manila')->format('F j, Y');
-    $timeGenerated = Carbon::now('Asia/Manila')->format('h:i A');
-    
-    $pdf = Pdf::loadView('operator.exports.operator-pdf', compact(
-        'completedAppointments',
-        'totalCompleted',
-        'dateToday',
-        'timeGenerated',
-        'windowNum',
-        'userId'
-    ));
-    
-    $pdf->setPaper('A4', 'landscape');
-    
-    // Changed filename format to match appointment style
-    return $pdf->download('RECENT TRANSACTIONS - ' . Carbon::now('Asia/Manila')->format('Y-m-d') . '.pdf');
+    try {
+        $userId = Auth::id();
+        $windowNum = Auth::user()->window_num ?? '1';
+        
+        // Get completed transactions for this operator
+        $completedAppointments = TblAppointment::whereNotNull('time_catered')
+                                              ->where('user_id', $userId)
+                                              ->orderBy('time_catered', 'desc')
+                                              ->get();
+        
+        if ($completedAppointments->isEmpty()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'No completed transactions to export'
+            ], 404);
+        }
+        
+        // Add row numbers
+        $completedAppointments = $completedAppointments->map(function($appointment, $index) {
+            $appointment->row_number = $index + 1;
+            return $appointment;
+        });
+        
+        $totalCompleted = $completedAppointments->count();
+        $dateToday = Carbon::now('Asia/Manila')->format('F j, Y');
+        $timeGenerated = Carbon::now('Asia/Manila')->format('h:i A');
+        
+        $pdf = Pdf::loadView('operator.exports.operator-pdf', compact(
+            'completedAppointments',
+            'totalCompleted',
+            'dateToday',
+            'timeGenerated',
+            'windowNum',
+            'userId'
+        ));
+        
+        $pdf->setPaper('A4', 'landscape');
+        
+        // Generate filename with proper format
+        $filename = 'RECENT-TRANSACTIONS-' . Carbon::now('Asia/Manila')->format('Y-m-d') . '.pdf';
+        
+        // Clear any output buffers
+        if (ob_get_level()) {
+            ob_end_clean();
+        }
+        
+        // Return with explicit headers to force download
+        return response($pdf->output(), 200, [
+            'Content-Type' => 'application/pdf',
+            'Content-Disposition' => 'attachment; filename="' . $filename . '"',
+            'Content-Length' => strlen($pdf->output()),
+            'Content-Transfer-Encoding' => 'binary',
+            'Accept-Ranges' => 'bytes',
+            'Cache-Control' => 'private, max-age=0, must-revalidate, no-transform',
+            'Pragma' => 'public',
+            'Expires' => '0',
+            'X-Content-Type-Options' => 'nosniff'
+        ]);
+        
+    } catch (\Exception $e) {
+        \Log::error('Operator PDF Export Error: ' . $e->getMessage());
+        \Log::error('Error Trace: ' . $e->getTraceAsString());
+        
+        return response()->json([
+            'success' => false,
+            'message' => 'Failed to generate PDF. Please try again.'
+        ], 500);
+    }
 }
-
-
 
 /**
  * Export completed appointments as Excel
  */
 public function exportExcel()
 {
-    $userId = Auth::id();
-    $windowNum = Auth::user()->window_num ?? '1';
-    $now = Carbon::now('Asia/Manila');
-    
-    // Get completed transactions for this operator
-    $completedAppointments = TblAppointment::whereNotNull('time_catered')
-                                          ->where('user_id', $userId)
-                                          ->orderBy('time_catered', 'desc')
-                                          ->get();
-    
-    // Add row numbers
-    $completedAppointments = $completedAppointments->map(function($appointment, $index) {
-        $appointment->row_number = $index + 1;
-        return $appointment;
-    });
-    
-    $totalCompleted = $completedAppointments->count();
-    $dateToday = $now->format('F j, Y');
-    $timeGenerated = $now->format('h:i A');
-    
-    $export = new OperatorAppointmentsExport(
-        $completedAppointments,
-        $totalCompleted,
-        $dateToday,
-        $timeGenerated,
-        $windowNum,
-        $userId
-    );
-    
-    $filename = 'RECENT-TRANSACTIONS-' . $now->format('Y-m-d-H-i') . '.xlsx';
-    
-    // This will trigger download directly to browser's default download folder
-    return Excel::download($export, $filename);
+    try {
+        $userId = Auth::id();
+        $windowNum = Auth::user()->window_num ?? '1';
+        $now = Carbon::now('Asia/Manila');
+        
+        // Get completed transactions for this operator
+        $completedAppointments = TblAppointment::whereNotNull('time_catered')
+                                              ->where('user_id', $userId)
+                                              ->orderBy('time_catered', 'desc')
+                                              ->get();
+        
+        if ($completedAppointments->isEmpty()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'No completed transactions to export'
+            ], 404);
+        }
+        
+        // Add row numbers
+        $completedAppointments = $completedAppointments->map(function($appointment, $index) {
+            $appointment->row_number = $index + 1;
+            return $appointment;
+        });
+        
+        $totalCompleted = $completedAppointments->count();
+        $dateToday = $now->format('F j, Y');
+        $timeGenerated = $now->format('h:i A');
+        
+        $export = new OperatorAppointmentsExport(
+            $completedAppointments,
+            $totalCompleted,
+            $dateToday,
+            $timeGenerated,
+            $windowNum,
+            $userId
+        );
+        
+        $filename = 'RECENT-TRANSACTIONS-' . $now->format('Y-m-d-H-i') . '.xlsx';
+        
+        // Clear any output buffers
+        if (ob_get_level()) {
+            ob_end_clean();
+        }
+        
+        // Use Excel::download with explicit headers
+        return Excel::download($export, $filename, \Maatwebsite\Excel\Excel::XLSX, [
+            'Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+            'Content-Disposition' => 'attachment; filename="' . $filename . '"',
+            'Cache-Control' => 'private, max-age=0, must-revalidate, no-transform',
+            'Content-Transfer-Encoding' => 'binary',
+            'Pragma' => 'public',
+            'Expires' => '0',
+            'X-Content-Type-Options' => 'nosniff'
+        ]);
+        
+    } catch (\Exception $e) {
+        \Log::error('Operator Excel Export Error: ' . $e->getMessage());
+        \Log::error('Error Trace: ' . $e->getTraceAsString());
+        
+        return response()->json([
+            'success' => false,
+            'message' => 'Failed to generate Excel file. Please try again.'
+        ], 500);
+    }
 }
 }
