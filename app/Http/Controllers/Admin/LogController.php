@@ -7,6 +7,8 @@ use Illuminate\Http\Request;
 use App\Models\User;
 use App\Models\ActivityLog; // You'll need to create this model
 use Carbon\Carbon;
+use Illuminate\Support\Facades\DB; // Add this line
+
 
 class LogController extends AdminController
 {

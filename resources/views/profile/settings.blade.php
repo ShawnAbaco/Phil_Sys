@@ -8,7 +8,7 @@
                 <svg viewBox="0 0 20 20" fill="currentColor" width="18" height="18">
                     <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z" />
                 </svg>
-                Dashboard
+                Home
             </a>
             <svg class="breadcrumb-separator" viewBox="0 0 20 20" fill="currentColor" width="16" height="16">
                 <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
@@ -16,12 +16,12 @@
             <span class="breadcrumb-current">Profile Settings</span>
         </div>
         
-        {{-- Back to Dashboard Button --}}
+        {{-- Back to Home Button --}}
         <a href="{{ $isOperator() ? route('operator.dashboard') : route('appointment.issuance') }}" class="back-button">
             <svg viewBox="0 0 20 20" fill="currentColor" width="18" height="18">
                 <path fill-rule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z" clip-rule="evenodd" />
             </svg>
-            Back to Dashboard
+            Back to Home
         </a>
     </div>
 
@@ -30,7 +30,7 @@
         <div class="profile-header">
             <div class="profile-header-content">
                 <div class="profile-avatar-large">
-                    {{ $userName ? substr($userName, 0, 1) : 'U' }}
+                    {{ $displayName ? substr($displayName, 0, 1) : 'U' }}
                 </div>
                 <div class="profile-title">
                     <h1>Profile Settings</h1>
@@ -55,19 +55,53 @@
                         @csrf
                         @method('PUT')
                         
+                        {{-- Display Name (what users see) --}}
+<div class="form-group">
+    <label for="name">Display Name</label>
+    <input type="text" name="name" id="name" value="{{ old('name', $displayName) }}" 
+           class="@error('name') is-invalid @enderror" 
+           data-original="{{ $displayName }}"  {{-- ADD THIS LINE --}}
+           required>
+    <small class="field-hint">This is how you'll appear in the system</small>
+    @error('name')
+        <span class="error-message">{{ $message }}</span>
+    @enderror
+</div>
+
+                        {{-- Username (unique login identifier) --}}
                         <div class="form-group">
-                            <label for="name">Full Name</label>
-                            <input type="text" name="name" id="name" value="{{ old('name', $userName) }}" 
-                                   class="@error('name') is-invalid @enderror" required>
-                            @error('name')
+                            <label for="username">
+                                Username
+                                <span class="required-badge">Unique</span>
+                            </label>
+                            <div class="input-with-feedback">
+                                <input type="text" name="username" id="username" 
+                                       value="{{ old('username', $username) }}" 
+                                       class="@error('username') is-invalid @enderror" 
+                                       data-original="{{ $username }}"
+                                       required>
+                                <div class="input-feedback" id="username-feedback"></div>
+                            </div>
+                            <small class="field-hint">Username must be unique and cannot be changed frequently</small>
+                            @error('username')
                                 <span class="error-message">{{ $message }}</span>
                             @enderror
                         </div>
 
+                        {{-- Email (unique) --}}
                         <div class="form-group">
-                            <label for="email">Email Address</label>
-                            <input type="email" name="email" id="email" value="{{ old('email', $userEmail ?? '') }}" 
-                                   class="@error('email') is-invalid @enderror" required>
+                            <label for="email">
+                                Email Address
+                                <span class="required-badge">Unique</span>
+                            </label>
+                            <div class="input-with-feedback">
+                                <input type="email" name="email" id="email" 
+                                       value="{{ old('email', $userEmail ?? '') }}" 
+                                       class="@error('email') is-invalid @enderror"
+                                       data-original="{{ $userEmail }}"
+                                       required>
+                                <div class="input-feedback" id="email-feedback"></div>
+                            </div>
                             @error('email')
                                 <span class="error-message">{{ $message }}</span>
                             @enderror
@@ -90,7 +124,7 @@
                         @endif
 
                         <div class="form-actions">
-                            <button type="submit" class="btn btn-primary">
+                            <button type="submit" class="btn btn-primary" id="submit-btn" disabled>
                                 <svg viewBox="0 0 20 20" fill="currentColor" width="18" height="18">
                                     <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
                                 </svg>
@@ -409,6 +443,19 @@
     margin-bottom: 6px;
 }
 
+.form-group label .required-badge {
+    display: inline-block;
+    background: var(--primary-light);
+    color: var(--primary);
+    font-size: 11px;
+    font-weight: 600;
+    padding: 2px 8px;
+    border-radius: 12px;
+    margin-left: 8px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
 .form-group input {
     width: 100%;
     padding: 10px 14px;
@@ -431,6 +478,35 @@
     color: var(--gray-600);
     cursor: not-allowed;
     border-color: var(--gray-300);
+}
+
+/* Input with feedback */
+.input-with-feedback {
+    position: relative;
+}
+
+.input-feedback {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 12px;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.input-feedback.valid {
+    color: var(--success);
+}
+
+.input-feedback.invalid {
+    color: var(--danger);
+}
+
+.input-feedback.checking {
+    color: var(--warning);
 }
 
 /* Password Field Styles */
@@ -513,6 +589,13 @@
 
 .btn-primary:active {
     transform: translateY(0);
+}
+
+.btn-primary:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
 }
 
 /* Password Requirements */
@@ -605,6 +688,7 @@
         flex-wrap: wrap;
     }
 }
+
 </style>
 
 <script>
@@ -623,6 +707,19 @@ function togglePasswordVisibility(inputId, button) {
         eyeIcon.style.display = 'block';
         eyeSlashIcon.style.display = 'none';
     }
+}
+
+// Debounce function to limit API calls
+function debounce(func, wait) {
+    let timeout;
+    return function executedFunction(...args) {
+        const later = () => {
+            clearTimeout(timeout);
+            func(...args);
+        };
+        clearTimeout(timeout);
+        timeout = setTimeout(later, wait);
+    };
 }
 
 document.addEventListener('DOMContentLoaded', function() {
@@ -671,6 +768,142 @@ document.addEventListener('DOMContentLoaded', function() {
         passwordInput.addEventListener('input', validatePassword);
     }
     
+
+    // Username, email, and name change detection
+const nameInput = document.getElementById('name');
+const usernameInput = document.getElementById('username');
+const emailInput = document.getElementById('email');
+const submitBtn = document.getElementById('submit-btn');
+const nameOriginal = nameInput?.dataset.original;
+const usernameOriginal = usernameInput?.dataset.original;
+const emailOriginal = emailInput?.dataset.original;
+
+let isUsernameValid = true;
+let isEmailValid = true;
+
+function updateSubmitButton() {
+    if (submitBtn) {
+        // Check if ANY field has changed
+        const nameChanged = nameInput && nameInput.value !== nameOriginal;
+        const usernameChanged = usernameInput && usernameInput.value !== usernameOriginal;
+        const emailChanged = emailInput && emailInput.value !== emailOriginal;
+        
+        const hasChanges = nameChanged || usernameChanged || emailChanged;
+        
+        // Enable button if there are changes AND all validations pass
+        submitBtn.disabled = !(hasChanges && isUsernameValid && isEmailValid);
+    }
+}
+
+// Add change detection for name input
+if (nameInput) {
+    nameInput.addEventListener('input', function() {
+        updateSubmitButton();
+    });
+}
+
+// Simplified username validation - no warning message
+if (usernameInput) {
+    const usernameFeedback = document.getElementById('username-feedback');
+    
+    const checkUsername = debounce(function() {
+        const username = usernameInput.value;
+        
+        if (username === usernameOriginal) {
+            usernameFeedback.innerHTML = '';
+            usernameFeedback.className = 'input-feedback';
+            isUsernameValid = true;
+            updateSubmitButton();
+            return;
+        }
+        
+        if (username.length < 3) {
+            usernameFeedback.innerHTML = '❌ Too short (min 3 chars)';
+            usernameFeedback.className = 'input-feedback invalid';
+            isUsernameValid = false;
+            updateSubmitButton();
+            return;
+        }
+        
+        if (!/^[a-zA-Z0-9_]+$/.test(username)) {
+            usernameFeedback.innerHTML = '❌ Only letters, numbers, underscore';
+            usernameFeedback.className = 'input-feedback invalid';
+            isUsernameValid = false;
+            updateSubmitButton();
+            return;
+        }
+        
+        // No message shown for valid format - just clear feedback
+        usernameFeedback.innerHTML = '';
+        usernameFeedback.className = 'input-feedback';
+        isUsernameValid = true;
+        updateSubmitButton();
+        
+    }, 500);
+    
+    usernameInput.addEventListener('input', checkUsername);
+}
+
+// Check email uniqueness
+if (emailInput) {
+    const emailFeedback = document.getElementById('email-feedback');
+    
+    const checkEmail = debounce(async function() {
+        const email = emailInput.value;
+        
+        if (email === emailOriginal) {
+            emailFeedback.innerHTML = '';
+            emailFeedback.className = 'input-feedback';
+            isEmailValid = true;
+            updateSubmitButton();
+            return;
+        }
+        
+        if (!email.includes('@') || !email.includes('.')) {
+            emailFeedback.innerHTML = '❌ Invalid email format';
+            emailFeedback.className = 'input-feedback invalid';
+            isEmailValid = false;
+            updateSubmitButton();
+            return;
+        }
+        
+        emailFeedback.innerHTML = '⏳ Checking...';
+        emailFeedback.className = 'input-feedback checking';
+        
+        try {
+            const response = await fetch('/check-email', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                },
+                body: JSON.stringify({ email, current: emailOriginal })
+            });
+            
+            const data = await response.json();
+            
+            if (data.available) {
+                emailFeedback.innerHTML = '✓ Available';
+                emailFeedback.className = 'input-feedback valid';
+                isEmailValid = true;
+            } else {
+                emailFeedback.innerHTML = '✗ Already in use';
+                emailFeedback.className = 'input-feedback invalid';
+                isEmailValid = false;
+            }
+        } catch (error) {
+            emailFeedback.innerHTML = '';
+            emailFeedback.className = 'input-feedback';
+            isEmailValid = true; // Allow submission even if check fails
+        }
+        
+        updateSubmitButton();
+    }, 500);
+    
+    emailInput.addEventListener('input', checkEmail);
+}
+
+    
     // Form submission with confirmation
     const profileForm = document.getElementById('profileForm');
     const passwordForm = document.getElementById('passwordForm');
@@ -678,6 +911,16 @@ document.addEventListener('DOMContentLoaded', function() {
     if (profileForm) {
         profileForm.addEventListener('submit', function(e) {
             e.preventDefault();
+            
+            if (!isUsernameValid || !isEmailValid) {
+                Swal.fire({
+                    title: 'Validation Error',
+                    text: 'Please fix the username or email issues before saving.',
+                    icon: 'error',
+                    confirmButtonColor: '#dc2626'
+                });
+                return;
+            }
             
             Swal.fire({
                 title: 'Save Changes?',
