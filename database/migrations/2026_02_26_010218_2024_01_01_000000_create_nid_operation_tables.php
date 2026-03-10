@@ -86,39 +86,12 @@ return new class extends Migration
         // =============================================
         // TABLE: tbl_appointment (Appointments)
         // =============================================
-        Schema::create('tbl_appointment', function (Blueprint $table) {
-            $table->integer('n_id', true)->autoIncrement();
-            $table->string('q_id', 255);
-            $table->dateTime('date')->default(DB::raw('CURRENT_TIMESTAMP'));
-            $table->string('queue_for', 99);
-            $table->string('fname', 99);
-            $table->string('mname', 99);
-            $table->string('lname', 99);
-            $table->string('suffix', 3);
-            $table->string('age_category', 99);
-            $table->string('trn', 29);
-            $table->date('birthdate');
-            $table->string('PCN', 16);
-            $table->string('window_num', 9)->nullable();
-            $table->dateTime('time_catered')->nullable();
-            $table->unsignedBigInteger('user_id')->nullable();
-            $table->timestamps();
+          // Add status column after queue_for
+    $table->enum('status', ['pending', 'serving', 'completed', 'cancelled', 'no_show'])
+          ->default('pending')
+          ->after('queue_for');
 
-            // Add indexes for better performance
-            $table->index('q_id');
-            $table->index('date');
-            $table->index('window_num');
-            $table->index('user_id');
-            $table->index('time_catered');
-            
-            // Fix: Add foreign key constraint referencing users.id
-            // Note: This assumes the 'users' table is created before this migration
-            $table->foreign('user_id')
-                  ->references('id')
-                  ->on('users')
-                  ->onDelete('set null');
-        });
-
+          
         // =============================================
         // TABLE: tbl_logsheet (Log sheets)
         // =============================================
