@@ -372,7 +372,7 @@
         </div>
 
         <div class="footer">
-            Page 1 of 1 | PSA PhilSys - Official Document
+            <!-- Page 1 of 1 | PSA PhilSys - Official Document -->
         </div>
     @endif
 </body>

@@ -245,129 +245,73 @@
         </div>
     </div>
 
-    {{-- Recent Transactions with Smooth AJAX Pagination --}}
-    <div class="card full-width" id="recentTransactionsCard">
-        <div class="card-header">
-            <h3>
-                <svg viewBox="0 0 20 20" fill="currentColor">
+{{-- Recent Transactions with Smooth AJAX Pagination --}}
+<div class="card full-width" id="recentTransactionsCard">
+    <div class="card-header">
+        <h3>
+            <svg viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd"
+                    d="M4 4a2 2 0 00-2 2v8a2 2 0 002 2h12a2 2 0 002-2V8a2 2 0 00-2-2h-5L9 4H4zm7 4a1 1 0 10-2 0v3.586l-.293-.293a1 1 0 10-1.414 1.414l2 2a1 1 0 001.414 0l2-2a1 1 0 10-1.414-1.414l-.293.293V8z"
+                    clip-rule="evenodd" />
+            </svg>
+            Recent Transactions
+        </h3>
+        <div class="card-actions" style="display: flex; gap: 10px; align-items: center;">
+            <span class="badge" id="showingInfo">Showing
+                {{ $completedTransactions->firstItem() }}-{{ $completedTransactions->lastItem() }} of
+                {{ $completedTransactions->total() }}</span>
+
+            {{-- EXPORT PDF BUTTON --}}
+            <button type="button" class="btn btn-danger" id="operatorExportPdfBtn"
+                style="padding: 6px 12px; background-color: #dc2626; color: white; border: none; border-radius: 4px; cursor: pointer; display: inline-flex; align-items: center; gap: 5px;">
+                <svg viewBox="0 0 20 20" fill="currentColor" width="16" height="16">
                     <path fill-rule="evenodd"
-                        d="M4 4a2 2 0 00-2 2v8a2 2 0 002 2h12a2 2 0 002-2V8a2 2 0 00-2-2h-5L9 4H4zm7 4a1 1 0 10-2 0v3.586l-.293-.293a1 1 0 10-1.414 1.414l2 2a1 1 0 001.414 0l2-2a1 1 0 10-1.414-1.414l-.293.293V8z"
+                        d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm2 6a1 1 0 011-1h6a1 1 0 110 2H7a1 1 0 01-1-1zm1 3a1 1 0 100 2h6a1 1 0 100-2H7z"
                         clip-rule="evenodd" />
                 </svg>
-                Recent Transactions
-            </h3>
-            <div class="card-actions" style="display: flex; gap: 10px; align-items: center;">
-                <span class="badge" id="showingInfo">Showing
-                    {{ $completedTransactions->firstItem() }}-{{ $completedTransactions->lastItem() }} of
-                    {{ $completedTransactions->total() }}</span>
-
-                {{-- Service Filter for Recent Transactions --}}
-                <!-- <select id="transactionServiceFilter" class="service-filter">
-                    <option value="all">All Services</option>
-                    <option value="NID Registration">NID Registration</option>
-                    <option value="Status Inquiry">Status Inquiry</option>
-                    <option value="NID Updating">NID Updating</option>
-                </select> -->
-
-                {{-- EXPORT PDF BUTTON --}}
-                <button type="button" class="btn btn-danger" id="operatorExportPdfBtn"
-                    style="padding: 6px 12px; background-color: #dc2626; color: white; border: none; border-radius: 4px; cursor: pointer; display: inline-flex; align-items: center; gap: 5px;">
-                    <svg viewBox="0 0 20 20" fill="currentColor" width="16" height="16">
-                        <path fill-rule="evenodd"
-                            d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm2 6a1 1 0 011-1h6a1 1 0 110 2H7a1 1 0 01-1-1zm1 3a1 1 0 100 2h6a1 1 0 100-2H7z"
-                            clip-rule="evenodd" />
-                    </svg>
-                    Export PDF
-                </button>
-                <button type="button" class="btn btn-success" id="operatorExportExcelBtn"
-                    style="padding: 6px 12px; background-color: #059669; color: white; border: none; border-radius: 4px; cursor: pointer; display: inline-flex; align-items: center; gap: 5px;">
-                    <svg viewBox="0 0 20 20" fill="currentColor" width="16" height="16">
-                        <path fill-rule="evenodd"
-                            d="M4 4a2 2 0 012-2h8a2 2 0 012 2v12a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm2 2v2h2V6H6zm6 0v2h2V6h-2zm-6 4v2h2v-2H6zm6 0v2h2v-2h-2zm-6 4v2h2v-2H6zm6 0v2h2v-2h-2z"
-                            clip-rule="evenodd" />
-                    </svg>
-                    Export Excel
-                </button>
-            </div>
-        </div>
-        <div class="card-body">
-            <div class="table-responsive">
-                <table class="table">
-                    <thead>
-                        <tr>
-                            <th>#</th>
-                            <th>Queue #</th>
-                            <th>Client</th>
-                            <th>Service</th>
-                            <th>Served Time</th>
-                            <th>Window</th>
-                            <th>Status</th>
-                        </tr>
-                    </thead>
-                    <tbody id="transactionsTableContainer">
-                        @forelse($completedTransactions as $index => $transaction)
-                            @php
-                                $servedTime = \Carbon\Carbon::parse($transaction->time_catered)->setTimezone(
-                                    'Asia/Manila',
-                                );
-                                $serviceDisplay = $transaction->queue_for;
-                                $rowNumber =
-                                    ($completedTransactions->currentPage() - 1) * $completedTransactions->perPage() +
-                                    $loop->iteration;
-
-                                // Format name properly with FULL middle name
-                                $fullName = $transaction->lname . ', ' . $transaction->fname;
-                                if ($transaction->mname && trim($transaction->mname) !== '') {
-                                    $fullName .= ' ' . $transaction->mname;
-                                }
-                                if ($transaction->suffix && trim($transaction->suffix) !== '') {
-                                    $fullName .= ' ' . $transaction->suffix;
-                                }
-                            @endphp
-                            <tr data-service="{{ $serviceDisplay }}">
-                                <td><span class="row-number">{{ $rowNumber }}</span></td>
-                                <td><span class="queue-number small">{{ $transaction->q_id }}</span></td>
-                                <td>
-                                    <div class="client-name">
-                                        {{ $fullName }}
-                                    </div>
-                                </td>
-                                <td>{{ $serviceDisplay }}</td>
-                                <td>{{ $servedTime->format('M d, h:i A') }}</td>
-                                <td>
-                                    <span class="window-indicator">Window {{ $transaction->window_num }}</span>
-                                </td>
-                                <td>
-                                    <span class="status-badge status-completed">
-                                        <span class="status-dot"></span>
-                                        Completed
-                                    </span>
-                                </td>
-                            </tr>
-                        @empty
-                            <tr>
-                                <td colspan="7" class="empty-state">
-                                    <svg viewBox="0 0 20 20" fill="currentColor">
-                                        <path fill-rule="evenodd"
-                                            d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z"
-                                            clip-rule="evenodd" />
-                                    </svg>
-                                    <p>No completed transactions yet</p>
-                                </td>
-                            </tr>
-                        @endforelse
-                    </tbody>
-                </table>
-            </div>
-
-            {{-- Enhanced Pagination with Strict 5-Page Blocks --}}
-            <div class="enhanced-pagination" id="paginationContainer">
-                @include('operator.partials.pagination-links', [
-                    'completedTransactions' => $completedTransactions,
-                ])
-            </div>
+                Export PDF
+            </button>
+            <button type="button" class="btn btn-success" id="operatorExportExcelBtn"
+                style="padding: 6px 12px; background-color: #059669; color: white; border: none; border-radius: 4px; cursor: pointer; display: inline-flex; align-items: center; gap: 5px;">
+                <svg viewBox="0 0 20 20" fill="currentColor" width="16" height="16">
+                    <path fill-rule="evenodd"
+                        d="M4 4a2 2 0 012-2h8a2 2 0 012 2v12a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm2 2v2h2V6H6zm6 0v2h2V6h-2zm-6 4v2h2v-2H6zm6 0v2h2v-2h-2zm-6 4v2h2v-2H6zm6 0v2h2v-2h-2z"
+                        clip-rule="evenodd" />
+                </svg>
+                Export Excel
+            </button>
         </div>
     </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Queue #</th>
+                        <th>Client</th>
+                        <th>Service</th>
+                        <th>Served Time</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody id="transactionsTableContainer">
+                    {{-- This will be populated by AJAX --}}
+                    @include('operator.partials.transactions-table', [
+                        'completedTransactions' => $completedTransactions
+                    ])
+                </tbody>
+            </table>
+        </div>
+
+        {{-- Enhanced Pagination with Strict 5-Page Blocks --}}
+        <div class="enhanced-pagination" id="paginationContainer">
+            @include('operator.partials.pagination-links', [
+                'completedTransactions' => $completedTransactions,
+            ])
+        </div>
+    </div>
+</div>
 </main>
 
 <style>

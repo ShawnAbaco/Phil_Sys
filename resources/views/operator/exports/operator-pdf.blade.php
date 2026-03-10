@@ -243,7 +243,7 @@
     <!-- Footer -->
     <div class="footer">
         <div>PSA PHILSYS - Queue Management System</div>
-        <div>Page 1 of 1</div>
+        <!-- <div>Page 1 of 1</div> -->
     </div>
 </body>
 
