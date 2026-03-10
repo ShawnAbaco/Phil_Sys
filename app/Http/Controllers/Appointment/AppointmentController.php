@@ -440,4 +440,9 @@ public function exportExcel()
         return response()->json(['error' => 'Failed to generate Excel file'], 500);
     }
 }
+public function storeCategory(Request $request)
+{
+    session(['last_category' => $request->category]);
+    return response()->json(['success' => true]);
+}
 }

@@ -140,6 +140,8 @@ Route::middleware(['auth'])->group(function () {
     Route::put('/profile/update', [ProfileController::class, 'update'])->name('profile.update');
     Route::put('/profile/password', [ProfileController::class, 'password'])->name('profile.password');
 
+    Route::post('/appointment/store-category', [AppointmentController::class, 'storeCategory'])->name('appointment.store-category');
+
     
 
     // Operator routes

@@ -23,11 +23,16 @@
                             <label for="category">Select Category:</label>
                             <select name="category" id="category" onchange="toggleForm()" required>
                                 <option value="NID Registration"
-                                    {{ old('category') == 'NID Registration' ? 'selected' : '' }}>NID Registration
+                                    {{ old('category', session('last_category')) == 'NID Registration' ? 'selected' : '' }}>
+                                    NID Registration
                                 </option>
                                 <option value="Status Inquiry"
-                                    {{ old('category') == 'Status Inquiry' ? 'selected' : '' }}>Status Inquiry</option>
-                                <option value="Updating" {{ old('category') == 'Updating' ? 'selected' : '' }}>Updating
+                                    {{ old('category', session('last_category')) == 'Status Inquiry' ? 'selected' : '' }}>
+                                    Status Inquiry
+                                </option>
+                                <option value="Updating"
+                                    {{ old('category', session('last_category')) == 'Updating' ? 'selected' : '' }}>
+                                    Updating
                                 </option>
                             </select>
                         </div>
@@ -220,7 +225,7 @@
                     </div>
 
                     <div class="form-actions">
-                        <button type="submit" class="btn btn-primary">
+                        <button type="submit" class="btn btn-primary" id="submitBtn">
                             <svg viewBox="0 0 20 20" fill="currentColor" width="20" height="20">
                                 <path fill-rule="evenodd"
                                     d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
@@ -395,8 +400,6 @@
         </div>
     </div>
 
-
-
     {{-- Add this in the card-header of Recent Transactions --}}
     <div class="card full-width" id="recentTransactionsCard">
         <div class="card-header">
@@ -425,14 +428,14 @@
                         Export PDF
                     </button>
                     <button type="button" class="btn btn-success" id="exportExcelBtn"
-    style="padding: 6px 12px; background-color: #059669; color: white; border: none; border-radius: 4px; cursor: pointer; display: inline-flex; align-items: center; gap: 5px;">
-    <svg viewBox="0 0 20 20" fill="currentColor" width="16" height="16">
-        <path fill-rule="evenodd"
-            d="M4 4a2 2 0 012-2h8a2 2 0 012 2v12a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm2 2v2h2V6H6zm6 0v2h2V6h-2zm-6 4v2h2v-2H6zm6 0v2h2v-2h-2zm-6 4v2h2v-2H6zm6 0v2h2v-2h-2z"
-            clip-rule="evenodd" />
-    </svg>
-    Export Excel
-</button>
+                        style="padding: 6px 12px; background-color: #059669; color: white; border: none; border-radius: 4px; cursor: pointer; display: inline-flex; align-items: center; gap: 5px;">
+                        <svg viewBox="0 0 20 20" fill="currentColor" width="16" height="16">
+                            <path fill-rule="evenodd"
+                                d="M4 4a2 2 0 012-2h8a2 2 0 012 2v12a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm2 2v2h2V6H6zm6 0v2h2V6h-2zm-6 4v2h2v-2H6zm6 0v2h2v-2h-2zm-6 4v2h2v-2H6zm6 0v2h2v-2h-2z"
+                                clip-rule="evenodd" />
+                        </svg>
+                        Export Excel
+                    </button>
                 </div>
             </div>
         </div>
@@ -507,12 +510,7 @@
                 'completedTransactions' => $completedTransactions,
             ])
         </div>
-
-
     </div>
-    </div>
-
-    
 
     {{-- Print Slip Modal (Hidden by default) --}}
     @if (session('printSlip'))
@@ -540,6 +538,7 @@
         let currentSearchTerm = '';
         let isLoading = false;
         let refreshInterval;
+        let formSubmitted = false;
 
         function toggleForm() {
             var category = document.getElementById('category').value;
@@ -581,6 +580,16 @@
                     }
                 });
             }
+
+            // Store selected category in session via AJAX to persist after page reload
+            $.ajax({
+                url: '{{ route('appointment.store-category') }}',
+                method: 'POST',
+                data: {
+                    _token: '{{ csrf_token() }}',
+                    category: category
+                }
+            });
         }
 
         async function stopQRScanner() {
@@ -746,12 +755,9 @@
             stopQRScanner();
         }
 
-        // ENHANCED AUTO-REFRESH FUNCTION with cache busting
         function fetchAppointments() {
-            // Don't fetch if we're in the middle of pagination loading
             if (isLoading) return;
 
-            // Add cache-busting timestamp
             const timestamp = new Date().getTime();
 
             fetch('{{ route('appointment.today') }}?_=' + timestamp, {
@@ -778,7 +784,6 @@
                 });
         }
 
-        // NEW FUNCTION to fetch recent transactions
         function fetchRecentTransactions() {
             if (isLoading) return;
 
@@ -930,12 +935,10 @@
             });
         }
 
-        // Smooth AJAX Pagination
         function loadPage(url) {
             if (isLoading) return;
             isLoading = true;
 
-            // Add loading states with smooth fade
             const tableContainer = document.getElementById('transactionsTableContainer');
             const paginationContainer = document.getElementById('paginationContainer');
             const showingInfo = document.getElementById('showingInfo');
@@ -950,21 +953,17 @@
                 })
                 .then(response => response.text())
                 .then(html => {
-                    // Parse the HTML response
                     const parser = new DOMParser();
                     const doc = parser.parseFromString(html, 'text/html');
 
-                    // Extract the new table rows (tbody content)
                     const newTableBody = doc.querySelector('#transactionsTableContainer');
                     const newPagination = doc.querySelector('#paginationContainer');
                     const newShowingInfo = doc.querySelector('#showingInfo');
 
-                    // Smooth fade out/in
                     tableContainer.style.opacity = '0';
                     paginationContainer.style.opacity = '0';
 
                     setTimeout(() => {
-                        // Update content
                         if (newTableBody) {
                             tableContainer.innerHTML = newTableBody.innerHTML;
                         }
@@ -975,11 +974,9 @@
                             showingInfo.textContent = newShowingInfo.textContent;
                         }
 
-                        // Fade back in
                         tableContainer.style.opacity = '1';
                         paginationContainer.style.opacity = '1';
 
-                        // Add success animation
                         tableContainer.classList.add('page-change-success');
                         paginationContainer.classList.add('page-change-success');
 
@@ -988,11 +985,9 @@
                             paginationContainer.classList.remove('page-change-success');
                         }, 500);
 
-                        // Remove loading states
                         tableContainer.classList.remove('loading');
                         paginationContainer.classList.remove('loading');
 
-                        // Re-attach event listeners
                         attachPaginationListeners();
 
                         isLoading = false;
@@ -1001,7 +996,6 @@
                 .catch(error => {
                     console.error('Error loading page:', error);
 
-                    // Remove loading states on error
                     tableContainer.classList.remove('loading');
                     paginationContainer.classList.remove('loading');
                     tableContainer.style.opacity = '1';
@@ -1009,7 +1003,6 @@
 
                     isLoading = false;
 
-                    // Show error message
                     Swal.fire({
                         title: 'Error!',
                         text: 'Failed to load page. Please try again.',
@@ -1022,7 +1015,6 @@
         }
 
         function attachPaginationListeners() {
-            // Handle all pagination links
             document.querySelectorAll(
                     '.pagination-nav-btn:not(.disabled), .pagination-arrow:not(.disabled), .page-number:not(.active)')
                 .forEach(link => {
@@ -1035,23 +1027,19 @@
                 });
         }
 
-        // ENHANCED AUTO-REFRESH FUNCTION
         function startAutoRefresh() {
             console.log('Auto-refresh started');
 
-            // Clear any existing interval
             if (refreshInterval) {
                 clearInterval(refreshInterval);
             }
 
-            // Set new interval - refresh every 10 seconds
             refreshInterval = setInterval(function() {
                 console.log('Auto-refresh triggered');
                 fetchAppointments();
-                fetchRecentTransactions(); // Also refresh recent transactions
-            }, 10000); // 10000ms = 10 seconds
+                fetchRecentTransactions();
+            }, 10000);
 
-            // Also refresh when user returns to the tab
             document.addEventListener('visibilitychange', function() {
                 if (!document.hidden && !isLoading) {
                     console.log('Tab became visible, refreshing');
@@ -1059,6 +1047,34 @@
                     fetchRecentTransactions();
                 }
             });
+        }
+
+        function disableSubmitButton() {
+            const submitBtn = document.getElementById('submitBtn');
+            if (submitBtn && !submitBtn.disabled) {
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = `
+                    <svg viewBox="0 0 20 20" fill="currentColor" width="20" height="20" style="animation: spin 1s linear infinite; margin-right: 8px;">
+                        <path fill-rule="evenodd" d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z" clip-rule="evenodd" />
+                    </svg>
+                    Processing...
+                `;
+            }
+        }
+
+        function restoreSubmitButton() {
+            const submitBtn = document.getElementById('submitBtn');
+            if (submitBtn) {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = `
+                    <svg viewBox="0 0 20 20" fill="currentColor" width="20" height="20">
+                        <path fill-rule="evenodd"
+                            d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                            clip-rule="evenodd" />
+                    </svg>
+                    Issue Appointment
+                `;
+            }
         }
 
         document.addEventListener('DOMContentLoaded', function() {
@@ -1076,18 +1092,19 @@
             @endif
 
             @if (session('error'))
+                restoreSubmitButton();
+                formSubmitted = false;
                 showErrorPopup('{{ session('error') }}');
             @endif
 
             @if ($errors->any())
+                restoreSubmitButton();
+                formSubmitted = false;
                 let errors = @json($errors->all());
                 showErrorPopup('Please fix the following errors:', errors);
             @endif
 
-            const oldCategory = '{{ old('category') }}';
-            if (oldCategory) {
-                document.getElementById('category').value = oldCategory;
-            }
+            // Initialize the form with the saved category
             toggleForm();
 
             const inlineScanner = document.getElementById('qr-reader-container');
@@ -1099,6 +1116,25 @@
             const closeModalBtn = document.getElementById('closeModalBtn');
             const cancelScannerBtn = document.getElementById('cancelScannerBtn');
             const modal = document.getElementById('scannerModal');
+            const appointmentForm = document.getElementById('appointmentForm');
+
+            if (appointmentForm) {
+                appointmentForm.addEventListener('submit', function(e) {
+                    if (formSubmitted) {
+                        e.preventDefault();
+                        return false;
+                    }
+
+                    if (!this.checkValidity()) {
+                        return true;
+                    }
+
+                    formSubmitted = true;
+                    disableSubmitButton();
+
+                    return true;
+                });
+            }
 
             if (openScannerBtn) {
                 openScannerBtn.addEventListener('click', () => {
@@ -1129,7 +1165,6 @@
                 }
             });
 
-            // Initialize pagination listeners
             attachPaginationListeners();
 
             @if (session('printSlip'))
@@ -1173,7 +1208,6 @@
                 });
             }
 
-            // Export PDF with confirmation
             document.getElementById('exportPdfBtn')?.addEventListener('click', function(e) {
                 e.preventDefault();
 
@@ -1189,15 +1223,13 @@
                     showLoaderOnConfirm: true,
                     preConfirm: () => {
                         return new Promise((resolve) => {
-                            // Create a temporary anchor element
                             const link = document.createElement('a');
                             link.href = '{{ route('appointment.export.pdf') }}';
-                            link.download = ''; // Let the server set the filename
+                            link.download = '';
                             document.body.appendChild(link);
                             link.click();
                             document.body.removeChild(link);
 
-                            // Simulate a short delay for the download to start
                             setTimeout(resolve, 1000);
                         });
                     }
@@ -1216,74 +1248,69 @@
                 });
             });
 
-            // Export Excel with confirmation
-document.getElementById('exportExcelBtn')?.addEventListener('click', function(e) {
-    e.preventDefault();
-    
-    const now = new Date();
-    const year = now.getFullYear();
-    const month = String(now.getMonth() + 1).padStart(2, '0');
-    const day = String(now.getDate()).padStart(2, '0');
-    const hours = String(now.getHours()).padStart(2, '0');
-    const minutes = String(now.getMinutes()).padStart(2, '0');
-    const filename = `RECENT-TRANSACTIONS-${year}-${month}-${day}-${hours}-${minutes}.xlsx`;
+            document.getElementById('exportExcelBtn')?.addEventListener('click', function(e) {
+                e.preventDefault();
 
-    Swal.fire({
-        title: 'Export to Excel',
-        html: `<div style="text-align: center;">
-                Are you sure you want to export the completed transactions report?<br>
-                <small style="color: #666; display: block; margin-top: 8px; padding: 8px; background: #f3f4f6; border-radius: 4px;">
-                    Filename: ${filename}
-                </small>
-               </div>`,
-        icon: 'question',
-        showCancelButton: true,
-        confirmButtonColor: '#059669',
-        cancelButtonColor: '#dc2626',
-        confirmButtonText: 'Yes, Export!',
-        cancelButtonText: 'Cancel',
-        showLoaderOnConfirm: true,
-        preConfirm: () => {
-            showLoading();
-            return new Promise((resolve) => {
-                // Create a temporary anchor element
-                const link = document.createElement('a');
-                link.href = '{{ route('appointment.export.excel') }}';
-                link.download = '';
-                document.body.appendChild(link);
-                link.click();
-                document.body.removeChild(link);
-                
-                // Simulate a short delay for the download to start
-                setTimeout(() => {
-                    hideLoading();
-                    resolve();
-                }, 1500);
-            });
-        }
-    }).then((result) => {
-        if (result.isConfirmed) {
-            Swal.fire({
-                title: 'Exported Successfully!',
-                html: `<div style="text-align: center;">
-                        Your Excel file <strong>${filename}</strong> has been downloaded.<br>
-                        <small style="color: #666;">The file includes formatted headers, summary statistics, and styled cells.</small>
-                       </div>`,
-                icon: 'success',
-                confirmButtonColor: '#2563eb',
-                confirmButtonText: 'OK',
-                timer: 5000,
-                timerProgressBar: true,
-                showCloseButton: true
-            });
-        }
-    });
-});
+                const now = new Date();
+                const year = now.getFullYear();
+                const month = String(now.getMonth() + 1).padStart(2, '0');
+                const day = String(now.getDate()).padStart(2, '0');
+                const hours = String(now.getHours()).padStart(2, '0');
+                const minutes = String(now.getMinutes()).padStart(2, '0');
+                const filename = `RECENT-TRANSACTIONS-${year}-${month}-${day}-${hours}-${minutes}.xlsx`;
 
-            // Start auto-refresh
+                Swal.fire({
+                    title: 'Export to Excel',
+                    html: `<div style="text-align: center;">
+                            Are you sure you want to export the completed transactions report?<br>
+                            <small style="color: #666; display: block; margin-top: 8px; padding: 8px; background: #f3f4f6; border-radius: 4px;">
+                                Filename: ${filename}
+                            </small>
+                           </div>`,
+                    icon: 'question',
+                    showCancelButton: true,
+                    confirmButtonColor: '#059669',
+                    cancelButtonColor: '#dc2626',
+                    confirmButtonText: 'Yes, Export!',
+                    cancelButtonText: 'Cancel',
+                    showLoaderOnConfirm: true,
+                    preConfirm: () => {
+                        showLoading();
+                        return new Promise((resolve) => {
+                            const link = document.createElement('a');
+                            link.href = '{{ route('appointment.export.excel') }}';
+                            link.download = '';
+                            document.body.appendChild(link);
+                            link.click();
+                            document.body.removeChild(link);
+
+                            setTimeout(() => {
+                                hideLoading();
+                                resolve();
+                            }, 1500);
+                        });
+                    }
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        Swal.fire({
+                            title: 'Exported Successfully!',
+                            html: `<div style="text-align: center;">
+                                    Your Excel file <strong>${filename}</strong> has been downloaded.<br>
+                                    <small style="color: #666;">The file includes formatted headers, summary statistics, and styled cells.</small>
+                                   </div>`,
+                            icon: 'success',
+                            confirmButtonColor: '#2563eb',
+                            confirmButtonText: 'OK',
+                            timer: 5000,
+                            timerProgressBar: true,
+                            showCloseButton: true
+                        });
+                    }
+                });
+            });
+
             startAutoRefresh();
 
-            // Initial fetch
             setTimeout(() => {
                 fetchAppointments();
                 fetchRecentTransactions();
@@ -1320,11 +1347,25 @@ document.getElementById('exportExcelBtn')?.addEventListener('click', function(e)
                 timerProgressBar: true,
                 showCloseButton: true
             }).then(() => {
-                location.reload();
+                formSubmitted = false;
+                restoreSubmitButton();
+                // Clear only the input fields, keep the category selection
+                const form = document.getElementById('appointmentForm');
+                const currentCategory = document.getElementById('category').value;
+
+                // Reset the form but preserve category
+                form.reset();
+
+                // Restore the category value and trigger form display
+                document.getElementById('category').value = currentCategory;
+                toggleForm();
             });
         }
 
         function showErrorPopup(message, errors = null) {
+            formSubmitted = false;
+            restoreSubmitButton();
+
             let html = `<div style="text-align: center; color: #991b1b;">${message}</div>`;
 
             if (errors) {
