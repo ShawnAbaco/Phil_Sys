@@ -16,47 +16,91 @@
                 </h3>
             </div>
             <div class="card-body">
+                {{-- Category Selection Buttons --}}
+                <div style="margin-bottom: 25px;">
+                    <label
+                        style="display: block; margin-bottom: 10px; font-weight: 600; color: #1f2937; font-size: 14px; text-transform: uppercase; letter-spacing: 0.05em;">Select
+                        Category:</label>
+                    <div style="display: flex; gap: 12px; margin-top: 5px;">
+                        <button type="button"
+                            class="category-btn {{ old('category', session('last_category')) == 'NID Registration' ? 'active' : '' }}"
+                            data-category="NID Registration" onclick="selectCategory('NID Registration')"
+                            style="padding: 12px 20px; border: 2px solid #e5e7eb; border-radius: 10px; background-color: {{ old('category', session('last_category')) == 'NID Registration' ? '#2563eb' : 'white' }}; color: {{ old('category', session('last_category')) == 'NID Registration' ? 'white' : '#374151' }}; font-weight: 600; cursor: pointer; transition: all 0.3s ease; flex: 1; font-size: 14px; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
+                            <span style="display: flex; align-items: center; justify-content: center; gap: 8px;">
+                                <svg viewBox="0 0 20 20" fill="currentColor" width="18" height="18">
+                                    <path
+                                        d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z" />
+                                </svg>
+                                NID Registration
+                            </span>
+                        </button>
+                        <button type="button"
+                            class="category-btn {{ old('category', session('last_category')) == 'Status Inquiry' ? 'active' : '' }}"
+                            data-category="Status Inquiry" onclick="selectCategory('Status Inquiry')"
+                            style="padding: 12px 20px; border: 2px solid #e5e7eb; border-radius: 10px; background-color: {{ old('category', session('last_category')) == 'Status Inquiry' ? '#2563eb' : 'white' }}; color: {{ old('category', session('last_category')) == 'Status Inquiry' ? 'white' : '#374151' }}; font-weight: 600; cursor: pointer; transition: all 0.3s ease; flex: 1; font-size: 14px; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
+                            <span style="display: flex; align-items: center; justify-content: center; gap: 8px;">
+                                <svg viewBox="0 0 20 20" fill="currentColor" width="18" height="18">
+                                    <path fill-rule="evenodd"
+                                        d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
+                                        clip-rule="evenodd" />
+                                </svg>
+                                Status Inquiry
+                            </span>
+                        </button>
+                        <button type="button"
+                            class="category-btn {{ old('category', session('last_category')) == 'Updating' ? 'active' : '' }}"
+                            data-category="Updating" onclick="selectCategory('Updating')"
+                            style="padding: 12px 20px; border: 2px solid #e5e7eb; border-radius: 10px; background-color: {{ old('category', session('last_category')) == 'Updating' ? '#2563eb' : 'white' }}; color: {{ old('category', session('last_category')) == 'Updating' ? 'white' : '#374151' }}; font-weight: 600; cursor: pointer; transition: all 0.3s ease; flex: 1; font-size: 14px; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
+                            <span style="display: flex; align-items: center; justify-content: center; gap: 8px;">
+                                <svg viewBox="0 0 20 20" fill="currentColor" width="18" height="18">
+                                    <path d="M4 4a2 2 0 00-2 2v1h16V6a2 2 0 00-2-2H4z" />
+                                    <path fill-rule="evenodd"
+                                        d="M18 9H2v5a2 2 0 002 2h12a2 2 0 002-2V9zM4 13a1 1 0 011-1h1a1 1 0 110 2H5a1 1 0 01-1-1zm5-1a1 1 0 100 2h1a1 1 0 100-2H9z"
+                                        clip-rule="evenodd" />
+                                </svg>
+                                Updating
+                            </span>
+                        </button>
+                    </div>
+                </div>
+
                 <form method="POST" action="{{ route('appointment.issue') }}" id="appointmentForm">
                     @csrf
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label for="category">Select Category:</label>
-                            <select name="category" id="category" onchange="toggleForm()" required>
-                                <option value="NID Registration"
-                                    {{ old('category', session('last_category')) == 'NID Registration' ? 'selected' : '' }}>
-                                    NID Registration
-                                </option>
-                                <option value="Status Inquiry"
-                                    {{ old('category', session('last_category')) == 'Status Inquiry' ? 'selected' : '' }}>
-                                    Status Inquiry
-                                </option>
-                                <option value="Updating"
-                                    {{ old('category', session('last_category')) == 'Updating' ? 'selected' : '' }}>
-                                    Updating
-                                </option>
-                            </select>
-                        </div>
-                    </div>
+
+                    {{-- Hidden input to store selected category --}}
+                    <input type="hidden" name="category" id="selectedCategory"
+                        value="{{ old('category', session('last_category', 'NID Registration')) }}">
 
                     <!-- NID Registration Form -->
-                    <div id="nidForm" style="display:none;">
+                    <div id="nidForm" class="category-form"
+                        style="display: {{ old('category', session('last_category')) == 'NID Registration' ? 'block' : 'none' }};">
+                        <div style="border-left: 4px solid #2563eb; padding-left: 15px; margin-bottom: 20px;">
+                            <h4 style="margin: 0 0 5px 0; color: #2563eb; font-size: 16px;">NID Registration Details
+                            </h4>
+                            <p style="margin: 0; color: #6b7280; font-size: 13px;">Please fill in the required
+                                information below</p>
+                        </div>
+
                         <div class="form-row">
                             <div class="form-group">
-                                <label for="fname_nid">First Name</label>
+                                <label for="fname_nid">First Name <span style="color: #dc2626;">*</span></label>
                                 <input type="text" name="fname_nid" id="fname_nid" value="{{ old('fname_nid') }}"
-                                    data-required="true" class="@error('fname_nid') is-invalid @enderror">
+                                    data-required="true" class="@error('fname_nid') is-invalid @enderror"
+                                    placeholder="Enter first name">
                             </div>
                             <div class="form-group">
                                 <label for="mname_nid">Middle Name</label>
-                                <input type="text" name="mname_nid" id="mname_nid" value="{{ old('mname_nid') }}">
+                                <input type="text" name="mname_nid" id="mname_nid" value="{{ old('mname_nid') }}"
+                                    placeholder="Enter middle name (optional)">
                             </div>
                         </div>
 
                         <div class="form-row">
                             <div class="form-group">
-                                <label for="lname_nid">Last Name</label>
+                                <label for="lname_nid">Last Name <span style="color: #dc2626;">*</span></label>
                                 <input type="text" name="lname_nid" id="lname_nid" value="{{ old('lname_nid') }}"
-                                    data-required="true" class="@error('lname_nid') is-invalid @enderror">
+                                    data-required="true" class="@error('lname_nid') is-invalid @enderror"
+                                    placeholder="Enter last name">
                             </div>
                             <div class="form-group">
                                 <label for="suffix_nid">Suffix</label>
@@ -67,20 +111,45 @@
 
                         <div class="form-row">
                             <div class="form-group">
-                                <label for="age_category_nid">Age Category</label>
-                                <select name="age_category_nid" id="age_category_nid" data-required="true"
-                                    class="@error('age_category_nid') is-invalid @enderror">
-                                    <option value="">Select Category</option>
-                                    <option value="0-4 years old"
-                                        {{ old('age_category_nid') == '0-4 years old' ? 'selected' : '' }}>0-4 years
-                                        old</option>
-                                    <option value="5 years old and above"
-                                        {{ old('age_category_nid') == '5 years old and above' ? 'selected' : '' }}>5
-                                        years old and above</option>
-                                </select>
+                                <label for="age_category_nid">Age Category <span
+                                        style="color: #dc2626;">*</span></label>
+                                <div class="age-category-buttons" style="display: flex; gap: 10px; margin-top: 5px;">
+                                    <input type="hidden" name="age_category_nid" id="age_category_nid"
+                                        value="{{ old('age_category_nid') }}">
+                                    <button type="button"
+                                        class="age-btn {{ old('age_category_nid') == '0-4 years old' ? 'active' : '' }}"
+                                        data-age="0-4 years old" onclick="selectAge('nid', '0-4 years old')"
+                                        style="padding: 10px 16px; border: 2px solid #e5e7eb; border-radius: 8px; background-color: {{ old('age_category_nid') == '0-4 years old' ? '#10B981' : 'white' }}; color: {{ old('age_category_nid') == '0-4 years old' ? 'white' : '#374151' }}; font-weight: 500; cursor: pointer; transition: all 0.3s ease; flex: 1; font-size: 13px;">
+                                        <span
+                                            style="display: flex; align-items: center; justify-content: center; gap: 6px;">
+                                            <svg viewBox="0 0 20 20" fill="currentColor" width="16"
+                                                height="16">
+                                                <path
+                                                    d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z" />
+                                            </svg>
+                                            0-4 years old
+                                        </span>
+                                    </button>
+                                    <button type="button"
+                                        class="age-btn {{ old('age_category_nid') == '5 years old and above' ? 'active' : '' }}"
+                                        data-age="5 years old and above"
+                                        onclick="selectAge('nid', '5 years old and above')"
+                                        style="padding: 10px 16px; border: 2px solid #e5e7eb; border-radius: 8px; background-color: {{ old('age_category_nid') == '5 years old and above' ? '#10B981' : 'white' }}; color: {{ old('age_category_nid') == '5 years old and above' ? 'white' : '#374151' }}; font-weight: 500; cursor: pointer; transition: all 0.3s ease; flex: 1; font-size: 13px;">
+                                        <span
+                                            style="display: flex; align-items: center; justify-content: center; gap: 6px;">
+                                            <svg viewBox="0 0 20 20" fill="currentColor" width="16"
+                                                height="16">
+                                                <path fill-rule="evenodd"
+                                                    d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z"
+                                                    clip-rule="evenodd" />
+                                            </svg>
+                                            5 years old and above
+                                        </span>
+                                    </button>
+                                </div>
                             </div>
                             <div class="form-group">
-                                <label for="birthdate_nid">Birthdate</label>
+                                <label for="birthdate_nid">Birthdate <span style="color: #dc2626;">*</span></label>
                                 <input type="date" name="birthdate_nid" id="birthdate_nid"
                                     value="{{ old('birthdate_nid') }}" data-required="true"
                                     class="@error('birthdate_nid') is-invalid @enderror">
@@ -89,27 +158,35 @@
                     </div>
 
                     <!-- Status Inquiry Form -->
-                    <div id="statusForm" style="display:none;">
+                    <div id="statusForm" class="category-form"
+                        style="display: {{ old('category', session('last_category')) == 'Status Inquiry' ? 'block' : 'none' }};">
+                        <div style="border-left: 4px solid #2563eb; padding-left: 15px; margin-bottom: 20px;">
+                            <h4 style="margin: 0 0 5px 0; color: #2563eb; font-size: 16px;">Status Inquiry Details</h4>
+                            <p style="margin: 0; color: #6b7280; font-size: 13px;">Please fill in the required
+                                information below</p>
+                        </div>
+
                         <div class="form-row">
                             <div class="form-group">
-                                <label for="fname_status">First Name</label>
+                                <label for="fname_status">First Name <span style="color: #dc2626;">*</span></label>
                                 <input type="text" name="fname_status" id="fname_status"
                                     value="{{ old('fname_status') }}" data-required="true"
-                                    class="@error('fname_status') is-invalid @enderror">
+                                    class="@error('fname_status') is-invalid @enderror"
+                                    placeholder="Enter first name">
                             </div>
                             <div class="form-group">
                                 <label for="mname_status">Middle Name</label>
                                 <input type="text" name="mname_status" id="mname_status"
-                                    value="{{ old('mname_status') }}">
+                                    value="{{ old('mname_status') }}" placeholder="Enter middle name (optional)">
                             </div>
                         </div>
 
                         <div class="form-row">
                             <div class="form-group">
-                                <label for="lname_status">Last Name</label>
+                                <label for="lname_status">Last Name <span style="color: #dc2626;">*</span></label>
                                 <input type="text" name="lname_status" id="lname_status"
                                     value="{{ old('lname_status') }}" data-required="true"
-                                    class="@error('lname_status') is-invalid @enderror">
+                                    class="@error('lname_status') is-invalid @enderror" placeholder="Enter last name">
                             </div>
                             <div class="form-group">
                                 <label for="suffix_status">Suffix</label>
@@ -120,20 +197,45 @@
 
                         <div class="form-row">
                             <div class="form-group">
-                                <label for="age_category_status">Age Category</label>
-                                <select name="age_category_status" id="age_category_status" data-required="true"
-                                    class="@error('age_category_status') is-invalid @enderror">
-                                    <option value="">Select Category</option>
-                                    <option value="0-4 years old"
-                                        {{ old('age_category_status') == '0-4 years old' ? 'selected' : '' }}>0-4 years
-                                        old</option>
-                                    <option value="5 years old and above"
-                                        {{ old('age_category_status') == '5 years old and above' ? 'selected' : '' }}>5
-                                        years old and above</option>
-                                </select>
+                                <label for="age_category_status">Age Category <span
+                                        style="color: #dc2626;">*</span></label>
+                                <div class="age-category-buttons" style="display: flex; gap: 10px; margin-top: 5px;">
+                                    <input type="hidden" name="age_category_status" id="age_category_status"
+                                        value="{{ old('age_category_status') }}">
+                                    <button type="button"
+                                        class="age-btn {{ old('age_category_status') == '0-4 years old' ? 'active' : '' }}"
+                                        data-age="0-4 years old" onclick="selectAge('status', '0-4 years old')"
+                                        style="padding: 10px 16px; border: 2px solid #e5e7eb; border-radius: 8px; background-color: {{ old('age_category_status') == '0-4 years old' ? '#10B981' : 'white' }}; color: {{ old('age_category_status') == '0-4 years old' ? 'white' : '#374151' }}; font-weight: 500; cursor: pointer; transition: all 0.3s ease; flex: 1; font-size: 13px;">
+                                        <span
+                                            style="display: flex; align-items: center; justify-content: center; gap: 6px;">
+                                            <svg viewBox="0 0 20 20" fill="currentColor" width="16"
+                                                height="16">
+                                                <path
+                                                    d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z" />
+                                            </svg>
+                                            0-4 years old
+                                        </span>
+                                    </button>
+                                    <button type="button"
+                                        class="age-btn {{ old('age_category_status') == '5 years old and above' ? 'active' : '' }}"
+                                        data-age="5 years old and above"
+                                        onclick="selectAge('status', '5 years old and above')"
+                                        style="padding: 10px 16px; border: 2px solid #e5e7eb; border-radius: 8px; background-color: {{ old('age_category_status') == '5 years old and above' ? '#10B981' : 'white' }}; color: {{ old('age_category_status') == '5 years old and above' ? 'white' : '#374151' }}; font-weight: 500; cursor: pointer; transition: all 0.3s ease; flex: 1; font-size: 13px;">
+                                        <span
+                                            style="display: flex; align-items: center; justify-content: center; gap: 6px;">
+                                            <svg viewBox="0 0 20 20" fill="currentColor" width="16"
+                                                height="16">
+                                                <path fill-rule="evenodd"
+                                                    d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z"
+                                                    clip-rule="evenodd" />
+                                            </svg>
+                                            5 years old and above
+                                        </span>
+                                    </button>
+                                </div>
                             </div>
                             <div class="form-group">
-                                <label for="birthdate_status">Birthdate</label>
+                                <label for="birthdate_status">Birthdate <span style="color: #dc2626;">*</span></label>
                                 <input type="date" name="birthdate_status" id="birthdate_status"
                                     value="{{ old('birthdate_status') }}" data-required="true"
                                     class="@error('birthdate_status') is-invalid @enderror">
@@ -142,16 +244,16 @@
 
                         <div class="form-row">
                             <div class="form-group" style="flex: 2;">
-                                <label for="trn">Transaction Reference Number (TRN)</label>
+                                <label for="trn">Transaction Reference Number (TRN) <span
+                                        style="color: #dc2626;">*</span></label>
                                 <div style="display: flex; gap: 8px; align-items: center;">
                                     <input type="text" name="trn" id="trn" value="{{ old('trn') }}"
                                         placeholder="Scan QR code or type TRN manually" autocomplete="off"
                                         data-required="true" class="@error('trn') is-invalid @enderror"
                                         style="flex: 1;">
                                     <button type="button" id="openScannerBtn" class="btn btn-primary scan-btn"
-                                        style="white-space: nowrap; padding: 8px 16px; min-width: 100px; background-color: #2563eb; color: white; border: none; border-radius: 6px; cursor: pointer; display: inline-flex; align-items: center; justify-content: center;">
-                                        <svg viewBox="0 0 20 20" fill="currentColor" width="16" height="16"
-                                            style="margin-right: 4px;">
+                                        style="white-space: nowrap; padding: 8px 16px; min-width: 100px; background: linear-gradient(135deg, #2563eb, #1d4ed8); color: white; border: none; border-radius: 6px; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 6px; font-weight: 500; box-shadow: 0 2px 4px rgba(37,99,235,0.3);">
+                                        <svg viewBox="0 0 20 20" fill="currentColor" width="16" height="16">
                                             <path fill-rule="evenodd"
                                                 d="M4 5a2 2 0 00-2 2v8a2 2 0 002 2h12a2 2 0 002-2V7a2 2 0 00-2-2h-1.586a1 1 0 01-.707-.293l-1.121-1.121A2 2 0 0011.172 3H8.828a2 2 0 00-1.414.586L6.293 4.707A1 1 0 015.586 5H4zm6 9a3 3 0 100-6 3 3 0 000 6z"
                                                 clip-rule="evenodd" />
@@ -164,27 +266,35 @@
                     </div>
 
                     <!-- Updating Form -->
-                    <div id="updatingForm" style="display:none;">
+                    <div id="updatingForm" class="category-form"
+                        style="display: {{ old('category', session('last_category')) == 'Updating' ? 'block' : 'none' }};">
+                        <div style="border-left: 4px solid #2563eb; padding-left: 15px; margin-bottom: 20px;">
+                            <h4 style="margin: 0 0 5px 0; color: #2563eb; font-size: 16px;">Updating Details</h4>
+                            <p style="margin: 0; color: #6b7280; font-size: 13px;">Please fill in the required
+                                information below</p>
+                        </div>
+
                         <div class="form-row">
                             <div class="form-group">
-                                <label for="fname_update">First Name</label>
+                                <label for="fname_update">First Name <span style="color: #dc2626;">*</span></label>
                                 <input type="text" name="fname_update" id="fname_update"
                                     value="{{ old('fname_update') }}" data-required="true"
-                                    class="@error('fname_update') is-invalid @enderror">
+                                    class="@error('fname_update') is-invalid @enderror"
+                                    placeholder="Enter first name">
                             </div>
                             <div class="form-group">
                                 <label for="mname_update">Middle Name</label>
                                 <input type="text" name="mname_update" id="mname_update"
-                                    value="{{ old('mname_update') }}">
+                                    value="{{ old('mname_update') }}" placeholder="Enter middle name (optional)">
                             </div>
                         </div>
 
                         <div class="form-row">
                             <div class="form-group">
-                                <label for="lname_update">Last Name</label>
+                                <label for="lname_update">Last Name <span style="color: #dc2626;">*</span></label>
                                 <input type="text" name="lname_update" id="lname_update"
                                     value="{{ old('lname_update') }}" data-required="true"
-                                    class="@error('lname_update') is-invalid @enderror">
+                                    class="@error('lname_update') is-invalid @enderror" placeholder="Enter last name">
                             </div>
                             <div class="form-group">
                                 <label for="suffix_update">Suffix</label>
@@ -195,20 +305,45 @@
 
                         <div class="form-row">
                             <div class="form-group">
-                                <label for="age_category_update">Age Category</label>
-                                <select name="age_category_update" id="age_category_update" data-required="true"
-                                    class="@error('age_category_update') is-invalid @enderror">
-                                    <option value="">Select Category</option>
-                                    <option value="0-4 years old"
-                                        {{ old('age_category_update') == '0-4 years old' ? 'selected' : '' }}>0-4 years
-                                        old</option>
-                                    <option value="5 years old and above"
-                                        {{ old('age_category_update') == '5 years old and above' ? 'selected' : '' }}>5
-                                        years old and above</option>
-                                </select>
+                                <label for="age_category_update">Age Category <span
+                                        style="color: #dc2626;">*</span></label>
+                                <div class="age-category-buttons" style="display: flex; gap: 10px; margin-top: 5px;">
+                                    <input type="hidden" name="age_category_update" id="age_category_update"
+                                        value="{{ old('age_category_update') }}">
+                                    <button type="button"
+                                        class="age-btn {{ old('age_category_update') == '0-4 years old' ? 'active' : '' }}"
+                                        data-age="0-4 years old" onclick="selectAge('update', '0-4 years old')"
+                                        style="padding: 10px 16px; border: 2px solid #e5e7eb; border-radius: 8px; background-color: {{ old('age_category_update') == '0-4 years old' ? '#10B981' : 'white' }}; color: {{ old('age_category_update') == '0-4 years old' ? 'white' : '#374151' }}; font-weight: 500; cursor: pointer; transition: all 0.3s ease; flex: 1; font-size: 13px;">
+                                        <span
+                                            style="display: flex; align-items: center; justify-content: center; gap: 6px;">
+                                            <svg viewBox="0 0 20 20" fill="currentColor" width="16"
+                                                height="16">
+                                                <path
+                                                    d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z" />
+                                            </svg>
+                                            0-4 years old
+                                        </span>
+                                    </button>
+                                    <button type="button"
+                                        class="age-btn {{ old('age_category_update') == '5 years old and above' ? 'active' : '' }}"
+                                        data-age="5 years old and above"
+                                        onclick="selectAge('update', '5 years old and above')"
+                                        style="padding: 10px 16px; border: 2px solid #e5e7eb; border-radius: 8px; background-color: {{ old('age_category_update') == '5 years old and above' ? '#10B981' : 'white' }}; color: {{ old('age_category_update') == '5 years old and above' ? 'white' : '#374151' }}; font-weight: 500; cursor: pointer; transition: all 0.3s ease; flex: 1; font-size: 13px;">
+                                        <span
+                                            style="display: flex; align-items: center; justify-content: center; gap: 6px;">
+                                            <svg viewBox="0 0 20 20" fill="currentColor" width="16"
+                                                height="16">
+                                                <path fill-rule="evenodd"
+                                                    d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z"
+                                                    clip-rule="evenodd" />
+                                            </svg>
+                                            5 years old and above
+                                        </span>
+                                    </button>
+                                </div>
                             </div>
                             <div class="form-group">
-                                <label for="birthdate_update">Birthdate</label>
+                                <label for="birthdate_update">Birthdate <span style="color: #dc2626;">*</span></label>
                                 <input type="date" name="birthdate_update" id="birthdate_update"
                                     value="{{ old('birthdate_update') }}" data-required="true"
                                     class="@error('birthdate_update') is-invalid @enderror">
@@ -217,15 +352,19 @@
 
                         <div class="form-row">
                             <div class="form-group">
-                                <label for="PCN">PhilSys Card Number (PCN)</label>
+                                <label for="PCN">PhilSys Card Number (PCN) <span
+                                        style="color: #dc2626;">*</span></label>
                                 <input type="text" name="PCN" id="PCN" value="{{ old('PCN') }}"
-                                    data-required="true" class="@error('PCN') is-invalid @enderror">
+                                    data-required="true" class="@error('PCN') is-invalid @enderror"
+                                    placeholder="Enter PCN">
                             </div>
                         </div>
                     </div>
 
-                    <div class="form-actions">
-                        <button type="submit" class="btn btn-primary" id="submitBtn">
+                    <div class="form-actions"
+                        style="margin-top: 25px; border-top: 1px solid #e5e7eb; padding-top: 20px;">
+                        <button type="submit" class="btn btn-primary" id="submitBtn"
+                            style="background: linear-gradient(135deg, #2563eb, #1d4ed8); color: white; border: none; padding: 12px 30px; border-radius: 8px; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 10px; font-size: 16px; box-shadow: 0 4px 6px rgba(37,99,235,0.3); transition: all 0.3s ease; width: 100%;">
                             <svg viewBox="0 0 20 20" fill="currentColor" width="20" height="20">
                                 <path fill-rule="evenodd"
                                     d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
@@ -400,7 +539,7 @@
         </div>
     </div>
 
-    {{-- Add this in the card-header of Recent Transactions --}}
+    {{-- Recent Transactions Card --}}
     <div class="card full-width" id="recentTransactionsCard">
         <div class="card-header">
             <h3>
@@ -531,7 +670,6 @@
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html5-qrcode/2.3.4/html5-qrcode.min.js"></script>
-
     <script>
         let html5QrcodeScanner = null;
         let isScanning = false;
@@ -540,16 +678,108 @@
         let refreshInterval;
         let formSubmitted = false;
 
-        function toggleForm() {
-            var category = document.getElementById('category').value;
+        function selectCategory(category) {
+            // Update hidden input
+            document.getElementById('selectedCategory').value = category;
+
+            // Update button styles
+            document.querySelectorAll('.category-btn').forEach(btn => {
+                btn.classList.remove('active');
+                btn.style.backgroundColor = 'white';
+                btn.style.color = '#374151';
+                btn.style.borderColor = '#e5e7eb';
+            });
+
+            // Style the selected button
+            const selectedBtn = document.querySelector(`.category-btn[data-category="${category}"]`);
+            if (selectedBtn) {
+                selectedBtn.classList.add('active');
+                selectedBtn.style.backgroundColor = '#2563eb';
+                selectedBtn.style.color = 'white';
+                selectedBtn.style.borderColor = '#2563eb';
+            }
+
+            // Show/hide forms
+            toggleForm(category);
+
+            // Store in session via AJAX
+            $.ajax({
+                url: '{{ route('appointment.store-category') }}',
+                method: 'POST',
+                data: {
+                    _token: '{{ csrf_token() }}',
+                    category: category
+                }
+            });
+        }
+
+        function selectAge(formType, ageValue) {
+            console.log('selectAge called with:', formType, ageValue); // Debug log
+
+            // Update hidden input
+            const hiddenInput = document.getElementById(`age_category_${formType}`);
+            if (hiddenInput) {
+                hiddenInput.value = ageValue;
+                console.log(`Updated age_category_${formType} to:`, ageValue);
+            } else {
+                console.error(`Hidden input age_category_${formType} not found`);
+                return;
+            }
+
+            // Determine which form ID to use
+            let formId;
+            if (formType === 'nid') {
+                formId = 'nidForm';
+            } else if (formType === 'status') {
+                formId = 'statusForm';
+            } else if (formType === 'update') {
+                formId = 'updatingForm';
+            } else {
+                console.error('Unknown form type:', formType);
+                return;
+            }
+
+            console.log('Looking for buttons in form:', formId);
+
+            // Update button styles for this specific form
+            const ageButtons = document.querySelectorAll(`#${formId} .age-btn`);
+            console.log(`Found ${ageButtons.length} age buttons in ${formId}`);
+
+            ageButtons.forEach(btn => {
+                btn.classList.remove('active');
+                btn.style.backgroundColor = 'white';
+                btn.style.color = '#374151';
+                btn.style.borderColor = '#e5e7eb';
+            });
+
+            // Style the selected button
+            const selectedBtn = document.querySelector(`#${formId} .age-btn[data-age="${ageValue}"]`);
+            if (selectedBtn) {
+                selectedBtn.classList.add('active');
+                selectedBtn.style.backgroundColor = '#10B981';
+                selectedBtn.style.color = 'white';
+                selectedBtn.style.borderColor = '#10B981';
+                console.log('Selected button styled successfully');
+            } else {
+                console.error('Selected button not found in', formId);
+            }
+        }
+
+        function toggleForm(category = null) {
+            if (!category) {
+                category = document.getElementById('selectedCategory').value;
+            }
+
             var nidForm = document.getElementById('nidForm');
             var statusForm = document.getElementById('statusForm');
             var updatingForm = document.getElementById('updatingForm');
 
+            // Hide all forms
             if (nidForm) nidForm.style.display = 'none';
             if (statusForm) statusForm.style.display = 'none';
             if (updatingForm) updatingForm.style.display = 'none';
 
+            // Remove required attributes from all inputs
             [nidForm, statusForm, updatingForm].forEach(formDiv => {
                 if (!formDiv) return;
                 var inputs = formDiv.querySelectorAll('input, select');
@@ -575,21 +805,11 @@
                 activeForm.style.display = 'block';
                 var inputs = activeForm.querySelectorAll('input, select');
                 inputs.forEach(input => {
-                    if (input.dataset.required === "true") {
+                    if (input.dataset && input.dataset.required === "true") {
                         input.setAttribute('required', 'required');
                     }
                 });
             }
-
-            // Store selected category in session via AJAX to persist after page reload
-            $.ajax({
-                url: '{{ route('appointment.store-category') }}',
-                method: 'POST',
-                data: {
-                    _token: '{{ csrf_token() }}',
-                    category: category
-                }
-            });
         }
 
         async function stopQRScanner() {
@@ -1105,7 +1325,13 @@
             @endif
 
             // Initialize the form with the saved category
-            toggleForm();
+            const savedCategory = document.getElementById('selectedCategory').value;
+            selectCategory(savedCategory);
+
+            // Debug: Check if age buttons exist for updating form
+            console.log('NID Form age buttons:', document.querySelectorAll('#nidForm .age-btn').length);
+            console.log('Status Form age buttons:', document.querySelectorAll('#statusForm .age-btn').length);
+            console.log('Updating Form age buttons:', document.querySelectorAll('#updatingForm .age-btn').length);
 
             const inlineScanner = document.getElementById('qr-reader-container');
             if (inlineScanner) {
@@ -1138,12 +1364,11 @@
 
             if (openScannerBtn) {
                 openScannerBtn.addEventListener('click', () => {
-                    const category = document.getElementById('category').value;
+                    const category = document.getElementById('selectedCategory').value;
 
                     if (category !== 'Status Inquiry') {
                         showWarningPopup('Please select Status Inquiry category first.');
-                        document.getElementById('category').value = 'Status Inquiry';
-                        toggleForm();
+                        selectCategory('Status Inquiry');
                         return;
                     }
 
@@ -1351,14 +1576,26 @@
                 restoreSubmitButton();
                 // Clear only the input fields, keep the category selection
                 const form = document.getElementById('appointmentForm');
-                const currentCategory = document.getElementById('category').value;
+                const currentCategory = document.getElementById('selectedCategory').value;
 
                 // Reset the form but preserve category
                 form.reset();
 
+                // Reset age buttons to default (unselected)
+                document.querySelectorAll('.age-btn').forEach(btn => {
+                    btn.classList.remove('active');
+                    btn.style.backgroundColor = 'white';
+                    btn.style.color = '#374151';
+                    btn.style.borderColor = '#e5e7eb';
+                });
+
+                // Clear hidden age inputs
+                document.querySelectorAll('[id^="age_category_"]').forEach(input => {
+                    input.value = '';
+                });
+
                 // Restore the category value and trigger form display
-                document.getElementById('category').value = currentCategory;
-                toggleForm();
+                selectCategory(currentCategory);
             });
         }
 

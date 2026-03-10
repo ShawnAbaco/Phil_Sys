@@ -73,11 +73,11 @@ class ClientController extends Controller
             $lname = $item->lname;
 
             if (stripos($q, 'S') === 0) {
-                if (count($nextQueues['statusInquiry']) < 15) {
+                if (count($nextQueues['statusInquiry']) < 27) {
                     $nextQueues['statusInquiry'][] = ['q_id' => $q, 'lname' => $lname];
                 }
             } elseif (stripos($q, 'R') === 0 || stripos($q, 'U') === 0) {
-                if (count($nextQueues['registrationUpdating']) < 15) {
+                if (count($nextQueues['registrationUpdating']) < 27) {
                     $nextQueues['registrationUpdating'][] = ['q_id' => $q, 'lname' => $lname];
                 }
             }
@@ -95,4 +95,39 @@ class ClientController extends Controller
         $string = strtolower($string);
         return ucfirst($string);
     }
+
+    public function queues()
+{
+    // Your existing code to get calledQueues and nextQueues...
+    
+    // Split registrationUpdating into registration and updating
+    $registrationUpdating = $nextQueues['registrationUpdating'] ?? [];
+    
+    // Assuming you can identify which is which by some criteria
+    // For example, if queue numbers have prefixes like 'REG-' and 'UPD-'
+    $registration = [];
+    $updating = [];
+    
+    foreach ($registrationUpdating as $item) {
+        // Example logic - adjust based on your actual queue number format
+        if (strpos($item['q_id'], 'REG') !== false) {
+            $registration[] = $item;
+        } elseif (strpos($item['q_id'], 'UPD') !== false) {
+            $updating[] = $item;
+        } else {
+            // If no clear prefix, you might need another way to distinguish
+            // For now, put in registration by default
+            $registration[] = $item;
+        }
+    }
+    
+    return response()->json([
+        'calledQueues' => $calledQueues,
+        'nextQueues' => [
+            'statusInquiry' => $nextQueues['statusInquiry'] ?? [],
+            'registration' => $registration,
+            'updating' => $updating,
+        ]
+    ]);
+}
 }

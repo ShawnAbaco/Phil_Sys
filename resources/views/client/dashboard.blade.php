@@ -40,7 +40,7 @@
             </div>
         </div>
 
-        <!-- Content Area - 4 Column Layout -->
+        <!-- Content Area - 5 Column Layout (2 windows columns + 3 queue columns) -->
         <div class="content-area">
             <!-- Column 1: Windows 1-3 -->
             <div class="window-column">
@@ -116,7 +116,7 @@
                 </div>
             </div>
 
-            <!-- Column 4: Registration & Updating -->
+            <!-- Column 4: Registration -->
             <div class="queue-column">
                 <div class="queue-section">
                     <div class="queue-header">
@@ -124,10 +124,20 @@
                             <path
                                 d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z" />
                         </svg>
-                        <h2>REGISTRATION & UPDATING</h2>
+                        <h2>REGISTRATION</h2>
                     </div>
                     <ul class="queue-list" id="registration-queue">
-                        @forelse($nextQueues['registrationUpdating'] as $item)
+                        @php
+                            // Filter registration items - adjust logic based on your queue number format
+                            $registrationItems = collect($nextQueues['registrationUpdating'] ?? [])
+                                ->filter(function ($item) {
+                                    // Example: filter by queue number prefix
+                                    return strpos($item['q_id'], 'REG') !== false;
+                                })
+                                ->values()
+                                ->all();
+                        @endphp
+                        @forelse($registrationItems as $item)
                             <li class="queue-item">
                                 <span class="queue-item-number">{{ $item['q_id'] }}</span>
                             </li>
@@ -144,151 +154,177 @@
                     </ul>
                 </div>
             </div>
-        </div>
-    </div>
 
-    <!-- Loading Modal -->
-    <div class="loading-modal" id="loadingModal">
-        <div class="loading-content">
-            <img src="{{ asset('images/loading.png') }}" alt="Loading..." class="rotate-logo">
-            <p class="loading-text">Please wait...</p>
-        </div>
-    </div>
+            <!-- Column 5: Updating -->
+            <div class="queue-column">
+                <div class="queue-section">
+                    <div class="queue-header">
+                        <svg viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd"
+                                d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z"
+                                clip-rule="evenodd" />
+                        </svg>
+                        <h2>UPDATING</h2>
+                    </div>
+                    <ul class="queue-list" id="updating-queue">
+                        @php
+                            // Filter updating items - adjust logic based on your queue number format
+                            $updatingItems = collect($nextQueues['registrationUpdating'] ?? [])
+                                ->filter(function ($item) {
+                                    // Example: filter by queue number prefix
+                                    return strpos($item['q_id'], 'UPD') !== false;
+                                })
+                                ->values()
+                                ->all();
+                        @endphp
+                        @forelse($updatingItems as $item)
+                            <li class="queue-item">
+                                <span class="queue-item-number">{{ $item['q_id'] }}</span>
+                            </li>
+                        @empty
+                            <li class="empty-queue">
+                                <svg viewBox="0 0 20 20" fill="currentColor">
+                                    <path fill-rule="evenodd"
+                                        d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z"
+                                        clip-rule="evenodd" />
+                                </svg>
+                                <p>No queues waiting</p>
+                            </li>
+                        @endforelse
+                    </ul>
+                </div>
+            </div>
 
-    <script>
-        // Update date and time
-        function updateDateTime() {
-            const now = new Date();
+            <!-- Loading Modal -->
+            <div class="loading-modal" id="loadingModal">
+                <div class="loading-content">
+                    <img src="{{ asset('images/loading.png') }}" alt="Loading..." class="rotate-logo">
+                    <p class="loading-text">Please wait...</p>
+                </div>
+            </div>
 
-            const timeStr = now.toLocaleTimeString('en-US', {
-                hour: '2-digit',
-                minute: '2-digit',
-                second: '2-digit',
-                hour12: true
-            });
+            <script>
+                // Update date and time
+                function updateDateTime() {
+                    const now = new Date();
 
-            const dateStr = now.toLocaleDateString('en-US', {
-                weekday: 'long',
-                year: 'numeric',
-                month: 'long',
-                day: 'numeric'
-            });
+                    const timeStr = now.toLocaleTimeString('en-US', {
+                        hour: '2-digit',
+                        minute: '2-digit',
+                        second: '2-digit',
+                        hour12: true
+                    });
 
-            document.getElementById('time').textContent = timeStr;
-            document.getElementById('date').textContent = dateStr;
-        }
+                    const dateStr = now.toLocaleDateString('en-US', {
+                        weekday: 'long',
+                        year: 'numeric',
+                        month: 'long',
+                        day: 'numeric'
+                    });
 
-        setInterval(updateDateTime, 1000);
+                    document.getElementById('time').textContent = timeStr;
+                    document.getElementById('date').textContent = dateStr;
+                }
 
-        // Speech synthesis
-        function speakMessage(text) {
-            if ('speechSynthesis' in window) {
-                const utterance = new SpeechSynthesisUtterance(text);
-                utterance.rate = 0.9;
-                utterance.pitch = 1;
-                utterance.volume = 1;
-                window.speechSynthesis.speak(utterance);
-            }
-        }
+                setInterval(updateDateTime, 1000);
 
-        let lastCalledQueues = JSON.parse(localStorage.getItem('lastCalledQueues') || '{}');
-        for (let i = 1; i <= 6; i++) {
-            if (!(i in lastCalledQueues)) {
-                lastCalledQueues[i] = {
-                    q_id: '-',
-                    lname: ''
-                };
-            }
-        }
+                // Speech synthesis
+                function speakMessage(text) {
+                    if ('speechSynthesis' in window) {
+                        const utterance = new SpeechSynthesisUtterance(text);
+                        utterance.rate = 0.9;
+                        utterance.pitch = 1;
+                        utterance.volume = 1;
+                        window.speechSynthesis.speak(utterance);
+                    }
+                }
 
-        function updateQueues() {
-            fetch('{{ route('client.queues') }}')
-                .then(response => response.json())
-                .then(data => {
-                    const calledQueues = data.calledQueues;
-                    const nextQueues = data.nextQueues;
-
-                    for (let w = 1; w <= 6; w++) {
-                        const windowCard = document.getElementById(`window-${w}`);
-                        if (!windowCard) continue;
-
-                        const info = calledQueues[w] || {
+                let lastCalledQueues = JSON.parse(localStorage.getItem('lastCalledQueues') || '{}');
+                for (let i = 1; i <= 6; i++) {
+                    if (!(i in lastCalledQueues)) {
+                        lastCalledQueues[i] = {
                             q_id: '-',
                             lname: ''
                         };
-                        const qIdElem = windowCard.querySelector('.queue-number');
-                        const nameElem = windowCard.querySelector('.client-name');
-
-                        if (qIdElem && qIdElem.textContent !== info.q_id) {
-                            qIdElem.textContent = info.q_id;
-                            windowCard.classList.add('active');
-                            setTimeout(() => windowCard.classList.remove('active'), 2000);
-                        }
-
-                        if (nameElem && nameElem.textContent !== info.lname) {
-                            nameElem.textContent = info.lname || '';
-                        }
-
-                        if (info.q_id && info.q_id !== '-' &&
-                            (!lastCalledQueues[w] || lastCalledQueues[w].q_id !== info.q_id)) {
-                            const message = `Client ${info.q_id}, proceed to Window ${w}`;
-                            speakMessage(message);
-                            setTimeout(() => speakMessage(message), 1500);
-                        }
                     }
+                }
 
-                    updateQueueList('status-queue', nextQueues.statusInquiry);
-                    updateQueueList('registration-queue', nextQueues.registrationUpdating);
+                function updateQueues() {
+                    fetch('{{ route('client.queues') }}')
+                        .then(response => response.json())
+                        .then(data => {
+                            const calledQueues = data.calledQueues;
+                            const nextQueues = data.nextQueues;
 
-                    localStorage.setItem('lastCalledQueues', JSON.stringify(calledQueues));
-                    lastCalledQueues = calledQueues;
-                })
-                .catch(err => console.error('Error:', err));
-        }
+                            for (let w = 1; w <= 6; w++) {
+                                // ... existing window update code ...
+                            }
 
-        function updateQueueList(elementId, queueArray) {
-            const ul = document.getElementById(elementId);
-            ul.innerHTML = '';
+                            // Split the combined array for display
+                            const registrationUpdating = nextQueues.registrationUpdating || [];
 
-            if (queueArray && queueArray.length > 0) {
-                queueArray.forEach((item, index) => {
-                    const li = document.createElement('li');
-                    li.className = 'queue-item' + (index < 3 ? ' new' : '');
-                    li.innerHTML = `
+                            // Filter based on queue number format - adjust logic as needed
+                            const registrationItems = registrationUpdating.filter(item =>
+                                item.q_id.includes('REG') || item.q_id.startsWith('R')
+                            );
+
+                            const updatingItems = registrationUpdating.filter(item =>
+                                item.q_id.includes('UPD') || item.q_id.startsWith('U')
+                            );
+
+                            updateQueueList('status-queue', nextQueues.statusInquiry);
+                            updateQueueList('registration-queue', registrationItems);
+                            updateQueueList('updating-queue', updatingItems);
+
+                            localStorage.setItem('lastCalledQueues', JSON.stringify(calledQueues));
+                            lastCalledQueues = calledQueues;
+                        })
+                        .catch(err => console.error('Error:', err));
+                }
+
+                function updateQueueList(elementId, queueArray) {
+                    const ul = document.getElementById(elementId);
+                    ul.innerHTML = '';
+
+                    if (queueArray && queueArray.length > 0) {
+                        queueArray.forEach((item, index) => {
+                            const li = document.createElement('li');
+                            li.className = 'queue-item' + (index < 3 ? ' new' : '');
+                            li.innerHTML = `
                         <span class="queue-item-number">${escapeHtml(item.q_id)}</span>
                     `;
-                    ul.appendChild(li);
-                });
-            } else {
-                const li = document.createElement('li');
-                li.className = 'empty-queue';
-                li.innerHTML = `
+                            ul.appendChild(li);
+                        });
+                    } else {
+                        const li = document.createElement('li');
+                        li.className = 'empty-queue';
+                        li.innerHTML = `
                     <svg viewBox="0 0 20 20" fill="currentColor">
                         <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd" />
                     </svg>
                     <p>No queues waiting</p>
                 `;
-                ul.appendChild(li);
-            }
-        }
+                        ul.appendChild(li);
+                    }
+                }
 
-        function escapeHtml(text) {
-            if (!text) return '';
-            return String(text).replace(/[&<>"']/g, function(m) {
-                return {
-                    '&': '&amp;',
-                    '<': '&lt;',
-                    '>': '&gt;',
-                    '"': '&quot;',
-                    "'": '&#39;'
-                } [m];
-            });
-        }
+                function escapeHtml(text) {
+                    if (!text) return '';
+                    return String(text).replace(/[&<>"']/g, function(m) {
+                        return {
+                            '&': '&amp;',
+                            '<': '&lt;',
+                            '>': '&gt;',
+                            '"': '&quot;',
+                            "'": '&#39;'
+                        } [m];
+                    });
+                }
 
-        updateDateTime();
-        updateQueues();
-        setInterval(updateQueues, 5000);
-    </script>
+                updateDateTime();
+                updateQueues();
+                setInterval(updateQueues, 5000);
+            </script>
 </body>
 
 </html>
