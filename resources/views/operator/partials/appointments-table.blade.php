@@ -72,13 +72,13 @@
                     $serveDisabled = $hasServing && $appointment->status !== 'serving';
                     
                     // Determine if checkbox should be disabled
-                    // Only pending appointments can be selected
-                    // Determine if checkbox should be disabled
                     // Disable only completed and cancelled appointments
                     $checkboxDisabled = $appointment->status === 'completed' || $appointment->status === 'cancelled' || $appointment->status === 'serving';
                 @endphp
-                <tr data-search="{{ strtolower($appointment->lname . ' ' . $appointment->fname . ' ' . ($appointment->trn ?? '')) }}">
-                    <td>
+                <tr class="clickable-row {{ $checkboxDisabled ? 'disabled-row' : '' }}" 
+                    data-id="{{ $appointment->n_id }}" 
+                    data-search="{{ strtolower($appointment->lname . ' ' . $appointment->fname . ' ' . ($appointment->trn ?? '')) }}">
+                    <td class="checkbox-cell">
                         <input type="checkbox" class="row-checkbox" 
                                data-id="{{ $appointment->n_id }}" 
                                data-name="{{ $appointment->fname }} {{ $appointment->lname }}"
@@ -100,7 +100,7 @@
                             {{ $statusDisplay }}
                         </span>
                     </td>
-                    <td>
+                    <td class="action-cell">
                         @if($appointment->status === 'pending')
                             <button class="btn-action serve-btn" 
                                     data-id="{{ $appointment->n_id }}"
@@ -167,3 +167,109 @@
         </tbody>
     </table>
 </div>
+
+<style>
+/* Clickable row styles */
+.clickable-row {
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.clickable-row:hover {
+    background-color: rgba(37, 99, 235, 0.03);
+}
+
+.clickable-row.disabled-row {
+    cursor: default;
+}
+
+.clickable-row.disabled-row:hover {
+    background-color: transparent;
+}
+
+/* Ensure action buttons don't trigger row click */
+.action-cell button,
+.action-cell .action-button-group,
+.status-text {
+    position: relative;
+    z-index: 2;
+}
+
+/* Keep existing selected row style */
+.table tr.selected {
+    background-color: rgba(37, 99, 235, 0.08);
+    border-left: 3px solid var(--psa-blue);
+}
+
+.table tr.selected:hover {
+    background-color: rgba(37, 99, 235, 0.12);
+}
+</style>
+
+<script>
+// Add this to handle row clicks
+document.addEventListener('DOMContentLoaded', function() {
+    initializeClickableRows();
+    
+    // Re-initialize after AJAX updates
+    document.addEventListener('clickableRowsUpdate', function() {
+        initializeClickableRows();
+    });
+});
+
+function initializeClickableRows() {
+    document.querySelectorAll('.clickable-row').forEach(row => {
+        // Remove existing listener to prevent duplicates
+        row.removeEventListener('click', handleRowClick);
+        row.addEventListener('click', handleRowClick);
+    });
+}
+
+function handleRowClick(e) {
+    // Don't toggle if clicking on button or action elements
+    if (e.target.closest('button') || 
+        e.target.closest('.btn-action') || 
+        e.target.closest('.action-button-group') || 
+        e.target.closest('.status-text')) {
+        return;
+    }
+    
+    const checkbox = this.querySelector('.row-checkbox');
+    if (checkbox && !checkbox.disabled) {
+        checkbox.checked = !checkbox.checked;
+        
+        // Trigger change event to update selection
+        const event = new Event('change', { bubbles: true });
+        checkbox.dispatchEvent(event);
+    }
+}
+
+// Update your existing updateAppointmentsTables function to trigger the event
+function updateAppointmentsTables(data) {
+    if (document.getElementById('table-all')) {
+        document.getElementById('table-all').innerHTML = data.tableAll || '';
+    }
+    
+    if (document.getElementById('table-nid-registration')) {
+        document.getElementById('table-nid-registration').innerHTML = data.tableNidRegistration || '';
+    }
+    
+    if (document.getElementById('table-status-inquiry')) {
+        document.getElementById('table-status-inquiry').innerHTML = data.tableStatusInquiry || '';
+    }
+    
+    if (document.getElementById('table-nid-updating')) {
+        document.getElementById('table-nid-updating').innerHTML = data.tableUpdating || '';
+    }
+    
+    attachServeButtonListeners();
+    initializeAllTableCheckboxes();
+    
+    // Trigger clickable rows re-initialization
+    document.dispatchEvent(new Event('clickableRowsUpdate'));
+    
+    if (currentSearchTerm) {
+        filterTableRows();
+    }
+}
+</script>

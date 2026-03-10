@@ -64,7 +64,7 @@
             <button class="service-tab active" data-service="all">All Services</button>
             <button class="service-tab" data-service="NID Registration">NID Registration</button>
             <button class="service-tab" data-service="Status Inquiry">Status Inquiry</button>
-            <button class="service-tab" data-service="NID Updating">NID Updating</button>
+            <button class="service-tab" data-service="Updating">NID Updating</button>
         </div>
 
         <div class="card-body">
@@ -165,28 +165,28 @@
                 </div>
 
                 {{-- Selection Controls for NID Updating --}}
-                <div class="selection-controls" id="selection-controls-nid-updating" style="display: none;">
+                <div class="selection-controls" id="selection-controls-updating" style="display: none;">
                     <div class="selection-info">
                         <label class="select-all-container">
-                            <input type="checkbox" class="select-all-checkbox" data-table="nid-updating">
+                            <input type="checkbox" class="select-all-checkbox" data-table="updating">
                             <span>Select All</span>
                         </label>
-                        <span class="selected-count" id="selected-count-nid-updating">0 selected</span>
+                        <span class="selected-count" id="selected-count-updating">0 selected</span>
                     </div>
-                    <div class="bulk-actions" style="display: none;" id="bulk-actions-nid-updating">
-                        <button type="button" class="btn-status bulk-complete" data-table="nid-updating" data-status="completed">
+                    <div class="bulk-actions" style="display: none;" id="bulk-actions-updating">
+                        <button type="button" class="btn-status bulk-complete" data-table="updating" data-status="completed">
                             <svg viewBox="0 0 20 20" fill="currentColor" width="16" height="16">
                                 <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
                             </svg>
                             Complete
                         </button>
-                        <button type="button" class="btn-status bulk-no-show" data-table="nid-updating" data-status="no_show">
+                        <button type="button" class="btn-status bulk-no-show" data-table="updating" data-status="no_show">
                             <svg viewBox="0 0 20 20" fill="currentColor" width="16" height="16">
                                 <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
                             </svg>
                             No Show
                         </button>
-                        <button type="button" class="btn-status bulk-cancel" data-table="nid-updating" data-status="cancelled">
+                        <button type="button" class="btn-status bulk-cancel" data-table="updating" data-status="cancelled">
                             <svg viewBox="0 0 20 20" fill="currentColor" width="16" height="16">
                                 <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" />
                             </svg>
@@ -235,11 +235,11 @@
             </div>
 
             {{-- NID Updating Table --}}
-            <div class="service-table-container" id="table-nid-updating" style="display: none;">
+            <div class="service-table-container" id="table-updating" style="display: none;">
                 @include('operator.partials.appointments-table', [
                     'appointments' => $nidUpdatingAppointments, 
-                    'serviceType' => 'NID Updating',
-                    'tableId' => 'nid-updating'
+                    'serviceType' => 'Updating',
+                    'tableId' => 'updating'
                 ])
             </div>
         </div>
@@ -855,6 +855,8 @@ let isCurrentlyServing = false;
 // Processing flags to prevent multiple popups
 let isProcessing = false;
 let isBulkProcessing = false;
+// Flag to track if any checkboxes are selected
+let hasSelectedCheckboxes = false;
 
 // ========== REMEMBER ACTIVE TAB ON PAGE REFRESH ==========
 const savedService = localStorage.getItem('activeServiceTab');
@@ -1402,8 +1404,8 @@ function updateAppointmentsTables(data) {
         document.getElementById('table-status-inquiry').innerHTML = data.tableStatusInquiry || '';
     }
     
-    if (document.getElementById('table-nid-updating')) {
-        document.getElementById('table-nid-updating').innerHTML = data.tableNidUpdating || '';
+    if (document.getElementById('table-updating')) {
+        document.getElementById('table-updating').innerHTML = data.tableNidUpdating || '';
     }
     
     attachServeButtonListeners();
@@ -1601,20 +1603,6 @@ document.getElementById('operatorExportExcelBtn')?.addEventListener('click', fun
     });
 });
 
-// Auto-refresh dashboard every 10 seconds
-refreshInterval = setInterval(function() {
-    if (!document.querySelector('.serve-btn[disabled]') && !isLoading) {
-        fetchDashboardData();
-    }
-}, 10000);
-
-// Refresh when user returns to the tab
-document.addEventListener('visibilitychange', function() {
-    if (!document.hidden && !document.querySelector('.serve-btn[disabled]') && !isLoading) {
-        fetchDashboardData();
-    }
-});
-
 // ========== CHECKBOX SELECTION FUNCTIONALITY ==========
 function initializeCheckboxSelection(tableId) {
     const tableContainer = document.getElementById(`table-${tableId}`);
@@ -1631,6 +1619,9 @@ function initializeCheckboxSelection(tableId) {
     
     function updateSelection() {
         const checkedCount = Array.from(rowCheckboxes).filter(cb => cb.checked).length;
+        
+        // Update the global flag
+        hasSelectedCheckboxes = checkedCount > 0;
         
         if (selectedCountSpan) {
             selectedCountSpan.textContent = `${checkedCount} selected`;
@@ -1665,100 +1656,115 @@ function initializeCheckboxSelection(tableId) {
         }
     }
     
-    rowCheckboxes.forEach(cb => cb.addEventListener('change', updateSelection));
+    // Add change listeners
+    rowCheckboxes.forEach(cb => {
+        cb.removeEventListener('change', updateSelection);
+        cb.addEventListener('change', updateSelection);
+    });
     
     if (selectAllHeader) {
-        selectAllHeader.addEventListener('change', function() {
-            rowCheckboxes.forEach(cb => cb.checked = this.checked);
-            updateSelection();
-        });
+        selectAllHeader.removeEventListener('change', handleSelectAll);
+        selectAllHeader.addEventListener('change', handleSelectAll);
     }
     
     if (selectAllFooter) {
-        selectAllFooter.addEventListener('change', function() {
-            rowCheckboxes.forEach(cb => cb.checked = this.checked);
-            updateSelection();
-        });
+        selectAllFooter.removeEventListener('change', handleSelectAll);
+        selectAllFooter.addEventListener('change', handleSelectAll);
+    }
+    
+    function handleSelectAll(e) {
+        rowCheckboxes.forEach(cb => cb.checked = e.target.checked);
+        updateSelection();
     }
     
     // Bulk status buttons
     if (bulkActionsDiv) {
         const completeBtn = bulkActionsDiv.querySelector('.bulk-complete');
         if (completeBtn) {
-            completeBtn.addEventListener('click', function() {
-                const selectedIds = Array.from(rowCheckboxes)
-                    .filter(cb => cb.checked)
-                    .map(cb => cb.dataset.id);
-                
-                if (selectedIds.length === 0) return;
-                
-                Swal.fire({
-                    title: 'Bulk Complete',
-                    text: `Mark ${selectedIds.length} selected appointment(s) as completed?`,
-                    icon: 'question',
-                    showCancelButton: true,
-                    confirmButtonColor: '#10b981',
-                    cancelButtonColor: '#dc2626',
-                    confirmButtonText: 'Yes, Complete All'
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        bulkUpdateStatus(selectedIds, 'completed', tableId);
-                    }
-                });
-            });
+            completeBtn.removeEventListener('click', handleBulkComplete);
+            completeBtn.addEventListener('click', handleBulkComplete);
         }
         
         const noShowBtn = bulkActionsDiv.querySelector('.bulk-no-show');
         if (noShowBtn) {
-            noShowBtn.addEventListener('click', function() {
-                const selectedIds = Array.from(rowCheckboxes)
-                    .filter(cb => cb.checked)
-                    .map(cb => cb.dataset.id);
-                
-                if (selectedIds.length === 0) return;
-                
-                Swal.fire({
-                    title: 'Bulk No Show',
-                    text: `Mark ${selectedIds.length} selected appointment(s) as no show?`,
-                    icon: 'warning',
-                    showCancelButton: true,
-                    confirmButtonColor: '#6b7280',
-                    cancelButtonColor: '#dc2626',
-                    confirmButtonText: 'Yes, Mark All'
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        bulkUpdateStatus(selectedIds, 'no_show', tableId);
-                    }
-                });
-            });
+            noShowBtn.removeEventListener('click', handleBulkNoShow);
+            noShowBtn.addEventListener('click', handleBulkNoShow);
         }
         
         const cancelBtn = bulkActionsDiv.querySelector('.bulk-cancel');
         if (cancelBtn) {
-            cancelBtn.addEventListener('click', function() {
-                const selectedIds = Array.from(rowCheckboxes)
-                    .filter(cb => cb.checked)
-                    .map(cb => cb.dataset.id);
-                
-                if (selectedIds.length === 0) return;
-                
-                Swal.fire({
-                    title: 'Bulk Cancel',
-                    text: `Cancel ${selectedIds.length} selected appointment(s)?`,
-                    icon: 'warning',
-                    showCancelButton: true,
-                    confirmButtonColor: '#ef4444',
-                    cancelButtonColor: '#6b7280',
-                    confirmButtonText: 'Yes, Cancel All'
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        bulkUpdateStatus(selectedIds, 'cancelled', tableId);
-                    }
-                });
-            });
+            cancelBtn.removeEventListener('click', handleBulkCancel);
+            cancelBtn.addEventListener('click', handleBulkCancel);
         }
     }
     
+    function handleBulkComplete(e) {
+        const selectedIds = Array.from(rowCheckboxes)
+            .filter(cb => cb.checked)
+            .map(cb => cb.dataset.id);
+        
+        if (selectedIds.length === 0) return;
+        
+        Swal.fire({
+            title: 'Bulk Complete',
+            text: `Mark ${selectedIds.length} selected appointment(s) as completed?`,
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonColor: '#10b981',
+            cancelButtonColor: '#dc2626',
+            confirmButtonText: 'Yes, Complete All'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                bulkUpdateStatus(selectedIds, 'completed', tableId);
+            }
+        });
+    }
+    
+    function handleBulkNoShow(e) {
+        const selectedIds = Array.from(rowCheckboxes)
+            .filter(cb => cb.checked)
+            .map(cb => cb.dataset.id);
+        
+        if (selectedIds.length === 0) return;
+        
+        Swal.fire({
+            title: 'Bulk No Show',
+            text: `Mark ${selectedIds.length} selected appointment(s) as no show?`,
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#6b7280',
+            cancelButtonColor: '#dc2626',
+            confirmButtonText: 'Yes, Mark All'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                bulkUpdateStatus(selectedIds, 'no_show', tableId);
+            }
+        });
+    }
+    
+    function handleBulkCancel(e) {
+        const selectedIds = Array.from(rowCheckboxes)
+            .filter(cb => cb.checked)
+            .map(cb => cb.dataset.id);
+        
+        if (selectedIds.length === 0) return;
+        
+        Swal.fire({
+            title: 'Bulk Cancel',
+            text: `Cancel ${selectedIds.length} selected appointment(s)?`,
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#ef4444',
+            cancelButtonColor: '#6b7280',
+            confirmButtonText: 'Yes, Cancel All'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                bulkUpdateStatus(selectedIds, 'cancelled', tableId);
+            }
+        });
+    }
+    
+    // Initial update
     updateSelection();
 }
 
@@ -1766,6 +1772,9 @@ function initializeCheckboxSelection(tableId) {
 function bulkUpdateStatus(ids, status, tableId) {
     if (isBulkProcessing) return;
     isBulkProcessing = true;
+    
+    // Reset the selected flag since we're processing them
+    hasSelectedCheckboxes = false;
     
     // Disable all bulk buttons to prevent double-clicking
     document.querySelectorAll(`#bulk-actions-${tableId} .btn-status`).forEach(btn => {
@@ -1846,11 +1855,58 @@ function bulkUpdateStatus(ids, status, tableId) {
 
 // Initialize checkboxes when tables are loaded/updated
 function initializeAllTableCheckboxes() {
-    const tableIds = ['all', 'nid-registration', 'status-inquiry', 'nid-updating'];
+    const tableIds = ['all', 'nid-registration', 'status-inquiry', 'updating'];
     tableIds.forEach(tableId => {
         initializeCheckboxSelection(tableId);
     });
 }
+
+// ========== CLICKABLE ROWS FUNCTIONALITY ==========
+function initializeClickableRows() {
+    document.querySelectorAll('.clickable-row').forEach(row => {
+        row.removeEventListener('click', handleRowClick);
+        row.addEventListener('click', handleRowClick);
+    });
+}
+
+function handleRowClick(e) {
+    // Don't toggle if clicking on button or action elements
+    if (e.target.closest('button') || 
+        e.target.closest('.btn-action') || 
+        e.target.closest('.action-button-group') || 
+        e.target.closest('.status-text') ||
+        e.target.closest('input[type="checkbox"]')) {
+        return;
+    }
+    
+    const checkbox = this.querySelector('.row-checkbox');
+    if (checkbox && !checkbox.disabled) {
+        checkbox.checked = !checkbox.checked;
+        
+        // Trigger change event to update selection
+        const event = new Event('change', { bubbles: true });
+        checkbox.dispatchEvent(event);
+    }
+}
+
+// Listen for clickable rows update event
+document.addEventListener('clickableRowsUpdate', function() {
+    initializeClickableRows();
+});
+
+// Auto-refresh dashboard every 10 seconds - BUT ONLY IF NO CHECKBOXES SELECTED
+refreshInterval = setInterval(function() {
+    if (!hasSelectedCheckboxes && !document.querySelector('.serve-btn[disabled]') && !isLoading) {
+        fetchDashboardData();
+    }
+}, 10000);
+
+// Refresh when user returns to the tab - BUT ONLY IF NO CHECKBOXES SELECTED
+document.addEventListener('visibilitychange', function() {
+    if (!document.hidden && !hasSelectedCheckboxes && !document.querySelector('.serve-btn[disabled]') && !isLoading) {
+        fetchDashboardData();
+    }
+});
 
 // Initialize on page load
 document.addEventListener('DOMContentLoaded', function() {
@@ -1858,10 +1914,11 @@ document.addEventListener('DOMContentLoaded', function() {
     attachPaginationListeners();
     initializeAllTableCheckboxes();
     checkServingStatus();
+    initializeClickableRows();
 });
 
 // Initial fetch after 2 seconds
-setTimeout(function() {
-    fetchDashboardData();
-}, 2000);
+// setTimeout(function() {
+//     fetchDashboardData();
+// }, 2000);
 </script>

@@ -1,0 +1,8 @@
+ALTER TABLE tbl_appointment 
+ADD COLUMN status ENUM('pending', 'serving', 'completed', 'cancelled', 'no_show') 
+NOT NULL DEFAULT 'pending' 
+AFTER queue_for;
+
+
+
+UPDATE tbl_appointment SET status = 'completed';
