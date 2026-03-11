@@ -229,15 +229,34 @@
                 setInterval(updateDateTime, 1000);
 
                 // Speech synthesis
-                function speakMessage(text) {
-                    if ('speechSynthesis' in window) {
-                        const utterance = new SpeechSynthesisUtterance(text);
-                        utterance.rate = 0.9;
-                        utterance.pitch = 1;
-                        utterance.volume = 1;
-                        window.speechSynthesis.speak(utterance);
-                    }
-                }
+                // Speech synthesis
+function speakMessage(text) {
+    if ('speechSynthesis' in window) {
+        // First announcement
+        const utterance1 = new SpeechSynthesisUtterance(text);
+        utterance1.rate = 0.9;
+        utterance1.pitch = 1;
+        utterance1.volume = 1;
+        window.speechSynthesis.speak(utterance1);
+        
+        // Second announcement with "Please proceed to" prefix
+        setTimeout(() => {
+            // Extract window and queue number from the text
+            const matches = text.match(/Window (\d+), now serving (.+)/);
+            if (matches) {
+                const windowNum = matches[1];
+                const queueNum = matches[2];
+                const secondText = `Please proceed to window ${windowNum}, queue number ${queueNum}`;
+                
+                const utterance2 = new SpeechSynthesisUtterance(secondText);
+                utterance2.rate = 0.9;
+                utterance2.pitch = 1;
+                utterance2.volume = 1;
+                window.speechSynthesis.speak(utterance2);
+            }
+        }, 1500);
+    }
+}
 
                 let lastCalledQueues = JSON.parse(localStorage.getItem('lastCalledQueues') || '{}');
                 for (let i = 1; i <= 6; i++) {
@@ -250,39 +269,52 @@
                 }
 
                 function updateQueues() {
-                    fetch('{{ route('client.queues') }}')
-                        .then(response => response.json())
-                        .then(data => {
-                            const calledQueues = data.calledQueues;
-                            const nextQueues = data.nextQueues;
+    fetch('{{ route('client.queues') }}')
+        .then(response => response.json())
+        .then(data => {
+            const calledQueues = data.calledQueues;
+            const nextQueues = data.nextQueues;
 
-                            for (let w = 1; w <= 6; w++) {
-                                // ... existing window update code ...
-                            }
-
-                            // Split the combined array for display
-                            const registrationUpdating = nextQueues.registrationUpdating || [];
-
-                            // Filter based on queue number format - adjust logic as needed
-                            const registrationItems = registrationUpdating.filter(item =>
-                                item.q_id.includes('REG') || item.q_id.startsWith('R')
-                            );
-
-                            const updatingItems = registrationUpdating.filter(item =>
-                                item.q_id.includes('UPD') || item.q_id.startsWith('U')
-                            );
-
-                            updateQueueList('status-queue', nextQueues.statusInquiry);
-                            updateQueueList('registration-queue', registrationItems);
-                            updateQueueList('updating-queue', updatingItems);
-
-                            localStorage.setItem('lastCalledQueues', JSON.stringify(calledQueues));
-                            lastCalledQueues = calledQueues;
-                        })
-                        .catch(err => console.error('Error:', err));
+            // Update windows - only showing serving status
+            for (let w = 1; w <= 6; w++) {
+                const windowCard = document.getElementById(`window-${w}`);
+                if (windowCard && calledQueues[w]) {
+                    const queueNum = windowCard.querySelector('.queue-number');
+                    const clientName = windowCard.querySelector('.client-name');
+                    
+                    if (queueNum) queueNum.textContent = calledQueues[w].q_id || '-';
+                    if (clientName) clientName.textContent = calledQueues[w].lname || '';
+                    
+                    // Add serving indicator class
+                    if (calledQueues[w].q_id !== '-') {
+                        windowCard.classList.add('active-serving');
+                    } else {
+                        windowCard.classList.remove('active-serving');
+                    }
+                    
+                    // Check if this is a new call
+                    if (lastCalledQueues[w] && lastCalledQueues[w].q_id !== calledQueues[w].q_id && calledQueues[w].q_id !== '-') {
+                        windowCard.classList.add('new-call');
+                        setTimeout(() => windowCard.classList.remove('new-call'), 3000);
+                        
+                        // Announce the new call
+                        speakMessage(`Window ${w}, now serving ${calledQueues[w].q_id}`);
+                    }
                 }
+            }
 
-                function updateQueueList(elementId, queueArray) {
+            // Update queue lists
+            updateQueueList('status-queue', nextQueues.statusInquiry || []);
+            updateQueueList('registration-queue', nextQueues.registration || []);
+            updateQueueList('updating-queue', nextQueues.updating || []);
+
+            localStorage.setItem('lastCalledQueues', JSON.stringify(calledQueues));
+            lastCalledQueues = calledQueues;
+        })
+        .catch(err => console.error('Error:', err));
+}
+
+                 function updateQueueList(elementId, queueArray) {
                     const ul = document.getElementById(elementId);
                     ul.innerHTML = '';
 
@@ -303,7 +335,7 @@
                         <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd" />
                     </svg>
                     <p>No queues waiting</p>
-                `;
+                    `;
                         ul.appendChild(li);
                     }
                 }

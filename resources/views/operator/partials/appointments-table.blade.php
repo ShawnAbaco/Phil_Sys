@@ -258,8 +258,8 @@ function updateAppointmentsTables(data) {
         document.getElementById('table-status-inquiry').innerHTML = data.tableStatusInquiry || '';
     }
     
-    if (document.getElementById('table-nid-updating')) {
-        document.getElementById('table-nid-updating').innerHTML = data.tableUpdating || '';
+    if (document.getElementById('table-updating')) {
+        document.getElementById('table-updating').innerHTML = data.tableUpdating || '';
     }
     
     attachServeButtonListeners();

@@ -313,7 +313,6 @@
     </div>
 </div>
 </main>
-
 <style>
 /* No-Show Serve Button - Same as regular Serve button */
 .btn-action.serve-btn[data-status="no_show"] {
@@ -684,6 +683,10 @@
     border-radius: 30px;
     border: 2px solid var(--gray-200);
     flex: 0 0 auto;
+    -webkit-user-select: none;  /* Safari */
+    -moz-user-select: none;     /* Firefox */
+    -ms-user-select: none;      /* IE10+/Edge */
+    user-select: none;          /* Standard */
 }
 
 .selection-info {
@@ -703,12 +706,25 @@
     font-size: 13px;
     color: var(--gray-700);
     white-space: nowrap;
+    -webkit-user-select: none;  /* Safari */
+    -moz-user-select: none;     /* Firefox */
+    -ms-user-select: none;      /* IE10+/Edge */
+    user-select: none;          /* Standard */
+    -webkit-tap-highlight-color: transparent; /* Remove tap highlight on mobile */
+}
+
+.select-all-container span {
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
 }
 
 .select-all-container input[type="checkbox"] {
     width: 16px;
     height: 16px;
     cursor: pointer;
+    pointer-events: auto; /* Ensure checkbox remains clickable */
 }
 
 .selected-count {
@@ -795,6 +811,10 @@
     border-radius: 30px;
     font-size: 14px;
     transition: all 0.2s ease;
+    -webkit-user-select: text;  /* Allow text selection in search input */
+    -moz-user-select: text;
+    -ms-user-select: text;
+    user-select: text;
 }
 
 .search-box input:focus {
@@ -832,7 +852,6 @@
     }
 }
 </style>
-
 <script>
 // Configuration - Ensure windowNum is a string
 const windowNum = String({{ Js::from(session('window_num') ?? ($windowNum ?? '1')) }});
