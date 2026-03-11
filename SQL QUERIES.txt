@@ -12,3 +12,6 @@ ADD COLUMN priority_type ENUM('none', 'senior', 'pwd', 'pregnant')
 NOT NULL DEFAULT 'none' 
 AFTER age_category;
 
+ALTER TABLE tbl_appointment 
+MODIFY COLUMN priority_type ENUM('regular', 'senior', 'infant', 'pwd', 'pregnant') 
+NOT NULL DEFAULT 'regular';

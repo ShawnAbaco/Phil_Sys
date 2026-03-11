@@ -81,8 +81,10 @@ class AppointmentController extends Controller
                     'suffix' => $appointment->suffix,
                     'queue_for' => $appointment->queue_for,
                     'date' => $appointment->date,
+                    'created_at' => $appointment->created_at ? $appointment->created_at->format('Y-m-d H:i:s') : null,
                     'trn' => $appointment->trn,
-                    'time_catered' => $appointment->time_catered
+                    'time_catered' => $appointment->time_catered,
+                    'priority_type' => $appointment->priority_type
                 ];
             });
 
@@ -130,6 +132,7 @@ class AppointmentController extends Controller
                 'suffix_nid' => 'nullable|string|max:3',
                 'age_category_nid' => 'required|string|max:99',
                 'birthdate_nid' => 'required|date',
+                'priority_type_nid' => 'required|string|in:regular,senior,infant,pwd,pregnant',
             ]);
         } elseif ($category === 'Status Inquiry') {
             $rules = array_merge($rules, [
@@ -140,6 +143,7 @@ class AppointmentController extends Controller
                 'age_category_status' => 'required|string|max:99',
                 'birthdate_status' => 'required|date',
                 'trn' => 'required|string|max:29',
+                'priority_type_status' => 'required|string|in:regular,senior,infant,pwd,pregnant',
             ]);
         } elseif ($category === 'Updating') {
             $rules = array_merge($rules, [
@@ -150,6 +154,7 @@ class AppointmentController extends Controller
                 'age_category_update' => 'required|string|max:99',
                 'birthdate_update' => 'required|date',
                 'PCN' => 'required|string|max:16',
+                'priority_type_update' => 'required|string|in:regular,senior,infant,pwd,pregnant',
             ]);
         }
 
@@ -167,6 +172,9 @@ class AppointmentController extends Controller
 
             // Get the appropriate field values based on category
             $formData = $this->extractFormData($request, $category);
+            
+            // Get priority type based on category
+            $priorityType = $this->extractPriorityType($request, $category);
 
             // Determine the prefix based on category
             $prefix = $this->getQueuePrefix($category);
@@ -189,11 +197,16 @@ class AppointmentController extends Controller
             $appointment->lname = $formData['lname'];
             $appointment->suffix = $formData['suffix'] ?? '';
             $appointment->age_category = $formData['age_category'];
+            $appointment->priority_type = $priorityType;
             $appointment->birthdate = $formData['birthdate'];
             $appointment->trn = $formData['trn'] ?? '';
             $appointment->PCN = $formData['PCN'] ?? '';
             $appointment->window_num = null; // Not assigned to any window yet
             $appointment->time_catered = null; // Not served yet
+            
+            // Laravel will automatically set created_at and updated_at timestamps
+            // No need to manually set them
+            
             $appointment->save();
 
             // Prepare print slip data with PH time
@@ -214,6 +227,20 @@ class AppointmentController extends Controller
                            ->with('error', 'Failed to issue appointment: ' . $e->getMessage())
                            ->withInput();
         }
+    }
+
+    // Method to extract priority type
+    private function extractPriorityType(Request $request, $category)
+    {
+        if ($category === 'NID Registration') {
+            return $request->input('priority_type_nid', 'regular');
+        } elseif ($category === 'Status Inquiry') {
+            return $request->input('priority_type_status', 'regular');
+        } elseif ($category === 'Updating') {
+            return $request->input('priority_type_update', 'regular');
+        }
+        
+        return 'regular';
     }
 
     private function extractFormData(Request $request, $category)
@@ -298,7 +325,7 @@ class AppointmentController extends Controller
                                       ->orWhere('fname', 'LIKE', "%{$searchTerm}%")
                                       ->orWhere('lname', 'LIKE', "%{$searchTerm}%")
                                       ->orWhere('trn', 'LIKE', "%{$searchTerm}%")
-                                      ->orderBy('date', 'desc')
+                                      ->orderBy('created_at', 'desc') // Changed to order by created_at
                                       ->limit(20)
                                       ->get();
 
@@ -334,115 +361,139 @@ class AppointmentController extends Controller
         return $completedTransactions;
     }
     
-/**
- * Export completed appointments as PDF
- */
-public function exportPDF()
-{
-    try {
-        $today = Carbon::now('Asia/Manila')->toDateString();
-        
-        // Get ONLY completed appointments for today
-        $completedAppointments = TblAppointment::whereDate('date', $today)
-                                            ->whereNotNull('time_catered')
-                                            ->orderBy('time_catered', 'desc')
-                                            ->get();
-        
-        // Add row numbers to completed appointments
-        $completedAppointments = $completedAppointments->map(function($appointment, $index) {
-            $appointment->row_number = $index + 1;
-            return $appointment;
-        });
-        
-        // Get summary statistics
-        $totalToday = TblAppointment::whereDate('date', $today)->count();
-        $completedCount = $completedAppointments->count();
-        $pendingCount = $totalToday - $completedCount;
-        
-        $dateToday = Carbon::now('Asia/Manila')->format('F j, Y');
-        $timeGenerated = Carbon::now('Asia/Manila')->format('h:i A');
-        
-        $pdf = Pdf::loadView('appointment.exports.appointments-pdf', compact(
-            'completedAppointments',
-            'completedCount',
-            'pendingCount',
-            'totalToday',
-            'dateToday',
-            'timeGenerated'
-        ));
-        
-        $pdf->setPaper('A4', 'landscape');
-        
-        // Generate filename
-        $filename = 'RECENT-TRANSACTIONS-' . Carbon::now('Asia/Manila')->format('Y-m-d') . '.pdf';
-        
-        // Set headers to force download and correct MIME type
-        return response($pdf->output(), 200, [
-            'Content-Type' => 'application/pdf',
-            'Content-Disposition' => 'attachment; filename="' . $filename . '"',
-            'Content-Transfer-Encoding' => 'binary',
-            'Accept-Ranges' => 'bytes',
-            'Cache-Control' => 'private, max-age=0, must-revalidate',
-            'Pragma' => 'public'
-        ]);
-        
-    } catch (\Exception $e) {
-        \Log::error('PDF Export Error: ' . $e->getMessage());
-        return response()->json(['error' => 'Failed to generate PDF'], 500);
+    /**
+     * Export completed appointments as PDF
+     */
+    public function exportPDF()
+    {
+        try {
+            $today = Carbon::now('Asia/Manila')->toDateString();
+            
+            // Get ONLY completed appointments for today
+            $completedAppointments = TblAppointment::whereDate('date', $today)
+                                                ->whereNotNull('time_catered')
+                                                ->orderBy('time_catered', 'desc')
+                                                ->get();
+            
+            // Add row numbers and format created_at
+            $completedAppointments = $completedAppointments->map(function($appointment, $index) {
+                $appointment->row_number = $index + 1;
+                $appointment->formatted_created = $appointment->created_at 
+                    ? Carbon::parse($appointment->created_at)->setTimezone('Asia/Manila')->format('M d, Y h:i A')
+                    : 'N/A';
+                return $appointment;
+            });
+            
+            // Get summary statistics
+            $totalToday = TblAppointment::whereDate('date', $today)->count();
+            $completedCount = $completedAppointments->count();
+            $pendingCount = $totalToday - $completedCount;
+            
+            $dateToday = Carbon::now('Asia/Manila')->format('F j, Y');
+            $timeGenerated = Carbon::now('Asia/Manila')->format('h:i A');
+            
+            $pdf = Pdf::loadView('appointment.exports.appointments-pdf', compact(
+                'completedAppointments',
+                'completedCount',
+                'pendingCount',
+                'totalToday',
+                'dateToday',
+                'timeGenerated'
+            ));
+            
+            $pdf->setPaper('A4', 'landscape');
+            
+            // Generate filename
+            $filename = 'RECENT-TRANSACTIONS-' . Carbon::now('Asia/Manila')->format('Y-m-d') . '.pdf';
+            
+            // Set headers to force download and correct MIME type
+            return response($pdf->output(), 200, [
+                'Content-Type' => 'application/pdf',
+                'Content-Disposition' => 'attachment; filename="' . $filename . '"',
+                'Content-Transfer-Encoding' => 'binary',
+                'Accept-Ranges' => 'bytes',
+                'Cache-Control' => 'private, max-age=0, must-revalidate',
+                'Pragma' => 'public'
+            ]);
+            
+        } catch (\Exception $e) {
+            \Log::error('PDF Export Error: ' . $e->getMessage());
+            return response()->json(['error' => 'Failed to generate PDF'], 500);
+        }
     }
-}
 
-/**
- * Export completed appointments as Excel
- */
-public function exportExcel()
-{
-    try {
-        $today = Carbon::now('Asia/Manila')->toDateString();
-        $now = Carbon::now('Asia/Manila');
-        
-        // Get completed appointments for today
-        $completedAppointments = TblAppointment::whereDate('date', $today)
-            ->whereNotNull('time_catered')
-            ->orderBy('time_catered', 'desc')
-            ->get();
-        
-        // Add row numbers to completed appointments
-        $completedAppointments = $completedAppointments->map(function($appointment, $index) {
-            $appointment->row_number = $index + 1;
-            return $appointment;
-        });
-        
-        // Get statistics
-        $totalToday = TblAppointment::whereDate('date', $today)->count();
-        $completedCount = $completedAppointments->count();
-        $dateToday = $now->format('F j, Y');
-        
-        $export = new AppointmentsExport(
-            $completedAppointments, 
-            $totalToday, 
-            $completedCount,
-            $dateToday
-        );
-        
-        $filename = 'RECENT-TRANSACTIONS-' . $now->format('Y-m-d-H-i') . '.xlsx';
-        
-        // For Excel - using the package but with explicit headers
-        return Excel::download($export, $filename, \Maatwebsite\Excel\Excel::XLSX, [
-            'Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-            'Content-Disposition' => 'attachment; filename="' . $filename . '"',
-            'Cache-Control' => 'max-age=0',
-            'Content-Transfer-Encoding' => 'binary',
-        ]);
-        
-    } catch (\Exception $e) {
-        \Log::error('Excel Export Error: ' . $e->getMessage());
-        return response()->json(['error' => 'Failed to generate Excel file'], 500);
+    /**
+     * Export completed appointments as Excel
+     */
+    public function exportExcel()
+    {
+        try {
+            $today = Carbon::now('Asia/Manila')->toDateString();
+            $now = Carbon::now('Asia/Manila');
+            
+            // Get completed appointments for today
+            $completedAppointments = TblAppointment::whereDate('date', $today)
+                ->whereNotNull('time_catered')
+                ->orderBy('time_catered', 'desc')
+                ->get();
+            
+            // Add row numbers and format created_at
+            $completedAppointments = $completedAppointments->map(function($appointment, $index) {
+                $appointment->row_number = $index + 1;
+                $appointment->formatted_created = $appointment->created_at 
+                    ? Carbon::parse($appointment->created_at)->setTimezone('Asia/Manila')->format('M d, Y h:i A')
+                    : 'N/A';
+                return $appointment;
+            });
+            
+            // Get statistics
+            $totalToday = TblAppointment::whereDate('date', $today)->count();
+            $completedCount = $completedAppointments->count();
+            $dateToday = $now->format('F j, Y');
+            
+            $export = new AppointmentsExport(
+                $completedAppointments, 
+                $totalToday, 
+                $completedCount,
+                $dateToday
+            );
+            
+            $filename = 'RECENT-TRANSACTIONS-' . $now->format('Y-m-d-H-i') . '.xlsx';
+            
+            // For Excel - using the package but with explicit headers
+            return Excel::download($export, $filename, \Maatwebsite\Excel\Excel::XLSX, [
+                'Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+                'Content-Disposition' => 'attachment; filename="' . $filename . '"',
+                'Cache-Control' => 'max-age=0',
+                'Content-Transfer-Encoding' => 'binary',
+            ]);
+            
+        } catch (\Exception $e) {
+            \Log::error('Excel Export Error: ' . $e->getMessage());
+            return response()->json(['error' => 'Failed to generate Excel file'], 500);
+        }
     }
-}
-public function storeCategory(Request $request)
-{
-    session(['last_category' => $request->category]);
-    return response()->json(['success' => true]);
-}
+
+    public function storeCategory(Request $request)
+    {
+        session(['last_category' => $request->category]);
+        return response()->json(['success' => true]);
+    }
+
+    public function storePriority(Request $request)
+    {
+        $request->validate([
+            'priority_type' => 'required|string',
+            'form_type' => 'required|string|in:nid,status,update'
+        ]);
+                    
+        // Store in session with form-specific key
+        session(['last_priority_' . $request->form_type => $request->priority_type]);
+        
+        // Also store the last used priority for the current form type
+        session(['last_priority' => $request->priority_type]);
+        session(['last_priority_form' => $request->form_type]);
+        
+        return response()->json(['success' => true]);
+    }
 }

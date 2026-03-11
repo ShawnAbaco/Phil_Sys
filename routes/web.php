@@ -141,7 +141,7 @@ Route::middleware(['auth'])->group(function () {
     Route::put('/profile/password', [ProfileController::class, 'password'])->name('profile.password');
 
     Route::post('/appointment/store-category', [AppointmentController::class, 'storeCategory'])->name('appointment.store-category');
-
+    Route::post('/appointment/store-priority', [AppointmentController::class, 'storePriority'])->name('appointment.store-priority');
     
 
     // Operator routes

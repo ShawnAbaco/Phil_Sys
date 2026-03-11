@@ -101,8 +101,8 @@ return new class extends Migration
             $table->string('lname', 99);
             $table->string('suffix', 3);
             $table->string('age_category', 99);
-            $table->enum('priority_type', ['none', 'senior', 'pwd', 'pregnant'])
-                    ->default('none')
+            $table->enum('priority_type', ['regular', 'senior', 'infant', 'pwd', 'pregnant'])
+                    ->default('regular')
                     ->after('age_category');
             $table->string('trn', 29);
             $table->date('birthdate');
