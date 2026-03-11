@@ -7,8 +7,7 @@
                 <th style="width: 40px;"></th>
                 <th>Queue #</th>
                 <th>Name</th>
-                <th>Age</th>
-                <th>Birthdate</th>
+                <th>Priority</th>
                 <th>TRN</th>
                 <th>PCN</th>
                 <th>Service</th>
@@ -74,6 +73,10 @@
                     // Determine if checkbox should be disabled
                     // Disable only completed and cancelled appointments
                     $checkboxDisabled = $appointment->status === 'completed' || $appointment->status === 'cancelled' || $appointment->status === 'serving';
+                    
+                    // Get priority type for display
+                    $priorityType = $appointment->priority_type ?? 'regular';
+                    $priorityDisplay = ucfirst($priorityType);
                 @endphp
                 <tr class="clickable-row {{ $checkboxDisabled ? 'disabled-row' : '' }}" 
                     data-id="{{ $appointment->n_id }}" 
@@ -88,8 +91,11 @@
                     </td>
                     <td><span class="queue-number">{{ $appointment->q_id }}</span></td>
                     <td class="client-name">{{ $fullName }}</td>
-                    <td>{{ $appointment->age_category ?? 'N/A' }}</td>
-                    <td>{{ $appointment->birthdate ? \Carbon\Carbon::parse($appointment->birthdate)->format('M d, Y') : 'N/A' }}</td>
+                    <td>
+                        <span class="priority-badge priority-{{ $priorityType }}" data-priority="{{ $priorityType }}">
+                            {{ strtoupper($priorityDisplay) }}
+                        </span>
+                    </td>
                     <td>{{ $appointment->trn ?? 'N/A' }}</td>
                     <td>{{ $appointment->PCN ?? 'N/A' }}</td>
                     <td><span class="service-tag">{{ $appointment->queue_for }}</span></td>
@@ -156,7 +162,7 @@
                 </tr>
             @empty
                 <tr>
-                    <td colspan="11" class="empty-state">
+                    <td colspan="10" class="empty-state">
                         <svg viewBox="0 0 20 20" fill="currentColor">
                             <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd" />
                         </svg>
@@ -204,6 +210,51 @@
 .table tr.selected:hover {
     background-color: rgba(37, 99, 235, 0.12);
 }
+
+/* Priority Badge Styles */
+.priority-badge {
+    display: inline-block;
+    padding: 6px 12px;
+    border-radius: 30px;
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: white;
+    min-width: 80px;
+    text-align: center;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.priority-senior {
+    background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+}
+
+.priority-infant {
+    background: linear-gradient(135deg, #f59e0b, #d97706);
+}
+
+.priority-pwd {
+    background: linear-gradient(135deg, #10b981, #059669);
+}
+
+.priority-pregnant {
+    background: linear-gradient(135deg, #ec4899, #db2777);
+}
+
+.priority-regular {
+    background: linear-gradient(135deg, #64748b, #475569);
+}
+
+/* Service tag style */
+.service-tag {
+    display: inline-block;
+    padding: 4px 8px;
+    background-color: #e5e7eb;
+    border-radius: 4px;
+    font-size: 12px;
+    color: #374151;
+}
 </style>
 
 <script>
@@ -230,7 +281,9 @@ function handleRowClick(e) {
     if (e.target.closest('button') || 
         e.target.closest('.btn-action') || 
         e.target.closest('.action-button-group') || 
-        e.target.closest('.status-text')) {
+        e.target.closest('.status-text') ||
+        e.target.closest('.priority-badge') ||
+        e.target.closest('input[type="checkbox"]')) {
         return;
     }
     
@@ -259,7 +312,7 @@ function updateAppointmentsTables(data) {
     }
     
     if (document.getElementById('table-updating')) {
-        document.getElementById('table-updating').innerHTML = data.tableUpdating || '';
+        document.getElementById('table-updating').innerHTML = data.tableNidUpdating || '';
     }
     
     attachServeButtonListeners();

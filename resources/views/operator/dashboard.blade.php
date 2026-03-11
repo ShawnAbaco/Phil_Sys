@@ -290,6 +290,7 @@
                         <th>#</th>
                         <th>Queue #</th>
                         <th>Client</th>
+                        <th>Priority</th>
                         <th>Service</th>
                         <th>Served Time</th>
                         <th>Status</th>
@@ -314,6 +315,8 @@
 </div>
 </main>
 <style>
+
+    
 /* No-Show Serve Button - Same as regular Serve button */
 .btn-action.serve-btn[data-status="no_show"] {
     background: var(--psa-blue);

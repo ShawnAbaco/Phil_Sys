@@ -18,7 +18,7 @@ use Symfony\Component\HttpFoundation\ResponseHeaderBag;
 
 class OperatorController extends Controller
 {
-    public function dashboard()
+   public function dashboard()
 {
     // Get operator's window number from users table
     $windowNum = Auth::user()->window_num ?? '1';
@@ -43,7 +43,24 @@ class OperatorController extends Controller
 
     // Separate appointments by status
     $serving = $allAppointments->where('status', 'serving')->values();
-    $pending = $allAppointments->where('status', 'pending')->values();
+    
+    // Sort pending appointments by priority (senior, infant, pwd, pregnant first, then regular)
+    $pending = $allAppointments->where('status', 'pending')
+                               ->sortBy(function($app) {
+                                   // Priority order: senior/infant/pwd/pregnant first, then regular
+                                   switch($app->priority_type) {
+                                       case 'senior':
+                                       case 'infant':
+                                       case 'pwd':
+                                       case 'pregnant':
+                                           return 1; // High priority
+                                       case 'regular':
+                                       default:
+                                           return 2; // Regular (low priority)
+                                   }
+                               })
+                               ->values();
+    
     $noShow = $allAppointments->where('status', 'no_show')->sortBy('updated_at')->values();
 
     // Custom sorting logic for appointments
@@ -54,7 +71,7 @@ class OperatorController extends Controller
         $appointments->push($app);
     }
 
-    // 2. Add pending appointments (keep original order by date)
+    // 2. Add pending appointments (now sorted by priority)
     foreach ($pending as $app) {
         $appointments->push($app);
     }
@@ -101,18 +118,11 @@ class OperatorController extends Controller
                                           END DESC")
                                           ->paginate(10);
 
-    // Get queue count for today (all appointments except other users' serving)
+    // TOTAL QUEUE TODAY - ALL APPOINTMENTS regardless of status or user
     $queueCount = TblAppointment::whereDate('date', $today)
-                               ->where(function($query) use ($userId) {
-                                   $query->whereIn('status', ['pending', 'no_show'])
-                                         ->orWhere(function($q) use ($userId) {
-                                             $q->where('status', 'serving')
-                                               ->where('user_id', $userId);
-                                         });
-                               })
                                ->count();
 
-    // Get pending appointments count
+    // Get pending appointments count (all pending, regardless of user)
     $pendingCount = TblAppointment::whereDate('date', $today)
                                   ->where('status', 'pending')
                                   ->count();
@@ -135,10 +145,20 @@ class OperatorController extends Controller
                                   ->where('user_id', $userId)
                                   ->count();
 
-    // Get no show appointments count
+    // Get no show appointments count (all no_show, regardless of user)
     $noShowCount = TblAppointment::whereDate('date', $today)
                                  ->where('status', 'no_show')
                                  ->count();
+
+    // Get all completed today (for additional stat)
+    $allCompletedToday = TblAppointment::whereDate('date', $today)
+                                      ->where('status', 'completed')
+                                      ->count();
+
+    // Get all cancelled today (for additional stat)
+    $allCancelledToday = TblAppointment::whereDate('date', $today)
+                                      ->where('status', 'cancelled')
+                                      ->count();
 
     return view('operator.dashboard', compact(
         'windowNum',
@@ -152,7 +172,9 @@ class OperatorController extends Controller
         'completedCount',
         'cancelledCount',
         'servingCount',
-        'noShowCount'
+        'noShowCount',
+        'allCompletedToday',
+        'allCancelledToday'
     ));
 }
 
@@ -177,7 +199,24 @@ public function fetchAppointments()
 
         // Separate appointments by status
         $serving = $allAppointments->where('status', 'serving')->values();
-        $pending = $allAppointments->where('status', 'pending')->values();
+        
+        // Sort pending appointments by priority (senior, infant, pwd, pregnant first, then regular)
+        $pending = $allAppointments->where('status', 'pending')
+                                   ->sortBy(function($app) {
+                                       // Priority order: senior/infant/pwd/pregnant first, then regular
+                                       switch($app->priority_type) {
+                                           case 'senior':
+                                           case 'infant':
+                                           case 'pwd':
+                                           case 'pregnant':
+                                               return 1; // High priority
+                                           case 'regular':
+                                           default:
+                                               return 2; // Regular (low priority)
+                                       }
+                                   })
+                                   ->values();
+        
         $noShow = $allAppointments->where('status', 'no_show')->sortBy('updated_at')->values();
 
         // Custom sorting logic for appointments
@@ -188,7 +227,7 @@ public function fetchAppointments()
             $appointments->push($app);
         }
 
-        // 2. Add pending appointments (keep original order by date)
+        // 2. Add pending appointments (now sorted by priority)
         foreach ($pending as $app) {
             $appointments->push($app);
         }
@@ -250,17 +289,9 @@ public function fetchAppointments()
             'tableId' => 'updating'
         ])->render();
 
-        // Get statistics
+        // Get statistics - FIXED TOTAL to show ALL appointments today
         $stats = [
-            'total' => TblAppointment::whereDate('date', $today)
-                                     ->where(function($query) use ($userId) {
-                                         $query->whereIn('status', ['pending', 'no_show'])
-                                               ->orWhere(function($q) use ($userId) {
-                                                   $q->where('status', 'serving')
-                                                     ->where('user_id', $userId);
-                                               });
-                                     })
-                                     ->count(),
+            'total' => TblAppointment::whereDate('date', $today)->count(), // ALL appointments today
             'pending' => TblAppointment::whereDate('date', $today)
                                       ->where('status', 'pending')
                                       ->count(),
@@ -275,6 +306,16 @@ public function fetchAppointments()
                                         ->where('status', 'completed')
                                         ->where('user_id', $userId)
                                         ->count(),
+            'cancelled' => TblAppointment::whereDate('date', $today)
+                                        ->where('status', 'cancelled')
+                                        ->where('user_id', $userId)
+                                        ->count(),
+            'all_completed' => TblAppointment::whereDate('date', $today)
+                                            ->where('status', 'completed')
+                                            ->count(),
+            'all_cancelled' => TblAppointment::whereDate('date', $today)
+                                            ->where('status', 'cancelled')
+                                            ->count(),
         ];
 
         return response()->json([
@@ -441,15 +482,24 @@ public function fetchAppointments()
                 ], 401);
             }
             
+            // Explicitly select all fields including priority_type
             $completedTransactions = TblAppointment::whereDate('date', $today)
                                                   ->whereIn('status', ['completed', 'cancelled'])
                                                   ->where('user_id', $userId)
+                                                  ->select([
+                                                      'n_id', 'q_id', 'fname', 'mname', 'lname', 'suffix',
+                                                      'queue_for', 'time_catered', 'updated_at', 'window_num',
+                                                      'status', 'trn', 'PCN', 'priority_type', 'created_at', 'date'
+                                                  ])
                                                   ->orderByRaw("CASE 
                                                       WHEN time_catered IS NOT NULL THEN time_catered 
                                                       ELSE updated_at 
                                                   END DESC")
                                                   ->paginate($perPage)
                                                   ->withQueryString();
+            
+            // Debug: Log the first transaction to check if priority_type exists
+            \Log::info('First transaction priority_type: ' . ($completedTransactions->first()->priority_type ?? 'null'));
             
             $tableHtml = view('operator.partials.transactions-table', compact('completedTransactions'))->render();
             $paginationHtml = view('operator.partials.pagination-links', compact('completedTransactions'))->render();
@@ -472,9 +522,16 @@ public function fetchAppointments()
     }
     
     $today = Carbon::now('Asia/Manila')->toDateString();
+    
+    // Also update the non-AJAX query to explicitly select fields
     $completedTransactions = TblAppointment::whereDate('date', $today)
                                           ->whereIn('status', ['completed', 'cancelled'])
                                           ->where('user_id', Auth::id())
+                                          ->select([
+                                              'n_id', 'q_id', 'fname', 'mname', 'lname', 'suffix',
+                                              'queue_for', 'time_catered', 'updated_at', 'window_num',
+                                              'status', 'trn', 'PCN', 'priority_type', 'created_at', 'date'
+                                          ])
                                           ->orderByRaw("CASE 
                                               WHEN time_catered IS NOT NULL THEN time_catered 
                                               ELSE updated_at 

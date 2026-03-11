@@ -1112,3 +1112,38 @@
         height: 28px;
     }
 }
+
+
+/* Priority Badge Styles for Recent Transactions */
+#transactionsTableContainer .priority-badge {
+    display: inline-block !important;
+    padding: 5px 10px !important;
+    border-radius: 30px !important;
+    font-size: 12px !important;
+    font-weight: 600 !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.3px !important;
+    color: white !important;
+    min-width: 65px !important;
+    text-align: center !important;
+}
+
+#transactionsTableContainer .priority-badge.priority-senior {
+    background: linear-gradient(135deg, #8b5cf6, #7c3aed) !important;
+}
+
+#transactionsTableContainer .priority-badge.priority-infant {
+    background: linear-gradient(135deg, #f59e0b, #d97706) !important;
+}
+
+#transactionsTableContainer .priority-badge.priority-pwd {
+    background: linear-gradient(135deg, #10b981, #059669) !important;
+}
+
+#transactionsTableContainer .priority-badge.priority-pregnant {
+    background: linear-gradient(135deg, #ec4899, #db2777) !important;
+}
+
+#transactionsTableContainer .priority-badge.priority-regular {
+    background: linear-gradient(135deg, #64748b, #475569) !important;
+}
