@@ -18,104 +18,144 @@ use Symfony\Component\HttpFoundation\ResponseHeaderBag;
 class AppointmentController extends Controller
 {
     public function issuance(Request $request)
-{
-    Carbon::setLocale('en');
-    $today = Carbon::now('Asia/Manila')->toDateString();
-
-    // Get today's appointments - ONLY PENDING ones (not served/completed)
-    // SORT BY NEWEST FIRST (DESCENDING) based on created_at
-    $appointments = TblAppointment::whereDate('date', $today)
-                                  ->where(function($query) {
-                                      // Only show appointments that haven't been served
-                                      $query->whereNull('time_catered');
-                                  })
-                                  ->orderBy('created_at', 'desc')  // Newest first
-                                  ->get();
-
-    // Get RECENT COMPLETED TRANSACTIONS - ONLY FOR TODAY with pagination (10 items per page)
-    $completedTransactions = TblAppointment::whereDate('date', $today)
-                                          ->whereNotNull('time_catered')
-                                          ->orderBy('time_catered', 'desc')
-                                          ->paginate(10);
-
-    // Get queue count for today (all appointments)
-    $queueCount = TblAppointment::whereDate('date', $today)->count();
-
-    // Get pending appointments count (not served)
-    $pendingCount = TblAppointment::whereDate('date', $today)
-                                  ->whereNull('time_catered')
-                                  ->count();
-
-    // Get completed appointments count (served) - ONLY FOR TODAY
-    $completedCount = TblAppointment::whereDate('date', $today)
-                                    ->whereNotNull('time_catered')
-                                    ->count();
-
-    return view('appointment.issuance', compact(
-        'appointments',
-        'completedTransactions',
-        'queueCount',
-        'pendingCount',
-        'completedCount'
-    ));
-}
-
-    public function getTodayAppointments()
-{
-    try {
+    {
+        Carbon::setLocale('en');
         $today = Carbon::now('Asia/Manila')->toDateString();
 
-        // Get today's appointments that are NOT served (pending)
+        // Get today's appointments - Show pending and serving appointments
         // SORT BY NEWEST FIRST (DESCENDING) based on created_at
         $appointments = TblAppointment::whereDate('date', $today)
-            ->whereNull('time_catered')
-            ->select(['n_id', 'q_id', 'fname', 'mname', 'lname', 'suffix', 'queue_for', 
-                     'date', 'created_at', 'trn', 'time_catered', 'priority_type'])
-            ->orderBy('created_at', 'desc')
-            ->get();
+                                      ->where(function($query) {
+                                          // Show appointments that are pending or serving
+                                          $query->whereIn('status', ['pending', 'serving'])
+                                                ->orWhereNull('status') // For backward compatibility
+                                                ->orWhere(function($q) {
+                                                    $q->whereNull('time_catered')
+                                                      ->whereNotIn('status', ['completed', 'cancelled', 'no_show']);
+                                                });
+                                      })
+                                      ->orderBy('created_at', 'desc')  // Newest first
+                                      ->get();
 
-        // Format appointments for JSON response
-        $formattedAppointments = $appointments->map(function($appointment) {
-            return [
-                'n_id' => $appointment->n_id,
-                'q_id' => $appointment->q_id,
-                'fname' => $appointment->fname,
-                'mname' => $appointment->mname,
-                'lname' => $appointment->lname,
-                'suffix' => $appointment->suffix,
-                'queue_for' => $appointment->queue_for,
-                'date' => $appointment->date,
-                'created_at' => $appointment->created_at ? $appointment->created_at->format('Y-m-d H:i:s') : null,
-                'trn' => $appointment->trn,
-                'time_catered' => $appointment->time_catered,
-                'priority_type' => $appointment->priority_type ?? 'regular'
-            ];
-        });
+        // Get RECENT TRANSACTIONS - ALL non-pending statuses (completed, cancelled, no_show) for today
+        $completedTransactions = TblAppointment::whereDate('date', $today)
+                                              ->where(function($query) {
+                                                  $query->whereNotNull('time_catered')
+                                                        ->orWhereIn('status', ['completed', 'cancelled', 'no_show']);
+                                              })
+                                              ->orderBy('updated_at', 'desc')
+                                              ->paginate(10);
 
-        // Get statistics
-        $stats = [
-            'total' => TblAppointment::whereDate('date', $today)->count(),
-            'pending' => TblAppointment::whereDate('date', $today)
-                ->whereNull('time_catered')
-                ->count(),
-            'completed' => TblAppointment::whereDate('date', $today)
-                ->whereNotNull('time_catered')
-                ->count(),
-        ];
+        // Get queue count for today (all appointments)
+        $queueCount = TblAppointment::whereDate('date', $today)->count();
 
-        return response()->json([
-            'success' => true,
-            'appointments' => $formattedAppointments,
-            'stats' => $stats
-        ]);
+        // Get pending appointments count (pending status)
+        $pendingCount = TblAppointment::whereDate('date', $today)
+                                      ->where(function($query) {
+                                          $query->where('status', 'pending')
+                                                ->orWhere(function($q) {
+                                                    $q->whereNull('status')
+                                                      ->whereNull('time_catered');
+                                                });
+                                      })
+                                      ->count();
 
-    } catch (\Exception $e) {
-        return response()->json([
-            'success' => false,
-            'message' => 'Error fetching appointments: ' . $e->getMessage()
-        ], 500);
+        // Get completed appointments count (completed status)
+        $completedCount = TblAppointment::whereDate('date', $today)
+                                        ->where(function($query) {
+                                            $query->where('status', 'completed')
+                                                  ->orWhere(function($q) {
+                                                      $q->whereNull('status')
+                                                        ->whereNotNull('time_catered');
+                                                  });
+                                        })
+                                        ->count();
+
+        return view('appointment.issuance', compact(
+            'appointments',
+            'completedTransactions',
+            'queueCount',
+            'pendingCount',
+            'completedCount'
+        ));
     }
-}
+
+    public function getTodayAppointments()
+    {
+        try {
+            $today = Carbon::now('Asia/Manila')->toDateString();
+
+            // Get today's appointments that are pending or serving
+            $appointments = TblAppointment::whereDate('date', $today)
+                ->where(function($query) {
+                    $query->whereIn('status', ['pending', 'serving'])
+                          ->orWhereNull('status')
+                          ->orWhere(function($q) {
+                              $q->whereNull('time_catered')
+                                ->whereNotIn('status', ['completed', 'cancelled', 'no_show']);
+                          });
+                })
+                ->select(['n_id', 'q_id', 'fname', 'mname', 'lname', 'suffix', 'queue_for', 
+                         'date', 'created_at', 'trn', 'time_catered', 'priority_type', 'status', 'window_num'])
+                ->orderBy('created_at', 'desc')
+                ->get();
+
+            // Format appointments for JSON response
+            $formattedAppointments = $appointments->map(function($appointment) {
+                return [
+                    'n_id' => $appointment->n_id,
+                    'q_id' => $appointment->q_id,
+                    'fname' => $appointment->fname,
+                    'mname' => $appointment->mname,
+                    'lname' => $appointment->lname,
+                    'suffix' => $appointment->suffix,
+                    'queue_for' => $appointment->queue_for,
+                    'date' => $appointment->date,
+                    'created_at' => $appointment->created_at ? $appointment->created_at->format('Y-m-d H:i:s') : null,
+                    'trn' => $appointment->trn,
+                    'time_catered' => $appointment->time_catered,
+                    'priority_type' => $appointment->priority_type ?? 'regular',
+                    'status' => $appointment->status ?? 'pending',
+                    'window_num' => $appointment->window_num
+                ];
+            });
+
+            // Get statistics
+            $stats = [
+                'total' => TblAppointment::whereDate('date', $today)->count(),
+                'pending' => TblAppointment::whereDate('date', $today)
+                    ->where(function($query) {
+                        $query->where('status', 'pending')
+                              ->orWhere(function($q) {
+                                  $q->whereNull('status')
+                                    ->whereNull('time_catered');
+                              });
+                    })
+                    ->count(),
+                'completed' => TblAppointment::whereDate('date', $today)
+                    ->where(function($query) {
+                        $query->where('status', 'completed')
+                              ->orWhere(function($q) {
+                                  $q->whereNull('status')
+                                    ->whereNotNull('time_catered');
+                              });
+                    })
+                    ->count(),
+            ];
+
+            return response()->json([
+                'success' => true,
+                'appointments' => $formattedAppointments,
+                'stats' => $stats
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error fetching appointments: ' . $e->getMessage()
+            ], 500);
+        }
+    }
 
     public function issue(Request $request)
     {
@@ -191,7 +231,7 @@ class AppointmentController extends Controller
             // Generate queue ID (format: PREFIX-XXX, resets daily)
             $queueId = $prefix . str_pad($todayCount, 3, '0', STR_PAD_LEFT);
 
-            // Create new appointment - IMPORTANT: time_catered should be NULL for new appointments
+            // Create new appointment
             $appointment = new TblAppointment();
             $appointment->q_id = $queueId;
             $appointment->date = $now;
@@ -207,9 +247,7 @@ class AppointmentController extends Controller
             $appointment->PCN = $formData['PCN'] ?? '';
             $appointment->window_num = null; // Not assigned to any window yet
             $appointment->time_catered = null; // Not served yet
-            
-            // Laravel will automatically set created_at and updated_at timestamps
-            // No need to manually set them
+            $appointment->status = 'pending'; // Set initial status to pending
             
             $appointment->save();
 
@@ -310,14 +348,50 @@ class AppointmentController extends Controller
             $appointment = TblAppointment::findOrFail($id);
             $appointment->window_num = Session::get('window_num', '1');
             $appointment->time_catered = $now;
+            $appointment->status = 'serving'; // Update status to serving
             $appointment->save();
 
             return response()->json([
                 'success' => true, 
-                'message' => 'Appointment marked as served and moved to recent transactions'
+                'message' => 'Appointment marked as serving'
             ]);
         } catch (\Exception $e) {
             return response()->json(['success' => false, 'message' => $e->getMessage()], 404);
+        }
+    }
+
+    public function updateStatus(Request $request, $id)
+    {
+        try {
+            $request->validate([
+                'status' => 'required|in:pending,serving,completed,cancelled,no_show'
+            ]);
+
+            $appointment = TblAppointment::findOrFail($id);
+            $appointment->status = $request->status;
+            
+            // If status is completed, also set time_catered if not already set
+            if ($request->status === 'completed' && !$appointment->time_catered) {
+                $appointment->time_catered = Carbon::now('Asia/Manila');
+            }
+            
+            // If status is cancelled or no_show, we might want to record the time
+            if (in_array($request->status, ['cancelled', 'no_show']) && !$appointment->time_catered) {
+                $appointment->time_catered = Carbon::now('Asia/Manila');
+            }
+            
+            $appointment->save();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Status updated successfully'
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage()
+            ], 500);
         }
     }
 
@@ -329,50 +403,47 @@ class AppointmentController extends Controller
                                       ->orWhere('fname', 'LIKE', "%{$searchTerm}%")
                                       ->orWhere('lname', 'LIKE', "%{$searchTerm}%")
                                       ->orWhere('trn', 'LIKE', "%{$searchTerm}%")
-                                      ->orderBy('created_at', 'desc') // Changed to order by created_at
+                                      ->orderBy('created_at', 'desc')
                                       ->limit(20)
                                       ->get();
 
         return response()->json($appointments);
     }
 
-   public function getTransactionsPage(Request $request)
-{
-    $today = Carbon::now('Asia/Manila')->toDateString();
-    $perPage = $request->get('per_page', 10);
-    $perPage = in_array($perPage, [10, 20, 50, 100]) ? $perPage : 10;
-    
-    // Get TODAY'S transactions that are NOT pending (completed, cancelled, no_show)
-    // with pagination
-    $completedTransactions = TblAppointment::whereDate('date', $today)
-                                          ->whereNotNull('time_catered') // Served/completed
-                                          ->orWhere(function($query) use ($today) {
-                                              $query->whereDate('date', $today)
-                                                    ->whereIn('status', ['cancelled', 'no_show']);
-                                          })
-                                          ->select(['n_id', 'q_id', 'fname', 'mname', 'lname', 'suffix',
-                                                   'queue_for', 'time_catered', 'window_num', 
-                                                   'priority_type', 'status', 'updated_at'])
-                                          ->orderBy('updated_at', 'desc')
-                                          ->paginate($perPage)
-                                          ->withQueryString();
-    
-    if ($request->ajax()) {
-        // Return only the necessary parts, not the entire page
-        $tableHtml = view('appointment.partials.transactions-table', compact('completedTransactions'))->render();
-        $paginationHtml = view('appointment.partials.pagination-links', compact('completedTransactions'))->render();
-        $showingInfo = 'Showing ' . $completedTransactions->firstItem() . '-' . $completedTransactions->lastItem() . ' of ' . $completedTransactions->total();
+    public function getTransactionsPage(Request $request)
+    {
+        $today = Carbon::now('Asia/Manila')->toDateString();
+        $perPage = $request->get('per_page', 10);
+        $perPage = in_array($perPage, [10, 20, 50, 100]) ? $perPage : 10;
         
-        return response()->json([
-            'success' => true,
-            'table' => $tableHtml,
-            'pagination' => $paginationHtml,
-            'showing' => $showingInfo
-        ]);
+        // Get TODAY'S transactions that are completed, cancelled, or no_show
+        $completedTransactions = TblAppointment::whereDate('date', $today)
+                                              ->where(function($query) {
+                                                  $query->whereIn('status', ['completed', 'cancelled', 'no_show'])
+                                                        ->orWhereNotNull('time_catered');
+                                              })
+                                              ->select(['n_id', 'q_id', 'fname', 'mname', 'lname', 'suffix',
+                                                       'queue_for', 'time_catered', 'window_num', 
+                                                       'priority_type', 'status', 'updated_at'])
+                                              ->orderBy('updated_at', 'desc')
+                                              ->paginate($perPage)
+                                              ->withQueryString();
+        
+        if ($request->ajax()) {
+            $tableHtml = view('appointment.partials.transactions-table', compact('completedTransactions'))->render();
+            $paginationHtml = view('appointment.partials.pagination-links', compact('completedTransactions'))->render();
+            $showingInfo = 'Showing ' . $completedTransactions->firstItem() . '-' . $completedTransactions->lastItem() . ' of ' . $completedTransactions->total();
+            
+            return response()->json([
+                'success' => true,
+                'table' => $tableHtml,
+                'pagination' => $paginationHtml,
+                'showing' => $showingInfo
+            ]);
+        }
+        
+        return $completedTransactions;
     }
-    
-    return $completedTransactions;
-}
     
     /**
      * Export completed appointments as PDF
@@ -382,9 +453,12 @@ class AppointmentController extends Controller
         try {
             $today = Carbon::now('Asia/Manila')->toDateString();
             
-            // Get ONLY completed appointments for today
+            // Get completed appointments for today
             $completedAppointments = TblAppointment::whereDate('date', $today)
-                                                ->whereNotNull('time_catered')
+                                                ->where(function($query) {
+                                                    $query->where('status', 'completed')
+                                                          ->orWhereNotNull('time_catered');
+                                                })
                                                 ->orderBy('time_catered', 'desc')
                                                 ->get();
             
@@ -446,7 +520,10 @@ class AppointmentController extends Controller
             
             // Get completed appointments for today
             $completedAppointments = TblAppointment::whereDate('date', $today)
-                ->whereNotNull('time_catered')
+                ->where(function($query) {
+                    $query->where('status', 'completed')
+                          ->orWhereNotNull('time_catered');
+                })
                 ->orderBy('time_catered', 'desc')
                 ->get();
             

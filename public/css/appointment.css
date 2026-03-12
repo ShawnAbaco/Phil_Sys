@@ -391,13 +391,6 @@ body {
     vertical-align: middle;
 }
 
-.table th:nth-child(1) { width: 80px; }
-.table th:nth-child(2) { min-width: 150px; }
-.table th:nth-child(3) { min-width: 120px; }
-.table th:nth-child(4) { width: 90px; }
-.table th:nth-child(5) { width: 100px; }
-.table th:nth-child(6) { width: 100px; }
-
 .table tbody tr:last-child td {
     border-bottom: none;
 }
@@ -693,13 +686,6 @@ body {
 .dashboard-grid .card:last-child .table tbody tr:hover td {
     background: var(--gray-50);
 }
-
-.dashboard-grid .card:last-child .table th:nth-child(1) { width: 65px; }
-.dashboard-grid .card:last-child .table th:nth-child(2) { min-width: 130px; }
-.dashboard-grid .card:last-child .table th:nth-child(3) { min-width: 100px; }
-.dashboard-grid .card:last-child .table th:nth-child(4) { width: 75px; }
-.dashboard-grid .card:last-child .table th:nth-child(5) { width: 85px; }
-.dashboard-grid .card:last-child .table th:nth-child(6) { width: 75px; }
 
 .dashboard-grid .card:last-child .queue-number {
     display: inline-block;
@@ -1214,7 +1200,7 @@ body {
     box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.1);
 }
 
-/* ===== RECENT TRANSACTIONS TABLE STYLES - MATCHING OPERATOR ===== */
+/* ===== RECENT TRANSACTIONS TABLE STYLES ===== */
 .card.full-width .table-responsive {
     overflow-x: auto;
     overflow-y: auto;
@@ -1419,75 +1405,6 @@ body {
     white-space: nowrap;
 }
 
-/* ===== STATUS BADGE STYLES - MATCHING OPERATOR EXACTLY ===== */
-.card.full-width .status-badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    padding: 6px 14px;
-    border-radius: 30px;
-    font-size: 13px;
-    font-weight: 600;
-    text-transform: capitalize;
-    letter-spacing: 0.3px;
-    min-width: 90px;
-    justify-content: center;
-    white-space: nowrap;
-    width: fit-content;
-}
-
-.card.full-width .status-badge.status-completed {
-    background: #d1fae5;
-    color: #065f46;
-    border: 1px solid #10b981;
-}
-
-.card.full-width .status-badge.status-cancelled {
-    background: #fee2e2;
-    color: #991b1b;
-    border: 1px solid #ef4444;
-}
-
-.card.full-width .status-badge.status-no_show {
-    background: #f3f4f6;
-    color: #4b5563;
-    border: 1px solid #9ca3af;
-}
-
-.card.full-width .status-badge.status-pending {
-    background: #fef3c7;
-    color: #92400e;
-    border: 1px solid #fbbf24;
-}
-
-.card.full-width .status-badge.status-serving {
-    background: #dbeafe;
-    color: #1e40af;
-    border: 1px solid #3b82f6;
-    animation: pulse 2s infinite;
-}
-
-.card.full-width .status-dot {
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    background: currentColor;
-}
-
-/* Pulse animation for serving status */
-@keyframes pulse {
-    0% {
-        opacity: 1;
-    }
-    50% {
-        opacity: 0.7;
-        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.3);
-    }
-    100% {
-        opacity: 1;
-    }
-}
-
 /* Empty state - matching operator */
 .card.full-width .empty-state {
     text-align: center;
@@ -1509,6 +1426,123 @@ body {
 .card.full-width .empty-state p {
     font-size: 0.875rem;
     margin: 0;
+}
+
+/* ===== UNIFIED STATUS BADGE STYLES - MATCHING OPERATOR ===== */
+.status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 14px;
+    border-radius: 30px;
+    font-size: 13px;
+    font-weight: 600;
+    text-transform: capitalize;
+    letter-spacing: 0.3px;
+    min-width: 90px;
+    justify-content: center;
+    white-space: nowrap;
+    width: fit-content;
+}
+
+.status-badge.status-pending {
+    background: #fef3c7;
+    color: #92400e;
+    border: 1px solid #fbbf24;
+}
+
+.status-badge.status-serving {
+    background: #dbeafe;
+    color: #1e40af;
+    border: 1px solid #3b82f6;
+    animation: pulse 2s infinite;
+}
+
+.status-badge.status-completed {
+    background: #d1fae5;
+    color: #065f46;
+    border: 1px solid #10b981;
+}
+
+.status-badge.status-cancelled {
+    background: #fee2e2;
+    color: #991b1b;
+    border: 1px solid #ef4444;
+}
+
+.status-badge.status-no_show {
+    background: #f3f4f6;
+    color: #4b5563;
+    border: 1px solid #9ca3af;
+}
+
+.status-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: currentColor;
+}
+
+/* Pulse animation for serving status */
+@keyframes pulse {
+    0% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.7;
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.3);
+    }
+    100% {
+        opacity: 1;
+    }
+}
+
+/* Override for dashboard grid cards to use unified styles */
+.dashboard-grid .card:last-child .status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 14px;
+    border-radius: 30px;
+    font-size: 13px;
+    font-weight: 600;
+    text-transform: capitalize;
+    letter-spacing: 0.3px;
+    min-width: 90px;
+    justify-content: center;
+    white-space: nowrap;
+    width: fit-content;
+}
+
+.dashboard-grid .card:last-child .status-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: currentColor;
+}
+
+/* Override for full-width cards to use unified styles */
+.card.full-width .status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 14px;
+    border-radius: 30px;
+    font-size: 13px;
+    font-weight: 600;
+    text-transform: capitalize;
+    letter-spacing: 0.3px;
+    min-width: 90px;
+    justify-content: center;
+    white-space: nowrap;
+    width: fit-content;
+}
+
+.card.full-width .status-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: currentColor;
 }
 
 /* Success Animation for Page Change */
@@ -1863,9 +1897,4 @@ body {
     0% { background-color: rgba(37, 99, 235, 0); }
     50% { background-color: rgba(37, 99, 235, 0.1); }
     100% { background-color: rgba(37, 99, 235, 0); }
-}
-
-/* Remove any duplicate status badge styles */
-.status-badge:not(.card.full-width .status-badge) {
-    /* This ensures any other status badges don't interfere */
 }

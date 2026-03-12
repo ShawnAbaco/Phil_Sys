@@ -651,18 +651,28 @@
                             $servedTime = $appointment->time_catered
                                 ? \Carbon\Carbon::parse($appointment->time_catered)->setTimezone('Asia/Manila')
                                 : null;
-                            $createdTime = \Carbon\Carbon::parse($appointment->date)->setTimezone(
-                                'Asia/Manila',
-                            );
-                            $isCompleted = $servedTime && $servedTime->gt($createdTime);
+                            $createdTime = \Carbon\Carbon::parse($appointment->date)->setTimezone('Asia/Manila');
+                            
+                            // Get the actual status from database
+                            $status = $appointment->status ?? 'pending';
+                            
+                            // Determine if this is a pending appointment (show in this table)
+                            // Show if status is pending OR (no time_catered and not completed/cancelled/no_show)
+                            $showInTable = in_array($status, ['pending', 'serving']) || 
+                                          (!$appointment->time_catered && !in_array($status, ['completed', 'cancelled', 'no_show']));
+                            
                             $serviceDisplay = $appointment->queue_for;
                             
                             // Get priority type for display
                             $priorityType = $appointment->priority_type ?? 'regular';
                             $priorityDisplay = ucfirst($priorityType);
+                            
+                            // Format status for display
+                            $statusDisplay = ucfirst(str_replace('_', ' ', $status));
+                            $statusClass = $status;
                         @endphp
-                        {{-- Only show if NOT completed --}}
-                        @if (!$isCompleted)
+                        {{-- Only show if pending or serving --}}
+                        @if($showInTable)
                             <tr
                                 data-search="{{ strtolower($appointment->lname . ' ' . $appointment->fname . ' ' . $appointment->trn) }}">
                                 <td><span class="queue-number">{{ $appointment->q_id }}</span></td>
@@ -683,9 +693,9 @@
                                 <td>{{ $serviceDisplay }}</td>
                                 <td>{{ $createdTime->format('h:i A') }}</td>
                                 <td>
-                                    <span class="status-badge status-pending">
+                                    <span class="status-badge status-{{ $statusClass }}">
                                         <span class="status-dot"></span>
-                                        Pending
+                                        {{ $statusDisplay }}
                                     </span>
                                 </td>
                             </tr>
@@ -1446,7 +1456,7 @@ document.getElementById('screenerExportExcelBtn')?.addEventListener('click', fun
 
 
 
-        function updateAppointmentsTable(appointments) {
+function updateAppointmentsTable(appointments) {
     const tbody = document.getElementById('appointmentsTableBody');
 
     if (!appointments || appointments.length === 0) {
@@ -1467,7 +1477,14 @@ document.getElementById('screenerExportExcelBtn')?.addEventListener('click', fun
 
     let html = '';
     appointments.forEach(app => {
-        if (!app.time_catered) {
+        // Get the actual status from database
+        const status = app.status || 'pending';
+        
+        // Show if status is pending or serving (active appointments)
+        const showInTable = ['pending', 'serving'].includes(status) || 
+                           (!app.time_catered && !['completed', 'cancelled', 'no_show'].includes(status));
+        
+        if (showInTable) {
             const createdTime = new Date(app.date).toLocaleTimeString('en-US', {
                 hour: '2-digit',
                 minute: '2-digit',
@@ -1490,10 +1507,15 @@ document.getElementById('screenerExportExcelBtn')?.addEventListener('click', fun
             const priorityDisplay = priorityType === 'regular' ? 'Regular' :
                 priorityType.charAt(0).toUpperCase() + priorityType.slice(1);
 
+            // Format status for display
+            const statusDisplay = status.replace('_', ' ').split(' ').map(word => 
+                word.charAt(0).toUpperCase() + word.slice(1)
+            ).join(' ');
+
             const searchData = (app.lname + ' ' + app.fname + ' ' + (app.trn || '')).toLowerCase();
 
             html += `
-                <tr data-search="${searchData}" data-priority="${priorityType}">
+                <tr data-search="${searchData}" data-priority="${priorityType}" data-status="${status}">
                     <td><span class="queue-number">${app.q_id}</span></td>
                     <td>
                         <div class="client-name">
@@ -1508,9 +1530,9 @@ document.getElementById('screenerExportExcelBtn')?.addEventListener('click', fun
                     <td>${app.queue_for}</td>
                     <td>${createdTime}</td>
                     <td>
-                        <span class="status-badge status-pending">
+                        <span class="status-badge status-${status}">
                             <span class="status-dot"></span>
-                            Pending
+                            ${statusDisplay}
                         </span>
                     </td>
                 </tr>
