@@ -37,11 +37,14 @@ class AppointmentController extends Controller
                                       ->orderBy('created_at', 'desc')  // Newest first
                                       ->get();
 
-        // Get RECENT TRANSACTIONS - ALL non-pending statuses (completed, cancelled, no_show) for today
+        // Get RECENT TRANSACTIONS - ONLY completed and cancelled statuses for today (EXCLUDE no_show)
         $completedTransactions = TblAppointment::whereDate('date', $today)
                                               ->where(function($query) {
-                                                  $query->whereNotNull('time_catered')
-                                                        ->orWhereIn('status', ['completed', 'cancelled', 'no_show']);
+                                                  $query->whereIn('status', ['completed', 'cancelled'])
+                                                        ->orWhere(function($q) {
+                                                            $q->whereNotNull('time_catered')
+                                                              ->whereNotIn('status', ['no_show']);
+                                                        });
                                               })
                                               ->orderBy('updated_at', 'desc')
                                               ->paginate(10);
@@ -60,7 +63,7 @@ class AppointmentController extends Controller
                                       })
                                       ->count();
 
-        // Get completed appointments count (completed status)
+        // Get completed appointments count (completed status only - EXCLUDE cancelled)
         $completedCount = TblAppointment::whereDate('date', $today)
                                         ->where(function($query) {
                                             $query->where('status', 'completed')
@@ -416,11 +419,14 @@ class AppointmentController extends Controller
         $perPage = $request->get('per_page', 10);
         $perPage = in_array($perPage, [10, 20, 50, 100]) ? $perPage : 10;
         
-        // Get TODAY'S transactions that are completed, cancelled, or no_show
+        // Get TODAY'S transactions that are completed or cancelled (EXCLUDE no_show)
         $completedTransactions = TblAppointment::whereDate('date', $today)
                                               ->where(function($query) {
-                                                  $query->whereIn('status', ['completed', 'cancelled', 'no_show'])
-                                                        ->orWhereNotNull('time_catered');
+                                                  $query->whereIn('status', ['completed', 'cancelled'])
+                                                        ->orWhere(function($q) {
+                                                            $q->whereNotNull('time_catered')
+                                                              ->whereNotIn('status', ['no_show', 'pending', 'serving']);
+                                                        });
                                               })
                                               ->select(['n_id', 'q_id', 'fname', 'mname', 'lname', 'suffix',
                                                        'queue_for', 'time_catered', 'window_num', 
@@ -453,11 +459,14 @@ class AppointmentController extends Controller
         try {
             $today = Carbon::now('Asia/Manila')->toDateString();
             
-            // Get completed appointments for today
+            // Get completed and cancelled appointments for today (EXCLUDE no_show)
             $completedAppointments = TblAppointment::whereDate('date', $today)
                                                 ->where(function($query) {
-                                                    $query->where('status', 'completed')
-                                                          ->orWhereNotNull('time_catered');
+                                                    $query->whereIn('status', ['completed', 'cancelled'])
+                                                          ->orWhere(function($q) {
+                                                              $q->whereNotNull('time_catered')
+                                                                ->whereNotIn('status', ['no_show', 'pending', 'serving']);
+                                                          });
                                                 })
                                                 ->orderBy('time_catered', 'desc')
                                                 ->get();
@@ -518,11 +527,14 @@ class AppointmentController extends Controller
             $today = Carbon::now('Asia/Manila')->toDateString();
             $now = Carbon::now('Asia/Manila');
             
-            // Get completed appointments for today
+            // Get completed and cancelled appointments for today (EXCLUDE no_show)
             $completedAppointments = TblAppointment::whereDate('date', $today)
                 ->where(function($query) {
-                    $query->where('status', 'completed')
-                          ->orWhereNotNull('time_catered');
+                    $query->whereIn('status', ['completed', 'cancelled'])
+                          ->orWhere(function($q) {
+                              $q->whereNotNull('time_catered')
+                                ->whereNotIn('status', ['no_show', 'pending', 'serving']);
+                          });
                 })
                 ->orderBy('time_catered', 'desc')
                 ->get();
