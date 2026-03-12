@@ -93,7 +93,8 @@
                                     data-priority="senior" onclick="selectPriorityType('nid', 'senior')">
                                     <span class="btn-content">
                                         <svg viewBox="0 0 20 20" fill="currentColor">
-                                            <path d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v3h8v-3zM6 8a2 2 0 11-4 0 2 2 0 014 0zM16 18v-3a5.972 5.972 0 00-.75-2.906A3.005 3.005 0 0119 15v3h-3zM4.75 12.094A5.973 5.973 0 004 15v3H1v-3a3 3 0 013.75-2.906z" />
+                                            <path
+                                                d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v3h8v-3zM6 8a2 2 0 11-4 0 2 2 0 014 0zM16 18v-3a5.972 5.972 0 00-.75-2.906A3.005 3.005 0 0119 15v3h-3zM4.75 12.094A5.973 5.973 0 004 15v3H1v-3a3 3 0 013.75-2.906z" />
                                         </svg>
                                         Senior
                                     </span>
@@ -104,7 +105,8 @@
                                     data-priority="infant" onclick="selectPriorityType('nid', 'infant')">
                                     <span class="btn-content">
                                         <svg viewBox="0 0 20 20" fill="currentColor">
-                                            <path d="M10 18a8 8 0 100-16 8 8 0 000 16zM7 9a1 1 0 100-2 1 1 0 000 2zm7-1a1 1 0 11-2 0 1 1 0 012 0zm-.464 5.535a1 1 0 10-1.415-1.414 3 3 0 01-4.242 0 1 1 0 00-1.415 1.414 5 5 0 007.072 0z" />
+                                            <path
+                                                d="M10 18a8 8 0 100-16 8 8 0 000 16zM7 9a1 1 0 100-2 1 1 0 000 2zm7-1a1 1 0 11-2 0 1 1 0 012 0zm-.464 5.535a1 1 0 10-1.415-1.414 3 3 0 01-4.242 0 1 1 0 00-1.415 1.414 5 5 0 007.072 0z" />
                                         </svg>
                                         Infant
                                     </span>
@@ -115,7 +117,8 @@
                                     data-priority="pwd" onclick="selectPriorityType('nid', 'pwd')">
                                     <span class="btn-content">
                                         <svg viewBox="0 0 20 20" fill="currentColor">
-                                            <path d="M10 18a8 8 0 100-16 8 8 0 000 16zm0-2a6 6 0 110-12 6 6 0 010 12zM9 8a1 1 0 012 0v4a1 1 0 11-2 0V8zm1 7a1 1 0 100-2 1 1 0 000 2z" />
+                                            <path
+                                                d="M10 18a8 8 0 100-16 8 8 0 000 16zm0-2a6 6 0 110-12 6 6 0 010 12zM9 8a1 1 0 012 0v4a1 1 0 11-2 0V8zm1 7a1 1 0 100-2 1 1 0 000 2z" />
                                         </svg>
                                         PWD
                                     </span>
@@ -126,7 +129,8 @@
                                     data-priority="pregnant" onclick="selectPriorityType('nid', 'pregnant')">
                                     <span class="btn-content">
                                         <svg viewBox="0 0 24 24" fill="currentColor" width="18" height="18">
-                                            <path d="M12 2a2 2 0 110 4 2 2 0 010-4zm-1 5c-1.66 0-3 1.34-3 3v3h2v7h2v-6h2.5c1.38 0 2.5 1.12 2.5 2.5V20h2v-3.5c0-2.49-2.01-4.5-4.5-4.5H12V10c0-.55.45-1 1-1h3V7h-5z" />
+                                            <path
+                                                d="M12 2a2 2 0 110 4 2 2 0 010-4zm-1 5c-1.66 0-3 1.34-3 3v3h2v7h2v-6h2.5c1.38 0 2.5 1.12 2.5 2.5V20h2v-3.5c0-2.49-2.01-4.5-4.5-4.5H12V10c0-.55.45-1 1-1h3V7h-5z" />
                                         </svg>
                                         Pregnant
                                     </span>
@@ -137,7 +141,9 @@
                                     data-priority="regular" onclick="selectPriorityType('nid', 'regular')">
                                     <span class="btn-content">
                                         <svg viewBox="0 0 20 20" fill="currentColor">
-                                            <path fill-rule="evenodd" d="M4 4a2 2 0 00-2 2v8a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2H4zm1 2h3v2H5V6zm5 0h3v2h-3V6zm-5 4h3v2H5v-2zm5 0h3v2h-3v-2z" clip-rule="evenodd" />
+                                            <path fill-rule="evenodd"
+                                                d="M4 4a2 2 0 00-2 2v8a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2H4zm1 2h3v2H5V6zm5 0h3v2h-3V6zm-5 4h3v2H5v-2zm5 0h3v2h-3v-2z"
+                                                clip-rule="evenodd" />
                                         </svg>
                                         Regular
                                     </span>
@@ -148,28 +154,28 @@
                         <div class="form-row">
                             <div class="form-group">
                                 <label for="fname_nid">First Name <span style="color: #dc2626;">*</span></label>
-                                <input type="text" name="fname_nid" id="fname_nid" value="{{ old('fname_nid') }}"
-                                    data-required="true" class="@error('fname_nid') is-invalid @enderror"
-                                    placeholder="Enter first name">
+                                <input type="text" name="fname_nid" id="fname_nid"
+                                    value="{{ old('fname_nid') }}" data-required="true"
+                                    class="@error('fname_nid') is-invalid @enderror" placeholder="Enter first name">
                             </div>
                             <div class="form-group">
                                 <label for="mname_nid">Middle Name</label>
-                                <input type="text" name="mname_nid" id="mname_nid" value="{{ old('mname_nid') }}"
-                                    placeholder="Enter middle name (optional)">
+                                <input type="text" name="mname_nid" id="mname_nid"
+                                    value="{{ old('mname_nid') }}" placeholder="Enter middle name">
                             </div>
                         </div>
 
                         <div class="form-row">
                             <div class="form-group">
                                 <label for="lname_nid">Last Name <span style="color: #dc2626;">*</span></label>
-                                <input type="text" name="lname_nid" id="lname_nid" value="{{ old('lname_nid') }}"
-                                    data-required="true" class="@error('lname_nid') is-invalid @enderror"
-                                    placeholder="Enter last name">
+                                <input type="text" name="lname_nid" id="lname_nid"
+                                    value="{{ old('lname_nid') }}" data-required="true"
+                                    class="@error('lname_nid') is-invalid @enderror" placeholder="Enter last name">
                             </div>
                             <div class="form-group">
                                 <label for="suffix_nid">Suffix</label>
-                                <input type="text" name="suffix_nid" id="suffix_nid" value="{{ old('suffix_nid') }}"
-                                    placeholder="Jr., Sr., III">
+                                <input type="text" name="suffix_nid" id="suffix_nid"
+                                    value="{{ old('suffix_nid') }}" placeholder="Jr., Sr., III">
                             </div>
                         </div>
 
@@ -242,7 +248,8 @@
                                     data-priority="senior" onclick="selectPriorityType('status', 'senior')">
                                     <span class="btn-content">
                                         <svg viewBox="0 0 20 20" fill="currentColor">
-                                            <path d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v3h8v-3zM6 8a2 2 0 11-4 0 2 2 0 014 0zM16 18v-3a5.972 5.972 0 00-.75-2.906A3.005 3.005 0 0119 15v3h-3zM4.75 12.094A5.973 5.973 0 004 15v3H1v-3a3 3 0 013.75-2.906z" />
+                                            <path
+                                                d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v3h8v-3zM6 8a2 2 0 11-4 0 2 2 0 014 0zM16 18v-3a5.972 5.972 0 00-.75-2.906A3.005 3.005 0 0119 15v3h-3zM4.75 12.094A5.973 5.973 0 004 15v3H1v-3a3 3 0 013.75-2.906z" />
                                         </svg>
                                         Senior
                                     </span>
@@ -253,7 +260,8 @@
                                     data-priority="infant" onclick="selectPriorityType('status', 'infant')">
                                     <span class="btn-content">
                                         <svg viewBox="0 0 20 20" fill="currentColor">
-                                            <path d="M10 18a8 8 0 100-16 8 8 0 000 16zM7 9a1 1 0 100-2 1 1 0 000 2zm7-1a1 1 0 11-2 0 1 1 0 012 0zm-.464 5.535a1 1 0 10-1.415-1.414 3 3 0 01-4.242 0 1 1 0 00-1.415 1.414 5 5 0 007.072 0z" />
+                                            <path
+                                                d="M10 18a8 8 0 100-16 8 8 0 000 16zM7 9a1 1 0 100-2 1 1 0 000 2zm7-1a1 1 0 11-2 0 1 1 0 012 0zm-.464 5.535a1 1 0 10-1.415-1.414 3 3 0 01-4.242 0 1 1 0 00-1.415 1.414 5 5 0 007.072 0z" />
                                         </svg>
                                         Infant
                                     </span>
@@ -264,7 +272,8 @@
                                     data-priority="pwd" onclick="selectPriorityType('status', 'pwd')">
                                     <span class="btn-content">
                                         <svg viewBox="0 0 20 20" fill="currentColor">
-                                            <path d="M10 18a8 8 0 100-16 8 8 0 000 16zm0-2a6 6 0 110-12 6 6 0 010 12zM9 8a1 1 0 012 0v4a1 1 0 11-2 0V8zm1 7a1 1 0 100-2 1 1 0 000 2z" />
+                                            <path
+                                                d="M10 18a8 8 0 100-16 8 8 0 000 16zm0-2a6 6 0 110-12 6 6 0 010 12zM9 8a1 1 0 012 0v4a1 1 0 11-2 0V8zm1 7a1 1 0 100-2 1 1 0 000 2z" />
                                         </svg>
                                         PWD
                                     </span>
@@ -275,7 +284,8 @@
                                     data-priority="pregnant" onclick="selectPriorityType('status', 'pregnant')">
                                     <span class="btn-content">
                                         <svg viewBox="0 0 24 24" fill="currentColor" width="18" height="18">
-                                            <path d="M12 2a2 2 0 110 4 2 2 0 010-4zm-1 5c-1.66 0-3 1.34-3 3v3h2v7h2v-6h2.5c1.38 0 2.5 1.12 2.5 2.5V20h2v-3.5c0-2.49-2.01-4.5-4.5-4.5H12V10c0-.55.45-1 1-1h3V7h-5z" />
+                                            <path
+                                                d="M12 2a2 2 0 110 4 2 2 0 010-4zm-1 5c-1.66 0-3 1.34-3 3v3h2v7h2v-6h2.5c1.38 0 2.5 1.12 2.5 2.5V20h2v-3.5c0-2.49-2.01-4.5-4.5-4.5H12V10c0-.55.45-1 1-1h3V7h-5z" />
                                         </svg>
                                         Pregnant
                                     </span>
@@ -286,7 +296,9 @@
                                     data-priority="regular" onclick="selectPriorityType('status', 'regular')">
                                     <span class="btn-content">
                                         <svg viewBox="0 0 20 20" fill="currentColor">
-                                            <path fill-rule="evenodd" d="M4 4a2 2 0 00-2 2v8a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2H4zm1 2h3v2H5V6zm5 0h3v2h-3V6zm-5 4h3v2H5v-2zm5 0h3v2h-3v-2z" clip-rule="evenodd" />
+                                            <path fill-rule="evenodd"
+                                                d="M4 4a2 2 0 00-2 2v8a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2H4zm1 2h3v2H5V6zm5 0h3v2h-3V6zm-5 4h3v2H5v-2zm5 0h3v2h-3v-2z"
+                                                clip-rule="evenodd" />
                                         </svg>
                                         Regular
                                     </span>
@@ -305,7 +317,7 @@
                             <div class="form-group">
                                 <label for="mname_status">Middle Name</label>
                                 <input type="text" name="mname_status" id="mname_status"
-                                    value="{{ old('mname_status') }}" placeholder="Enter middle name (optional)">
+                                    value="{{ old('mname_status') }}" placeholder="Enter middle name">
                             </div>
                         </div>
 
@@ -414,7 +426,8 @@
                                     data-priority="senior" onclick="selectPriorityType('update', 'senior')">
                                     <span class="btn-content">
                                         <svg viewBox="0 0 20 20" fill="currentColor">
-                                            <path d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v3h8v-3zM6 8a2 2 0 11-4 0 2 2 0 014 0zM16 18v-3a5.972 5.972 0 00-.75-2.906A3.005 3.005 0 0119 15v3h-3zM4.75 12.094A5.973 5.973 0 004 15v3H1v-3a3 3 0 013.75-2.906z" />
+                                            <path
+                                                d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v3h8v-3zM6 8a2 2 0 11-4 0 2 2 0 014 0zM16 18v-3a5.972 5.972 0 00-.75-2.906A3.005 3.005 0 0119 15v3h-3zM4.75 12.094A5.973 5.973 0 004 15v3H1v-3a3 3 0 013.75-2.906z" />
                                         </svg>
                                         Senior
                                     </span>
@@ -425,7 +438,8 @@
                                     data-priority="infant" onclick="selectPriorityType('update', 'infant')">
                                     <span class="btn-content">
                                         <svg viewBox="0 0 20 20" fill="currentColor">
-                                            <path d="M10 18a8 8 0 100-16 8 8 0 000 16zM7 9a1 1 0 100-2 1 1 0 000 2zm7-1a1 1 0 11-2 0 1 1 0 012 0zm-.464 5.535a1 1 0 10-1.415-1.414 3 3 0 01-4.242 0 1 1 0 00-1.415 1.414 5 5 0 007.072 0z" />
+                                            <path
+                                                d="M10 18a8 8 0 100-16 8 8 0 000 16zM7 9a1 1 0 100-2 1 1 0 000 2zm7-1a1 1 0 11-2 0 1 1 0 012 0zm-.464 5.535a1 1 0 10-1.415-1.414 3 3 0 01-4.242 0 1 1 0 00-1.415 1.414 5 5 0 007.072 0z" />
                                         </svg>
                                         Infant
                                     </span>
@@ -436,7 +450,8 @@
                                     data-priority="pwd" onclick="selectPriorityType('update', 'pwd')">
                                     <span class="btn-content">
                                         <svg viewBox="0 0 20 20" fill="currentColor">
-                                            <path d="M10 18a8 8 0 100-16 8 8 0 000 16zm0-2a6 6 0 110-12 6 6 0 010 12zM9 8a1 1 0 012 0v4a1 1 0 11-2 0V8zm1 7a1 1 0 100-2 1 1 0 000 2z" />
+                                            <path
+                                                d="M10 18a8 8 0 100-16 8 8 0 000 16zm0-2a6 6 0 110-12 6 6 0 010 12zM9 8a1 1 0 012 0v4a1 1 0 11-2 0V8zm1 7a1 1 0 100-2 1 1 0 000 2z" />
                                         </svg>
                                         PWD
                                     </span>
@@ -447,7 +462,8 @@
                                     data-priority="pregnant" onclick="selectPriorityType('update', 'pregnant')">
                                     <span class="btn-content">
                                         <svg viewBox="0 0 24 24" fill="currentColor" width="18" height="18">
-                                            <path d="M12 2a2 2 0 110 4 2 2 0 010-4zm-1 5c-1.66 0-3 1.34-3 3v3h2v7h2v-6h2.5c1.38 0 2.5 1.12 2.5 2.5V20h2v-3.5c0-2.49-2.01-4.5-4.5-4.5H12V10c0-.55.45-1 1-1h3V7h-5z" />
+                                            <path
+                                                d="M12 2a2 2 0 110 4 2 2 0 010-4zm-1 5c-1.66 0-3 1.34-3 3v3h2v7h2v-6h2.5c1.38 0 2.5 1.12 2.5 2.5V20h2v-3.5c0-2.49-2.01-4.5-4.5-4.5H12V10c0-.55.45-1 1-1h3V7h-5z" />
                                         </svg>
                                         Pregnant
                                     </span>
@@ -458,7 +474,9 @@
                                     data-priority="regular" onclick="selectPriorityType('update', 'regular')">
                                     <span class="btn-content">
                                         <svg viewBox="0 0 20 20" fill="currentColor">
-                                            <path fill-rule="evenodd" d="M4 4a2 2 0 00-2 2v8a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2H4zm1 2h3v2H5V6zm5 0h3v2h-3V6zm-5 4h3v2H5v-2zm5 0h3v2h-3v-2z" clip-rule="evenodd" />
+                                            <path fill-rule="evenodd"
+                                                d="M4 4a2 2 0 00-2 2v8a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2H4zm1 2h3v2H5V6zm5 0h3v2h-3V6zm-5 4h3v2H5v-2zm5 0h3v2h-3v-2z"
+                                                clip-rule="evenodd" />
                                         </svg>
                                         Regular
                                     </span>
@@ -477,7 +495,7 @@
                             <div class="form-group">
                                 <label for="mname_update">Middle Name</label>
                                 <input type="text" name="mname_update" id="mname_update"
-                                    value="{{ old('mname_update') }}" placeholder="Enter middle name (optional)">
+                                    value="{{ old('mname_update') }}" placeholder="Enter middle name">
                             </div>
                         </div>
 
@@ -570,153 +588,158 @@
         </div>
 
         {{-- Today's Appointments Card --}}
-<div class="card">
-    <div class="card-header">
-        <h3>
-            <svg viewBox="0 0 20 20" fill="currentColor">
-                <path
-                    d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z" />
-            </svg>
-            Today's Appointments
-        </h3>
-        <div class="stats-grid">
-            <div class="stat-card">
-                <div class="stat-icon"
-                    style="background: linear-gradient(135deg, var(--psa-blue), var(--psa-red))">
+        <div class="card">
+            <div class="card-header">
+                <h3>
                     <svg viewBox="0 0 20 20" fill="currentColor">
                         <path
                             d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z" />
                     </svg>
-                </div>
-                <div class="stat-content">
-                    <span class="stat-label">Total Queue Today</span>
-                    <span class="stat-value" id="totalQueue">{{ $queueCount ?? 0 }}</span>
+                    Today's Appointments
+                </h3>
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon"
+                            style="background: linear-gradient(135deg, var(--psa-blue), var(--psa-red))">
+                            <svg viewBox="0 0 20 20" fill="currentColor">
+                                <path
+                                    d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z" />
+                            </svg>
+                        </div>
+                        <div class="stat-content">
+                            <span class="stat-label">Total Queue Today</span>
+                            <span class="stat-value" id="totalQueue">{{ $queueCount ?? 0 }}</span>
+                        </div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-icon" style="background: linear-gradient(135deg, #F59E0B, #FBBF24)">
+                            <svg viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd"
+                                    d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z"
+                                    clip-rule="evenodd" />
+                            </svg>
+                        </div>
+                        <div class="stat-content">
+                            <span class="stat-label">Pending</span>
+                            <span class="stat-value pending" id="pendingCount">{{ $pendingCount ?? 0 }}</span>
+                        </div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-icon" style="background: linear-gradient(135deg, #10B981, #34D399)">
+                            <svg viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd"
+                                    d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                                    clip-rule="evenodd" />
+                            </svg>
+                        </div>
+                        <div class="stat-content">
+                            <span class="stat-label">Completed</span>
+                            <span class="stat-value completed" id="completedCount">{{ $completedCount ?? 0 }}</span>
+                        </div>
+                    </div>
                 </div>
             </div>
-
-            <div class="stat-card">
-                <div class="stat-icon" style="background: linear-gradient(135deg, #F59E0B, #FBBF24)">
-                    <svg viewBox="0 0 20 20" fill="currentColor">
+            <div class="card-body">
+                <div class="search-box">
+                    <svg class="search-icon" viewBox="0 0 20 20" fill="currentColor">
                         <path fill-rule="evenodd"
-                            d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z"
+                            d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z"
                             clip-rule="evenodd" />
                     </svg>
+                    <input type="text" id="searchAppointments" placeholder="Search...">
                 </div>
-                <div class="stat-content">
-                    <span class="stat-label">Pending</span>
-                    <span class="stat-value pending" id="pendingCount">{{ $pendingCount ?? 0 }}</span>
-                </div>
-            </div>
 
-            <div class="stat-card">
-                <div class="stat-icon" style="background: linear-gradient(135deg, #10B981, #34D399)">
-                    <svg viewBox="0 0 20 20" fill="currentColor">
-                        <path fill-rule="evenodd"
-                            d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                            clip-rule="evenodd" />
-                    </svg>
-                </div>
-                <div class="stat-content">
-                    <span class="stat-label">Completed</span>
-                    <span class="stat-value completed" id="completedCount">{{ $completedCount ?? 0 }}</span>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="card-body">
-        <div class="search-box">
-            <svg class="search-icon" viewBox="0 0 20 20" fill="currentColor">
-                <path fill-rule="evenodd"
-                    d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z"
-                    clip-rule="evenodd" />
-            </svg>
-            <input type="text" id="searchAppointments" placeholder="Search...">
-        </div>
-
-        <div class="table-responsive">
-            <table class="table">
-                <thead>
-                    <tr>
-                        <th>Queue #</th>
-                        <th>Name</th>
-                        <th>Priority</th>
-                        <th>Service</th>
-                        <th>Time</th>
-                        <th>Status</th>
-                    </tr>
-                </thead>
-                <tbody class="appointments-table-body" id="appointmentsTableBody">
-                    @forelse($appointments as $appointment)
-                        @php
-                            $servedTime = $appointment->time_catered
-                                ? \Carbon\Carbon::parse($appointment->time_catered)->setTimezone('Asia/Manila')
-                                : null;
-                            $createdTime = \Carbon\Carbon::parse($appointment->date)->setTimezone('Asia/Manila');
-                            
-                            // Get the actual status from database
-                            $status = $appointment->status ?? 'pending';
-                            
-                            // Determine if this is a pending appointment (show in this table)
-                            // Show if status is pending OR (no time_catered and not completed/cancelled/no_show)
-                            $showInTable = in_array($status, ['pending', 'serving']) || 
-                                          (!$appointment->time_catered && !in_array($status, ['completed', 'cancelled', 'no_show']));
-                            
-                            $serviceDisplay = $appointment->queue_for;
-                            
-                            // Get priority type for display
-                            $priorityType = $appointment->priority_type ?? 'regular';
-                            $priorityDisplay = ucfirst($priorityType);
-                            
-                            // Format status for display
-                            $statusDisplay = ucfirst(str_replace('_', ' ', $status));
-                            $statusClass = $status;
-                        @endphp
-                        {{-- Only show if pending or serving --}}
-                        @if($showInTable)
-                            <tr
-                                data-search="{{ strtolower($appointment->lname . ' ' . $appointment->fname . ' ' . $appointment->trn) }}">
-                                <td><span class="queue-number">{{ $appointment->q_id }}</span></td>
-                                <td>
-                                    <div class="client-name">
-                                        {{ $appointment->lname }}, {{ $appointment->fname }}
-                                        @if ($appointment->mname || $appointment->suffix)
-                                            <small>{{ $appointment->mname }}
-                                                {{ $appointment->suffix }}</small>
-                                        @endif
-                                    </div>
-                                </td>
-                                <td>
-                                    <span class="priority-badge priority-{{ $priorityType }}" data-priority="{{ $priorityType }}">
-                                        {{ strtoupper($priorityDisplay) }}
-                                    </span>
-                                </td>
-                                <td>{{ $serviceDisplay }}</td>
-                                <td>{{ $createdTime->format('h:i A') }}</td>
-                                <td>
-                                    <span class="status-badge status-{{ $statusClass }}">
-                                        <span class="status-dot"></span>
-                                        {{ $statusDisplay }}
-                                    </span>
-                                </td>
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Queue #</th>
+                                <th>Name</th>
+                                <th>Priority</th>
+                                <th>Service</th>
+                                <th>Time</th>
+                                <th>Status</th>
                             </tr>
-                        @endif
-                    @empty
-                        <tr>
-                            <td colspan="6" class="empty-state">
-                                <svg viewBox="0 0 20 20" fill="currentColor">
-                                    <path fill-rule="evenodd"
-                                        d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z"
-                                        clip-rule="evenodd" />
-                                </svg>
-                                <p>No pending appointments for today</p>
-                            </td>
-                        </tr>
-                    @endforelse
-                </tbody>
-            </table>
+                        </thead>
+                        <tbody class="appointments-table-body" id="appointmentsTableBody">
+                            @forelse($appointments as $appointment)
+                                @php
+                                    $servedTime = $appointment->time_catered
+                                        ? \Carbon\Carbon::parse($appointment->time_catered)->setTimezone('Asia/Manila')
+                                        : null;
+                                    $createdTime = \Carbon\Carbon::parse($appointment->date)->setTimezone(
+                                        'Asia/Manila',
+                                    );
+
+                                    // Get the actual status from database
+                                    $status = $appointment->status ?? 'pending';
+
+                                    // Determine if this is a pending appointment (show in this table)
+                                    // Show if status is pending OR (no time_catered and not completed/cancelled/no_show)
+                                    $showInTable =
+                                        in_array($status, ['pending', 'serving']) ||
+                                        (!$appointment->time_catered &&
+                                            !in_array($status, ['completed', 'cancelled', 'no_show']));
+
+                                    $serviceDisplay = $appointment->queue_for;
+
+                                    // Get priority type for display
+                                    $priorityType = $appointment->priority_type ?? 'regular';
+                                    $priorityDisplay = ucfirst($priorityType);
+
+                                    // Format status for display
+                                    $statusDisplay = ucfirst(str_replace('_', ' ', $status));
+                                    $statusClass = $status;
+                                @endphp
+                                {{-- Only show if pending or serving --}}
+                                @if ($showInTable)
+                                    <tr
+                                        data-search="{{ strtolower($appointment->lname . ' ' . $appointment->fname . ' ' . $appointment->trn) }}">
+                                        <td><span class="queue-number">{{ $appointment->q_id }}</span></td>
+                                        <td>
+                                            <div class="client-name">
+                                                {{ $appointment->lname }}, {{ $appointment->fname }}
+                                                @if ($appointment->mname || $appointment->suffix)
+                                                    <small>{{ $appointment->mname }}
+                                                        {{ $appointment->suffix }}</small>
+                                                @endif
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <span class="priority-badge priority-{{ $priorityType }}"
+                                                data-priority="{{ $priorityType }}">
+                                                {{ strtoupper($priorityDisplay) }}
+                                            </span>
+                                        </td>
+                                        <td>{{ $serviceDisplay }}</td>
+                                        <td>{{ $createdTime->format('h:i A') }}</td>
+                                        <td>
+                                            <span class="status-badge status-{{ $statusClass }}">
+                                                <span class="status-dot"></span>
+                                                {{ $statusDisplay }}
+                                            </span>
+                                        </td>
+                                    </tr>
+                                @endif
+                            @empty
+                                <tr>
+                                    <td colspan="6" class="empty-state">
+                                        <svg viewBox="0 0 20 20" fill="currentColor">
+                                            <path fill-rule="evenodd"
+                                                d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z"
+                                                clip-rule="evenodd" />
+                                        </svg>
+                                        <p>No pending appointments for today</p>
+                                    </td>
+                                </tr>
+                            @endforelse
+                        </tbody>
+                    </table>
+                </div>
+            </div>
         </div>
-    </div>
-</div>
     </div>
 
     <!-- QR Scanner Modal -->
@@ -752,84 +775,85 @@
     </div>
 
     {{-- Recent Transactions Card --}}
-<div class="card full-width" id="recentTransactionsCard">
-    <div class="card-header">
-        <h3>
-            <svg viewBox="0 0 20 20" fill="currentColor">
-                <path fill-rule="evenodd"
-                    d="M4 4a2 2 0 00-2 2v8a2 2 0 002 2h12a2 2 0 002-2V8a2 2 0 00-2-2h-5L9 4H4zm7 4a1 1 0 10-2 0v3.586l-.293-.293a1 1 0 10-1.414 1.414l2 2a1 1 0 001.414 0l2-2a1 1 0 10-1.414-1.414l-.293.293V8z"
-                    clip-rule="evenodd" />
-            </svg>
-            Recent Transactions
-        </h3>
-        <div class="card-actions" style="display: flex; gap: 10px; align-items: center;">
-            <span class="badge" id="showingInfo">Showing
-                {{ $completedTransactions->firstItem() }}-{{ $completedTransactions->lastItem() }} of
-                {{ $completedTransactions->total() }}</span>
-
-            {{-- EXPORT PDF BUTTON --}}
-            <button type="button" class="btn btn-danger" id="screenerExportPdfBtn"
-                style="padding: 6px 12px; background-color: #dc2626; color: white; border: none; border-radius: 4px; cursor: pointer; display: inline-flex; align-items: center; gap: 5px;">
-                <svg viewBox="0 0 20 20" fill="currentColor" width="16" height="16">
+    <div class="card full-width" id="recentTransactionsCard">
+        <div class="card-header">
+            <h3>
+                <svg viewBox="0 0 20 20" fill="currentColor">
                     <path fill-rule="evenodd"
-                        d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm2 6a1 1 0 011-1h6a1 1 0 110 2H7a1 1 0 01-1-1zm1 3a1 1 0 100 2h6a1 1 0 100-2H7z"
+                        d="M4 4a2 2 0 00-2 2v8a2 2 0 002 2h12a2 2 0 002-2V8a2 2 0 00-2-2h-5L9 4H4zm7 4a1 1 0 10-2 0v3.586l-.293-.293a1 1 0 10-1.414 1.414l2 2a1 1 0 001.414 0l2-2a1 1 0 10-1.414-1.414l-.293.293V8z"
                         clip-rule="evenodd" />
                 </svg>
-                Export PDF
-            </button>
-            <button type="button" class="btn btn-success" id="screenerExportExcelBtn"
-                style="padding: 6px 12px; background-color: #059669; color: white; border: none; border-radius: 4px; cursor: pointer; display: inline-flex; align-items: center; gap: 5px;">
-                <svg viewBox="0 0 20 20" fill="currentColor" width="16" height="16">
-                    <path fill-rule="evenodd"
-                        d="M4 4a2 2 0 012-2h8a2 2 0 012 2v12a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm2 2v2h2V6H6zm6 0v2h2V6h-2zm-6 4v2h2v-2H6zm6 0v2h2v-2h-2zm-6 4v2h2v-2H6zm6 0v2h2v-2h-2z"
-                        clip-rule="evenodd" />
-                </svg>
-                Export Excel
-            </button>
+                Recent Transactions
+            </h3>
+            <div class="card-actions" style="display: flex; gap: 10px; align-items: center;">
+                <span class="badge" id="showingInfo">Showing
+                    {{ $completedTransactions->firstItem() }}-{{ $completedTransactions->lastItem() }} of
+                    {{ $completedTransactions->total() }}</span>
+
+                {{-- EXPORT PDF BUTTON --}}
+                <button type="button" class="btn btn-danger" id="screenerExportPdfBtn"
+                    style="padding: 6px 12px; background-color: #dc2626; color: white; border: none; border-radius: 4px; cursor: pointer; display: inline-flex; align-items: center; gap: 5px;">
+                    <svg viewBox="0 0 20 20" fill="currentColor" width="16" height="16">
+                        <path fill-rule="evenodd"
+                            d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm2 6a1 1 0 011-1h6a1 1 0 110 2H7a1 1 0 01-1-1zm1 3a1 1 0 100 2h6a1 1 0 100-2H7z"
+                            clip-rule="evenodd" />
+                    </svg>
+                    Export PDF
+                </button>
+                <button type="button" class="btn btn-success" id="screenerExportExcelBtn"
+                    style="padding: 6px 12px; background-color: #059669; color: white; border: none; border-radius: 4px; cursor: pointer; display: inline-flex; align-items: center; gap: 5px;">
+                    <svg viewBox="0 0 20 20" fill="currentColor" width="16" height="16">
+                        <path fill-rule="evenodd"
+                            d="M4 4a2 2 0 012-2h8a2 2 0 012 2v12a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm2 2v2h2V6H6zm6 0v2h2V6h-2zm-6 4v2h2v-2H6zm6 0v2h2v-2h-2zm-6 4v2h2v-2H6zm6 0v2h2v-2h-2z"
+                            clip-rule="evenodd" />
+                    </svg>
+                    Export Excel
+                </button>
+            </div>
+        </div>
+        <div class="card-body">
+            {{-- Optional Service Filter for Screener --}}
+            <div class="filter-section" style="margin-bottom: 15px; display: flex; justify-content: flex-end;">
+                <select id="transactionServiceFilter" class="service-filter"
+                    style="padding: 6px 12px; border: 2px solid #e5e7eb; border-radius: 30px; font-size: 13px; color: #374151; background: white; cursor: pointer; width: auto;">
+                    <option value="all">All Services</option>
+                    <option value="NID Registration">NID Registration</option>
+                    <option value="Status Inquiry">Status Inquiry</option>
+                    <option value="Updating">NID Updating</option>
+                </select>
+            </div> -->
+
+            <div class="table-responsive">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Queue #</th>
+                            <th>Client</th>
+                            <th>Priority</th>
+                            <th>Service</th>
+                            <th>Served Time</th>
+                            <th>Window</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="transactionsTableContainer">
+                        {{-- This will be populated by AJAX --}}
+                        @include('appointment.partials.transactions-table', [
+                            'completedTransactions' => $completedTransactions,
+                        ])
+                    </tbody>
+                </table>
+            </div>
+
+            {{-- Enhanced Pagination with Strict 5-Page Blocks --}}
+            <div class="enhanced-pagination" id="paginationContainer">
+                @include('appointment.partials.pagination-links', [
+                    'completedTransactions' => $completedTransactions,
+                ])
+            </div>
         </div>
     </div>
-    <div class="card-body">
-        {{-- Optional Service Filter for Screener --}}
-        <!-- <div class="filter-section" style="margin-bottom: 15px; display: flex; justify-content: flex-end;">
-            <select id="transactionServiceFilter" class="service-filter" style="padding: 6px 12px; border: 2px solid #e5e7eb; border-radius: 30px; font-size: 13px; color: #374151; background: white; cursor: pointer; width: auto;">
-                <option value="all">All Services</option>
-                <option value="NID Registration">NID Registration</option>
-                <option value="Status Inquiry">Status Inquiry</option>
-                <option value="Updating">NID Updating</option>
-            </select>
-        </div> -->
-
-        <div class="table-responsive">
-            <table class="table">
-                <thead>
-                    <tr>
-                        <th>#</th>
-                        <th>Queue #</th>
-                        <th>Client</th>
-                        <th>Priority</th>
-                        <th>Service</th>
-                        <th>Served Time</th>
-                        <th>Window</th>
-                        <th>Status</th>
-                    </tr>
-                </thead>
-                <tbody id="transactionsTableContainer">
-                    {{-- This will be populated by AJAX --}}
-                    @include('appointment.partials.transactions-table', [
-                        'completedTransactions' => $completedTransactions
-                    ])
-                </tbody>
-            </table>
-        </div>
-
-        {{-- Enhanced Pagination with Strict 5-Page Blocks --}}
-        <div class="enhanced-pagination" id="paginationContainer">
-            @include('appointment.partials.pagination-links', [
-                'completedTransactions' => $completedTransactions,
-            ])
-        </div>
-    </div>
-</div>
 
     {{-- Print Slip Modal (Hidden by default) --}}
     @if (session('printSlip'))
@@ -1243,224 +1267,225 @@
         }
 
         function fetchRecentTransactions() {
-    if (isLoading) return;
-    fetchRecentTransactionsPage();
-}
+            if (isLoading) return;
+            fetchRecentTransactionsPage();
+        }
 
         // ========== SMOOTH AJAX PAGINATION FOR RECENT TRANSACTIONS ==========
-function loadTransactionsPage(url) {
-    if (isLoading) return;
-    isLoading = true;
+        function loadTransactionsPage(url) {
+            if (isLoading) return;
+            isLoading = true;
 
-    const tableContainer = document.getElementById('transactionsTableContainer');
-    const paginationContainer = document.getElementById('paginationContainer');
-    const showingInfo = document.getElementById('showingInfo');
+            const tableContainer = document.getElementById('transactionsTableContainer');
+            const paginationContainer = document.getElementById('paginationContainer');
+            const showingInfo = document.getElementById('showingInfo');
 
-    if (!tableContainer || !paginationContainer) {
-        isLoading = false;
-        return;
-    }
+            if (!tableContainer || !paginationContainer) {
+                isLoading = false;
+                return;
+            }
 
-    const separator = url.includes('?') ? '&' : '?';
-    const fetchUrl = url + separator + '_=' + new Date().getTime();
+            const separator = url.includes('?') ? '&' : '?';
+            const fetchUrl = url + separator + '_=' + new Date().getTime();
 
-    tableContainer.classList.add('loading');
-    paginationContainer.classList.add('loading');
-    tableContainer.style.opacity = '0';
-    paginationContainer.style.opacity = '0';
+            tableContainer.classList.add('loading');
+            paginationContainer.classList.add('loading');
+            tableContainer.style.opacity = '0';
+            paginationContainer.style.opacity = '0';
 
-    fetch(fetchUrl, {
-        headers: {
-            'X-Requested-With': 'XMLHttpRequest',
-            'Accept': 'application/json',
-            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+            fetch(fetchUrl, {
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'Accept': 'application/json',
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (!data.success) throw new Error(data.message || 'Unknown error occurred');
+
+                    setTimeout(() => {
+                        if (data.table) tableContainer.innerHTML = data.table;
+                        if (data.pagination) paginationContainer.innerHTML = data.pagination;
+                        if (data.showing && showingInfo) showingInfo.textContent = data.showing;
+
+                        tableContainer.style.opacity = '1';
+                        paginationContainer.style.opacity = '1';
+                        tableContainer.classList.remove('loading');
+                        paginationContainer.classList.remove('loading');
+
+                        attachPaginationListeners();
+
+                        // Re-apply service filter
+                        const filter = document.getElementById('transactionServiceFilter');
+                        if (filter) filter.dispatchEvent(new Event('change'));
+
+                        // Add success animation
+                        tableContainer.classList.add('page-change-success');
+                        paginationContainer.classList.add('page-change-success');
+
+                        setTimeout(() => {
+                            tableContainer.classList.remove('page-change-success');
+                            paginationContainer.classList.remove('page-change-success');
+                        }, 500);
+
+                        isLoading = false;
+                    }, 150);
+                })
+                .catch(error => {
+                    console.error('Error loading page:', error);
+                    tableContainer.style.opacity = '1';
+                    paginationContainer.style.opacity = '1';
+                    tableContainer.classList.remove('loading');
+                    paginationContainer.classList.remove('loading');
+                    isLoading = false;
+
+                    Swal.fire({
+                        title: 'Error!',
+                        text: 'Failed to load page. Please try again.',
+                        icon: 'error',
+                        confirmButtonColor: '#dc2626',
+                        timer: 2000,
+                        showConfirmButton: false
+                    });
+                });
         }
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (!data.success) throw new Error(data.message || 'Unknown error occurred');
 
-        setTimeout(() => {
-            if (data.table) tableContainer.innerHTML = data.table;
-            if (data.pagination) paginationContainer.innerHTML = data.pagination;
-            if (data.showing && showingInfo) showingInfo.textContent = data.showing;
+        function attachPaginationListeners() {
+            document.querySelectorAll(
+                '.pagination-nav-btn:not(.disabled), .pagination-arrow:not(.disabled), .page-number:not(.active)'
+            ).forEach(link => {
+                link.removeEventListener('click', handlePaginationClick);
+                link.addEventListener('click', handlePaginationClick);
+            });
+        }
 
-            tableContainer.style.opacity = '1';
-            paginationContainer.style.opacity = '1';
-            tableContainer.classList.remove('loading');
-            paginationContainer.classList.remove('loading');
+        function handlePaginationClick(e) {
+            e.preventDefault();
+            if (!isLoading) {
+                loadTransactionsPage(this.href);
+            }
+        }
 
-            attachPaginationListeners();
-            
-            // Re-apply service filter
-            const filter = document.getElementById('transactionServiceFilter');
-            if (filter) filter.dispatchEvent(new Event('change'));
+        // Service Filter for Recent Transactions
+        document.getElementById('transactionServiceFilter')?.addEventListener('change', function() {
+            const selectedService = this.value;
+            const rows = document.querySelectorAll('#transactionsTableContainer tr');
 
-            // Add success animation
-            tableContainer.classList.add('page-change-success');
-            paginationContainer.classList.add('page-change-success');
-            
-            setTimeout(() => {
-                tableContainer.classList.remove('page-change-success');
-                paginationContainer.classList.remove('page-change-success');
-            }, 500);
+            rows.forEach(row => {
+                if (row.classList.contains('empty-state')) return;
 
-            isLoading = false;
-        }, 150);
-    })
-    .catch(error => {
-        console.error('Error loading page:', error);
-        tableContainer.style.opacity = '1';
-        paginationContainer.style.opacity = '1';
-        tableContainer.classList.remove('loading');
-        paginationContainer.classList.remove('loading');
-        isLoading = false;
-        
-        Swal.fire({
-            title: 'Error!',
-            text: 'Failed to load page. Please try again.',
-            icon: 'error',
-            confirmButtonColor: '#dc2626',
-            timer: 2000,
-            showConfirmButton: false
+                const service = row.getAttribute('data-service');
+                row.style.display = (selectedService === 'all' || service === selectedService) ? '' :
+                    'none';
+            });
         });
-    });
-}
 
-function attachPaginationListeners() {
-    document.querySelectorAll(
-        '.pagination-nav-btn:not(.disabled), .pagination-arrow:not(.disabled), .page-number:not(.active)'
-    ).forEach(link => {
-        link.removeEventListener('click', handlePaginationClick);
-        link.addEventListener('click', handlePaginationClick);
-    });
-}
+        // Fetch recent transactions page (for refresh)
+        function fetchRecentTransactionsPage(page = null) {
+            if (isLoading) return;
 
-function handlePaginationClick(e) {
-    e.preventDefault();
-    if (!isLoading) {
-        loadTransactionsPage(this.href);
-    }
-}
+            let url = '{{ route('appointment.transactions-page') }}';
+            const params = new URLSearchParams();
 
-// Service Filter for Recent Transactions
-document.getElementById('transactionServiceFilter')?.addEventListener('change', function() {
-    const selectedService = this.value;
-    const rows = document.querySelectorAll('#transactionsTableContainer tr');
-    
-    rows.forEach(row => {
-        if (row.classList.contains('empty-state')) return;
-        
-        const service = row.getAttribute('data-service');
-        row.style.display = (selectedService === 'all' || service === selectedService) ? '' : 'none';
-    });
-});
+            if (page) params.append('page', page);
 
-// Fetch recent transactions page (for refresh)
-function fetchRecentTransactionsPage(page = null) {
-    if (isLoading) return;
+            const queryString = params.toString();
+            if (queryString) url += '?' + queryString;
+            url += (url.includes('?') ? '&' : '?') + '_=' + new Date().getTime();
 
-    let url = '{{ route('appointment.transactions-page') }}';
-    const params = new URLSearchParams();
-
-    if (page) params.append('page', page);
-
-    const queryString = params.toString();
-    if (queryString) url += '?' + queryString;
-    url += (url.includes('?') ? '&' : '?') + '_=' + new Date().getTime();
-
-    fetch(url, {
-        headers: {
-            'X-Requested-With': 'XMLHttpRequest',
-            'Accept': 'application/json',
-            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+            fetch(url, {
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'Accept': 'application/json',
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        if (data.table) transactionsTableContainer.innerHTML = data.table;
+                        if (data.pagination) paginationContainer.innerHTML = data.pagination;
+                        if (data.showing && showingInfo) showingInfo.textContent = data.showing;
+                    }
+                    attachPaginationListeners();
+                    const filter = document.getElementById('transactionServiceFilter');
+                    if (filter) filter.dispatchEvent(new Event('change'));
+                })
+                .catch(error => console.error('Error fetching recent transactions:', error));
         }
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            if (data.table) transactionsTableContainer.innerHTML = data.table;
-            if (data.pagination) paginationContainer.innerHTML = data.pagination;
-            if (data.showing && showingInfo) showingInfo.textContent = data.showing;
-        }
-        attachPaginationListeners();
-        const filter = document.getElementById('transactionServiceFilter');
-        if (filter) filter.dispatchEvent(new Event('change'));
-    })
-    .catch(error => console.error('Error fetching recent transactions:', error));
-}
 
-// Export PDF with confirmation
-document.getElementById('screenerExportPdfBtn')?.addEventListener('click', function(e) {
-    e.preventDefault();
+        // Export PDF with confirmation
+        document.getElementById('screenerExportPdfBtn')?.addEventListener('click', function(e) {
+            e.preventDefault();
 
-    Swal.fire({
-        title: 'Export PDF',
-        text: 'Export your completed transactions report?',
-        icon: 'question',
-        showCancelButton: true,
-        confirmButtonColor: '#2563eb',
-        cancelButtonColor: '#dc2626',
-        confirmButtonText: 'Yes, Export!'
-    }).then((result) => {
-        if (result.isConfirmed) {
-            window.location.href = '{{ route('appointment.export.pdf') }}';
-            
-            const Toast = Swal.mixin({
-                toast: true,
-                position: 'top-end',
-                showConfirmButton: false,
-                timer: 2000,
-                timerProgressBar: true
+            Swal.fire({
+                title: 'Export PDF',
+                text: 'Export your completed transactions report?',
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#2563eb',
+                cancelButtonColor: '#dc2626',
+                confirmButtonText: 'Yes, Export!'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    window.location.href = '{{ route('appointment.export.pdf') }}';
+
+                    const Toast = Swal.mixin({
+                        toast: true,
+                        position: 'top-end',
+                        showConfirmButton: false,
+                        timer: 2000,
+                        timerProgressBar: true
+                    });
+
+                    Toast.fire({
+                        icon: 'success',
+                        title: 'PDF Exported Successfully'
+                    });
+                }
             });
-            
-            Toast.fire({
-                icon: 'success',
-                title: 'PDF Exported Successfully'
+        });
+
+        // Export Excel with confirmation
+        document.getElementById('screenerExportExcelBtn')?.addEventListener('click', function(e) {
+            e.preventDefault();
+
+            Swal.fire({
+                title: 'Export to Excel',
+                text: 'Export your completed transactions report?',
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#059669',
+                cancelButtonColor: '#dc2626',
+                confirmButtonText: 'Yes, Export!'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    window.location.href = '{{ route('appointment.export.excel') }}';
+
+                    const Toast = Swal.mixin({
+                        toast: true,
+                        position: 'top-end',
+                        showConfirmButton: false,
+                        timer: 2000,
+                        timerProgressBar: true
+                    });
+
+                    Toast.fire({
+                        icon: 'success',
+                        title: 'Excel Exported Successfully'
+                    });
+                }
             });
-        }
-    });
-});
-
-// Export Excel with confirmation
-document.getElementById('screenerExportExcelBtn')?.addEventListener('click', function(e) {
-    e.preventDefault();
-
-    Swal.fire({
-        title: 'Export to Excel',
-        text: 'Export your completed transactions report?',
-        icon: 'question',
-        showCancelButton: true,
-        confirmButtonColor: '#059669',
-        cancelButtonColor: '#dc2626',
-        confirmButtonText: 'Yes, Export!'
-    }).then((result) => {
-        if (result.isConfirmed) {
-            window.location.href = '{{ route('appointment.export.excel') }}';
-            
-            const Toast = Swal.mixin({
-                toast: true,
-                position: 'top-end',
-                showConfirmButton: false,
-                timer: 2000,
-                timerProgressBar: true
-            });
-            
-            Toast.fire({
-                icon: 'success',
-                title: 'Excel Exported Successfully'
-            });
-        }
-    });
-});
+        });
 
 
 
-function updateAppointmentsTable(appointments) {
-    const tbody = document.getElementById('appointmentsTableBody');
+        function updateAppointmentsTable(appointments) {
+            const tbody = document.getElementById('appointmentsTableBody');
 
-    if (!appointments || appointments.length === 0) {
-        tbody.innerHTML = `
+            if (!appointments || appointments.length === 0) {
+                tbody.innerHTML = `
             <tr>
                 <td colspan="6" class="empty-state">
                     <svg viewBox="0 0 20 20" fill="currentColor">
@@ -1472,49 +1497,49 @@ function updateAppointmentsTable(appointments) {
                 </td>
             </tr>
         `;
-        return;
-    }
-
-    let html = '';
-    appointments.forEach(app => {
-        // Get the actual status from database
-        const status = app.status || 'pending';
-        
-        // Show if status is pending or serving (active appointments)
-        const showInTable = ['pending', 'serving'].includes(status) || 
-                           (!app.time_catered && !['completed', 'cancelled', 'no_show'].includes(status));
-        
-        if (showInTable) {
-            const createdTime = new Date(app.date).toLocaleTimeString('en-US', {
-                hour: '2-digit',
-                minute: '2-digit',
-                hour12: true,
-                timeZone: 'Asia/Manila'
-            });
-
-            let fullName = app.lname + ', ' + app.fname;
-
-            if (app.mname && app.mname.trim() !== '') {
-                fullName += ' ' + app.mname;
+                return;
             }
 
-            if (app.suffix && app.suffix.trim() !== '') {
-                fullName += ' ' + app.suffix;
-            }
+            let html = '';
+            appointments.forEach(app => {
+                // Get the actual status from database
+                const status = app.status || 'pending';
 
-            // Get priority type for display
-            const priorityType = app.priority_type?.toLowerCase() || 'regular';
-            const priorityDisplay = priorityType === 'regular' ? 'Regular' :
-                priorityType.charAt(0).toUpperCase() + priorityType.slice(1);
+                // Show if status is pending or serving (active appointments)
+                const showInTable = ['pending', 'serving'].includes(status) ||
+                    (!app.time_catered && !['completed', 'cancelled', 'no_show'].includes(status));
 
-            // Format status for display
-            const statusDisplay = status.replace('_', ' ').split(' ').map(word => 
-                word.charAt(0).toUpperCase() + word.slice(1)
-            ).join(' ');
+                if (showInTable) {
+                    const createdTime = new Date(app.date).toLocaleTimeString('en-US', {
+                        hour: '2-digit',
+                        minute: '2-digit',
+                        hour12: true,
+                        timeZone: 'Asia/Manila'
+                    });
 
-            const searchData = (app.lname + ' ' + app.fname + ' ' + (app.trn || '')).toLowerCase();
+                    let fullName = app.lname + ', ' + app.fname;
 
-            html += `
+                    if (app.mname && app.mname.trim() !== '') {
+                        fullName += ' ' + app.mname;
+                    }
+
+                    if (app.suffix && app.suffix.trim() !== '') {
+                        fullName += ' ' + app.suffix;
+                    }
+
+                    // Get priority type for display
+                    const priorityType = app.priority_type?.toLowerCase() || 'regular';
+                    const priorityDisplay = priorityType === 'regular' ? 'Regular' :
+                        priorityType.charAt(0).toUpperCase() + priorityType.slice(1);
+
+                    // Format status for display
+                    const statusDisplay = status.replace('_', ' ').split(' ').map(word =>
+                        word.charAt(0).toUpperCase() + word.slice(1)
+                    ).join(' ');
+
+                    const searchData = (app.lname + ' ' + app.fname + ' ' + (app.trn || '')).toLowerCase();
+
+                    html += `
                 <tr data-search="${searchData}" data-priority="${priorityType}" data-status="${status}">
                     <td><span class="queue-number">${app.q_id}</span></td>
                     <td>
@@ -1537,11 +1562,11 @@ function updateAppointmentsTable(appointments) {
                     </td>
                 </tr>
             `;
-        }
-    });
+                }
+            });
 
-    if (html === '') {
-        tbody.innerHTML = `
+            if (html === '') {
+                tbody.innerHTML = `
             <tr>
                 <td colspan="6" class="empty-state">
                     <svg viewBox="0 0 20 20" fill="currentColor">
@@ -1553,14 +1578,14 @@ function updateAppointmentsTable(appointments) {
                 </td>
             </tr>
         `;
-    } else {
-        tbody.innerHTML = html;
+            } else {
+                tbody.innerHTML = html;
 
-        if (currentSearchTerm) {
-            filterTableRows();
+                if (currentSearchTerm) {
+                    filterTableRows();
+                }
+            }
         }
-    }
-}
 
         function updateStatistics(stats) {
             if (!stats) return;
