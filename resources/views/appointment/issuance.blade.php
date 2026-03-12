@@ -74,8 +74,14 @@
                     <!-- NID Registration Form -->
                     <div id="nidForm" class="category-form"
                         style="display: {{ old('category', session('last_category')) == 'NID Registration' ? 'block' : 'none' }};">
+                        <div style="border-left: 4px solid #2563eb; padding-left: 15px; margin-bottom: 20px;">
+                            <h4 style="margin: 0 0 5px 0; color: #2563eb; font-size: 16px;">NID Registration Details
+                            </h4>
+                            <p style="margin: 0; color: #6b7280; font-size: 13px;">Please fill in the required
+                                information below</p>
+                        </div>
 
-                        <!-- Priority Type Selection -->
+                        <!-- Priority Type Selection for NID Registration -->
                         <div class="form-group" style="margin-top: 15px; margin-bottom: 20px;">
                             <label>Priority Type <span style="color: #dc2626;">*</span></label>
                             <div class="priority-buttons">
@@ -84,12 +90,10 @@
 
                                 <button type="button"
                                     class="priority-btn {{ old('priority_type_nid', session('last_priority_nid')) == 'senior' ? 'active' : '' }}"
-                                    data-priority="senior" onclick="selectPriorityType('nid', 'senior')"
-                                    style="padding: 10px 16px; border: 2px solid #e5e7eb; border-radius: 8px; background-color: {{ old('priority_type_nid', session('last_priority_nid')) == 'senior' ? '#2563eb' : 'white' }}; color: {{ old('priority_type_nid', session('last_priority_nid')) == 'senior' ? 'white' : '#374151' }}; font-weight: 500; cursor: pointer; transition: all 0.3s ease; flex: 1; font-size: 13px; min-width: 100px;">
+                                    data-priority="senior" onclick="selectPriorityType('nid', 'senior')">
                                     <span class="btn-content">
                                         <svg viewBox="0 0 20 20" fill="currentColor">
-                                            <path
-                                                d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v3h8v-3zM6 8a2 2 0 11-4 0 2 2 0 014 0zM16 18v-3a5.972 5.972 0 00-.75-2.906A3.005 3.005 0 0119 15v3h-3zM4.75 12.094A5.973 5.973 0 004 15v3H1v-3a3 3 0 013.75-2.906z" />
+                                            <path d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v3h8v-3zM6 8a2 2 0 11-4 0 2 2 0 014 0zM16 18v-3a5.972 5.972 0 00-.75-2.906A3.005 3.005 0 0119 15v3h-3zM4.75 12.094A5.973 5.973 0 004 15v3H1v-3a3 3 0 013.75-2.906z" />
                                         </svg>
                                         Senior
                                     </span>
@@ -97,12 +101,10 @@
 
                                 <button type="button"
                                     class="priority-btn {{ old('priority_type_nid', session('last_priority_nid')) == 'infant' ? 'active' : '' }}"
-                                    data-priority="infant" onclick="selectPriorityType('nid', 'infant')"
-                                    style="padding: 10px 16px; border: 2px solid #e5e7eb; border-radius: 8px; background-color: {{ old('priority_type_nid', session('last_priority_nid')) == 'infant' ? '#2563eb' : 'white' }}; color: {{ old('priority_type_nid', session('last_priority_nid')) == 'infant' ? 'white' : '#374151' }}; font-weight: 500; cursor: pointer; transition: all 0.3s ease; flex: 1; font-size: 13px; min-width: 100px;">
+                                    data-priority="infant" onclick="selectPriorityType('nid', 'infant')">
                                     <span class="btn-content">
                                         <svg viewBox="0 0 20 20" fill="currentColor">
-                                            <path
-                                                d="M10 18a8 8 0 100-16 8 8 0 000 16zM7 9a1 1 0 100-2 1 1 0 000 2zm7-1a1 1 0 11-2 0 1 1 0 012 0zm-.464 5.535a1 1 0 10-1.415-1.414 3 3 0 01-4.242 0 1 1 0 00-1.415 1.414 5 5 0 007.072 0z" />
+                                            <path d="M10 18a8 8 0 100-16 8 8 0 000 16zM7 9a1 1 0 100-2 1 1 0 000 2zm7-1a1 1 0 11-2 0 1 1 0 012 0zm-.464 5.535a1 1 0 10-1.415-1.414 3 3 0 01-4.242 0 1 1 0 00-1.415 1.414 5 5 0 007.072 0z" />
                                         </svg>
                                         Infant
                                     </span>
@@ -110,12 +112,10 @@
 
                                 <button type="button"
                                     class="priority-btn {{ old('priority_type_nid', session('last_priority_nid')) == 'pwd' ? 'active' : '' }}"
-                                    data-priority="pwd" onclick="selectPriorityType('nid', 'pwd')"
-                                    style="padding: 10px 16px; border: 2px solid #e5e7eb; border-radius: 8px; background-color: {{ old('priority_type_nid', session('last_priority_nid')) == 'pwd' ? '#2563eb' : 'white' }}; color: {{ old('priority_type_nid', session('last_priority_nid')) == 'pwd' ? 'white' : '#374151' }}; font-weight: 500; cursor: pointer; transition: all 0.3s ease; flex: 1; font-size: 13px; min-width: 100px;">
+                                    data-priority="pwd" onclick="selectPriorityType('nid', 'pwd')">
                                     <span class="btn-content">
                                         <svg viewBox="0 0 20 20" fill="currentColor">
-                                            <path
-                                                d="M10 18a8 8 0 100-16 8 8 0 000 16zm0-2a6 6 0 110-12 6 6 0 010 12zM9 8a1 1 0 012 0v4a1 1 0 11-2 0V8zm1 7a1 1 0 100-2 1 1 0 000 2z" />
+                                            <path d="M10 18a8 8 0 100-16 8 8 0 000 16zm0-2a6 6 0 110-12 6 6 0 010 12zM9 8a1 1 0 012 0v4a1 1 0 11-2 0V8zm1 7a1 1 0 100-2 1 1 0 000 2z" />
                                         </svg>
                                         PWD
                                     </span>
@@ -123,13 +123,10 @@
 
                                 <button type="button"
                                     class="priority-btn {{ old('priority_type_nid', session('last_priority_nid')) == 'pregnant' ? 'active' : '' }}"
-                                    data-priority="pregnant" onclick="selectPriorityType('nid', 'pregnant')"
-                                    style="padding: 10px 16px; border: 2px solid #e5e7eb; border-radius: 8px; background-color: {{ old('priority_type_nid', session('last_priority_nid')) == 'pregnant' ? '#2563eb' : 'white' }}; color: {{ old('priority_type_nid', session('last_priority_nid')) == 'pregnant' ? 'white' : '#374151' }}; font-weight: 500; cursor: pointer; transition: all 0.3s ease; flex: 1; font-size: 13px; min-width: 100px;">
-
+                                    data-priority="pregnant" onclick="selectPriorityType('nid', 'pregnant')">
                                     <span class="btn-content">
                                         <svg viewBox="0 0 24 24" fill="currentColor" width="18" height="18">
-                                            <path
-                                                d="M12 2a2 2 0 110 4 2 2 0 010-4zm-1 5c-1.66 0-3 1.34-3 3v3h2v7h2v-6h2.5c1.38 0 2.5 1.12 2.5 2.5V20h2v-3.5c0-2.49-2.01-4.5-4.5-4.5H12V10c0-.55.45-1 1-1h3V7h-5z" />
+                                            <path d="M12 2a2 2 0 110 4 2 2 0 010-4zm-1 5c-1.66 0-3 1.34-3 3v3h2v7h2v-6h2.5c1.38 0 2.5 1.12 2.5 2.5V20h2v-3.5c0-2.49-2.01-4.5-4.5-4.5H12V10c0-.55.45-1 1-1h3V7h-5z" />
                                         </svg>
                                         Pregnant
                                     </span>
@@ -137,13 +134,10 @@
 
                                 <button type="button"
                                     class="priority-btn {{ old('priority_type_nid', session('last_priority_nid')) == 'regular' ? 'active' : '' }}"
-                                    data-priority="regular" onclick="selectPriorityType('nid', 'regular')"
-                                    style="padding: 10px 16px; border: 2px solid #e5e7eb; border-radius: 8px; background-color: {{ old('priority_type_nid', session('last_priority_nid')) == 'regular' ? '#2563eb' : 'white' }}; color: {{ old('priority_type_nid', session('last_priority_nid')) == 'regular' ? 'white' : '#374151' }}; font-weight: 500; cursor: pointer; transition: all 0.3s ease; flex: 1; font-size: 13px; min-width: 100px;">
+                                    data-priority="regular" onclick="selectPriorityType('nid', 'regular')">
                                     <span class="btn-content">
                                         <svg viewBox="0 0 20 20" fill="currentColor">
-                                            <path fill-rule="evenodd"
-                                                d="M4 4a2 2 0 00-2 2v8a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2H4zm1 2h3v2H5V6zm5 0h3v2h-3V6zm-5 4h3v2H5v-2zm5 0h3v2h-3v-2z"
-                                                clip-rule="evenodd" />
+                                            <path fill-rule="evenodd" d="M4 4a2 2 0 00-2 2v8a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2H4zm1 2h3v2H5V6zm5 0h3v2h-3V6zm-5 4h3v2H5v-2zm5 0h3v2h-3v-2z" clip-rule="evenodd" />
                                         </svg>
                                         Regular
                                     </span>
@@ -151,32 +145,31 @@
                             </div>
                         </div>
 
-                        <!-- FORM FIELDS -->
                         <div class="form-row">
                             <div class="form-group">
                                 <label for="fname_nid">First Name <span style="color: #dc2626;">*</span></label>
-                                <input type="text" name="fname_nid" id="fname_nid"
-                                    value="{{ old('fname_nid') }}" data-required="true"
-                                    class="@error('fname_nid') is-invalid @enderror" placeholder="Enter First name">
+                                <input type="text" name="fname_nid" id="fname_nid" value="{{ old('fname_nid') }}"
+                                    data-required="true" class="@error('fname_nid') is-invalid @enderror"
+                                    placeholder="Enter first name">
                             </div>
                             <div class="form-group">
                                 <label for="mname_nid">Middle Name</label>
-                                <input type="text" name="mname_nid" id="mname_nid"
-                                    value="{{ old('mname_nid') }}" placeholder="Enter Middle name">
+                                <input type="text" name="mname_nid" id="mname_nid" value="{{ old('mname_nid') }}"
+                                    placeholder="Enter middle name (optional)">
                             </div>
                         </div>
 
                         <div class="form-row">
                             <div class="form-group">
                                 <label for="lname_nid">Last Name <span style="color: #dc2626;">*</span></label>
-                                <input type="text" name="lname_nid" id="lname_nid"
-                                    value="{{ old('lname_nid') }}" data-required="true"
-                                    class="@error('lname_nid') is-invalid @enderror" placeholder="Enter Last name">
+                                <input type="text" name="lname_nid" id="lname_nid" value="{{ old('lname_nid') }}"
+                                    data-required="true" class="@error('lname_nid') is-invalid @enderror"
+                                    placeholder="Enter last name">
                             </div>
                             <div class="form-group">
                                 <label for="suffix_nid">Suffix</label>
-                                <input type="text" name="suffix_nid" id="suffix_nid"
-                                    value="{{ old('suffix_nid') }}" placeholder="Jr., Sr., III">
+                                <input type="text" name="suffix_nid" id="suffix_nid" value="{{ old('suffix_nid') }}"
+                                    placeholder="Jr., Sr., III">
                             </div>
                         </div>
 
@@ -190,7 +183,7 @@
                                     <button type="button"
                                         class="age-btn {{ old('age_category_nid') == '0-4 years old' ? 'active' : '' }}"
                                         data-age="0-4 years old" onclick="selectAge('nid', '0-4 years old')"
-                                        style="padding: 10px 16px; border: 2px solid #e5e7eb; border-radius: 8px; background-color: {{ old('age_category_nid') == '0-4 years old' ? '#2563eb' : 'white' }}; color: {{ old('age_category_nid') == '0-4 years old' ? 'white' : '#374151' }}; font-weight: 500; cursor: pointer; transition: all 0.3s ease; flex: 1; font-size: 13px;">
+                                        style="padding: 10px 16px; border: 2px solid #e5e7eb; border-radius: 8px; background-color: {{ old('age_category_nid') == '0-4 years old' ? '#10B981' : 'white' }}; color: {{ old('age_category_nid') == '0-4 years old' ? 'white' : '#374151' }}; font-weight: 500; cursor: pointer; transition: all 0.3s ease; flex: 1; font-size: 13px;">
                                         <span
                                             style="display: flex; align-items: center; justify-content: center; gap: 6px;">
                                             <svg viewBox="0 0 20 20" fill="currentColor" width="16"
@@ -205,7 +198,7 @@
                                         class="age-btn {{ old('age_category_nid') == '5 years old and above' ? 'active' : '' }}"
                                         data-age="5 years old and above"
                                         onclick="selectAge('nid', '5 years old and above')"
-                                        style="padding: 10px 16px; border: 2px solid #e5e7eb; border-radius: 8px; background-color: {{ old('age_category_nid') == '5 years old and above' ? '#2563eb' : 'white' }}; color: {{ old('age_category_nid') == '5 years old and above' ? 'white' : '#374151' }}; font-weight: 500; cursor: pointer; transition: all 0.3s ease; flex: 1; font-size: 13px;">
+                                        style="padding: 10px 16px; border: 2px solid #e5e7eb; border-radius: 8px; background-color: {{ old('age_category_nid') == '5 years old and above' ? '#10B981' : 'white' }}; color: {{ old('age_category_nid') == '5 years old and above' ? 'white' : '#374151' }}; font-weight: 500; cursor: pointer; transition: all 0.3s ease; flex: 1; font-size: 13px;">
                                         <span
                                             style="display: flex; align-items: center; justify-content: center; gap: 6px;">
                                             <svg viewBox="0 0 20 20" fill="currentColor" width="16"
@@ -231,8 +224,13 @@
                     <!-- Status Inquiry Form -->
                     <div id="statusForm" class="category-form"
                         style="display: {{ old('category', session('last_category')) == 'Status Inquiry' ? 'block' : 'none' }};">
+                        <div style="border-left: 4px solid #2563eb; padding-left: 15px; margin-bottom: 20px;">
+                            <h4 style="margin: 0 0 5px 0; color: #2563eb; font-size: 16px;">Status Inquiry Details</h4>
+                            <p style="margin: 0; color: #6b7280; font-size: 13px;">Please fill in the required
+                                information below</p>
+                        </div>
 
-                        <!-- Priority Type Selection -->
+                        <!-- Priority Type Selection for Status Inquiry -->
                         <div class="form-group" style="margin-top: 15px; margin-bottom: 20px;">
                             <label>Priority Type <span style="color: #dc2626;">*</span></label>
                             <div class="priority-buttons">
@@ -241,12 +239,10 @@
 
                                 <button type="button"
                                     class="priority-btn {{ old('priority_type_status', session('last_priority_status')) == 'senior' ? 'active' : '' }}"
-                                    data-priority="senior" onclick="selectPriorityType('status', 'senior')"
-                                    style="padding: 10px 16px; border: 2px solid #e5e7eb; border-radius: 8px; background-color: {{ old('priority_type_status', session('last_priority_status')) == 'senior' ? '#2563eb' : 'white' }}; color: {{ old('priority_type_status', session('last_priority_status')) == 'senior' ? 'white' : '#374151' }}; font-weight: 500; cursor: pointer; transition: all 0.3s ease; flex: 1; font-size: 13px; min-width: 100px;">
+                                    data-priority="senior" onclick="selectPriorityType('status', 'senior')">
                                     <span class="btn-content">
                                         <svg viewBox="0 0 20 20" fill="currentColor">
-                                            <path
-                                                d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v3h8v-3zM6 8a2 2 0 11-4 0 2 2 0 014 0zM16 18v-3a5.972 5.972 0 00-.75-2.906A3.005 3.005 0 0119 15v3h-3zM4.75 12.094A5.973 5.973 0 004 15v3H1v-3a3 3 0 013.75-2.906z" />
+                                            <path d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v3h8v-3zM6 8a2 2 0 11-4 0 2 2 0 014 0zM16 18v-3a5.972 5.972 0 00-.75-2.906A3.005 3.005 0 0119 15v3h-3zM4.75 12.094A5.973 5.973 0 004 15v3H1v-3a3 3 0 013.75-2.906z" />
                                         </svg>
                                         Senior
                                     </span>
@@ -254,12 +250,10 @@
 
                                 <button type="button"
                                     class="priority-btn {{ old('priority_type_status', session('last_priority_status')) == 'infant' ? 'active' : '' }}"
-                                    data-priority="infant" onclick="selectPriorityType('status', 'infant')"
-                                    style="padding: 10px 16px; border: 2px solid #e5e7eb; border-radius: 8px; background-color: {{ old('priority_type_status', session('last_priority_status')) == 'infant' ? '#2563eb' : 'white' }}; color: {{ old('priority_type_status', session('last_priority_status')) == 'infant' ? 'white' : '#374151' }}; font-weight: 500; cursor: pointer; transition: all 0.3s ease; flex: 1; font-size: 13px; min-width: 100px;">
+                                    data-priority="infant" onclick="selectPriorityType('status', 'infant')">
                                     <span class="btn-content">
                                         <svg viewBox="0 0 20 20" fill="currentColor">
-                                            <path
-                                                d="M10 18a8 8 0 100-16 8 8 0 000 16zM7 9a1 1 0 100-2 1 1 0 000 2zm7-1a1 1 0 11-2 0 1 1 0 012 0zm-.464 5.535a1 1 0 10-1.415-1.414 3 3 0 01-4.242 0 1 1 0 00-1.415 1.414 5 5 0 007.072 0z" />
+                                            <path d="M10 18a8 8 0 100-16 8 8 0 000 16zM7 9a1 1 0 100-2 1 1 0 000 2zm7-1a1 1 0 11-2 0 1 1 0 012 0zm-.464 5.535a1 1 0 10-1.415-1.414 3 3 0 01-4.242 0 1 1 0 00-1.415 1.414 5 5 0 007.072 0z" />
                                         </svg>
                                         Infant
                                     </span>
@@ -267,12 +261,10 @@
 
                                 <button type="button"
                                     class="priority-btn {{ old('priority_type_status', session('last_priority_status')) == 'pwd' ? 'active' : '' }}"
-                                    data-priority="pwd" onclick="selectPriorityType('status', 'pwd')"
-                                    style="padding: 10px 16px; border: 2px solid #e5e7eb; border-radius: 8px; background-color: {{ old('priority_type_status', session('last_priority_status')) == 'pwd' ? '#2563eb' : 'white' }}; color: {{ old('priority_type_status', session('last_priority_status')) == 'pwd' ? 'white' : '#374151' }}; font-weight: 500; cursor: pointer; transition: all 0.3s ease; flex: 1; font-size: 13px; min-width: 100px;">
+                                    data-priority="pwd" onclick="selectPriorityType('status', 'pwd')">
                                     <span class="btn-content">
                                         <svg viewBox="0 0 20 20" fill="currentColor">
-                                            <path
-                                                d="M10 18a8 8 0 100-16 8 8 0 000 16zm0-2a6 6 0 110-12 6 6 0 010 12zM9 8a1 1 0 012 0v4a1 1 0 11-2 0V8zm1 7a1 1 0 100-2 1 1 0 000 2z" />
+                                            <path d="M10 18a8 8 0 100-16 8 8 0 000 16zm0-2a6 6 0 110-12 6 6 0 010 12zM9 8a1 1 0 012 0v4a1 1 0 11-2 0V8zm1 7a1 1 0 100-2 1 1 0 000 2z" />
                                         </svg>
                                         PWD
                                     </span>
@@ -280,14 +272,10 @@
 
                                 <button type="button"
                                     class="priority-btn {{ old('priority_type_status', session('last_priority_status')) == 'pregnant' ? 'active' : '' }}"
-                                    data-priority="pregnant" onclick="selectPriorityType('status', 'pregnant')"
-                                    style="padding: 10px 16px; border: 2px solid #e5e7eb; border-radius: 8px; background-color: {{ old('priority_type_status', session('last_priority_status')) == 'pregnant' ? '#2563eb' : 'white' }}; color: {{ old('priority_type_status', session('last_priority_status')) == 'pregnant' ? 'white' : '#374151' }}; font-weight: 500; cursor: pointer; transition: all 0.3s ease; flex: 1; font-size: 13px; min-width: 100px;">
-
+                                    data-priority="pregnant" onclick="selectPriorityType('status', 'pregnant')">
                                     <span class="btn-content">
-                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
-                                            fill="currentColor" width="18" height="18">
-                                            <path
-                                                d="M12 2a2 2 0 110 4 2 2 0 010-4zm-1 5c-1.66 0-3 1.34-3 3v3h2v7h2v-6h2.5c1.38 0 2.5 1.12 2.5 2.5V20h2v-3.5c0-2.49-2.01-4.5-4.5-4.5H12V10c0-.55.45-1 1-1h3V7h-5z" />
+                                        <svg viewBox="0 0 24 24" fill="currentColor" width="18" height="18">
+                                            <path d="M12 2a2 2 0 110 4 2 2 0 010-4zm-1 5c-1.66 0-3 1.34-3 3v3h2v7h2v-6h2.5c1.38 0 2.5 1.12 2.5 2.5V20h2v-3.5c0-2.49-2.01-4.5-4.5-4.5H12V10c0-.55.45-1 1-1h3V7h-5z" />
                                         </svg>
                                         Pregnant
                                     </span>
@@ -295,13 +283,10 @@
 
                                 <button type="button"
                                     class="priority-btn {{ old('priority_type_status', session('last_priority_status')) == 'regular' ? 'active' : '' }}"
-                                    data-priority="regular" onclick="selectPriorityType('status', 'regular')"
-                                    style="padding: 10px 16px; border: 2px solid #e5e7eb; border-radius: 8px; background-color: {{ old('priority_type_status', session('last_priority_status')) == 'regular' ? '#2563eb' : 'white' }}; color: {{ old('priority_type_status', session('last_priority_status')) == 'regular' ? 'white' : '#374151' }}; font-weight: 500; cursor: pointer; transition: all 0.3s ease; flex: 1; font-size: 13px; min-width: 100px;">
+                                    data-priority="regular" onclick="selectPriorityType('status', 'regular')">
                                     <span class="btn-content">
                                         <svg viewBox="0 0 20 20" fill="currentColor">
-                                            <path fill-rule="evenodd"
-                                                d="M4 4a2 2 0 00-2 2v8a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2H4zm1 2h3v2H5V6zm5 0h3v2h-3V6zm-5 4h3v2H5v-2zm5 0h3v2h-3v-2z"
-                                                clip-rule="evenodd" />
+                                            <path fill-rule="evenodd" d="M4 4a2 2 0 00-2 2v8a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2H4zm1 2h3v2H5V6zm5 0h3v2h-3V6zm-5 4h3v2H5v-2zm5 0h3v2h-3v-2z" clip-rule="evenodd" />
                                         </svg>
                                         Regular
                                     </span>
@@ -315,12 +300,12 @@
                                 <input type="text" name="fname_status" id="fname_status"
                                     value="{{ old('fname_status') }}" data-required="true"
                                     class="@error('fname_status') is-invalid @enderror"
-                                    placeholder="Enter First name">
+                                    placeholder="Enter first name">
                             </div>
                             <div class="form-group">
                                 <label for="mname_status">Middle Name</label>
                                 <input type="text" name="mname_status" id="mname_status"
-                                    value="{{ old('mname_status') }}" placeholder="Enter Middle name">
+                                    value="{{ old('mname_status') }}" placeholder="Enter middle name (optional)">
                             </div>
                         </div>
 
@@ -329,7 +314,7 @@
                                 <label for="lname_status">Last Name <span style="color: #dc2626;">*</span></label>
                                 <input type="text" name="lname_status" id="lname_status"
                                     value="{{ old('lname_status') }}" data-required="true"
-                                    class="@error('lname_status') is-invalid @enderror" placeholder="Enter Last name">
+                                    class="@error('lname_status') is-invalid @enderror" placeholder="Enter last name">
                             </div>
                             <div class="form-group">
                                 <label for="suffix_status">Suffix</label>
@@ -348,7 +333,7 @@
                                     <button type="button"
                                         class="age-btn {{ old('age_category_status') == '0-4 years old' ? 'active' : '' }}"
                                         data-age="0-4 years old" onclick="selectAge('status', '0-4 years old')"
-                                        style="padding: 10px 16px; border: 2px solid #e5e7eb; border-radius: 8px; background-color: {{ old('age_category_status') == '0-4 years old' ? '#2563eb' : 'white' }}; color: {{ old('age_category_status') == '0-4 years old' ? 'white' : '#374151' }}; font-weight: 500; cursor: pointer; transition: all 0.3s ease; flex: 1; font-size: 13px;">
+                                        style="padding: 10px 16px; border: 2px solid #e5e7eb; border-radius: 8px; background-color: {{ old('age_category_status') == '0-4 years old' ? '#10B981' : 'white' }}; color: {{ old('age_category_status') == '0-4 years old' ? 'white' : '#374151' }}; font-weight: 500; cursor: pointer; transition: all 0.3s ease; flex: 1; font-size: 13px;">
                                         <span
                                             style="display: flex; align-items: center; justify-content: center; gap: 6px;">
                                             <svg viewBox="0 0 20 20" fill="currentColor" width="16"
@@ -363,7 +348,7 @@
                                         class="age-btn {{ old('age_category_status') == '5 years old and above' ? 'active' : '' }}"
                                         data-age="5 years old and above"
                                         onclick="selectAge('status', '5 years old and above')"
-                                        style="padding: 10px 16px; border: 2px solid #e5e7eb; border-radius: 8px; background-color: {{ old('age_category_status') == '5 years old and above' ? '#2563eb' : 'white' }}; color: {{ old('age_category_status') == '5 years old and above' ? 'white' : '#374151' }}; font-weight: 500; cursor: pointer; transition: all 0.3s ease; flex: 1; font-size: 13px;">
+                                        style="padding: 10px 16px; border: 2px solid #e5e7eb; border-radius: 8px; background-color: {{ old('age_category_status') == '5 years old and above' ? '#10B981' : 'white' }}; color: {{ old('age_category_status') == '5 years old and above' ? 'white' : '#374151' }}; font-weight: 500; cursor: pointer; transition: all 0.3s ease; flex: 1; font-size: 13px;">
                                         <span
                                             style="display: flex; align-items: center; justify-content: center; gap: 6px;">
                                             <svg viewBox="0 0 20 20" fill="currentColor" width="16"
@@ -411,8 +396,13 @@
                     <!-- Updating Form -->
                     <div id="updatingForm" class="category-form"
                         style="display: {{ old('category', session('last_category')) == 'Updating' ? 'block' : 'none' }};">
+                        <div style="border-left: 4px solid #2563eb; padding-left: 15px; margin-bottom: 20px;">
+                            <h4 style="margin: 0 0 5px 0; color: #2563eb; font-size: 16px;">Updating Details</h4>
+                            <p style="margin: 0; color: #6b7280; font-size: 13px;">Please fill in the required
+                                information below</p>
+                        </div>
 
-                        <!-- Priority Type Selection -->
+                        <!-- Priority Type Selection for Updating -->
                         <div class="form-group" style="margin-top: 15px; margin-bottom: 20px;">
                             <label>Priority Type <span style="color: #dc2626;">*</span></label>
                             <div class="priority-buttons">
@@ -421,12 +411,10 @@
 
                                 <button type="button"
                                     class="priority-btn {{ old('priority_type_update', session('last_priority_update')) == 'senior' ? 'active' : '' }}"
-                                    data-priority="senior" onclick="selectPriorityType('update', 'senior')"
-                                    style="padding: 10px 16px; border: 2px solid #e5e7eb; border-radius: 8px; background-color: {{ old('priority_type_update', session('last_priority_update')) == 'senior' ? '#2563eb' : 'white' }}; color: {{ old('priority_type_update', session('last_priority_update')) == 'senior' ? 'white' : '#374151' }}; font-weight: 500; cursor: pointer; transition: all 0.3s ease; flex: 1; font-size: 13px; min-width: 100px;">
+                                    data-priority="senior" onclick="selectPriorityType('update', 'senior')">
                                     <span class="btn-content">
                                         <svg viewBox="0 0 20 20" fill="currentColor">
-                                            <path
-                                                d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v3h8v-3zM6 8a2 2 0 11-4 0 2 2 0 014 0zM16 18v-3a5.972 5.972 0 00-.75-2.906A3.005 3.005 0 0119 15v3h-3zM4.75 12.094A5.973 5.973 0 004 15v3H1v-3a3 3 0 013.75-2.906z" />
+                                            <path d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v3h8v-3zM6 8a2 2 0 11-4 0 2 2 0 014 0zM16 18v-3a5.972 5.972 0 00-.75-2.906A3.005 3.005 0 0119 15v3h-3zM4.75 12.094A5.973 5.973 0 004 15v3H1v-3a3 3 0 013.75-2.906z" />
                                         </svg>
                                         Senior
                                     </span>
@@ -434,12 +422,10 @@
 
                                 <button type="button"
                                     class="priority-btn {{ old('priority_type_update', session('last_priority_update')) == 'infant' ? 'active' : '' }}"
-                                    data-priority="infant" onclick="selectPriorityType('update', 'infant')"
-                                    style="padding: 10px 16px; border: 2px solid #e5e7eb; border-radius: 8px; background-color: {{ old('priority_type_update', session('last_priority_update')) == 'infant' ? '#2563eb' : 'white' }}; color: {{ old('priority_type_update', session('last_priority_update')) == 'infant' ? 'white' : '#374151' }}; font-weight: 500; cursor: pointer; transition: all 0.3s ease; flex: 1; font-size: 13px; min-width: 100px;">
+                                    data-priority="infant" onclick="selectPriorityType('update', 'infant')">
                                     <span class="btn-content">
                                         <svg viewBox="0 0 20 20" fill="currentColor">
-                                            <path
-                                                d="M10 18a8 8 0 100-16 8 8 0 000 16zM7 9a1 1 0 100-2 1 1 0 000 2zm7-1a1 1 0 11-2 0 1 1 0 012 0zm-.464 5.535a1 1 0 10-1.415-1.414 3 3 0 01-4.242 0 1 1 0 00-1.415 1.414 5 5 0 007.072 0z" />
+                                            <path d="M10 18a8 8 0 100-16 8 8 0 000 16zM7 9a1 1 0 100-2 1 1 0 000 2zm7-1a1 1 0 11-2 0 1 1 0 012 0zm-.464 5.535a1 1 0 10-1.415-1.414 3 3 0 01-4.242 0 1 1 0 00-1.415 1.414 5 5 0 007.072 0z" />
                                         </svg>
                                         Infant
                                     </span>
@@ -447,12 +433,10 @@
 
                                 <button type="button"
                                     class="priority-btn {{ old('priority_type_update', session('last_priority_update')) == 'pwd' ? 'active' : '' }}"
-                                    data-priority="pwd" onclick="selectPriorityType('update', 'pwd')"
-                                    style="padding: 10px 16px; border: 2px solid #e5e7eb; border-radius: 8px; background-color: {{ old('priority_type_update', session('last_priority_update')) == 'pwd' ? '#2563eb' : 'white' }}; color: {{ old('priority_type_update', session('last_priority_update')) == 'pwd' ? 'white' : '#374151' }}; font-weight: 500; cursor: pointer; transition: all 0.3s ease; flex: 1; font-size: 13px; min-width: 100px;">
+                                    data-priority="pwd" onclick="selectPriorityType('update', 'pwd')">
                                     <span class="btn-content">
                                         <svg viewBox="0 0 20 20" fill="currentColor">
-                                            <path
-                                                d="M10 18a8 8 0 100-16 8 8 0 000 16zm0-2a6 6 0 110-12 6 6 0 010 12zM9 8a1 1 0 012 0v4a1 1 0 11-2 0V8zm1 7a1 1 0 100-2 1 1 0 000 2z" />
+                                            <path d="M10 18a8 8 0 100-16 8 8 0 000 16zm0-2a6 6 0 110-12 6 6 0 010 12zM9 8a1 1 0 012 0v4a1 1 0 11-2 0V8zm1 7a1 1 0 100-2 1 1 0 000 2z" />
                                         </svg>
                                         PWD
                                     </span>
@@ -460,14 +444,10 @@
 
                                 <button type="button"
                                     class="priority-btn {{ old('priority_type_update', session('last_priority_update')) == 'pregnant' ? 'active' : '' }}"
-                                    data-priority="pregnant" onclick="selectPriorityType('update', 'pregnant')"
-                                    style="padding: 10px 16px; border: 2px solid #e5e7eb; border-radius: 8px; background-color: {{ old('priority_type_update', session('last_priority_update')) == 'pregnant' ? '#2563eb' : 'white' }}; color: {{ old('priority_type_update', session('last_priority_update')) == 'pregnant' ? 'white' : '#374151' }}; font-weight: 500; cursor: pointer; transition: all 0.3s ease; flex: 1; font-size: 13px; min-width: 100px;">
-
+                                    data-priority="pregnant" onclick="selectPriorityType('update', 'pregnant')">
                                     <span class="btn-content">
-                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
-                                            fill="currentColor" width="18" height="18">
-                                            <path
-                                                d="M12 2a2 2 0 110 4 2 2 0 010-4zm-1 5c-1.66 0-3 1.34-3 3v3h2v7h2v-6h2.5c1.38 0 2.5 1.12 2.5 2.5V20h2v-3.5c0-2.49-2.01-4.5-4.5-4.5H12V10c0-.55.45-1 1-1h3V7h-5z" />
+                                        <svg viewBox="0 0 24 24" fill="currentColor" width="18" height="18">
+                                            <path d="M12 2a2 2 0 110 4 2 2 0 010-4zm-1 5c-1.66 0-3 1.34-3 3v3h2v7h2v-6h2.5c1.38 0 2.5 1.12 2.5 2.5V20h2v-3.5c0-2.49-2.01-4.5-4.5-4.5H12V10c0-.55.45-1 1-1h3V7h-5z" />
                                         </svg>
                                         Pregnant
                                     </span>
@@ -475,13 +455,10 @@
 
                                 <button type="button"
                                     class="priority-btn {{ old('priority_type_update', session('last_priority_update')) == 'regular' ? 'active' : '' }}"
-                                    data-priority="regular" onclick="selectPriorityType('update', 'regular')"
-                                    style="padding: 10px 16px; border: 2px solid #e5e7eb; border-radius: 8px; background-color: {{ old('priority_type_update', session('last_priority_update')) == 'regular' ? '#2563eb' : 'white' }}; color: {{ old('priority_type_update', session('last_priority_update')) == 'regular' ? 'white' : '#374151' }}; font-weight: 500; cursor: pointer; transition: all 0.3s ease; flex: 1; font-size: 13px; min-width: 100px;">
+                                    data-priority="regular" onclick="selectPriorityType('update', 'regular')">
                                     <span class="btn-content">
                                         <svg viewBox="0 0 20 20" fill="currentColor">
-                                            <path fill-rule="evenodd"
-                                                d="M4 4a2 2 0 00-2 2v8a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2H4zm1 2h3v2H5V6zm5 0h3v2h-3V6zm-5 4h3v2H5v-2zm5 0h3v2h-3v-2z"
-                                                clip-rule="evenodd" />
+                                            <path fill-rule="evenodd" d="M4 4a2 2 0 00-2 2v8a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2H4zm1 2h3v2H5V6zm5 0h3v2h-3V6zm-5 4h3v2H5v-2zm5 0h3v2h-3v-2z" clip-rule="evenodd" />
                                         </svg>
                                         Regular
                                     </span>
@@ -495,12 +472,12 @@
                                 <input type="text" name="fname_update" id="fname_update"
                                     value="{{ old('fname_update') }}" data-required="true"
                                     class="@error('fname_update') is-invalid @enderror"
-                                    placeholder="Enter First name">
+                                    placeholder="Enter first name">
                             </div>
                             <div class="form-group">
                                 <label for="mname_update">Middle Name</label>
                                 <input type="text" name="mname_update" id="mname_update"
-                                    value="{{ old('mname_update') }}" placeholder="Enter Middle name">
+                                    value="{{ old('mname_update') }}" placeholder="Enter middle name (optional)">
                             </div>
                         </div>
 
@@ -509,7 +486,7 @@
                                 <label for="lname_update">Last Name <span style="color: #dc2626;">*</span></label>
                                 <input type="text" name="lname_update" id="lname_update"
                                     value="{{ old('lname_update') }}" data-required="true"
-                                    class="@error('lname_update') is-invalid @enderror" placeholder="Enter Last name">
+                                    class="@error('lname_update') is-invalid @enderror" placeholder="Enter last name">
                             </div>
                             <div class="form-group">
                                 <label for="suffix_update">Suffix</label>
@@ -528,7 +505,7 @@
                                     <button type="button"
                                         class="age-btn {{ old('age_category_update') == '0-4 years old' ? 'active' : '' }}"
                                         data-age="0-4 years old" onclick="selectAge('update', '0-4 years old')"
-                                        style="padding: 10px 16px; border: 2px solid #e5e7eb; border-radius: 8px; background-color: {{ old('age_category_update') == '0-4 years old' ? '#2563eb' : 'white' }}; color: {{ old('age_category_update') == '0-4 years old' ? 'white' : '#374151' }}; font-weight: 500; cursor: pointer; transition: all 0.3s ease; flex: 1; font-size: 13px;">
+                                        style="padding: 10px 16px; border: 2px solid #e5e7eb; border-radius: 8px; background-color: {{ old('age_category_update') == '0-4 years old' ? '#10B981' : 'white' }}; color: {{ old('age_category_update') == '0-4 years old' ? 'white' : '#374151' }}; font-weight: 500; cursor: pointer; transition: all 0.3s ease; flex: 1; font-size: 13px;">
                                         <span
                                             style="display: flex; align-items: center; justify-content: center; gap: 6px;">
                                             <svg viewBox="0 0 20 20" fill="currentColor" width="16"
@@ -543,7 +520,7 @@
                                         class="age-btn {{ old('age_category_update') == '5 years old and above' ? 'active' : '' }}"
                                         data-age="5 years old and above"
                                         onclick="selectAge('update', '5 years old and above')"
-                                        style="padding: 10px 16px; border: 2px solid #e5e7eb; border-radius: 8px; background-color: {{ old('age_category_update') == '5 years old and above' ? '#2563eb' : 'white' }}; color: {{ old('age_category_update') == '5 years old and above' ? 'white' : '#374151' }}; font-weight: 500; cursor: pointer; transition: all 0.3s ease; flex: 1; font-size: 13px;">
+                                        style="padding: 10px 16px; border: 2px solid #e5e7eb; border-radius: 8px; background-color: {{ old('age_category_update') == '5 years old and above' ? '#10B981' : 'white' }}; color: {{ old('age_category_update') == '5 years old and above' ? 'white' : '#374151' }}; font-weight: 500; cursor: pointer; transition: all 0.3s ease; flex: 1; font-size: 13px;">
                                         <span
                                             style="display: flex; align-items: center; justify-content: center; gap: 6px;">
                                             <svg viewBox="0 0 20 20" fill="currentColor" width="16"
@@ -593,142 +570,143 @@
         </div>
 
         {{-- Today's Appointments Card --}}
-        <div class="card">
-            <div class="card-header">
-                <h3>
+<div class="card">
+    <div class="card-header">
+        <h3>
+            <svg viewBox="0 0 20 20" fill="currentColor">
+                <path
+                    d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z" />
+            </svg>
+            Today's Appointments
+        </h3>
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon"
+                    style="background: linear-gradient(135deg, var(--psa-blue), var(--psa-red))">
                     <svg viewBox="0 0 20 20" fill="currentColor">
                         <path
                             d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z" />
                     </svg>
-                    Today's Appointments
-                </h3>
-                <div class="stats-grid">
-                    <div class="stat-card">
-                        <div class="stat-icon"
-                            style="background: linear-gradient(135deg, var(--psa-blue), var(--psa-red))">
-                            <svg viewBox="0 0 20 20" fill="currentColor">
-                                <path
-                                    d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z" />
-                            </svg>
-                        </div>
-                        <div class="stat-content">
-                            <span class="stat-label">Total Queue Today</span>
-                            <span class="stat-value" id="totalQueue">{{ $queueCount ?? 0 }}</span>
-                        </div>
-                    </div>
-
-                    <div class="stat-card">
-                        <div class="stat-icon" style="background: linear-gradient(135deg, #F59E0B, #FBBF24)">
-                            <svg viewBox="0 0 20 20" fill="currentColor">
-                                <path fill-rule="evenodd"
-                                    d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z"
-                                    clip-rule="evenodd" />
-                            </svg>
-                        </div>
-                        <div class="stat-content">
-                            <span class="stat-label">Pending</span>
-                            <span class="stat-value pending" id="pendingCount">{{ $pendingCount ?? 0 }}</span>
-                        </div>
-                    </div>
-
-                    <div class="stat-card">
-                        <div class="stat-icon" style="background: linear-gradient(135deg, #10B981, #34D399)">
-                            <svg viewBox="0 0 20 20" fill="currentColor">
-                                <path fill-rule="evenodd"
-                                    d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                                    clip-rule="evenodd" />
-                            </svg>
-                        </div>
-                        <div class="stat-content">
-                            <span class="stat-label">Completed</span>
-                            <span class="stat-value completed" id="completedCount">{{ $completedCount ?? 0 }}</span>
-                        </div>
-                    </div>
+                </div>
+                <div class="stat-content">
+                    <span class="stat-label">Total Queue Today</span>
+                    <span class="stat-value" id="totalQueue">{{ $queueCount ?? 0 }}</span>
                 </div>
             </div>
-            <div class="card-body">
-                <div class="search-box">
-                    <svg class="search-icon" viewBox="0 0 20 20" fill="currentColor">
+
+            <div class="stat-card">
+                <div class="stat-icon" style="background: linear-gradient(135deg, #F59E0B, #FBBF24)">
+                    <svg viewBox="0 0 20 20" fill="currentColor">
                         <path fill-rule="evenodd"
-                            d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z"
+                            d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z"
                             clip-rule="evenodd" />
                     </svg>
-                    <input type="text" id="searchAppointments" placeholder="Search...">
                 </div>
+                <div class="stat-content">
+                    <span class="stat-label">Pending</span>
+                    <span class="stat-value pending" id="pendingCount">{{ $pendingCount ?? 0 }}</span>
+                </div>
+            </div>
 
-                <div class="table-responsive">
-                    <table class="table">
-                        <thead>
-                            <tr>
-                                <th>Queue #</th>
-                                <th>Name</th>
-                                <th>Service</th>
-                                <th>Type</th>
-                                <th>Time</th>
-                                <th>Status</th>
-                            </tr>
-                        </thead>
-                        <tbody class="appointments-table-body" id="appointmentsTableBody">
-                            @forelse($appointments as $appointment)
-                                @php
-                                    $servedTime = $appointment->time_catered
-                                        ? \Carbon\Carbon::parse($appointment->time_catered)->setTimezone('Asia/Manila')
-                                        : null;
-                                    $createdTime = \Carbon\Carbon::parse($appointment->date)->setTimezone(
-                                        'Asia/Manila',
-                                    );
-                                    $isCompleted = $servedTime && $servedTime->gt($createdTime);
-                                    $serviceDisplay = $appointment->queue_for;
-                                    $priorityType = $appointment->priority_type ?? 'regular';
-                                    $priorityDisplay = $priorityType === 'regular' ? 'Regular' : ucfirst($priorityType);
-                                @endphp
-                                {{-- Only show if NOT completed --}}
-                                @if (!$isCompleted)
-                                    <tr data-search="{{ strtolower($appointment->lname . ' ' . $appointment->fname . ' ' . $appointment->trn) }}"
-                                        data-priority="{{ $priorityType }}">
-                                        <td><span class="queue-number">{{ $appointment->q_id }}</span></td>
-                                        <td>
-                                            <div class="client-name">
-                                                {{ $appointment->lname }}, {{ $appointment->fname }}
-                                                @if ($appointment->mname || $appointment->suffix)
-                                                    <small>{{ $appointment->mname }}
-                                                        {{ $appointment->suffix }}</small>
-                                                @endif
-                                            </div>
-                                        </td>
-                                        <td>{{ $serviceDisplay }}</td>
-                                        <td>
-                                            <span class="type-badge"
-                                                style="background-color: #2563eb; color: white; padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: 500;">
-                                                {{ strtoupper($priorityDisplay) }}
-                                            </span>
-                                        </td>
-                                        <td>{{ $createdTime->format('h:i A') }}</td>
-                                        <td>
-                                            <span class="status-badge status-pending">
-                                                <span class="status-dot"></span>
-                                                Pending
-                                            </span>
-                                        </td>
-                                    </tr>
-                                @endif
-                            @empty
-                                <tr>
-                                    <td colspan="6" class="empty-state">
-                                        <svg viewBox="0 0 20 20" fill="currentColor">
-                                            <path fill-rule="evenodd"
-                                                d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z"
-                                                clip-rule="evenodd" />
-                                        </svg>
-                                        <p>No pending appointments for today</p>
-                                    </td>
-                                </tr>
-                            @endforelse
-                        </tbody>
-                    </table>
+            <div class="stat-card">
+                <div class="stat-icon" style="background: linear-gradient(135deg, #10B981, #34D399)">
+                    <svg viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd"
+                            d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                            clip-rule="evenodd" />
+                    </svg>
+                </div>
+                <div class="stat-content">
+                    <span class="stat-label">Completed</span>
+                    <span class="stat-value completed" id="completedCount">{{ $completedCount ?? 0 }}</span>
                 </div>
             </div>
         </div>
+    </div>
+    <div class="card-body">
+        <div class="search-box">
+            <svg class="search-icon" viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd"
+                    d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z"
+                    clip-rule="evenodd" />
+            </svg>
+            <input type="text" id="searchAppointments" placeholder="Search...">
+        </div>
+
+        <div class="table-responsive">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Queue #</th>
+                        <th>Name</th>
+                        <th>Priority</th>
+                        <th>Service</th>
+                        <th>Time</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody class="appointments-table-body" id="appointmentsTableBody">
+                    @forelse($appointments as $appointment)
+                        @php
+                            $servedTime = $appointment->time_catered
+                                ? \Carbon\Carbon::parse($appointment->time_catered)->setTimezone('Asia/Manila')
+                                : null;
+                            $createdTime = \Carbon\Carbon::parse($appointment->date)->setTimezone(
+                                'Asia/Manila',
+                            );
+                            $isCompleted = $servedTime && $servedTime->gt($createdTime);
+                            $serviceDisplay = $appointment->queue_for;
+                            
+                            // Get priority type for display
+                            $priorityType = $appointment->priority_type ?? 'regular';
+                            $priorityDisplay = ucfirst($priorityType);
+                        @endphp
+                        {{-- Only show if NOT completed --}}
+                        @if (!$isCompleted)
+                            <tr
+                                data-search="{{ strtolower($appointment->lname . ' ' . $appointment->fname . ' ' . $appointment->trn) }}">
+                                <td><span class="queue-number">{{ $appointment->q_id }}</span></td>
+                                <td>
+                                    <div class="client-name">
+                                        {{ $appointment->lname }}, {{ $appointment->fname }}
+                                        @if ($appointment->mname || $appointment->suffix)
+                                            <small>{{ $appointment->mname }}
+                                                {{ $appointment->suffix }}</small>
+                                        @endif
+                                    </div>
+                                </td>
+                                <td>
+                                    <span class="priority-badge priority-{{ $priorityType }}" data-priority="{{ $priorityType }}">
+                                        {{ strtoupper($priorityDisplay) }}
+                                    </span>
+                                </td>
+                                <td>{{ $serviceDisplay }}</td>
+                                <td>{{ $createdTime->format('h:i A') }}</td>
+                                <td>
+                                    <span class="status-badge status-pending">
+                                        <span class="status-dot"></span>
+                                        Pending
+                                    </span>
+                                </td>
+                            </tr>
+                        @endif
+                    @empty
+                        <tr>
+                            <td colspan="6" class="empty-state">
+                                <svg viewBox="0 0 20 20" fill="currentColor">
+                                    <path fill-rule="evenodd"
+                                        d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z"
+                                        clip-rule="evenodd" />
+                                </svg>
+                                <p>No pending appointments for today</p>
+                            </td>
+                        </tr>
+                    @endforelse
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
     </div>
 
     <!-- QR Scanner Modal -->
@@ -764,129 +742,74 @@
     </div>
 
     {{-- Recent Transactions Card --}}
-    <div class="card full-width" id="recentTransactionsCard">
-        <div class="card-header">
-            <h3>
-                <svg viewBox="0 0 20 20" fill="currentColor">
+<div class="card full-width" id="recentTransactionsCard">
+    <div class="card-header">
+        <h3>
+            <svg viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd"
+                    d="M4 4a2 2 0 00-2 2v8a2 2 0 002 2h12a2 2 0 002-2V8a2 2 0 00-2-2h-5L9 4H4zm7 4a1 1 0 10-2 0v3.586l-.293-.293a1 1 0 10-1.414 1.414l2 2a1 1 0 001.414 0l2-2a1 1 0 10-1.414-1.414l-.293.293V8z"
+                    clip-rule="evenodd" />
+            </svg>
+            Recent Transactions
+        </h3>
+        <div class="card-actions" style="display: flex; gap: 10px; align-items: center;">
+            <span class="badge" id="showingInfo">Showing
+                {{ $completedTransactions->firstItem() }}-{{ $completedTransactions->lastItem() }} of
+                {{ $completedTransactions->total() }}</span>
+
+            {{-- EXPORT PDF BUTTON --}}
+            <button type="button" class="btn btn-danger" id="screenerExportPdfBtn"
+                style="padding: 6px 12px; background-color: #dc2626; color: white; border: none; border-radius: 4px; cursor: pointer; display: inline-flex; align-items: center; gap: 5px;">
+                <svg viewBox="0 0 20 20" fill="currentColor" width="16" height="16">
                     <path fill-rule="evenodd"
-                        d="M4 4a2 2 0 00-2 2v8a2 2 0 002 2h12a2 2 0 002-2V8a2 2 0 00-2-2h-5L9 4H4zm7 4a1 1 0 10-2 0v3.586l-.293-.293a1 1 0 10-1.414 1.414l2 2a1 1 0 001.414 0l2-2a1 1 0 10-1.414-1.414l-.293.293V8z"
+                        d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm2 6a1 1 0 011-1h6a1 1 0 110 2H7a1 1 0 01-1-1zm1 3a1 1 0 100 2h6a1 1 0 100-2H7z"
                         clip-rule="evenodd" />
                 </svg>
-                Recent Transactions
-            </h3>
-            <div class="card-actions">
-                <span class="badge" id="showingInfo">Showing
-                    {{ $completedTransactions->firstItem() }}-{{ $completedTransactions->lastItem() }} of
-                    {{ $completedTransactions->total() }}</span>
-
-                {{-- EXPORT BUTTONS --}}
-                <div class="export-buttons">
-                    <button type="button" class="btn btn-danger" id="exportPdfBtn">
-                        <svg viewBox="0 0 20 20" fill="currentColor" width="16" height="16">
-                            <path fill-rule="evenodd"
-                                d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm2 6a1 1 0 011-1h6a1 1 0 110 2H7a1 1 0 01-1-1zm1 3a1 1 0 100 2h6a1 1 0 100-2H7z"
-                                clip-rule="evenodd" />
-                        </svg>
-                        Export PDF
-                    </button>
-                    <button type="button" class="btn btn-success" id="exportExcelBtn">
-                        <svg viewBox="0 0 20 20" fill="currentColor" width="16" height="16">
-                            <path fill-rule="evenodd"
-                                d="M4 4a2 2 0 012-2h8a2 2 0 012 2v12a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm2 2v2h2V6H6zm6 0v2h2V6h-2zm-6 4v2h2v-2H6zm6 0v2h2v-2h-2zm-6 4v2h2v-2H6zm6 0v2h2v-2h-2z"
-                                clip-rule="evenodd" />
-                        </svg>
-                        Export Excel
-                    </button>
-                </div>
-            </div>
+                Export PDF
+            </button>
+            <button type="button" class="btn btn-success" id="screenerExportExcelBtn"
+                style="padding: 6px 12px; background-color: #059669; color: white; border: none; border-radius: 4px; cursor: pointer; display: inline-flex; align-items: center; gap: 5px;">
+                <svg viewBox="0 0 20 20" fill="currentColor" width="16" height="16">
+                    <path fill-rule="evenodd"
+                        d="M4 4a2 2 0 012-2h8a2 2 0 012 2v12a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm2 2v2h2V6H6zm6 0v2h2V6h-2zm-6 4v2h2v-2H6zm6 0v2h2v-2h-2zm-6 4v2h2v-2H6zm6 0v2h2v-2h-2z"
+                        clip-rule="evenodd" />
+                </svg>
+                Export Excel
+            </button>
         </div>
-        <div class="card-body">
-            <div class="table-responsive">
-                <table class="table">
-                    <thead>
-                        <tr>
-                            <th>#</th>
-                            <th>Queue #</th>
-                            <th>Client</th>
-                            <th>Service</th>
-                            <th>Type</th>
-                            <th>Served Time</th>
-                            <th>Window</th>
-                            <th>Status</th>
-                        </tr>
-                    </thead>
-                    <tbody id="transactionsTableContainer">
-                        @forelse($completedTransactions as $index => $transaction)
-                            @php
-                                $servedTime = \Carbon\Carbon::parse($transaction->time_catered)->setTimezone(
-                                    'Asia/Manila',
-                                );
-                                $serviceDisplay = $transaction->queue_for;
-                                $rowNumber =
-                                    ($completedTransactions->currentPage() - 1) * $completedTransactions->perPage() +
-                                    $loop->iteration;
+    </div>
+    <div class="card-body">
+        {{-- Optional Service Filter for Screener --}}
+        <!-- <div class="filter-section" style="margin-bottom: 15px; display: flex; justify-content: flex-end;">
+            <select id="transactionServiceFilter" class="service-filter" style="padding: 6px 12px; border: 2px solid #e5e7eb; border-radius: 30px; font-size: 13px; color: #374151; background: white; cursor: pointer; width: auto;">
+                <option value="all">All Services</option>
+                <option value="NID Registration">NID Registration</option>
+                <option value="Status Inquiry">Status Inquiry</option>
+                <option value="Updating">NID Updating</option>
+            </select>
+        </div> -->
 
-                                // FIX: Handle null priority_type and set default
-                                $priorityType = $transaction->priority_type ?? 'regular';
-                                $priorityDisplay = match (strtolower($priorityType)) {
-                                    'senior' => 'SENIOR',
-                                    'infant' => 'INFANT',
-                                    'pwd' => 'PWD',
-                                    'pregnant' => 'PREGNANT',
-                                    default => 'REGULAR',
-                                };
-
-                                // Add data-priority attribute for styling
-                                $priorityClass =
-                                    strtolower($priorityType) === 'regular' ? 'regular' : strtolower($priorityType);
-                            @endphp
-                            <tr>
-                                <td><span class="row-number">{{ $rowNumber }}</span></td>
-                                <td><span class="queue-number small">{{ $transaction->q_id }}</span></td>
-                                <td>
-                                    <div class="client-name"
-                                        data-fullname="{{ $transaction->lname }}, {{ $transaction->fname }} {{ $transaction->mname }} {{ $transaction->suffix }}">
-                                        {{ $transaction->lname }}, {{ $transaction->fname }}
-                                        @if ($transaction->mname || $transaction->suffix)
-                                            <small>{{ trim($transaction->mname . ' ' . $transaction->suffix) }}</small>
-                                        @endif
-                                    </div>
-                                </td>
-                                <td>{{ $serviceDisplay }}</td>
-                                <td>
-                                    <span class="type-badge type-{{ $priorityClass }}"
-                                        data-priority="{{ $priorityClass }}">
-                                        {{ $priorityDisplay }}
-                                    </span>
-                                </td>
-                                <td>{{ $servedTime->format('M d, h:i A') }}</td>
-                                <td>
-                                    <span class="window-indicator">Window
-                                        {{ $transaction->window_num ?? 'N/A' }}</span>
-                                </td>
-                                <td>
-                                    <span class="status-badge status-completed">
-                                        <span class="status-dot"></span>
-                                        Completed
-                                    </span>
-                                </td>
-                            </tr>
-                        @empty
-                            <tr>
-                                <td colspan="8" class="empty-state">
-                                    <svg viewBox="0 0 20 20" fill="currentColor">
-                                        <path fill-rule="evenodd"
-                                            d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z"
-                                            clip-rule="evenodd" />
-                                    </svg>
-                                    <p>No completed transactions yet</p>
-                                    <small>Transactions will appear here once they are marked as completed</small>
-                                </td>
-                            </tr>
-                        @endforelse
-                    </tbody>
-                </table>
-            </div>
+        <div class="table-responsive">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Queue #</th>
+                        <th>Client</th>
+                        <th>Priority</th>
+                        <th>Service</th>
+                        <th>Served Time</th>
+                        <th>Window</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody id="transactionsTableContainer">
+                    {{-- This will be populated by AJAX --}}
+                    @include('appointment.partials.transactions-table', [
+                        'completedTransactions' => $completedTransactions
+                    ])
+                </tbody>
+            </table>
         </div>
 
         {{-- Enhanced Pagination with Strict 5-Page Blocks --}}
@@ -896,7 +819,7 @@
             ])
         </div>
     </div>
-
+</div>
 
     {{-- Print Slip Modal (Hidden by default) --}}
     @if (session('printSlip'))
@@ -961,10 +884,16 @@
         }
 
         function selectAge(formType, ageValue) {
+            console.log('selectAge called with:', formType, ageValue); // Debug log
+
             // Update hidden input
             const hiddenInput = document.getElementById(`age_category_${formType}`);
             if (hiddenInput) {
                 hiddenInput.value = ageValue;
+                console.log(`Updated age_category_${formType} to:`, ageValue);
+            } else {
+                console.error(`Hidden input age_category_${formType} not found`);
+                return;
             }
 
             // Determine which form ID to use
@@ -976,11 +905,15 @@
             } else if (formType === 'update') {
                 formId = 'updatingForm';
             } else {
+                console.error('Unknown form type:', formType);
                 return;
             }
 
+            console.log('Looking for buttons in form:', formId);
+
             // Update button styles for this specific form
             const ageButtons = document.querySelectorAll(`#${formId} .age-btn`);
+            console.log(`Found ${ageButtons.length} age buttons in ${formId}`);
 
             ageButtons.forEach(btn => {
                 btn.classList.remove('active');
@@ -993,9 +926,12 @@
             const selectedBtn = document.querySelector(`#${formId} .age-btn[data-age="${ageValue}"]`);
             if (selectedBtn) {
                 selectedBtn.classList.add('active');
-                selectedBtn.style.backgroundColor = '#2563eb';
+                selectedBtn.style.backgroundColor = '#10B981';
                 selectedBtn.style.color = 'white';
-                selectedBtn.style.borderColor = '#2563eb';
+                selectedBtn.style.borderColor = '#10B981';
+                console.log('Selected button styled successfully');
+            } else {
+                console.error('Selected button not found in', formId);
             }
         }
 
@@ -1134,13 +1070,13 @@
             await stopQRScanner();
 
             qrReader.innerHTML = `
-                <div class="scanner-loading" style="text-align: center; padding: 60px 20px; color: #2563eb;">
-                    <svg viewBox="0 0 20 20" fill="currentColor" width="48" height="48" style="animation: spin 1s linear infinite; margin-bottom: 15px;">
-                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd" />
-                    </svg>
-                    <p>Initializing camera...<br>Please allow camera access when prompted.</p>
-                </div>
-            `;
+        <div class="scanner-loading" style="text-align: center; padding: 60px 20px; color: #2563eb;">
+            <svg viewBox="0 0 20 20" fill="currentColor" width="48" height="48" style="animation: spin 1s linear infinite; margin-bottom: 15px;">
+                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd" />
+            </svg>
+            <p>Initializing camera...<br>Please allow camera access when prompted.</p>
+        </div>
+    `;
 
             try {
                 if (typeof Html5Qrcode === 'undefined') {
@@ -1231,21 +1167,21 @@
                 }
 
                 qrReader.innerHTML = `
-                    <div class="scanner-error" style="text-align: center; padding: 40px 20px; color: #dc2626;">
-                        <svg viewBox="0 0 20 20" fill="currentColor" width="48" height="48" style="margin-bottom: 15px;">
-                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
-                        </svg>
-                        <p style="margin-bottom: 20px; color: #4b5563;">${errorMessage}</p>
-                        <div>
-                            <button onclick="startQRScanner()" class="btn btn-primary" style="padding: 8px 16px; background-color: #2563eb; color: white; border: none; border-radius: 4px; cursor: pointer; margin-right: 8px;">
-                                Try Again
-                            </button>
-                            <button onclick="closeScannerModal()" class="btn btn-secondary" style="padding: 8px 16px; background-color: #6b7280; color: white; border: none; border-radius: 4px; cursor: pointer;">
-                                Close
-                            </button>
-                        </div>
-                    </div>
-                `;
+            <div class="scanner-error" style="text-align: center; padding: 40px 20px; color: #dc2626;">
+                <svg viewBox="0 0 20 20" fill="currentColor" width="48" height="48" style="margin-bottom: 15px;">
+                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
+                </svg>
+                <p style="margin-bottom: 20px; color: #4b5563;">${errorMessage}</p>
+                <div>
+                    <button onclick="startQRScanner()" class="btn btn-primary" style="padding: 8px 16px; background-color: #2563eb; color: white; border: none; border-radius: 4px; cursor: pointer; margin-right: 8px;">
+                        Try Again
+                    </button>
+                    <button onclick="closeScannerModal()" class="btn btn-secondary" style="padding: 8px 16px; background-color: #6b7280; color: white; border: none; border-radius: 4px; cursor: pointer;">
+                        Close
+                    </button>
+                </div>
+            </div>
+        `;
             }
         }
 
@@ -1297,48 +1233,224 @@
         }
 
         function fetchRecentTransactions() {
-            if (isLoading) return;
+    if (isLoading) return;
+    fetchRecentTransactionsPage();
+}
 
-            const timestamp = new Date().getTime();
-            const currentUrl = window.location.href;
+        // ========== SMOOTH AJAX PAGINATION FOR RECENT TRANSACTIONS ==========
+function loadTransactionsPage(url) {
+    if (isLoading) return;
+    isLoading = true;
 
-            fetch(currentUrl + (currentUrl.includes('?') ? '&' : '?') + '_=' + timestamp, {
-                    method: 'GET',
-                    headers: {
-                        'Accept': 'application/json',
-                        'X-Requested-With': 'XMLHttpRequest',
-                        'Cache-Control': 'no-cache, no-store, must-revalidate'
-                    }
-                })
-                .then(response => response.text())
-                .then(html => {
-                    const parser = new DOMParser();
-                    const doc = parser.parseFromString(html, 'text/html');
+    const tableContainer = document.getElementById('transactionsTableContainer');
+    const paginationContainer = document.getElementById('paginationContainer');
+    const showingInfo = document.getElementById('showingInfo');
 
-                    const newTransactions = doc.querySelector('#transactionsTableContainer');
-                    const newShowingInfo = doc.querySelector('#showingInfo');
-                    const newPagination = doc.querySelector('#paginationContainer');
+    if (!tableContainer || !paginationContainer) {
+        isLoading = false;
+        return;
+    }
 
-                    if (newTransactions) {
-                        document.getElementById('transactionsTableContainer').innerHTML = newTransactions.innerHTML;
-                    }
-                    if (newShowingInfo) {
-                        document.getElementById('showingInfo').textContent = newShowingInfo.textContent;
-                    }
-                    if (newPagination) {
-                        document.getElementById('paginationContainer').innerHTML = newPagination.innerHTML;
-                    }
+    const separator = url.includes('?') ? '&' : '?';
+    const fetchUrl = url + separator + '_=' + new Date().getTime();
 
-                    console.log('Recent transactions refreshed');
-                })
-                .catch(error => console.error('Error fetching recent transactions:', error));
+    tableContainer.classList.add('loading');
+    paginationContainer.classList.add('loading');
+    tableContainer.style.opacity = '0';
+    paginationContainer.style.opacity = '0';
+
+    fetch(fetchUrl, {
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest',
+            'Accept': 'application/json',
+            'X-CSRF-TOKEN': '{{ csrf_token() }}'
         }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (!data.success) throw new Error(data.message || 'Unknown error occurred');
+
+        setTimeout(() => {
+            if (data.table) tableContainer.innerHTML = data.table;
+            if (data.pagination) paginationContainer.innerHTML = data.pagination;
+            if (data.showing && showingInfo) showingInfo.textContent = data.showing;
+
+            tableContainer.style.opacity = '1';
+            paginationContainer.style.opacity = '1';
+            tableContainer.classList.remove('loading');
+            paginationContainer.classList.remove('loading');
+
+            attachPaginationListeners();
+            
+            // Re-apply service filter
+            const filter = document.getElementById('transactionServiceFilter');
+            if (filter) filter.dispatchEvent(new Event('change'));
+
+            // Add success animation
+            tableContainer.classList.add('page-change-success');
+            paginationContainer.classList.add('page-change-success');
+            
+            setTimeout(() => {
+                tableContainer.classList.remove('page-change-success');
+                paginationContainer.classList.remove('page-change-success');
+            }, 500);
+
+            isLoading = false;
+        }, 150);
+    })
+    .catch(error => {
+        console.error('Error loading page:', error);
+        tableContainer.style.opacity = '1';
+        paginationContainer.style.opacity = '1';
+        tableContainer.classList.remove('loading');
+        paginationContainer.classList.remove('loading');
+        isLoading = false;
+        
+        Swal.fire({
+            title: 'Error!',
+            text: 'Failed to load page. Please try again.',
+            icon: 'error',
+            confirmButtonColor: '#dc2626',
+            timer: 2000,
+            showConfirmButton: false
+        });
+    });
+}
+
+function attachPaginationListeners() {
+    document.querySelectorAll(
+        '.pagination-nav-btn:not(.disabled), .pagination-arrow:not(.disabled), .page-number:not(.active)'
+    ).forEach(link => {
+        link.removeEventListener('click', handlePaginationClick);
+        link.addEventListener('click', handlePaginationClick);
+    });
+}
+
+function handlePaginationClick(e) {
+    e.preventDefault();
+    if (!isLoading) {
+        loadTransactionsPage(this.href);
+    }
+}
+
+// Service Filter for Recent Transactions
+document.getElementById('transactionServiceFilter')?.addEventListener('change', function() {
+    const selectedService = this.value;
+    const rows = document.querySelectorAll('#transactionsTableContainer tr');
+    
+    rows.forEach(row => {
+        if (row.classList.contains('empty-state')) return;
+        
+        const service = row.getAttribute('data-service');
+        row.style.display = (selectedService === 'all' || service === selectedService) ? '' : 'none';
+    });
+});
+
+// Fetch recent transactions page (for refresh)
+function fetchRecentTransactionsPage(page = null) {
+    if (isLoading) return;
+
+    let url = '{{ route('appointment.transactions-page') }}';
+    const params = new URLSearchParams();
+
+    if (page) params.append('page', page);
+
+    const queryString = params.toString();
+    if (queryString) url += '?' + queryString;
+    url += (url.includes('?') ? '&' : '?') + '_=' + new Date().getTime();
+
+    fetch(url, {
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest',
+            'Accept': 'application/json',
+            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            if (data.table) transactionsTableContainer.innerHTML = data.table;
+            if (data.pagination) paginationContainer.innerHTML = data.pagination;
+            if (data.showing && showingInfo) showingInfo.textContent = data.showing;
+        }
+        attachPaginationListeners();
+        const filter = document.getElementById('transactionServiceFilter');
+        if (filter) filter.dispatchEvent(new Event('change'));
+    })
+    .catch(error => console.error('Error fetching recent transactions:', error));
+}
+
+// Export PDF with confirmation
+document.getElementById('screenerExportPdfBtn')?.addEventListener('click', function(e) {
+    e.preventDefault();
+
+    Swal.fire({
+        title: 'Export PDF',
+        text: 'Export your completed transactions report?',
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonColor: '#2563eb',
+        cancelButtonColor: '#dc2626',
+        confirmButtonText: 'Yes, Export!'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            window.location.href = '{{ route('appointment.export.pdf') }}';
+            
+            const Toast = Swal.mixin({
+                toast: true,
+                position: 'top-end',
+                showConfirmButton: false,
+                timer: 2000,
+                timerProgressBar: true
+            });
+            
+            Toast.fire({
+                icon: 'success',
+                title: 'PDF Exported Successfully'
+            });
+        }
+    });
+});
+
+// Export Excel with confirmation
+document.getElementById('screenerExportExcelBtn')?.addEventListener('click', function(e) {
+    e.preventDefault();
+
+    Swal.fire({
+        title: 'Export to Excel',
+        text: 'Export your completed transactions report?',
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonColor: '#059669',
+        cancelButtonColor: '#dc2626',
+        confirmButtonText: 'Yes, Export!'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            window.location.href = '{{ route('appointment.export.excel') }}';
+            
+            const Toast = Swal.mixin({
+                toast: true,
+                position: 'top-end',
+                showConfirmButton: false,
+                timer: 2000,
+                timerProgressBar: true
+            });
+            
+            Toast.fire({
+                icon: 'success',
+                title: 'Excel Exported Successfully'
+            });
+        }
+    });
+});
+
+
 
         function updateAppointmentsTable(appointments) {
-            const tbody = document.getElementById('appointmentsTableBody');
+    const tbody = document.getElementById('appointmentsTableBody');
 
-            if (!appointments || appointments.length === 0) {
-                tbody.innerHTML = `
+    if (!appointments || appointments.length === 0) {
+        tbody.innerHTML = `
             <tr>
                 <td colspan="6" class="empty-state">
                     <svg viewBox="0 0 20 20" fill="currentColor">
@@ -1350,57 +1462,37 @@
                 </td>
             </tr>
         `;
-                return;
-            }
+        return;
+    }
 
-            // Priority order: senior (1), pwd (2), pregnant (3), infant (4), regular (5)
-            const priorityOrder = {
-                'senior': 1,
-                'pwd': 2,
-                'pregnant': 3,
-                'infant': 4,
-                'regular': 5
-            };
-
-            // Sort appointments: priority first, then by creation date (oldest first)
-            appointments.sort((a, b) => {
-                const priorityA = priorityOrder[a.priority_type?.toLowerCase() || 'regular'] || 5;
-                const priorityB = priorityOrder[b.priority_type?.toLowerCase() || 'regular'] || 5;
-
-                if (priorityA !== priorityB) {
-                    return priorityA - priorityB;
-                }
-
-                // If same priority, sort by creation date (oldest first)
-                return new Date(a.date) - new Date(b.date);
+    let html = '';
+    appointments.forEach(app => {
+        if (!app.time_catered) {
+            const createdTime = new Date(app.date).toLocaleTimeString('en-US', {
+                hour: '2-digit',
+                minute: '2-digit',
+                hour12: true,
+                timeZone: 'Asia/Manila'
             });
 
-            let html = '';
-            appointments.forEach(app => {
-                if (!app.time_catered) {
-                    const createdTime = new Date(app.date).toLocaleTimeString('en-US', {
-                        hour: '2-digit',
-                        minute: '2-digit',
-                        hour12: true,
-                        timeZone: 'Asia/Manila'
-                    });
+            let fullName = app.lname + ', ' + app.fname;
 
-                    let fullName = app.lname + ', ' + app.fname;
-                    if (app.mname && app.mname.trim() !== '') {
-                        fullName += ' ' + app.mname;
-                    }
-                    if (app.suffix && app.suffix.trim() !== '') {
-                        fullName += ' ' + app.suffix;
-                    }
+            if (app.mname && app.mname.trim() !== '') {
+                fullName += ' ' + app.mname;
+            }
 
-                    // Get priority type
-                    const priorityType = app.priority_type?.toLowerCase() || 'regular';
-                    const priorityDisplay = priorityType === 'regular' ? 'Regular' :
-                        priorityType.charAt(0).toUpperCase() + priorityType.slice(1);
+            if (app.suffix && app.suffix.trim() !== '') {
+                fullName += ' ' + app.suffix;
+            }
 
-                    const searchData = (app.lname + ' ' + app.fname + ' ' + (app.trn || '')).toLowerCase();
+            // Get priority type for display
+            const priorityType = app.priority_type?.toLowerCase() || 'regular';
+            const priorityDisplay = priorityType === 'regular' ? 'Regular' :
+                priorityType.charAt(0).toUpperCase() + priorityType.slice(1);
 
-                    html += `
+            const searchData = (app.lname + ' ' + app.fname + ' ' + (app.trn || '')).toLowerCase();
+
+            html += `
                 <tr data-search="${searchData}" data-priority="${priorityType}">
                     <td><span class="queue-number">${app.q_id}</span></td>
                     <td>
@@ -1408,12 +1500,12 @@
                             ${fullName}
                         </div>
                     </td>
-                    <td>${app.queue_for}</td>
                     <td>
-                        <span class="type-badge" style="background-color: #2563eb; color: white; padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: 500;">
+                        <span class="priority-badge priority-${priorityType}">
                             ${priorityDisplay.toUpperCase()}
                         </span>
                     </td>
+                    <td>${app.queue_for}</td>
                     <td>${createdTime}</td>
                     <td>
                         <span class="status-badge status-pending">
@@ -1423,11 +1515,11 @@
                     </td>
                 </tr>
             `;
-                }
-            });
+        }
+    });
 
-            if (html === '') {
-                tbody.innerHTML = `
+    if (html === '') {
+        tbody.innerHTML = `
             <tr>
                 <td colspan="6" class="empty-state">
                     <svg viewBox="0 0 20 20" fill="currentColor">
@@ -1439,14 +1531,14 @@
                 </td>
             </tr>
         `;
-            } else {
-                tbody.innerHTML = html;
+    } else {
+        tbody.innerHTML = html;
 
-                if (currentSearchTerm) {
-                    filterTableRows();
-                }
-            }
+        if (currentSearchTerm) {
+            filterTableRows();
         }
+    }
+}
 
         function updateStatistics(stats) {
             if (!stats) return;
@@ -1650,6 +1742,11 @@
             const savedCategory = document.getElementById('selectedCategory').value;
             selectCategory(savedCategory);
 
+            // Debug: Check if age buttons exist for updating form
+            console.log('NID Form age buttons:', document.querySelectorAll('#nidForm .age-btn').length);
+            console.log('Status Form age buttons:', document.querySelectorAll('#statusForm .age-btn').length);
+            console.log('Updating Form age buttons:', document.querySelectorAll('#updatingForm .age-btn').length);
+
             const inlineScanner = document.getElementById('qr-reader-container');
             if (inlineScanner) {
                 inlineScanner.remove();
@@ -1714,27 +1811,27 @@
                     const printContent = document.getElementById('printContent').innerHTML;
                     const printWindow = window.open('', '_blank', 'width=300,height=250');
                     printWindow.document.write(`
-                        <html>
-                        <head>
-                            <title>Appointment Slip</title>
-                            <style>
-                                @media print {
-                                    @page { size: 3in 2.5in; margin: 0; }
-                                    body {
-                                        margin: 0; padding: 20px; width: 2.5in; height: 2in;
-                                        font-family: "Courier New", Courier, monospace; font-size: 10pt;
-                                        color: #000; box-sizing: border-box; text-align: center;
-                                    }
-                                }
-                                h1 { font-size: 14pt; margin: 0 0 10px 0; }
-                                .info { font-size: 10pt; margin-bottom: 5px; }
-                                .date-time { font-size: 10pt; margin-bottom: 15px; }
-                                .queue-number { font-size: 28pt; font-weight: bold; letter-spacing: 4px; margin: 0; }
-                            </style>
-                        </head>
-                        <body>${printContent}</body>
-                        </html>
-                    `);
+            <html>
+            <head>
+                <title>Appointment Slip</title>
+                <style>
+                    @media print {
+                        @page { size: 3in 2.5in; margin: 0; }
+                        body {
+                            margin: 0; padding: 20px; width: 2.5in; height: 2in;
+                            font-family: "Courier New", Courier, monospace; font-size: 10pt;
+                            color: #000; box-sizing: border-box; text-align: center;
+                        }
+                    }
+                    h1 { font-size: 14pt; margin: 0 0 10px 0; }
+                    .info { font-size: 10pt; margin-bottom: 5px; }
+                    .date-time { font-size: 10pt; margin-bottom: 15px; }
+                    .queue-number { font-size: 28pt; font-weight: bold; letter-spacing: 4px; margin: 0; }
+                </style>
+            </head>
+            <body>${printContent}</body>
+            </html>
+        `);
                     printWindow.document.close();
                     printWindow.focus();
                     printWindow.onload = () => printWindow.print();
@@ -1891,15 +1988,9 @@
             }).then(() => {
                 formSubmitted = false;
                 restoreSubmitButton();
-
-                // Clear only the input fields, keep the category and priority selection
+                // Clear only the input fields, keep the category selection
                 const form = document.getElementById('appointmentForm');
                 const currentCategory = document.getElementById('selectedCategory').value;
-                const currentForm = currentCategory === 'NID Registration' ? 'nid' :
-                    (currentCategory === 'Status Inquiry' ? 'status' : 'update');
-
-                // Get the currently selected priority from session (via the hidden input that was just submitted)
-                const currentPriority = document.getElementById(`priority_type_${currentForm}`).value;
 
                 // Reset the form but preserve category
                 form.reset();
@@ -1917,41 +2008,8 @@
                     input.value = '';
                 });
 
-                // DON'T reset priority hidden inputs - they should keep their values
-                // Instead, restore the priority that was just used
-                document.getElementById(`priority_type_${currentForm}`).value = currentPriority;
-
                 // Restore the category value and trigger form display
                 selectCategory(currentCategory);
-
-                // Re-apply the priority button active state based on the saved value
-                setTimeout(() => {
-                    // Find and activate the correct priority button
-                    const priorityBtn = document.querySelector(
-                        `#${currentForm}Form .priority-btn[data-priority="${currentPriority}"]`);
-                    if (priorityBtn) {
-                        // Remove active class from all priority buttons in this form
-                        document.querySelectorAll(`#${currentForm}Form .priority-btn`).forEach(btn => {
-                            btn.classList.remove('active');
-                            btn.style.backgroundColor = 'white';
-                            btn.style.color = '#374151';
-                            btn.style.borderColor = '#e5e7eb';
-                        });
-
-                        // Add active class to the selected button
-                        priorityBtn.classList.add('active');
-                        priorityBtn.style.backgroundColor = '#2563eb';
-                        priorityBtn.style.color = 'white';
-                        priorityBtn.style.borderColor = '#2563eb';
-                    }
-
-                    // Also trigger age selection based on priority
-                    if (currentPriority === 'infant') {
-                        selectAge(currentForm, '0-4 years old');
-                    } else if (currentPriority !== 'regular') {
-                        selectAge(currentForm, '5 years old and above');
-                    }
-                }, 100);
             });
         }
 

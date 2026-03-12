@@ -342,12 +342,18 @@ class AppointmentController extends Controller
     $perPage = $request->get('per_page', 10);
     $perPage = in_array($perPage, [10, 20, 50, 100]) ? $perPage : 10;
     
-    // Get ONLY TODAY'S completed transactions with pagination
+    // Get TODAY'S transactions that are NOT pending (completed, cancelled, no_show)
+    // with pagination
     $completedTransactions = TblAppointment::whereDate('date', $today)
-                                          ->whereNotNull('time_catered')
+                                          ->whereNotNull('time_catered') // Served/completed
+                                          ->orWhere(function($query) use ($today) {
+                                              $query->whereDate('date', $today)
+                                                    ->whereIn('status', ['cancelled', 'no_show']);
+                                          })
                                           ->select(['n_id', 'q_id', 'fname', 'mname', 'lname', 'suffix',
-                                                   'queue_for', 'time_catered', 'window_num', 'priority_type'])
-                                          ->orderBy('time_catered', 'desc')
+                                                   'queue_for', 'time_catered', 'window_num', 
+                                                   'priority_type', 'status', 'updated_at'])
+                                          ->orderBy('updated_at', 'desc')
                                           ->paginate($perPage)
                                           ->withQueryString();
     
@@ -358,6 +364,7 @@ class AppointmentController extends Controller
         $showingInfo = 'Showing ' . $completedTransactions->firstItem() . '-' . $completedTransactions->lastItem() . ' of ' . $completedTransactions->total();
         
         return response()->json([
+            'success' => true,
             'table' => $tableHtml,
             'pagination' => $paginationHtml,
             'showing' => $showingInfo
