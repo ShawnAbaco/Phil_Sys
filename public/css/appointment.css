@@ -1675,7 +1675,7 @@ body {
 .category-btn[data-category="Updating"]:hover:not(.active) {
     background-color: #4381ff !important;
     border-color: #030b1f !important;
-    color: #991b1b !important;
+    color: #030b1f !important;
 }
 
 .category-form {
