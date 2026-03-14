@@ -1,8 +1,8 @@
-To LAN to different computer: (Window + R then Enter) - Type (ipconfig)
+To LAN to different computer: (Window + R type cmd then Enter) - Type (ipconfig)
 
-U will see a IPV4 Address, copy and paste to in the Terminal in the --host=
+U will see a IPV4 Address, copy that to paste later in the VS Code Terminal
 
-1. Open CMD (CTRL + J)
+1. Open Terminal in the VS Code  (CTRL + J)
 
 2. Command this in the Terminal: php artisan serve --host=paste the IPV4 Address here --port=8000
 
@@ -10,6 +10,6 @@ Example your IPV4 Address: 192.168.227.189
 
 Then this is u will Command in the Terminal: php artisan serve --host=192.168.227.189 --port=8000
 
-3. Search this IP Server into any browsers: 192.168.227.189:8000
+3. Search this IP Local Server into any browsers: 192.168.227.189:8000
 
-Note: This is Local Server only, so u need to connect same wifi network to open that IP Server
+Note: This is Local Server only, so u need to connect same wifi network to open that IP Local Server

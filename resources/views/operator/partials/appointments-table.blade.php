@@ -18,18 +18,18 @@
         </thead>
         <tbody>
             @php
-                $filteredAppointments = $showAll 
-                    ? $appointments 
-                    : $appointments->filter(function($app) use ($serviceType) {
+                $filteredAppointments = $showAll
+                    ? $appointments
+                    : $appointments->filter(function ($app) use ($serviceType) {
                         return $app->queue_for === $serviceType;
                     });
-                
+
                 // Check if there's any serving appointment
-                $hasServing = $filteredAppointments->contains(function($app) {
-                    return $app->status === 'serving';
+$hasServing = $filteredAppointments->contains(function ($app) {
+    return $app->status === 'serving';
                 });
             @endphp
-            
+
             @forelse($filteredAppointments as $appointment)
                 @php
                     $createdTime = \Carbon\Carbon::parse($appointment->date)->setTimezone('Asia/Manila');
@@ -40,13 +40,13 @@
                     if ($appointment->suffix && trim($appointment->suffix) !== '') {
                         $fullName .= ' ' . $appointment->suffix;
                     }
-                    
+
                     // Determine status display and class based on database status
                     $statusDisplay = ucfirst(str_replace('_', ' ', $appointment->status ?? 'pending'));
                     $statusClass = $appointment->status ?? 'pending';
-                    
+
                     // Map status to appropriate CSS class
-                    switch($appointment->status) {
+                    switch ($appointment->status) {
                         case 'pending':
                             $statusClass = 'pending';
                             break;
@@ -65,29 +65,29 @@
                         default:
                             $statusClass = 'pending';
                     }
-                    
+
                     // Determine if serve button should be disabled
                     // Only disable if there's a serving appointment AND this is not the serving one
-                    $serveDisabled = $hasServing && $appointment->status !== 'serving';
-                    
-                    // Determine if checkbox should be disabled
-                    // Disable only completed and cancelled appointments
-                    $checkboxDisabled = $appointment->status === 'completed' || $appointment->status === 'cancelled' || $appointment->status === 'serving';
-                    
-                    // Get priority type for display
-                    $priorityType = $appointment->priority_type ?? 'regular';
+$serveDisabled = $hasServing && $appointment->status !== 'serving';
+
+// Determine if checkbox should be disabled
+// Disable only completed and cancelled appointments
+$checkboxDisabled =
+    $appointment->status === 'completed' ||
+    $appointment->status === 'cancelled' ||
+    $appointment->status === 'serving';
+
+// Get priority type for display
+$priorityType = $appointment->priority_type ?? 'regular';
                     $priorityDisplay = ucfirst($priorityType);
                 @endphp
-                <tr class="clickable-row {{ $checkboxDisabled ? 'disabled-row' : '' }}" 
-                    data-id="{{ $appointment->n_id }}" 
+                <tr class="clickable-row {{ $checkboxDisabled ? 'disabled-row' : '' }}" data-id="{{ $appointment->n_id }}"
                     data-search="{{ strtolower($appointment->lname . ' ' . $appointment->fname . ' ' . ($appointment->trn ?? '')) }}">
                     <td class="checkbox-cell">
-                        <input type="checkbox" class="row-checkbox" 
-                               data-id="{{ $appointment->n_id }}" 
-                               data-name="{{ $appointment->fname }} {{ $appointment->lname }}"
-                               data-table="{{ $tableId }}"
-                               data-status="{{ $appointment->status }}"
-                               {{ $checkboxDisabled ? 'disabled' : '' }}>
+                        <input type="checkbox" class="row-checkbox" data-id="{{ $appointment->n_id }}"
+                            data-name="{{ $appointment->fname }} {{ $appointment->lname }}"
+                            data-table="{{ $tableId }}" data-status="{{ $appointment->status }}"
+                            {{ $checkboxDisabled ? 'disabled' : '' }}>
                     </td>
                     <td><span class="queue-number">{{ $appointment->q_id }}</span></td>
                     <td class="client-name">{{ $fullName }}</td>
@@ -107,51 +107,50 @@
                         </span>
                     </td>
                     <td class="action-cell">
-                        @if($appointment->status === 'pending')
-                            <button class="btn-action serve-btn" 
-                                    data-id="{{ $appointment->n_id }}"
-                                    data-name="{{ $appointment->fname }} {{ $appointment->lname }}"
-                                    data-status="pending"
-                                    {{ $serveDisabled ? 'disabled' : '' }}
-                                    title="{{ $serveDisabled ? 'Cannot serve while another appointment is being served' : 'Call this appointment to your window' }}">
+                        @if ($appointment->status === 'pending')
+                            <button class="btn-action serve-btn" data-id="{{ $appointment->n_id }}"
+                                data-name="{{ $appointment->fname }} {{ $appointment->lname }}" data-status="pending"
+                                {{ $serveDisabled ? 'disabled' : '' }}
+                                title="{{ $serveDisabled ? 'Cannot serve while another appointment is being served' : 'Call this appointment to your window' }}">
                                 <svg viewBox="0 0 20 20" fill="currentColor">
-                                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+                                    <path fill-rule="evenodd"
+                                        d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                                        clip-rule="evenodd" />
                                 </svg>
                                 Serve
                             </button>
                         @elseif($appointment->status === 'serving')
                             <div class="action-button-group">
-                                <button class="btn-action complete-btn" 
-                                        data-id="{{ $appointment->n_id }}"
-                                        data-name="{{ $appointment->fname }} {{ $appointment->lname }}"
-                                        data-status="serving">
+                                <button class="btn-action complete-btn" data-id="{{ $appointment->n_id }}"
+                                    data-name="{{ $appointment->fname }} {{ $appointment->lname }}"
+                                    data-status="serving">
                                     <svg viewBox="0 0 20 20" fill="currentColor">
-                                        <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+                                        <path fill-rule="evenodd"
+                                            d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                                            clip-rule="evenodd" />
                                     </svg>
                                     Done
                                 </button>
-                                <button class="btn-action secondary no-show-btn" 
-                                        data-id="{{ $appointment->n_id }}"
-                                        data-name="{{ $appointment->fname }} {{ $appointment->lname }}"
-                                        data-status="serving">
+                                <button class="btn-action secondary no-show-btn" data-id="{{ $appointment->n_id }}"
+                                    data-name="{{ $appointment->fname }} {{ $appointment->lname }}"
+                                    data-status="serving">
                                     No Show
                                 </button>
-                                <button class="btn-action secondary cancel-btn" 
-                                        data-id="{{ $appointment->n_id }}"
-                                        data-name="{{ $appointment->fname }} {{ $appointment->lname }}"
-                                        data-status="serving">
+                                <button class="btn-action secondary cancel-btn" data-id="{{ $appointment->n_id }}"
+                                    data-name="{{ $appointment->fname }} {{ $appointment->lname }}"
+                                    data-status="serving">
                                     Cancel
                                 </button>
                             </div>
                         @elseif($appointment->status === 'no_show')
-                            <button class="btn-action serve-btn" 
-                                    data-id="{{ $appointment->n_id }}"
-                                    data-name="{{ $appointment->fname }} {{ $appointment->lname }}"
-                                    data-status="no_show"
-                                    {{ $serveDisabled ? 'disabled' : '' }}
-                                    title="{{ $serveDisabled ? 'Cannot serve while another appointment is being served' : 'Call this no-show appointment to your window' }}">
+                            <button class="btn-action serve-btn" data-id="{{ $appointment->n_id }}"
+                                data-name="{{ $appointment->fname }} {{ $appointment->lname }}" data-status="no_show"
+                                {{ $serveDisabled ? 'disabled' : '' }}
+                                title="{{ $serveDisabled ? 'Cannot serve while another appointment is being served' : 'Call this no-show appointment to your window' }}">
                                 <svg viewBox="0 0 20 20" fill="currentColor">
-                                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+                                    <path fill-rule="evenodd"
+                                        d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                                        clip-rule="evenodd" />
                                 </svg>
                                 Serve Again
                             </button>
@@ -164,7 +163,9 @@
                 <tr>
                     <td colspan="10" class="empty-state">
                         <svg viewBox="0 0 20 20" fill="currentColor">
-                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd" />
+                            <path fill-rule="evenodd"
+                                d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z"
+                                clip-rule="evenodd" />
                         </svg>
                         <p>No appointments to display</p>
                     </td>
@@ -174,155 +175,74 @@
     </table>
 </div>
 
-<style>
-/* Clickable row styles */
-.clickable-row {
-    cursor: pointer;
-    transition: background-color 0.2s ease;
-}
-
-.clickable-row:hover {
-    background-color: rgba(37, 99, 235, 0.03);
-}
-
-.clickable-row.disabled-row {
-    cursor: default;
-}
-
-.clickable-row.disabled-row:hover {
-    background-color: transparent;
-}
-
-/* Ensure action buttons don't trigger row click */
-.action-cell button,
-.action-cell .action-button-group,
-.status-text {
-    position: relative;
-    z-index: 2;
-}
-
-/* Keep existing selected row style */
-.table tr.selected {
-    background-color: rgba(37, 99, 235, 0.08);
-    border-left: 3px solid var(--psa-blue);
-}
-
-.table tr.selected:hover {
-    background-color: rgba(37, 99, 235, 0.12);
-}
-
-/* Priority Badge Styles */
-.priority-badge {
-    display: inline-block;
-    padding: 6px 12px;
-    border-radius: 30px;
-    font-size: 12px;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    color: white;
-    min-width: 80px;
-    text-align: center;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-.priority-senior {
-    background: linear-gradient(135deg, #8b5cf6, #7c3aed);
-}
-
-.priority-infant {
-    background: linear-gradient(135deg, #f59e0b, #d97706);
-}
-
-.priority-pwd {
-    background: linear-gradient(135deg, #10b981, #059669);
-}
-
-.priority-pregnant {
-    background: linear-gradient(135deg, #ec4899, #db2777);
-}
-
-.priority-regular {
-    background: linear-gradient(135deg, #64748b, #475569);
-}
-
-/* Service tag style */
-.service-tag {
-    display: inline-block;
-    padding: 4px 8px;
-    background-color: #e5e7eb;
-    border-radius: 4px;
-    font-size: 12px;
-    color: #374151;
-}
-</style>
-
 <script>
-// Add this to handle row clicks
-document.addEventListener('DOMContentLoaded', function() {
-    initializeClickableRows();
-    
-    // Re-initialize after AJAX updates
-    document.addEventListener('clickableRowsUpdate', function() {
+    // Add this to handle row clicks
+    document.addEventListener('DOMContentLoaded', function() {
         initializeClickableRows();
+
+        // Re-initialize after AJAX updates
+        document.addEventListener('clickableRowsUpdate', function() {
+            initializeClickableRows();
+        });
     });
-});
 
-function initializeClickableRows() {
-    document.querySelectorAll('.clickable-row').forEach(row => {
-        // Remove existing listener to prevent duplicates
-        row.removeEventListener('click', handleRowClick);
-        row.addEventListener('click', handleRowClick);
-    });
-}
+    function initializeClickableRows() {
+        document.querySelectorAll('.clickable-row').forEach(row => {
+            // Remove existing listener to prevent duplicates
+            row.removeEventListener('click', handleRowClick);
+            row.addEventListener('click', handleRowClick);
+        });
+    }
 
-function handleRowClick(e) {
-    // Don't toggle if clicking on button or action elements
-    if (e.target.closest('button') || 
-        e.target.closest('.btn-action') || 
-        e.target.closest('.action-button-group') || 
-        e.target.closest('.status-text') ||
-        e.target.closest('.priority-badge') ||
-        e.target.closest('input[type="checkbox"]')) {
-        return;
-    }
-    
-    const checkbox = this.querySelector('.row-checkbox');
-    if (checkbox && !checkbox.disabled) {
-        checkbox.checked = !checkbox.checked;
-        
-        // Trigger change event to update selection
-        const event = new Event('change', { bubbles: true });
-        checkbox.dispatchEvent(event);
-    }
-}
+    function handleRowClick(e) {
+        // Don't toggle if clicking on button or action elements
+        if (e.target.closest('button') ||
+            e.target.closest('.btn-action') ||
+            e.target.closest('.action-button-group') ||
+            e.target.closest('.status-text') ||
+            e.target.closest('.priority-badge') ||
+            e.target.closest('input[type="checkbox"]')) {
+            return;
+        }
 
-// Update your existing updateAppointmentsTables function to trigger the event
-function updateAppointmentsTables(data) {
-    if (document.getElementById('table-all')) {
-        document.getElementById('table-all').innerHTML = data.tableAll || '';
+        const checkbox = this.querySelector('.row-checkbox');
+        if (checkbox && !checkbox.disabled) {
+            checkbox.checked = !checkbox.checked;
+
+            // Trigger change event to update selection
+            const event = new Event('change', {
+                bubbles: true
+            });
+            checkbox.dispatchEvent(event);
+        }
     }
-    
-    if (document.getElementById('table-nid-registration')) {
-        document.getElementById('table-nid-registration').innerHTML = data.tableNidRegistration || '';
+
+    // Update your existing updateAppointmentsTables function to trigger the event
+    function updateAppointmentsTables(data) {
+        if (document.getElementById('table-all')) {
+            document.getElementById('table-all').innerHTML = data.tableAll || '';
+        }
+
+        if (document.getElementById('table-nid-registration')) {
+            document.getElementById('table-nid-registration').innerHTML = data.tableNidRegistration || '';
+        }
+
+        if (document.getElementById('table-status-inquiry')) {
+            document.getElementById('table-status-inquiry').innerHTML = data.tableStatusInquiry || '';
+        }
+
+        if (document.getElementById('table-updating')) {
+            document.getElementById('table-updating').innerHTML = data.tableNidUpdating || '';
+        }
+
+        attachServeButtonListeners();
+        initializeAllTableCheckboxes();
+
+        // Trigger clickable rows re-initialization
+        document.dispatchEvent(new Event('clickableRowsUpdate'));
+
+        if (currentSearchTerm) {
+            filterTableRows();
+        }
     }
-    
-    if (document.getElementById('table-status-inquiry')) {
-        document.getElementById('table-status-inquiry').innerHTML = data.tableStatusInquiry || '';
-    }
-    
-    if (document.getElementById('table-updating')) {
-        document.getElementById('table-updating').innerHTML = data.tableNidUpdating || '';
-    }
-    
-    attachServeButtonListeners();
-    initializeAllTableCheckboxes();
-    
-    // Trigger clickable rows re-initialization
-    document.dispatchEvent(new Event('clickableRowsUpdate'));
-    
-    if (currentSearchTerm) {
-        filterTableRows();
-    }
-}
 </script>

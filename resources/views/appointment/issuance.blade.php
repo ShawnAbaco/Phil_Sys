@@ -821,7 +821,7 @@
                     <option value="Status Inquiry">Status Inquiry</option>
                     <option value="Updating">NID Updating</option>
                 </select>
-            </div> -->
+            </div>
 
             <div class="table-responsive">
                 <table class="table">

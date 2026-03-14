@@ -23,7 +23,27 @@
     <link rel="stylesheet" href="{{ asset('css/header.css') }}">
     <link rel="stylesheet" href="{{ asset('css/appointment.css') }}">
     <link rel="stylesheet" href="{{ asset('css/operator.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/profile.css') }}">
+    <!-- Dark Mode CSS - loaded separately -->
+    <link rel="stylesheet" href="{{ asset('css/dark-mode.css') }}">
     <meta name="csrf-token" content="{{ csrf_token() }}">
+
+    <!-- Dark Mode Script -->
+    <script>
+        // Dark mode initialization - runs before page render to prevent flash
+        (function() {
+            try {
+                const darkMode = localStorage.getItem('darkMode') === 'true';
+                if (darkMode) {
+                    document.documentElement.classList.add('dark-mode');
+                } else {
+                    document.documentElement.classList.remove('dark-mode');
+                }
+            } catch (e) {
+                console.error('Dark mode initialization failed:', e);
+            }
+        })();
+    </script>
 </head>
 
 <body>
@@ -57,7 +77,19 @@
                     </div>
                 @endif
 
-
+                <!-- Dark Mode Toggle Button -->
+                <div class="dark-mode-toggle" id="darkModeToggle" title="Toggle dark mode">
+                    <!-- Sun icon (for light mode) -->
+                    <svg class="sun-icon" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd"
+                            d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 000 2h1z"
+                            clip-rule="evenodd" />
+                    </svg>
+                    <!-- Moon icon (for dark mode) -->
+                    <svg class="moon-icon" viewBox="0 0 20 20" fill="currentColor">
+                        <path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z" />
+                    </svg>
+                </div>
 
                 <!-- User Menu Container -->
                 <div class="user-menu-container">
@@ -84,13 +116,13 @@
                     <div class="dropdown-menu" id="userDropdown">
 
                         <!-- Profile Settings Link -->
-<a href="{{ route('profile.settings') }}" class="dropdown-item">
-    <svg class="dropdown-icon" viewBox="0 0 20 20" fill="currentColor">
-        <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z"
-            clip-rule="evenodd" />
-    </svg>
-    Profile Settings
-</a>
+                        <a href="{{ route('profile.settings') }}" class="dropdown-item">
+                            <svg class="dropdown-icon" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z"
+                                    clip-rule="evenodd" />
+                            </svg>
+                            Profile Settings
+                        </a>
 
                         <!-- Logout Form -->
                         <form method="POST" action="{{ route('logout') }}">
@@ -193,6 +225,48 @@
 
             window.addEventListener('resize', handleResize);
             handleResize();
+        });
+
+        // Dark Mode Toggle Functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            const darkModeToggle = document.getElementById('darkModeToggle');
+            const htmlElement = document.documentElement;
+
+            // Check for saved preference
+            const darkMode = localStorage.getItem('darkMode') === 'true';
+
+            // Apply dark mode if saved preference exists
+            if (darkMode) {
+                htmlElement.classList.add('dark-mode');
+            }
+
+            // Toggle dark mode on button click
+            darkModeToggle.addEventListener('click', function() {
+                const isDarkMode = htmlElement.classList.contains('dark-mode');
+
+                if (isDarkMode) {
+                    htmlElement.classList.remove('dark-mode');
+                    localStorage.setItem('darkMode', 'false');
+                } else {
+                    htmlElement.classList.add('dark-mode');
+                    localStorage.setItem('darkMode', 'true');
+                }
+            });
+        });
+
+        // Optional: Listen for system preference changes
+        window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', e => {
+            const htmlElement = document.documentElement;
+            const savedPreference = localStorage.getItem('darkMode');
+
+            // Only change if user hasn't set a manual preference
+            if (savedPreference === null) {
+                if (e.matches) {
+                    htmlElement.classList.add('dark-mode');
+                } else {
+                    htmlElement.classList.remove('dark-mode');
+                }
+            }
         });
     </script>
 </body>
