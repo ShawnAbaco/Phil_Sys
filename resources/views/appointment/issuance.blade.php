@@ -883,1059 +883,1073 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html5-qrcode/2.3.4/html5-qrcode.min.js"></script>
     <script>
-        let html5QrcodeScanner = null;
-        let isScanning = false;
-        let currentSearchTerm = '';
-        let isLoading = false;
-        let refreshInterval;
-        let formSubmitted = false;
+    let html5QrcodeScanner = null;
+    let isScanning = false;
+    let currentSearchTerm = '';
+    let isLoading = false;
+    let refreshInterval;
+    let formSubmitted = false;
+    let currentPage = 1; // Track current page for pagination
 
-        function selectCategory(category) {
-            // Update hidden input
-            document.getElementById('selectedCategory').value = category;
+    function selectCategory(category) {
+        // Update hidden input
+        document.getElementById('selectedCategory').value = category;
 
-            // Update button styles
-            document.querySelectorAll('.category-btn').forEach(btn => {
-                btn.classList.remove('active');
-                btn.style.backgroundColor = 'white';
-                btn.style.color = '#374151';
-                btn.style.borderColor = '#e5e7eb';
-            });
+        // Update button styles
+        document.querySelectorAll('.category-btn').forEach(btn => {
+            btn.classList.remove('active');
+            btn.style.backgroundColor = 'white';
+            btn.style.color = '#374151';
+            btn.style.borderColor = '#e5e7eb';
+        });
 
-            // Style the selected button
-            const selectedBtn = document.querySelector(`.category-btn[data-category="${category}"]`);
-            if (selectedBtn) {
-                selectedBtn.classList.add('active');
-                selectedBtn.style.backgroundColor = '#2563eb';
-                selectedBtn.style.color = 'white';
-                selectedBtn.style.borderColor = '#2563eb';
-            }
-
-            // Show/hide forms
-            toggleForm(category);
-
-            // Store in session via AJAX
-            $.ajax({
-                url: '{{ route('appointment.store-category') }}',
-                method: 'POST',
-                data: {
-                    _token: '{{ csrf_token() }}',
-                    category: category
-                }
-            });
+        // Style the selected button
+        const selectedBtn = document.querySelector(`.category-btn[data-category="${category}"]`);
+        if (selectedBtn) {
+            selectedBtn.classList.add('active');
+            selectedBtn.style.backgroundColor = '#2563eb';
+            selectedBtn.style.color = 'white';
+            selectedBtn.style.borderColor = '#2563eb';
         }
 
-        function selectAge(formType, ageValue) {
-            console.log('selectAge called with:', formType, ageValue); // Debug log
+        // Show/hide forms
+        toggleForm(category);
 
-            // Update hidden input
-            const hiddenInput = document.getElementById(`age_category_${formType}`);
-            if (hiddenInput) {
-                hiddenInput.value = ageValue;
-                console.log(`Updated age_category_${formType} to:`, ageValue);
-            } else {
-                console.error(`Hidden input age_category_${formType} not found`);
-                return;
+        // Store in session via AJAX
+        $.ajax({
+            url: '{{ route('appointment.store-category') }}',
+            method: 'POST',
+            data: {
+                _token: '{{ csrf_token() }}',
+                category: category
             }
+        });
+    }
 
-            // Determine which form ID to use
-            let formId;
-            if (formType === 'nid') {
-                formId = 'nidForm';
-            } else if (formType === 'status') {
-                formId = 'statusForm';
-            } else if (formType === 'update') {
-                formId = 'updatingForm';
-            } else {
-                console.error('Unknown form type:', formType);
-                return;
-            }
+    function selectAge(formType, ageValue) {
+        console.log('selectAge called with:', formType, ageValue); // Debug log
 
-            console.log('Looking for buttons in form:', formId);
-
-            // Update button styles for this specific form
-            const ageButtons = document.querySelectorAll(`#${formId} .age-btn`);
-            console.log(`Found ${ageButtons.length} age buttons in ${formId}`);
-
-            ageButtons.forEach(btn => {
-                btn.classList.remove('active');
-                btn.style.backgroundColor = 'white';
-                btn.style.color = '#374151';
-                btn.style.borderColor = '#e5e7eb';
-            });
-
-            // Style the selected button
-            const selectedBtn = document.querySelector(`#${formId} .age-btn[data-age="${ageValue}"]`);
-            if (selectedBtn) {
-                selectedBtn.classList.add('active');
-                selectedBtn.style.backgroundColor = '#10B981';
-                selectedBtn.style.color = 'white';
-                selectedBtn.style.borderColor = '#10B981';
-                console.log('Selected button styled successfully');
-            } else {
-                console.error('Selected button not found in', formId);
-            }
+        // Update hidden input
+        const hiddenInput = document.getElementById(`age_category_${formType}`);
+        if (hiddenInput) {
+            hiddenInput.value = ageValue;
+            console.log(`Updated age_category_${formType} to:`, ageValue);
+        } else {
+            console.error(`Hidden input age_category_${formType} not found`);
+            return;
         }
 
-        function selectPriorityType(formType, priorityValue) {
-            // Update hidden input
-            const hiddenInput = document.getElementById(`priority_type_${formType}`);
-            if (hiddenInput) {
-                hiddenInput.value = priorityValue;
-            }
-
-            // Determine which form ID to use
-            let formId;
-            if (formType === 'nid') {
-                formId = 'nidForm';
-            } else if (formType === 'status') {
-                formId = 'statusForm';
-            } else if (formType === 'update') {
-                formId = 'updatingForm';
-            }
-
-            // Update button styles for this specific form
-            const priorityButtons = document.querySelectorAll(`#${formId} .priority-btn`);
-
-            priorityButtons.forEach(btn => {
-                btn.classList.remove('active');
-                btn.style.backgroundColor = 'white';
-                btn.style.color = '#374151';
-                btn.style.borderColor = '#e5e7eb';
-            });
-
-            // Style the selected button
-            const selectedBtn = document.querySelector(`#${formId} .priority-btn[data-priority="${priorityValue}"]`);
-            if (selectedBtn) {
-                selectedBtn.classList.add('active');
-                selectedBtn.style.backgroundColor = '#2563eb';
-                selectedBtn.style.color = 'white';
-                selectedBtn.style.borderColor = '#2563eb';
-            }
-
-            // Auto-select age category based on priority
-            if (priorityValue === 'infant') {
-                selectAge(formType, '0-4 years old');
-            } else {
-                selectAge(formType, '5 years old and above');
-            }
-
-            // Store in session via AJAX
-            $.ajax({
-                url: '{{ route('appointment.store-priority') }}',
-                method: 'POST',
-                data: {
-                    _token: '{{ csrf_token() }}',
-                    priority_type: priorityValue,
-                    form_type: formType
-                },
-                success: function(response) {
-                    console.log('Priority saved to session:', priorityValue);
-                }
-            });
+        // Determine which form ID to use
+        let formId;
+        if (formType === 'nid') {
+            formId = 'nidForm';
+        } else if (formType === 'status') {
+            formId = 'statusForm';
+        } else if (formType === 'update') {
+            formId = 'updatingForm';
+        } else {
+            console.error('Unknown form type:', formType);
+            return;
         }
 
-        function toggleForm(category = null) {
-            if (!category) {
-                category = document.getElementById('selectedCategory').value;
-            }
+        console.log('Looking for buttons in form:', formId);
 
-            var nidForm = document.getElementById('nidForm');
-            var statusForm = document.getElementById('statusForm');
-            var updatingForm = document.getElementById('updatingForm');
+        // Update button styles for this specific form
+        const ageButtons = document.querySelectorAll(`#${formId} .age-btn`);
+        console.log(`Found ${ageButtons.length} age buttons in ${formId}`);
 
-            // Hide all forms
-            if (nidForm) nidForm.style.display = 'none';
-            if (statusForm) statusForm.style.display = 'none';
-            if (updatingForm) updatingForm.style.display = 'none';
+        ageButtons.forEach(btn => {
+            btn.classList.remove('active');
+            btn.style.backgroundColor = 'white';
+            btn.style.color = '#374151';
+            btn.style.borderColor = '#e5e7eb';
+        });
 
-            // Remove required attributes from all inputs
-            [nidForm, statusForm, updatingForm].forEach(formDiv => {
-                if (!formDiv) return;
-                var inputs = formDiv.querySelectorAll('input, select');
-                inputs.forEach(input => {
-                    input.removeAttribute('required');
-                });
-            });
+        // Style the selected button
+        const selectedBtn = document.querySelector(`#${formId} .age-btn[data-age="${ageValue}"]`);
+        if (selectedBtn) {
+            selectedBtn.classList.add('active');
+            selectedBtn.style.backgroundColor = '#10B981';
+            selectedBtn.style.color = 'white';
+            selectedBtn.style.borderColor = '#10B981';
+            console.log('Selected button styled successfully');
+        } else {
+            console.error('Selected button not found in', formId);
+        }
+    }
 
-            if (category !== 'Status Inquiry' && isScanning) {
-                closeScannerModal();
-            }
-
-            var activeForm;
-            if (category === 'NID Registration') {
-                activeForm = nidForm;
-            } else if (category === 'Status Inquiry') {
-                activeForm = statusForm;
-            } else if (category === 'Updating') {
-                activeForm = updatingForm;
-            }
-
-            if (activeForm) {
-                activeForm.style.display = 'block';
-                var inputs = activeForm.querySelectorAll('input, select');
-                inputs.forEach(input => {
-                    if (input.dataset && input.dataset.required === "true") {
-                        input.setAttribute('required', 'required');
-                    }
-                });
-            }
+    function selectPriorityType(formType, priorityValue) {
+        // Update hidden input
+        const hiddenInput = document.getElementById(`priority_type_${formType}`);
+        if (hiddenInput) {
+            hiddenInput.value = priorityValue;
         }
 
-        async function stopQRScanner() {
-            if (html5QrcodeScanner && isScanning) {
-                try {
-                    await html5QrcodeScanner.stop();
-                    await html5QrcodeScanner.clear();
-                    html5QrcodeScanner = null;
-                    isScanning = false;
-                } catch (err) {
-                    console.error('Error stopping scanner:', err);
-                }
+        // Determine which form ID to use
+        let formId;
+        if (formType === 'nid') {
+            formId = 'nidForm';
+        } else if (formType === 'status') {
+            formId = 'statusForm';
+        } else if (formType === 'update') {
+            formId = 'updatingForm';
+        }
+
+        // Update button styles for this specific form
+        const priorityButtons = document.querySelectorAll(`#${formId} .priority-btn`);
+
+        priorityButtons.forEach(btn => {
+            btn.classList.remove('active');
+            btn.style.backgroundColor = 'white';
+            btn.style.color = '#374151';
+            btn.style.borderColor = '#e5e7eb';
+        });
+
+        // Style the selected button
+        const selectedBtn = document.querySelector(`#${formId} .priority-btn[data-priority="${priorityValue}"]`);
+        if (selectedBtn) {
+            selectedBtn.classList.add('active');
+            selectedBtn.style.backgroundColor = '#2563eb';
+            selectedBtn.style.color = 'white';
+            selectedBtn.style.borderColor = '#2563eb';
+        }
+
+        // Auto-select age category based on priority
+        if (priorityValue === 'infant') {
+            selectAge(formType, '0-4 years old');
+        } else {
+            selectAge(formType, '5 years old and above');
+        }
+
+        // Store in session via AJAX
+        $.ajax({
+            url: '{{ route('appointment.store-priority') }}',
+            method: 'POST',
+            data: {
+                _token: '{{ csrf_token() }}',
+                priority_type: priorityValue,
+                form_type: formType
+            },
+            success: function(response) {
+                console.log('Priority saved to session:', priorityValue);
             }
+        });
+    }
 
-            const qrReader = document.getElementById('qr-reader');
-            if (qrReader) {
-                qrReader.innerHTML = '';
-            }
+    function toggleForm(category = null) {
+        if (!category) {
+            category = document.getElementById('selectedCategory').value;
         }
 
-        async function startQRScanner() {
-            const qrReader = document.getElementById('qr-reader');
-            const trnInput = document.getElementById('trn');
+        var nidForm = document.getElementById('nidForm');
+        var statusForm = document.getElementById('statusForm');
+        var updatingForm = document.getElementById('updatingForm');
 
-            if (!qrReader) {
-                console.error('QR reader element not found');
-                return;
-            }
+        // Hide all forms
+        if (nidForm) nidForm.style.display = 'none';
+        if (statusForm) statusForm.style.display = 'none';
+        if (updatingForm) updatingForm.style.display = 'none';
 
-            await stopQRScanner();
-
-            qrReader.innerHTML = `
-        <div class="scanner-loading" style="text-align: center; padding: 60px 20px; color: #2563eb;">
-            <svg viewBox="0 0 20 20" fill="currentColor" width="48" height="48" style="animation: spin 1s linear infinite; margin-bottom: 15px;">
-                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd" />
-            </svg>
-            <p>Initializing camera...<br>Please allow camera access when prompted.</p>
-        </div>
-    `;
-
-            try {
-                if (typeof Html5Qrcode === 'undefined') {
-                    throw new Error('QR Scanner library not loaded. Please refresh the page.');
-                }
-
-                if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-                    throw new Error(
-                        'Your browser does not support camera access. Please use a modern browser like Chrome, Firefox, or Safari.'
-                    );
-                }
-
-                html5QrcodeScanner = new Html5Qrcode("qr-reader");
-
-                const qrCodeSuccessCallback = (decodedText) => {
-                    trnInput.value = decodedText;
-                    closeScannerModal();
-
-                    Swal.fire({
-                        title: 'Success!',
-                        text: 'QR Code scanned successfully!',
-                        icon: 'success',
-                        timer: 1500,
-                        showConfirmButton: false,
-                        position: 'top-end',
-                        toast: true,
-                        showCloseButton: true
-                    });
-                };
-
-                const config = {
-                    fps: 10,
-                    qrbox: {
-                        width: 250,
-                        height: 250
-                    },
-                    aspectRatio: 1.0
-                };
-
-                const cameras = await Html5Qrcode.getCameras();
-
-                if (cameras && cameras.length > 0) {
-                    let selectedCameraId = cameras[0].id;
-
-                    for (const camera of cameras) {
-                        const label = camera.label.toLowerCase();
-                        if (label.includes('back') || label.includes('environment') || label.includes('rear')) {
-                            selectedCameraId = camera.id;
-                            break;
-                        }
-                    }
-
-                    await html5QrcodeScanner.start({
-                            deviceId: selectedCameraId
-                        },
-                        config,
-                        qrCodeSuccessCallback,
-                        (errorMessage) => {}
-                    );
-
-                    isScanning = true;
-                } else {
-                    await html5QrcodeScanner.start({
-                            facingMode: "environment"
-                        },
-                        config,
-                        qrCodeSuccessCallback,
-                        (errorMessage) => {}
-                    );
-
-                    isScanning = true;
-                }
-
-            } catch (err) {
-                console.error('Scanner error:', err);
-
-                let errorMessage = 'Unable to access camera. ';
-
-                if (err.name === 'NotAllowedError' || err.message.includes('permission')) {
-                    errorMessage =
-                        'Camera access denied. Please allow camera access in your browser settings and try again.';
-                } else if (err.name === 'NotFoundError' || err.message.includes('not found')) {
-                    errorMessage = 'No camera found on this device.';
-                } else if (err.name === 'NotReadableError' || err.message.includes('in use')) {
-                    errorMessage = 'Camera is already in use by another application.';
-                } else {
-                    errorMessage += err.message || 'Please check your camera and try again.';
-                }
-
-                qrReader.innerHTML = `
-            <div class="scanner-error" style="text-align: center; padding: 40px 20px; color: #dc2626;">
-                <svg viewBox="0 0 20 20" fill="currentColor" width="48" height="48" style="margin-bottom: 15px;">
-                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
-                </svg>
-                <p style="margin-bottom: 20px; color: #4b5563;">${errorMessage}</p>
-                <div>
-                    <button onclick="startQRScanner()" class="btn btn-primary" style="padding: 8px 16px; background-color: #2563eb; color: white; border: none; border-radius: 4px; cursor: pointer; margin-right: 8px;">
-                        Try Again
-                    </button>
-                    <button onclick="closeScannerModal()" class="btn btn-secondary" style="padding: 8px 16px; background-color: #6b7280; color: white; border: none; border-radius: 4px; cursor: pointer;">
-                        Close
-                    </button>
-                </div>
-            </div>
-        `;
-            }
-        }
-
-        function showScannerModal() {
-            const modal = document.getElementById('scannerModal');
-            if (modal) {
-                modal.style.display = 'flex';
-                setTimeout(() => {
-                    startQRScanner();
-                }, 200);
-            }
-        }
-
-        function closeScannerModal() {
-            const modal = document.getElementById('scannerModal');
-            if (modal) {
-                modal.style.display = 'none';
-            }
-            stopQRScanner();
-        }
-
-        function fetchAppointments() {
-            if (isLoading) return;
-
-            const timestamp = new Date().getTime();
-
-            fetch('{{ route('appointment.today') }}?_=' + timestamp, {
-                    method: 'GET',
-                    headers: {
-                        'Accept': 'application/json',
-                        'X-Requested-With': 'XMLHttpRequest',
-                        'Cache-Control': 'no-cache, no-store, must-revalidate',
-                        'Pragma': 'no-cache',
-                        'Expires': '0'
-                    }
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        updateAppointmentsTable(data.appointments);
-                        updateStatistics(data.stats);
-                        console.log('Auto-refresh completed at', new Date().toLocaleTimeString(), 'Appointments:', data
-                            .appointments.length);
-                    }
-                })
-                .catch(error => {
-                    console.error('Error fetching appointments:', error);
-                });
-        }
-
-        function fetchRecentTransactions() {
-            if (isLoading) return;
-            fetchRecentTransactionsPage();
-        }
-
-        function loadTransactionsPage(url) {
-            if (isLoading) return;
-            isLoading = true;
-
-            const tableContainer = document.getElementById('transactionsTableContainer');
-            const paginationContainer = document.getElementById('paginationContainer');
-            const showingInfo = document.getElementById('showingInfo');
-
-            if (!tableContainer || !paginationContainer) {
-                isLoading = false;
-                return;
-            }
-
-            const separator = url.includes('?') ? '&' : '?';
-            const fetchUrl = url + separator + '_=' + new Date().getTime();
-
-            tableContainer.classList.add('loading');
-            paginationContainer.classList.add('loading');
-            tableContainer.style.opacity = '0';
-            paginationContainer.style.opacity = '0';
-
-            fetch(fetchUrl, {
-                headers: {
-                    'X-Requested-With': 'XMLHttpRequest',
-                    'Accept': 'application/json',
-                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                }
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (!data.success) throw new Error(data.message || 'Unknown error occurred');
-
-                setTimeout(() => {
-                    if (data.table) tableContainer.innerHTML = data.table;
-                    if (data.pagination) paginationContainer.innerHTML = data.pagination;
-                    if (data.showing && showingInfo) showingInfo.textContent = data.showing;
-
-                    tableContainer.style.opacity = '1';
-                    paginationContainer.style.opacity = '1';
-                    tableContainer.classList.remove('loading');
-                    paginationContainer.classList.remove('loading');
-
-                    // Re-attach pagination listeners
-                    attachPaginationListeners();
-
-                    // Re-apply service filter
-                    const filter = document.getElementById('transactionServiceFilter');
-                    if (filter) filter.dispatchEvent(new Event('change'));
-
-                    // Add success animation
-                    tableContainer.classList.add('page-change-success');
-                    paginationContainer.classList.add('page-change-success');
-                    
-                    setTimeout(() => {
-                        tableContainer.classList.remove('page-change-success');
-                        paginationContainer.classList.remove('page-change-success');
-                    }, 500);
-
-                    isLoading = false;
-                }, 150);
-            })
-            .catch(error => {
-                console.error('Error loading page:', error);
-                tableContainer.style.opacity = '1';
-                paginationContainer.style.opacity = '1';
-                tableContainer.classList.remove('loading');
-                paginationContainer.classList.remove('loading');
-                isLoading = false;
-                
-                Swal.fire({
-                    title: 'Error!',
-                    text: 'Failed to load page. Please try again.',
-                    icon: 'error',
-                    confirmButtonColor: '#dc2626',
-                    timer: 2000,
-                    showConfirmButton: false
-                });
-            });
-        }
-
-        function attachPaginationListeners() {
-            document.querySelectorAll(
-                '.pagination-nav-btn:not(.disabled), .pagination-arrow:not(.disabled), .page-number:not(.active)'
-            ).forEach(link => {
-                link.removeEventListener('click', handlePaginationClick);
-                link.addEventListener('click', handlePaginationClick);
-            });
-        }
-
-        function handlePaginationClick(e) {
-            e.preventDefault();
-            if (!isLoading) {
-                loadTransactionsPage(this.href);
-            }
-        }
-
-        // Service Filter for Recent Transactions
-        document.getElementById('transactionServiceFilter')?.addEventListener('change', function() {
-            const selectedService = this.value;
-            const rows = document.querySelectorAll('#transactionsTableContainer tr');
-
-            rows.forEach(row => {
-                if (row.classList.contains('empty-state')) return;
-
-                const service = row.getAttribute('data-service');
-                row.style.display = (selectedService === 'all' || service === selectedService) ? '' : 'none';
+        // Remove required attributes from all inputs
+        [nidForm, statusForm, updatingForm].forEach(formDiv => {
+            if (!formDiv) return;
+            var inputs = formDiv.querySelectorAll('input, select');
+            inputs.forEach(input => {
+                input.removeAttribute('required');
             });
         });
 
-        // Fetch recent transactions page (for refresh)
-        function fetchRecentTransactionsPage(page = null) {
-            if (isLoading) return;
+        if (category !== 'Status Inquiry' && isScanning) {
+            closeScannerModal();
+        }
 
-            // Get fresh references each time
-            const tableContainer = document.getElementById('transactionsTableContainer');
-            const paginationContainer = document.getElementById('paginationContainer');
-            const showingInfo = document.getElementById('showingInfo');
+        var activeForm;
+        if (category === 'NID Registration') {
+            activeForm = nidForm;
+        } else if (category === 'Status Inquiry') {
+            activeForm = statusForm;
+        } else if (category === 'Updating') {
+            activeForm = updatingForm;
+        }
 
-            if (!tableContainer || !paginationContainer) {
-                console.error('Required elements not found');
-                return;
+        if (activeForm) {
+            activeForm.style.display = 'block';
+            var inputs = activeForm.querySelectorAll('input, select');
+            inputs.forEach(input => {
+                if (input.dataset && input.dataset.required === "true") {
+                    input.setAttribute('required', 'required');
+                }
+            });
+        }
+    }
+
+    async function stopQRScanner() {
+        if (html5QrcodeScanner && isScanning) {
+            try {
+                await html5QrcodeScanner.stop();
+                await html5QrcodeScanner.clear();
+                html5QrcodeScanner = null;
+                isScanning = false;
+            } catch (err) {
+                console.error('Error stopping scanner:', err);
+            }
+        }
+
+        const qrReader = document.getElementById('qr-reader');
+        if (qrReader) {
+            qrReader.innerHTML = '';
+        }
+    }
+
+    async function startQRScanner() {
+        const qrReader = document.getElementById('qr-reader');
+        const trnInput = document.getElementById('trn');
+
+        if (!qrReader) {
+            console.error('QR reader element not found');
+            return;
+        }
+
+        await stopQRScanner();
+
+        qrReader.innerHTML = `
+            <div class="scanner-loading" style="text-align: center; padding: 60px 20px; color: #2563eb;">
+                <svg viewBox="0 0 20 20" fill="currentColor" width="48" height="48" style="animation: spin 1s linear infinite; margin-bottom: 15px;">
+                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd" />
+                </svg>
+                <p>Initializing camera...<br>Please allow camera access when prompted.</p>
+            </div>
+        `;
+
+        try {
+            if (typeof Html5Qrcode === 'undefined') {
+                throw new Error('QR Scanner library not loaded. Please refresh the page.');
             }
 
-            let url = '{{ route('appointment.transactions-page') }}';
-            const params = new URLSearchParams();
+            if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+                throw new Error(
+                    'Your browser does not support camera access. Please use a modern browser like Chrome, Firefox, or Safari.'
+                );
+            }
 
-            if (page) params.append('page', page);
+            html5QrcodeScanner = new Html5Qrcode("qr-reader");
 
-            const queryString = params.toString();
-            if (queryString) url += '?' + queryString;
-            url += (url.includes('?') ? '&' : '?') + '_=' + new Date().getTime();
+            const qrCodeSuccessCallback = (decodedText) => {
+                trnInput.value = decodedText;
+                closeScannerModal();
 
-            fetch(url, {
+                Swal.fire({
+                    title: 'Success!',
+                    text: 'QR Code scanned successfully!',
+                    icon: 'success',
+                    timer: 1500,
+                    showConfirmButton: false,
+                    position: 'top-end',
+                    toast: true,
+                    showCloseButton: true
+                });
+            };
+
+            const config = {
+                fps: 10,
+                qrbox: {
+                    width: 250,
+                    height: 250
+                },
+                aspectRatio: 1.0
+            };
+
+            const cameras = await Html5Qrcode.getCameras();
+
+            if (cameras && cameras.length > 0) {
+                let selectedCameraId = cameras[0].id;
+
+                for (const camera of cameras) {
+                    const label = camera.label.toLowerCase();
+                    if (label.includes('back') || label.includes('environment') || label.includes('rear')) {
+                        selectedCameraId = camera.id;
+                        break;
+                    }
+                }
+
+                await html5QrcodeScanner.start({
+                        deviceId: selectedCameraId
+                    },
+                    config,
+                    qrCodeSuccessCallback,
+                    (errorMessage) => {}
+                );
+
+                isScanning = true;
+            } else {
+                await html5QrcodeScanner.start({
+                        facingMode: "environment"
+                    },
+                    config,
+                    qrCodeSuccessCallback,
+                    (errorMessage) => {}
+                );
+
+                isScanning = true;
+            }
+
+        } catch (err) {
+            console.error('Scanner error:', err);
+
+            let errorMessage = 'Unable to access camera. ';
+
+            if (err.name === 'NotAllowedError' || err.message.includes('permission')) {
+                errorMessage =
+                    'Camera access denied. Please allow camera access in your browser settings and try again.';
+            } else if (err.name === 'NotFoundError' || err.message.includes('not found')) {
+                errorMessage = 'No camera found on this device.';
+            } else if (err.name === 'NotReadableError' || err.message.includes('in use')) {
+                errorMessage = 'Camera is already in use by another application.';
+            } else {
+                errorMessage += err.message || 'Please check your camera and try again.';
+            }
+
+            qrReader.innerHTML = `
+                <div class="scanner-error" style="text-align: center; padding: 40px 20px; color: #dc2626;">
+                    <svg viewBox="0 0 20 20" fill="currentColor" width="48" height="48" style="margin-bottom: 15px;">
+                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
+                    </svg>
+                    <p style="margin-bottom: 20px; color: #4b5563;">${errorMessage}</p>
+                    <div>
+                        <button onclick="startQRScanner()" class="btn btn-primary" style="padding: 8px 16px; background-color: #2563eb; color: white; border: none; border-radius: 4px; cursor: pointer; margin-right: 8px;">
+                            Try Again
+                        </button>
+                        <button onclick="closeScannerModal()" class="btn btn-secondary" style="padding: 8px 16px; background-color: #6b7280; color: white; border: none; border-radius: 4px; cursor: pointer;">
+                            Close
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+    }
+
+    function showScannerModal() {
+        const modal = document.getElementById('scannerModal');
+        if (modal) {
+            modal.style.display = 'flex';
+            setTimeout(() => {
+                startQRScanner();
+            }, 200);
+        }
+    }
+
+    function closeScannerModal() {
+        const modal = document.getElementById('scannerModal');
+        if (modal) {
+            modal.style.display = 'none';
+        }
+        stopQRScanner();
+    }
+
+    function fetchAppointments() {
+        if (isLoading) return;
+
+        const timestamp = new Date().getTime();
+
+        fetch('{{ route('appointment.today') }}?_=' + timestamp, {
+                method: 'GET',
                 headers: {
-                    'X-Requested-With': 'XMLHttpRequest',
                     'Accept': 'application/json',
-                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'Cache-Control': 'no-cache, no-store, must-revalidate',
+                    'Pragma': 'no-cache',
+                    'Expires': '0'
                 }
             })
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
-                    if (data.table) tableContainer.innerHTML = data.table;
-                    if (data.pagination) paginationContainer.innerHTML = data.pagination;
-                    if (data.showing && showingInfo) showingInfo.textContent = data.showing;
-                    
-                    // Re-attach pagination listeners AFTER updating the HTML
-                    attachPaginationListeners();
-                    
-                    // Re-apply service filter
-                    const filter = document.getElementById('transactionServiceFilter');
-                    if (filter) filter.dispatchEvent(new Event('change'));
+                    updateAppointmentsTable(data.appointments);
+                    updateStatistics(data.stats);
+                    console.log('Auto-refresh completed at', new Date().toLocaleTimeString(), 'Appointments:', data
+                        .appointments.length);
                 }
             })
-            .catch(error => console.error('Error fetching recent transactions:', error));
+            .catch(error => {
+                console.error('Error fetching appointments:', error);
+            });
+    }
+
+    function fetchRecentTransactions() {
+        if (isLoading) return;
+        fetchRecentTransactionsPage(currentPage);
+    }
+
+    function loadTransactionsPage(url) {
+        if (isLoading) return;
+        isLoading = true;
+
+        // Extract page number from URL and store it
+        const urlParams = new URLSearchParams(url.split('?')[1] || '');
+        const pageParam = urlParams.get('page');
+        if (pageParam) {
+            currentPage = parseInt(pageParam);
         }
 
-        // Export PDF with confirmation
-        document.getElementById('screenerExportPdfBtn')?.addEventListener('click', function(e) {
-            e.preventDefault();
+        const tableContainer = document.getElementById('transactionsTableContainer');
+        const paginationContainer = document.getElementById('paginationContainer');
+        const showingInfo = document.getElementById('showingInfo');
 
+        if (!tableContainer || !paginationContainer) {
+            isLoading = false;
+            return;
+        }
+
+        const separator = url.includes('?') ? '&' : '?';
+        const fetchUrl = url + separator + '_=' + new Date().getTime();
+
+        tableContainer.classList.add('loading');
+        paginationContainer.classList.add('loading');
+        tableContainer.style.opacity = '0';
+        paginationContainer.style.opacity = '0';
+
+        fetch(fetchUrl, {
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+                'Accept': 'application/json',
+                'X-CSRF-TOKEN': '{{ csrf_token() }}'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (!data.success) throw new Error(data.message || 'Unknown error occurred');
+
+            setTimeout(() => {
+                if (data.table) tableContainer.innerHTML = data.table;
+                if (data.pagination) paginationContainer.innerHTML = data.pagination;
+                if (data.showing && showingInfo) showingInfo.textContent = data.showing;
+
+                tableContainer.style.opacity = '1';
+                paginationContainer.style.opacity = '1';
+                tableContainer.classList.remove('loading');
+                paginationContainer.classList.remove('loading');
+
+                // Re-attach pagination listeners
+                attachPaginationListeners();
+
+                // Re-apply service filter
+                const filter = document.getElementById('transactionServiceFilter');
+                if (filter) filter.dispatchEvent(new Event('change'));
+
+                // Add success animation
+                tableContainer.classList.add('page-change-success');
+                paginationContainer.classList.add('page-change-success');
+                
+                setTimeout(() => {
+                    tableContainer.classList.remove('page-change-success');
+                    paginationContainer.classList.remove('page-change-success');
+                }, 500);
+
+                isLoading = false;
+            }, 150);
+        })
+        .catch(error => {
+            console.error('Error loading page:', error);
+            tableContainer.style.opacity = '1';
+            paginationContainer.style.opacity = '1';
+            tableContainer.classList.remove('loading');
+            paginationContainer.classList.remove('loading');
+            isLoading = false;
+            
             Swal.fire({
-                title: 'Export PDF',
-                text: 'Export your completed transactions report?',
-                icon: 'question',
-                showCancelButton: true,
-                confirmButtonColor: '#2563eb',
-                cancelButtonColor: '#dc2626',
-                confirmButtonText: 'Yes, Export!'
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    window.location.href = '{{ route('appointment.export.pdf') }}';
-
-                    const Toast = Swal.mixin({
-                        toast: true,
-                        position: 'top-end',
-                        showConfirmButton: false,
-                        timer: 2000,
-                        timerProgressBar: true
-                    });
-
-                    Toast.fire({
-                        icon: 'success',
-                        title: 'PDF Exported Successfully'
-                    });
-                }
+                title: 'Error!',
+                text: 'Failed to load page. Please try again.',
+                icon: 'error',
+                confirmButtonColor: '#dc2626',
+                timer: 2000,
+                showConfirmButton: false
             });
         });
+    }
 
-        // Export Excel with confirmation
-        document.getElementById('screenerExportExcelBtn')?.addEventListener('click', function(e) {
-            e.preventDefault();
-
-            Swal.fire({
-                title: 'Export to Excel',
-                text: 'Export your completed transactions report?',
-                icon: 'question',
-                showCancelButton: true,
-                confirmButtonColor: '#059669',
-                cancelButtonColor: '#dc2626',
-                confirmButtonText: 'Yes, Export!'
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    window.location.href = '{{ route('appointment.export.excel') }}';
-
-                    const Toast = Swal.mixin({
-                        toast: true,
-                        position: 'top-end',
-                        showConfirmButton: false,
-                        timer: 2000,
-                        timerProgressBar: true
-                    });
-
-                    Toast.fire({
-                        icon: 'success',
-                        title: 'Excel Exported Successfully'
-                    });
-                }
-            });
+    function attachPaginationListeners() {
+        document.querySelectorAll(
+            '.pagination-nav-btn:not(.disabled), .pagination-arrow:not(.disabled), .page-number:not(.active)'
+        ).forEach(link => {
+            link.removeEventListener('click', handlePaginationClick);
+            link.addEventListener('click', handlePaginationClick);
         });
+    }
 
-        function updateAppointmentsTable(appointments) {
-            const tbody = document.getElementById('appointmentsTableBody');
+    function handlePaginationClick(e) {
+        e.preventDefault();
+        if (!isLoading) {
+            loadTransactionsPage(this.href);
+        }
+    }
 
-            if (!appointments || appointments.length === 0) {
-                tbody.innerHTML = `
-                    <tr>
-                        <td colspan="6" class="empty-state">
-                            <svg viewBox="0 0 20 20" fill="currentColor">
-                                <path fill-rule="evenodd"
-                                    d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z"
-                                    clip-rule="evenodd" />
-                            </svg>
-                            <p>No pending appointments for today</p>
+    // Service Filter for Recent Transactions
+    document.getElementById('transactionServiceFilter')?.addEventListener('change', function() {
+        const selectedService = this.value;
+        const rows = document.querySelectorAll('#transactionsTableContainer tr');
+
+        rows.forEach(row => {
+            if (row.classList.contains('empty-state')) return;
+
+            const service = row.getAttribute('data-service');
+            row.style.display = (selectedService === 'all' || service === selectedService) ? '' : 'none';
+        });
+    });
+
+    // Fetch recent transactions page (for refresh)
+    function fetchRecentTransactionsPage(page = null) {
+        if (isLoading) return;
+
+        // Get fresh references each time
+        const tableContainer = document.getElementById('transactionsTableContainer');
+        const paginationContainer = document.getElementById('paginationContainer');
+        const showingInfo = document.getElementById('showingInfo');
+
+        if (!tableContainer || !paginationContainer) {
+            console.error('Required elements not found');
+            return;
+        }
+
+        let url = '{{ route('appointment.transactions-page') }}';
+        const params = new URLSearchParams();
+
+        // Use the provided page parameter or fall back to currentPage
+        const pageToUse = page !== null ? page : currentPage;
+        if (pageToUse > 1) {
+            params.append('page', pageToUse);
+        }
+
+        const queryString = params.toString();
+        if (queryString) url += '?' + queryString;
+        url += (url.includes('?') ? '&' : '?') + '_=' + new Date().getTime();
+
+        fetch(url, {
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+                'Accept': 'application/json',
+                'X-CSRF-TOKEN': '{{ csrf_token() }}'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                if (data.table) tableContainer.innerHTML = data.table;
+                if (data.pagination) paginationContainer.innerHTML = data.pagination;
+                if (data.showing && showingInfo) showingInfo.textContent = data.showing;
+                
+                // Update currentPage from response if available
+                if (data.current_page) {
+                    currentPage = data.current_page;
+                }
+                
+                // Re-attach pagination listeners AFTER updating the HTML
+                attachPaginationListeners();
+                
+                // Re-apply service filter
+                const filter = document.getElementById('transactionServiceFilter');
+                if (filter) filter.dispatchEvent(new Event('change'));
+            }
+        })
+        .catch(error => console.error('Error fetching recent transactions:', error));
+    }
+
+    // Export PDF with confirmation
+    document.getElementById('screenerExportPdfBtn')?.addEventListener('click', function(e) {
+        e.preventDefault();
+
+        Swal.fire({
+            title: 'Export PDF',
+            text: 'Export your completed transactions report?',
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonColor: '#2563eb',
+            cancelButtonColor: '#dc2626',
+            confirmButtonText: 'Yes, Export!'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                window.location.href = '{{ route('appointment.export.pdf') }}';
+
+                const Toast = Swal.mixin({
+                    toast: true,
+                    position: 'top-end',
+                    showConfirmButton: false,
+                    timer: 2000,
+                    timerProgressBar: true
+                });
+
+                Toast.fire({
+                    icon: 'success',
+                    title: 'PDF Exported Successfully'
+                });
+            }
+        });
+    });
+
+    // Export Excel with confirmation
+    document.getElementById('screenerExportExcelBtn')?.addEventListener('click', function(e) {
+        e.preventDefault();
+
+        Swal.fire({
+            title: 'Export to Excel',
+            text: 'Export your completed transactions report?',
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonColor: '#059669',
+            cancelButtonColor: '#dc2626',
+            confirmButtonText: 'Yes, Export!'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                window.location.href = '{{ route('appointment.export.excel') }}';
+
+                const Toast = Swal.mixin({
+                    toast: true,
+                    position: 'top-end',
+                    showConfirmButton: false,
+                    timer: 2000,
+                    timerProgressBar: true
+                });
+
+                Toast.fire({
+                    icon: 'success',
+                    title: 'Excel Exported Successfully'
+                });
+            }
+        });
+    });
+
+    function updateAppointmentsTable(appointments) {
+        const tbody = document.getElementById('appointmentsTableBody');
+
+        if (!appointments || appointments.length === 0) {
+            tbody.innerHTML = `
+                <tr>
+                    <td colspan="6" class="empty-state">
+                        <svg viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd"
+                                d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z"
+                                clip-rule="evenodd" />
+                        </svg>
+                        <p>No pending appointments for today</p>
+                    </td>
+                </tr>
+            `;
+            return;
+        }
+
+        let html = '';
+        appointments.forEach(app => {
+            const status = app.status || 'pending';
+            const showInTable = ['pending', 'serving'].includes(status) ||
+                (!app.time_catered && !['completed', 'cancelled', 'no_show'].includes(status));
+
+            if (showInTable) {
+                const createdTime = new Date(app.date).toLocaleTimeString('en-US', {
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    hour12: true,
+                    timeZone: 'Asia/Manila'
+                });
+
+                let fullName = app.lname + ', ' + app.fname;
+                if (app.mname && app.mname.trim() !== '') fullName += ' ' + app.mname;
+                if (app.suffix && app.suffix.trim() !== '') fullName += ' ' + app.suffix;
+
+                const priorityType = app.priority_type?.toLowerCase() || 'regular';
+                const priorityDisplay = priorityType === 'regular' ? 'Regular' :
+                    priorityType.charAt(0).toUpperCase() + priorityType.slice(1);
+
+                const searchData = (app.lname + ' ' + app.fname + ' ' + (app.trn || '')).toLowerCase();
+
+                html += `
+                    <tr data-search="${searchData}" data-priority="${priorityType}" data-status="${status}" data-id="${app.n_id}">
+                        <td><span class="queue-number">${app.q_id}</span></td>
+                        <td><div class="client-name">${fullName}</div></td>
+                        <td><span class="priority-badge priority-${priorityType}">${priorityDisplay.toUpperCase()}</span></td>
+                        <td>${app.queue_for}</td>
+                        <td>${createdTime}</td>
+                        <td>
+                            <button type="button" class="btn-action cancel-btn" 
+                                    data-id="${app.n_id}" data-name="${fullName}" data-queue="${app.q_id}"
+                                    onclick="cancelAppointment(this)">
+                                <svg viewBox="0 0 20 20" fill="currentColor" width="16" height="16">
+                                    <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" />
+                                </svg>
+                                Cancel
+                            </button>
                         </td>
                     </tr>
                 `;
-                return;
             }
+        });
 
-            let html = '';
-            appointments.forEach(app => {
-                const status = app.status || 'pending';
-                const showInTable = ['pending', 'serving'].includes(status) ||
-                    (!app.time_catered && !['completed', 'cancelled', 'no_show'].includes(status));
+        if (html === '') {
+            tbody.innerHTML = `
+                <tr>
+                    <td colspan="6" class="empty-state">
+                        <svg viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd"
+                                d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z"
+                                clip-rule="evenodd" />
+                        </svg>
+                        <p>No pending appointments for today</p>
+                    </td>
+                </tr>
+            `;
+        } else {
+            tbody.innerHTML = html;
+            if (currentSearchTerm) filterTableRows();
+        }
+    }
 
-                if (showInTable) {
-                    const createdTime = new Date(app.date).toLocaleTimeString('en-US', {
-                        hour: '2-digit',
-                        minute: '2-digit',
-                        hour12: true,
-                        timeZone: 'Asia/Manila'
-                    });
+    function updateStatistics(stats) {
+        if (!stats) return;
+        if (stats.total !== undefined) document.getElementById('totalQueue').textContent = stats.total;
+        if (stats.pending !== undefined) document.getElementById('pendingCount').textContent = stats.pending;
+        if (stats.completed !== undefined) document.getElementById('completedCount').textContent = stats.completed;
+    }
 
-                    let fullName = app.lname + ', ' + app.fname;
-                    if (app.mname && app.mname.trim() !== '') fullName += ' ' + app.mname;
-                    if (app.suffix && app.suffix.trim() !== '') fullName += ' ' + app.suffix;
+    function filterTableRows() {
+        const rows = document.querySelectorAll('#appointmentsTableBody tr');
+        rows.forEach(row => {
+            if (row.classList.contains('empty-state')) return;
+            const searchData = row.getAttribute('data-search') || row.textContent.toLowerCase();
+            row.style.display = searchData.includes(currentSearchTerm) ? '' : 'none';
+        });
+    }
 
-                    const priorityType = app.priority_type?.toLowerCase() || 'regular';
-                    const priorityDisplay = priorityType === 'regular' ? 'Regular' :
-                        priorityType.charAt(0).toUpperCase() + priorityType.slice(1);
+    function startAutoRefresh() {
+        console.log('Auto-refresh started');
+        if (refreshInterval) clearInterval(refreshInterval);
+        refreshInterval = setInterval(function() {
+            console.log('Auto-refresh triggered');
+            fetchAppointments();
+            fetchRecentTransactions();
+        }, 10000);
+        document.addEventListener('visibilitychange', function() {
+            if (!document.hidden && !isLoading) {
+                console.log('Tab became visible, refreshing');
+                fetchAppointments();
+                fetchRecentTransactions();
+            }
+        });
+    }
 
-                    const searchData = (app.lname + ' ' + app.fname + ' ' + (app.trn || '')).toLowerCase();
+    function disableSubmitButton() {
+        const submitBtn = document.getElementById('submitBtn');
+        if (submitBtn && !submitBtn.disabled) {
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = `
+                <svg viewBox="0 0 20 20" fill="currentColor" width="20" height="20" style="animation: spin 1s linear infinite; margin-right: 8px;">
+                    <path fill-rule="evenodd" d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z" clip-rule="evenodd" />
+                </svg>
+                Processing...
+            `;
+        }
+    }
 
-                    html += `
-                        <tr data-search="${searchData}" data-priority="${priorityType}" data-status="${status}" data-id="${app.n_id}">
-                            <td><span class="queue-number">${app.q_id}</span></td>
-                            <td><div class="client-name">${fullName}</div></td>
-                            <td><span class="priority-badge priority-${priorityType}">${priorityDisplay.toUpperCase()}</span></td>
-                            <td>${app.queue_for}</td>
-                            <td>${createdTime}</td>
-                            <td>
-                                <button type="button" class="btn-action cancel-btn" 
-                                        data-id="${app.n_id}" data-name="${fullName}" data-queue="${app.q_id}"
-                                        onclick="cancelAppointment(this)">
-                                    <svg viewBox="0 0 20 20" fill="currentColor" width="16" height="16">
-                                        <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" />
-                                    </svg>
-                                    Cancel
-                                </button>
+    function restoreSubmitButton() {
+        const submitBtn = document.getElementById('submitBtn');
+        if (submitBtn) {
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = `
+                <svg viewBox="0 0 20 20" fill="currentColor" width="20" height="20">
+                    <path fill-rule="evenodd"
+                        d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                        clip-rule="evenodd" />
+                </svg>
+                Issue Appointment
+            `;
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        console.log('DOM loaded, initializing...');
+
+        @if (session('success'))
+            showSuccessPopup(
+                '{{ session('success') }}',
+                @if (session('printSlip'))
+                    '{{ session('printSlip')['queueNumber'] }}'
+                @else
+                    null
+                @endif
+            );
+        @endif
+
+        @if (session('error'))
+            restoreSubmitButton();
+            formSubmitted = false;
+            showErrorPopup('{{ session('error') }}');
+        @endif
+
+        @if ($errors->any())
+            restoreSubmitButton();
+            formSubmitted = false;
+            let errors = @json($errors->all());
+            showErrorPopup('Please fix the following errors:', errors);
+        @endif
+
+        const savedCategory = document.getElementById('selectedCategory').value;
+        selectCategory(savedCategory);
+
+        console.log('NID Form age buttons:', document.querySelectorAll('#nidForm .age-btn').length);
+        console.log('Status Form age buttons:', document.querySelectorAll('#statusForm .age-btn').length);
+        console.log('Updating Form age buttons:', document.querySelectorAll('#updatingForm .age-btn').length);
+
+        const inlineScanner = document.getElementById('qr-reader-container');
+        if (inlineScanner) inlineScanner.remove();
+
+        const openScannerBtn = document.getElementById('openScannerBtn');
+        const closeModalBtn = document.getElementById('closeModalBtn');
+        const cancelScannerBtn = document.getElementById('cancelScannerBtn');
+        const modal = document.getElementById('scannerModal');
+        const appointmentForm = document.getElementById('appointmentForm');
+
+        if (appointmentForm) {
+            appointmentForm.addEventListener('submit', function(e) {
+                if (formSubmitted) {
+                    e.preventDefault();
+                    return false;
+                }
+                if (!this.checkValidity()) return true;
+                formSubmitted = true;
+                disableSubmitButton();
+                return true;
+            });
+        }
+
+        if (openScannerBtn) {
+            openScannerBtn.addEventListener('click', () => {
+                const category = document.getElementById('selectedCategory').value;
+                if (category !== 'Status Inquiry') {
+                    showWarningPopup('Please select Status Inquiry category first.');
+                    selectCategory('Status Inquiry');
+                    return;
+                }
+                showScannerModal();
+            });
+        }
+
+        if (closeModalBtn) closeModalBtn.addEventListener('click', closeScannerModal);
+        if (cancelScannerBtn) cancelScannerBtn.addEventListener('click', closeScannerModal);
+
+        window.addEventListener('click', (event) => {
+            if (event.target === modal) closeScannerModal();
+        });
+
+        attachPaginationListeners();
+
+        @if (session('printSlip'))
+            setTimeout(() => {
+                const printContent = document.getElementById('printContent').innerHTML;
+                const printWindow = window.open('', '_blank', 'width=300,height=250');
+                printWindow.document.write(`
+                    <html>
+                        <head>
+                            <title>Appointment Slip</title>
+                            <style>
+                                @media print {
+                                    @page { size: 3in 2.5in; margin: 0; }
+                                    body {
+                                        margin: 0; padding: 20px; width: 2.5in; height: 2in;
+                                        font-family: "Courier New", Courier, monospace; font-size: 10pt;
+                                        color: #000; box-sizing: border-box; text-align: center;
+                                    }
+                                }
+                                h1 { font-size: 14pt; margin: 0 0 10px 0; }
+                                .info { font-size: 10pt; margin-bottom: 5px; }
+                                .date-time { font-size: 10pt; margin-bottom: 15px; }
+                                .queue-number { font-size: 28pt; font-weight: bold; letter-spacing: 4px; margin: 0; }
+                            </style>
+                        </head>
+                        <body>${printContent}</body>
+                    </html>
+                `);
+                printWindow.document.close();
+                printWindow.focus();
+                printWindow.onload = () => printWindow.print();
+                printWindow.onafterprint = () => printWindow.close();
+            }, 500);
+        @endif
+
+        const searchInput = document.getElementById('searchAppointments');
+        if (searchInput) {
+            searchInput.addEventListener('keyup', function() {
+                currentSearchTerm = this.value.toLowerCase();
+                filterTableRows();
+            });
+        }
+
+        startAutoRefresh();
+        setTimeout(() => {
+            fetchAppointments();
+            fetchRecentTransactions();
+        }, 1000);
+    });
+
+    window.addEventListener('beforeunload', function() {
+        if (refreshInterval) clearInterval(refreshInterval);
+    });
+
+    function showSuccessPopup(message, queueNumber = null) {
+        let html = `<div style="text-align: center;">${message}</div>`;
+        if (queueNumber) {
+            html = `
+                <div style="text-align: center;">
+                    <div style="font-size: 18px; margin-bottom: 10px;">${message}</div>
+                    <div style="font-size: 32px; font-weight: bold; color: #059669; background: #ecfdf5; padding: 15px; border-radius: 10px; margin: 10px 0;">
+                        ${queueNumber}
+                    </div>
+                </div>
+            `;
+        }
+        Swal.fire({
+            title: 'Success!',
+            html: html,
+            icon: 'success',
+            confirmButtonColor: '#2563eb',
+            confirmButtonText: 'OK',
+            timer: 5000,
+            timerProgressBar: true,
+            showCloseButton: true
+        }).then(() => {
+            formSubmitted = false;
+            restoreSubmitButton();
+            const form = document.getElementById('appointmentForm');
+            const currentCategory = document.getElementById('selectedCategory').value;
+            form.reset();
+            document.querySelectorAll('.age-btn').forEach(btn => {
+                btn.classList.remove('active');
+                btn.style.backgroundColor = 'white';
+                btn.style.color = '#374151';
+                btn.style.borderColor = '#e5e7eb';
+            });
+            document.querySelectorAll('[id^="age_category_"]').forEach(input => input.value = '');
+            selectCategory(currentCategory);
+        });
+    }
+
+    function showErrorPopup(message, errors = null) {
+        formSubmitted = false;
+        restoreSubmitButton();
+        let html = `<div style="text-align: center; color: #991b1b;">${message}</div>`;
+        if (errors) {
+            let errorsList = '<ul style="text-align: left; margin-top: 10px; color: #991b1b;">';
+            if (typeof errors === 'object') {
+                Object.values(errors).forEach(error => {
+                    if (Array.isArray(error)) {
+                        error.forEach(err => errorsList += `<li>${err}</li>`);
+                    } else {
+                        errorsList += `<li>${error}</li>`;
+                    }
+                });
+            }
+            errorsList += '</ul>';
+            html += errorsList;
+        }
+        Swal.fire({
+            title: 'Error!',
+            html: html,
+            icon: 'error',
+            confirmButtonColor: '#dc2626',
+            confirmButtonText: 'Try Again',
+            showCloseButton: true
+        });
+    }
+
+    function showWarningPopup(message) {
+        Swal.fire({
+            title: 'Warning!',
+            text: message,
+            icon: 'warning',
+            confirmButtonColor: '#d97706',
+            confirmButtonText: 'OK'
+        });
+    }
+
+    function showLoading() {
+        document.getElementById('loadingModal')?.classList.add('show');
+    }
+
+    function hideLoading() {
+        document.getElementById('loadingModal')?.classList.remove('show');
+    }
+
+    // Cancel Appointment Function
+    function cancelAppointment(button) {
+        const appointmentId = button.getAttribute('data-id');
+        const clientName = button.getAttribute('data-name');
+        const queueNumber = button.getAttribute('data-queue');
+        const row = button.closest('tr');
+        
+        Swal.fire({
+            title: 'Cancel Appointment?',
+            html: `Are you sure you want to cancel appointment <strong>${queueNumber}</strong> for <strong>${clientName}</strong>?`,
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#dc2626',
+            cancelButtonColor: '#6b7280',
+            confirmButtonText: 'Yes, Cancel',
+            cancelButtonText: 'No, Keep',
+            showLoaderOnConfirm: true,
+            preConfirm: () => {
+                return fetch(`/appointment/update-status/${appointmentId}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify({ status: 'cancelled' })
+                })
+                .then(response => {
+                    if (!response.ok) throw new Error(response.statusText);
+                    return response.json();
+                })
+                .catch(error => {
+                    Swal.showValidationMessage(`Request failed: ${error}`);
+                });
+            }
+        }).then((result) => {
+            if (result.isConfirmed) {
+                row.remove();
+                
+                const tbody = document.getElementById('appointmentsTableBody');
+                if (tbody.children.length === 0) {
+                    tbody.innerHTML = `
+                        <tr>
+                            <td colspan="6" class="empty-state">
+                                <svg viewBox="0 0 20 20" fill="currentColor">
+                                    <path fill-rule="evenodd"
+                                        d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z"
+                                        clip-rule="evenodd" />
+                                </svg>
+                                <p>No pending appointments for today</p>
                             </td>
                         </tr>
                     `;
                 }
-            });
-
-            if (html === '') {
-                tbody.innerHTML = `
-                    <tr>
-                        <td colspan="6" class="empty-state">
-                            <svg viewBox="0 0 20 20" fill="currentColor">
-                                <path fill-rule="evenodd"
-                                    d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z"
-                                    clip-rule="evenodd" />
-                            </svg>
-                            <p>No pending appointments for today</p>
-                        </td>
-                    </tr>
-                `;
-            } else {
-                tbody.innerHTML = html;
-                if (currentSearchTerm) filterTableRows();
-            }
-        }
-
-        function updateStatistics(stats) {
-            if (!stats) return;
-            if (stats.total !== undefined) document.getElementById('totalQueue').textContent = stats.total;
-            if (stats.pending !== undefined) document.getElementById('pendingCount').textContent = stats.pending;
-            if (stats.completed !== undefined) document.getElementById('completedCount').textContent = stats.completed;
-        }
-
-        function filterTableRows() {
-            const rows = document.querySelectorAll('#appointmentsTableBody tr');
-            rows.forEach(row => {
-                if (row.classList.contains('empty-state')) return;
-                const searchData = row.getAttribute('data-search') || row.textContent.toLowerCase();
-                row.style.display = searchData.includes(currentSearchTerm) ? '' : 'none';
-            });
-        }
-
-        // REMOVED the old loadPage function (lines 2110-2170) to avoid conflicts
-
-        function startAutoRefresh() {
-            console.log('Auto-refresh started');
-            if (refreshInterval) clearInterval(refreshInterval);
-            refreshInterval = setInterval(function() {
-                console.log('Auto-refresh triggered');
-                fetchAppointments();
+                
+                const Toast = Swal.mixin({
+                    toast: true,
+                    position: 'top-end',
+                    showConfirmButton: false,
+                    timer: 3000,
+                    timerProgressBar: true,
+                    didOpen: (toast) => {
+                        toast.addEventListener('mouseenter', Swal.stopTimer);
+                        toast.addEventListener('mouseleave', Swal.resumeTimer);
+                    }
+                });
+                
+                Toast.fire({
+                    icon: 'success',
+                    title: `Appointment ${queueNumber} cancelled successfully`
+                });
+                
                 fetchRecentTransactions();
-            }, 10000);
-            document.addEventListener('visibilitychange', function() {
-                if (!document.hidden && !isLoading) {
-                    console.log('Tab became visible, refreshing');
-                    fetchAppointments();
-                    fetchRecentTransactions();
-                }
-            });
-        }
-
-        function disableSubmitButton() {
-            const submitBtn = document.getElementById('submitBtn');
-            if (submitBtn && !submitBtn.disabled) {
-                submitBtn.disabled = true;
-                submitBtn.innerHTML = `
-                    <svg viewBox="0 0 20 20" fill="currentColor" width="20" height="20" style="animation: spin 1s linear infinite; margin-right: 8px;">
-                        <path fill-rule="evenodd" d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z" clip-rule="evenodd" />
-                    </svg>
-                    Processing...
-                `;
             }
-        }
-
-        function restoreSubmitButton() {
-            const submitBtn = document.getElementById('submitBtn');
-            if (submitBtn) {
-                submitBtn.disabled = false;
-                submitBtn.innerHTML = `
-                    <svg viewBox="0 0 20 20" fill="currentColor" width="20" height="20">
-                        <path fill-rule="evenodd"
-                            d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                            clip-rule="evenodd" />
-                    </svg>
-                    Issue Appointment
-                `;
-            }
-        }
-
-        document.addEventListener('DOMContentLoaded', function() {
-            console.log('DOM loaded, initializing...');
-
-            @if (session('success'))
-                showSuccessPopup(
-                    '{{ session('success') }}',
-                    @if (session('printSlip'))
-                        '{{ session('printSlip')['queueNumber'] }}'
-                    @else
-                        null
-                    @endif
-                );
-            @endif
-
-            @if (session('error'))
-                restoreSubmitButton();
-                formSubmitted = false;
-                showErrorPopup('{{ session('error') }}');
-            @endif
-
-            @if ($errors->any())
-                restoreSubmitButton();
-                formSubmitted = false;
-                let errors = @json($errors->all());
-                showErrorPopup('Please fix the following errors:', errors);
-            @endif
-
-            const savedCategory = document.getElementById('selectedCategory').value;
-            selectCategory(savedCategory);
-
-            console.log('NID Form age buttons:', document.querySelectorAll('#nidForm .age-btn').length);
-            console.log('Status Form age buttons:', document.querySelectorAll('#statusForm .age-btn').length);
-            console.log('Updating Form age buttons:', document.querySelectorAll('#updatingForm .age-btn').length);
-
-            const inlineScanner = document.getElementById('qr-reader-container');
-            if (inlineScanner) inlineScanner.remove();
-
-            const openScannerBtn = document.getElementById('openScannerBtn');
-            const closeModalBtn = document.getElementById('closeModalBtn');
-            const cancelScannerBtn = document.getElementById('cancelScannerBtn');
-            const modal = document.getElementById('scannerModal');
-            const appointmentForm = document.getElementById('appointmentForm');
-
-            if (appointmentForm) {
-                appointmentForm.addEventListener('submit', function(e) {
-                    if (formSubmitted) {
-                        e.preventDefault();
-                        return false;
-                    }
-                    if (!this.checkValidity()) return true;
-                    formSubmitted = true;
-                    disableSubmitButton();
-                    return true;
-                });
-            }
-
-            if (openScannerBtn) {
-                openScannerBtn.addEventListener('click', () => {
-                    const category = document.getElementById('selectedCategory').value;
-                    if (category !== 'Status Inquiry') {
-                        showWarningPopup('Please select Status Inquiry category first.');
-                        selectCategory('Status Inquiry');
-                        return;
-                    }
-                    showScannerModal();
-                });
-            }
-
-            if (closeModalBtn) closeModalBtn.addEventListener('click', closeScannerModal);
-            if (cancelScannerBtn) cancelScannerBtn.addEventListener('click', closeScannerModal);
-
-            window.addEventListener('click', (event) => {
-                if (event.target === modal) closeScannerModal();
-            });
-
-            attachPaginationListeners();
-
-            @if (session('printSlip'))
-                setTimeout(() => {
-                    const printContent = document.getElementById('printContent').innerHTML;
-                    const printWindow = window.open('', '_blank', 'width=300,height=250');
-                    printWindow.document.write(`
-                        <html>
-                            <head>
-                                <title>Appointment Slip</title>
-                                <style>
-                                    @media print {
-                                        @page { size: 3in 2.5in; margin: 0; }
-                                        body {
-                                            margin: 0; padding: 20px; width: 2.5in; height: 2in;
-                                            font-family: "Courier New", Courier, monospace; font-size: 10pt;
-                                            color: #000; box-sizing: border-box; text-align: center;
-                                        }
-                                    }
-                                    h1 { font-size: 14pt; margin: 0 0 10px 0; }
-                                    .info { font-size: 10pt; margin-bottom: 5px; }
-                                    .date-time { font-size: 10pt; margin-bottom: 15px; }
-                                    .queue-number { font-size: 28pt; font-weight: bold; letter-spacing: 4px; margin: 0; }
-                                </style>
-                            </head>
-                            <body>${printContent}</body>
-                        </html>
-                    `);
-                    printWindow.document.close();
-                    printWindow.focus();
-                    printWindow.onload = () => printWindow.print();
-                    printWindow.onafterprint = () => printWindow.close();
-                }, 500);
-            @endif
-
-            const searchInput = document.getElementById('searchAppointments');
-            if (searchInput) {
-                searchInput.addEventListener('keyup', function() {
-                    currentSearchTerm = this.value.toLowerCase();
-                    filterTableRows();
-                });
-            }
-
-            startAutoRefresh();
-            setTimeout(() => {
-                fetchAppointments();
-                fetchRecentTransactions();
-            }, 1000);
         });
-
-        window.addEventListener('beforeunload', function() {
-            if (refreshInterval) clearInterval(refreshInterval);
-        });
-
-        function showSuccessPopup(message, queueNumber = null) {
-            let html = `<div style="text-align: center;">${message}</div>`;
-            if (queueNumber) {
-                html = `
-                    <div style="text-align: center;">
-                        <div style="font-size: 18px; margin-bottom: 10px;">${message}</div>
-                        <div style="font-size: 32px; font-weight: bold; color: #059669; background: #ecfdf5; padding: 15px; border-radius: 10px; margin: 10px 0;">
-                            ${queueNumber}
-                        </div>
-                    </div>
-                `;
-            }
-            Swal.fire({
-                title: 'Success!',
-                html: html,
-                icon: 'success',
-                confirmButtonColor: '#2563eb',
-                confirmButtonText: 'OK',
-                timer: 5000,
-                timerProgressBar: true,
-                showCloseButton: true
-            }).then(() => {
-                formSubmitted = false;
-                restoreSubmitButton();
-                const form = document.getElementById('appointmentForm');
-                const currentCategory = document.getElementById('selectedCategory').value;
-                form.reset();
-                document.querySelectorAll('.age-btn').forEach(btn => {
-                    btn.classList.remove('active');
-                    btn.style.backgroundColor = 'white';
-                    btn.style.color = '#374151';
-                    btn.style.borderColor = '#e5e7eb';
-                });
-                document.querySelectorAll('[id^="age_category_"]').forEach(input => input.value = '');
-                selectCategory(currentCategory);
-            });
-        }
-
-        function showErrorPopup(message, errors = null) {
-            formSubmitted = false;
-            restoreSubmitButton();
-            let html = `<div style="text-align: center; color: #991b1b;">${message}</div>`;
-            if (errors) {
-                let errorsList = '<ul style="text-align: left; margin-top: 10px; color: #991b1b;">';
-                if (typeof errors === 'object') {
-                    Object.values(errors).forEach(error => {
-                        if (Array.isArray(error)) {
-                            error.forEach(err => errorsList += `<li>${err}</li>`);
-                        } else {
-                            errorsList += `<li>${error}</li>`;
-                        }
-                    });
-                }
-                errorsList += '</ul>';
-                html += errorsList;
-            }
-            Swal.fire({
-                title: 'Error!',
-                html: html,
-                icon: 'error',
-                confirmButtonColor: '#dc2626',
-                confirmButtonText: 'Try Again',
-                showCloseButton: true
-            });
-        }
-
-        function showWarningPopup(message) {
-            Swal.fire({
-                title: 'Warning!',
-                text: message,
-                icon: 'warning',
-                confirmButtonColor: '#d97706',
-                confirmButtonText: 'OK'
-            });
-        }
-
-        function showLoading() {
-            document.getElementById('loadingModal')?.classList.add('show');
-        }
-
-        function hideLoading() {
-            document.getElementById('loadingModal')?.classList.remove('show');
-        }
-
-        // Cancel Appointment Function
-        function cancelAppointment(button) {
-            const appointmentId = button.getAttribute('data-id');
-            const clientName = button.getAttribute('data-name');
-            const queueNumber = button.getAttribute('data-queue');
-            const row = button.closest('tr');
-            
-            Swal.fire({
-                title: 'Cancel Appointment?',
-                html: `Are you sure you want to cancel appointment <strong>${queueNumber}</strong> for <strong>${clientName}</strong>?`,
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#dc2626',
-                cancelButtonColor: '#6b7280',
-                confirmButtonText: 'Yes, Cancel',
-                cancelButtonText: 'No, Keep',
-                showLoaderOnConfirm: true,
-                preConfirm: () => {
-                    return fetch(`/appointment/update-status/${appointmentId}`, {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                            'Accept': 'application/json'
-                        },
-                        body: JSON.stringify({ status: 'cancelled' })
-                    })
-                    .then(response => {
-                        if (!response.ok) throw new Error(response.statusText);
-                        return response.json();
-                    })
-                    .catch(error => {
-                        Swal.showValidationMessage(`Request failed: ${error}`);
-                    });
-                }
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    row.remove();
-                    
-                    const tbody = document.getElementById('appointmentsTableBody');
-                    if (tbody.children.length === 0) {
-                        tbody.innerHTML = `
-                            <tr>
-                                <td colspan="6" class="empty-state">
-                                    <svg viewBox="0 0 20 20" fill="currentColor">
-                                        <path fill-rule="evenodd"
-                                            d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z"
-                                            clip-rule="evenodd" />
-                                    </svg>
-                                    <p>No pending appointments for today</p>
-                                </td>
-                            </tr>
-                        `;
-                    }
-                    
-                    const Toast = Swal.mixin({
-                        toast: true,
-                        position: 'top-end',
-                        showConfirmButton: false,
-                        timer: 3000,
-                        timerProgressBar: true,
-                        didOpen: (toast) => {
-                            toast.addEventListener('mouseenter', Swal.stopTimer);
-                            toast.addEventListener('mouseleave', Swal.resumeTimer);
-                        }
-                    });
-                    
-                    Toast.fire({
-                        icon: 'success',
-                        title: `Appointment ${queueNumber} cancelled successfully`
-                    });
-                    
-                    fetchRecentTransactions();
-                }
-            });
-        }
-    </script>
-    
+    }
+</script>
 </main>
