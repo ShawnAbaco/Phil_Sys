@@ -1279,85 +1279,85 @@
             fetchRecentTransactionsPage();
         }
 
-       function loadTransactionsPage(url) {
-    if (isLoading) return;
-    isLoading = true;
+        function loadTransactionsPage(url) {
+            if (isLoading) return;
+            isLoading = true;
 
-    const tableContainer = document.getElementById('transactionsTableContainer');
-    const paginationContainer = document.getElementById('paginationContainer');
-    const showingInfo = document.getElementById('showingInfo');
+            const tableContainer = document.getElementById('transactionsTableContainer');
+            const paginationContainer = document.getElementById('paginationContainer');
+            const showingInfo = document.getElementById('showingInfo');
 
-    if (!tableContainer || !paginationContainer) {
-        isLoading = false;
-        return;
-    }
+            if (!tableContainer || !paginationContainer) {
+                isLoading = false;
+                return;
+            }
 
-    const separator = url.includes('?') ? '&' : '?';
-    const fetchUrl = url + separator + '_=' + new Date().getTime();
+            const separator = url.includes('?') ? '&' : '?';
+            const fetchUrl = url + separator + '_=' + new Date().getTime();
 
-    tableContainer.classList.add('loading');
-    paginationContainer.classList.add('loading');
-    tableContainer.style.opacity = '0';
-    paginationContainer.style.opacity = '0';
+            tableContainer.classList.add('loading');
+            paginationContainer.classList.add('loading');
+            tableContainer.style.opacity = '0';
+            paginationContainer.style.opacity = '0';
 
-    fetch(fetchUrl, {
-        headers: {
-            'X-Requested-With': 'XMLHttpRequest',
-            'Accept': 'application/json',
-            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+            fetch(fetchUrl, {
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'Accept': 'application/json',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (!data.success) throw new Error(data.message || 'Unknown error occurred');
+
+                setTimeout(() => {
+                    if (data.table) tableContainer.innerHTML = data.table;
+                    if (data.pagination) paginationContainer.innerHTML = data.pagination;
+                    if (data.showing && showingInfo) showingInfo.textContent = data.showing;
+
+                    tableContainer.style.opacity = '1';
+                    paginationContainer.style.opacity = '1';
+                    tableContainer.classList.remove('loading');
+                    paginationContainer.classList.remove('loading');
+
+                    // Re-attach pagination listeners
+                    attachPaginationListeners();
+
+                    // Re-apply service filter
+                    const filter = document.getElementById('transactionServiceFilter');
+                    if (filter) filter.dispatchEvent(new Event('change'));
+
+                    // Add success animation
+                    tableContainer.classList.add('page-change-success');
+                    paginationContainer.classList.add('page-change-success');
+                    
+                    setTimeout(() => {
+                        tableContainer.classList.remove('page-change-success');
+                        paginationContainer.classList.remove('page-change-success');
+                    }, 500);
+
+                    isLoading = false;
+                }, 150);
+            })
+            .catch(error => {
+                console.error('Error loading page:', error);
+                tableContainer.style.opacity = '1';
+                paginationContainer.style.opacity = '1';
+                tableContainer.classList.remove('loading');
+                paginationContainer.classList.remove('loading');
+                isLoading = false;
+                
+                Swal.fire({
+                    title: 'Error!',
+                    text: 'Failed to load page. Please try again.',
+                    icon: 'error',
+                    confirmButtonColor: '#dc2626',
+                    timer: 2000,
+                    showConfirmButton: false
+                });
+            });
         }
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (!data.success) throw new Error(data.message || 'Unknown error occurred');
-
-        setTimeout(() => {
-            if (data.table) tableContainer.innerHTML = data.table;
-            if (data.pagination) paginationContainer.innerHTML = data.pagination;
-            if (data.showing && showingInfo) showingInfo.textContent = data.showing;
-
-            tableContainer.style.opacity = '1';
-            paginationContainer.style.opacity = '1';
-            tableContainer.classList.remove('loading');
-            paginationContainer.classList.remove('loading');
-
-            // Re-attach pagination listeners
-            attachPaginationListeners();
-
-            // Re-apply service filter
-            const filter = document.getElementById('transactionServiceFilter');
-            if (filter) filter.dispatchEvent(new Event('change'));
-
-            // Add success animation
-            tableContainer.classList.add('page-change-success');
-            paginationContainer.classList.add('page-change-success');
-            
-            setTimeout(() => {
-                tableContainer.classList.remove('page-change-success');
-                paginationContainer.classList.remove('page-change-success');
-            }, 500);
-
-            isLoading = false;
-        }, 150);
-    })
-    .catch(error => {
-        console.error('Error loading page:', error);
-        tableContainer.style.opacity = '1';
-        paginationContainer.style.opacity = '1';
-        tableContainer.classList.remove('loading');
-        paginationContainer.classList.remove('loading');
-        isLoading = false;
-        
-        Swal.fire({
-            title: 'Error!',
-            text: 'Failed to load page. Please try again.',
-            icon: 'error',
-            confirmButtonColor: '#dc2626',
-            timer: 2000,
-            showConfirmButton: false
-        });
-    });
-}
 
         function attachPaginationListeners() {
             document.querySelectorAll(
@@ -1384,48 +1384,57 @@
                 if (row.classList.contains('empty-state')) return;
 
                 const service = row.getAttribute('data-service');
-                row.style.display = (selectedService === 'all' || service === selectedService) ? '' :
-                    'none';
+                row.style.display = (selectedService === 'all' || service === selectedService) ? '' : 'none';
             });
         });
 
         // Fetch recent transactions page (for refresh)
-function fetchRecentTransactionsPage(page = null) {
-    if (isLoading) return;
+        function fetchRecentTransactionsPage(page = null) {
+            if (isLoading) return;
 
-    let url = '{{ route('appointment.transactions-page') }}';
-    const params = new URLSearchParams();
+            // Get fresh references each time
+            const tableContainer = document.getElementById('transactionsTableContainer');
+            const paginationContainer = document.getElementById('paginationContainer');
+            const showingInfo = document.getElementById('showingInfo');
 
-    if (page) params.append('page', page);
+            if (!tableContainer || !paginationContainer) {
+                console.error('Required elements not found');
+                return;
+            }
 
-    const queryString = params.toString();
-    if (queryString) url += '?' + queryString;
-    url += (url.includes('?') ? '&' : '?') + '_=' + new Date().getTime();
+            let url = '{{ route('appointment.transactions-page') }}';
+            const params = new URLSearchParams();
 
-    fetch(url, {
-        headers: {
-            'X-Requested-With': 'XMLHttpRequest',
-            'Accept': 'application/json',
-            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+            if (page) params.append('page', page);
+
+            const queryString = params.toString();
+            if (queryString) url += '?' + queryString;
+            url += (url.includes('?') ? '&' : '?') + '_=' + new Date().getTime();
+
+            fetch(url, {
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'Accept': 'application/json',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    if (data.table) tableContainer.innerHTML = data.table;
+                    if (data.pagination) paginationContainer.innerHTML = data.pagination;
+                    if (data.showing && showingInfo) showingInfo.textContent = data.showing;
+                    
+                    // Re-attach pagination listeners AFTER updating the HTML
+                    attachPaginationListeners();
+                    
+                    // Re-apply service filter
+                    const filter = document.getElementById('transactionServiceFilter');
+                    if (filter) filter.dispatchEvent(new Event('change'));
+                }
+            })
+            .catch(error => console.error('Error fetching recent transactions:', error));
         }
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            if (data.table) transactionsTableContainer.innerHTML = data.table;
-            if (data.pagination) paginationContainer.innerHTML = data.pagination;
-            if (data.showing && showingInfo) showingInfo.textContent = data.showing;
-            
-            // Re-attach pagination listeners AFTER updating the HTML
-            attachPaginationListeners();
-            
-            // Re-apply service filter
-            const filter = document.getElementById('transactionServiceFilter');
-            if (filter) filter.dispatchEvent(new Event('change'));
-        }
-    })
-    .catch(error => console.error('Error fetching recent transactions:', error));
-}
 
         // Export PDF with confirmation
         document.getElementById('screenerExportPdfBtn')?.addEventListener('click', function(e) {
@@ -1491,251 +1500,116 @@ function fetchRecentTransactionsPage(page = null) {
             });
         });
 
-
-
         function updateAppointmentsTable(appointments) {
-    const tbody = document.getElementById('appointmentsTableBody');
+            const tbody = document.getElementById('appointmentsTableBody');
 
-    if (!appointments || appointments.length === 0) {
-        tbody.innerHTML = `
-            <tr>
-                <td colspan="6" class="empty-state">
-                    <svg viewBox="0 0 20 20" fill="currentColor">
-                        <path fill-rule="evenodd"
-                            d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z"
-                            clip-rule="evenodd" />
-                    </svg>
-                    <p>No pending appointments for today</p>
-                </td>
-            </tr>
-        `;
-        return;
-    }
+            if (!appointments || appointments.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="6" class="empty-state">
+                            <svg viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd"
+                                    d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z"
+                                    clip-rule="evenodd" />
+                            </svg>
+                            <p>No pending appointments for today</p>
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
 
-    let html = '';
-    appointments.forEach(app => {
-        // Get the actual status from database
-        const status = app.status || 'pending';
+            let html = '';
+            appointments.forEach(app => {
+                const status = app.status || 'pending';
+                const showInTable = ['pending', 'serving'].includes(status) ||
+                    (!app.time_catered && !['completed', 'cancelled', 'no_show'].includes(status));
 
-        // Show if status is pending or serving (active appointments)
-        const showInTable = ['pending', 'serving'].includes(status) ||
-            (!app.time_catered && !['completed', 'cancelled', 'no_show'].includes(status));
+                if (showInTable) {
+                    const createdTime = new Date(app.date).toLocaleTimeString('en-US', {
+                        hour: '2-digit',
+                        minute: '2-digit',
+                        hour12: true,
+                        timeZone: 'Asia/Manila'
+                    });
 
-        if (showInTable) {
-            const createdTime = new Date(app.date).toLocaleTimeString('en-US', {
-                hour: '2-digit',
-                minute: '2-digit',
-                hour12: true,
-                timeZone: 'Asia/Manila'
+                    let fullName = app.lname + ', ' + app.fname;
+                    if (app.mname && app.mname.trim() !== '') fullName += ' ' + app.mname;
+                    if (app.suffix && app.suffix.trim() !== '') fullName += ' ' + app.suffix;
+
+                    const priorityType = app.priority_type?.toLowerCase() || 'regular';
+                    const priorityDisplay = priorityType === 'regular' ? 'Regular' :
+                        priorityType.charAt(0).toUpperCase() + priorityType.slice(1);
+
+                    const searchData = (app.lname + ' ' + app.fname + ' ' + (app.trn || '')).toLowerCase();
+
+                    html += `
+                        <tr data-search="${searchData}" data-priority="${priorityType}" data-status="${status}" data-id="${app.n_id}">
+                            <td><span class="queue-number">${app.q_id}</span></td>
+                            <td><div class="client-name">${fullName}</div></td>
+                            <td><span class="priority-badge priority-${priorityType}">${priorityDisplay.toUpperCase()}</span></td>
+                            <td>${app.queue_for}</td>
+                            <td>${createdTime}</td>
+                            <td>
+                                <button type="button" class="btn-action cancel-btn" 
+                                        data-id="${app.n_id}" data-name="${fullName}" data-queue="${app.q_id}"
+                                        onclick="cancelAppointment(this)">
+                                    <svg viewBox="0 0 20 20" fill="currentColor" width="16" height="16">
+                                        <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" />
+                                    </svg>
+                                    Cancel
+                                </button>
+                            </td>
+                        </tr>
+                    `;
+                }
             });
 
-            let fullName = app.lname + ', ' + app.fname;
-
-            if (app.mname && app.mname.trim() !== '') {
-                fullName += ' ' + app.mname;
-            }
-
-            if (app.suffix && app.suffix.trim() !== '') {
-                fullName += ' ' + app.suffix;
-            }
-
-            // Get priority type for display
-            const priorityType = app.priority_type?.toLowerCase() || 'regular';
-            const priorityDisplay = priorityType === 'regular' ? 'Regular' :
-                priorityType.charAt(0).toUpperCase() + priorityType.slice(1);
-
-            const searchData = (app.lname + ' ' + app.fname + ' ' + (app.trn || '')).toLowerCase();
-
-            // Generate HTML with CANCEL BUTTON instead of status badge
-            html += `
-                <tr data-search="${searchData}" data-priority="${priorityType}" data-status="${status}" data-id="${app.n_id}">
-                    <td><span class="queue-number">${app.q_id}</span></td>
-                    <td>
-                        <div class="client-name">
-                            ${fullName}
-                        </div>
-                    </td>
-                    <td>
-                        <span class="priority-badge priority-${priorityType}">
-                            ${priorityDisplay.toUpperCase()}
-                        </span>
-                    </td>
-                    <td>${app.queue_for}</td>
-                    <td>${createdTime}</td>
-                    <td>
-                        <button type="button" 
-                                class="btn-action cancel-btn" 
-                                data-id="${app.n_id}"
-                                data-name="${fullName}"
-                                data-queue="${app.q_id}"
-                                onclick="cancelAppointment(this)">
-                            <svg viewBox="0 0 20 20" fill="currentColor" width="16" height="16">
-                                <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" />
+            if (html === '') {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="6" class="empty-state">
+                            <svg viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd"
+                                    d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z"
+                                    clip-rule="evenodd" />
                             </svg>
-                            Cancel
-                        </button>
-                    </td>
-                </tr>
-            `;
+                            <p>No pending appointments for today</p>
+                        </td>
+                    </tr>
+                `;
+            } else {
+                tbody.innerHTML = html;
+                if (currentSearchTerm) filterTableRows();
+            }
         }
-    });
-
-    if (html === '') {
-        tbody.innerHTML = `
-            <tr>
-                <td colspan="6" class="empty-state">
-                    <svg viewBox="0 0 20 20" fill="currentColor">
-                        <path fill-rule="evenodd"
-                            d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z"
-                            clip-rule="evenodd" />
-                    </svg>
-                    <p>No pending appointments for today</p>
-                </td>
-            </tr>
-        `;
-    } else {
-        tbody.innerHTML = html;
-
-        if (currentSearchTerm) {
-            filterTableRows();
-        }
-    }
-}
 
         function updateStatistics(stats) {
             if (!stats) return;
-
-            if (stats.total !== undefined) {
-                document.getElementById('totalQueue').textContent = stats.total;
-            }
-            if (stats.pending !== undefined) {
-                document.getElementById('pendingCount').textContent = stats.pending;
-            }
-            if (stats.completed !== undefined) {
-                document.getElementById('completedCount').textContent = stats.completed;
-            }
+            if (stats.total !== undefined) document.getElementById('totalQueue').textContent = stats.total;
+            if (stats.pending !== undefined) document.getElementById('pendingCount').textContent = stats.pending;
+            if (stats.completed !== undefined) document.getElementById('completedCount').textContent = stats.completed;
         }
 
         function filterTableRows() {
             const rows = document.querySelectorAll('#appointmentsTableBody tr');
-
             rows.forEach(row => {
                 if (row.classList.contains('empty-state')) return;
-
                 const searchData = row.getAttribute('data-search') || row.textContent.toLowerCase();
-                if (searchData.includes(currentSearchTerm)) {
-                    row.style.display = '';
-                } else {
-                    row.style.display = 'none';
-                }
+                row.style.display = searchData.includes(currentSearchTerm) ? '' : 'none';
             });
         }
 
-        function loadPage(url) {
-            if (isLoading) return;
-            isLoading = true;
-
-            const tableContainer = document.getElementById('transactionsTableContainer');
-            const paginationContainer = document.getElementById('paginationContainer');
-            const showingInfo = document.getElementById('showingInfo');
-
-            tableContainer.classList.add('loading');
-            paginationContainer.classList.add('loading');
-
-            fetch(url, {
-                    headers: {
-                        'X-Requested-With': 'XMLHttpRequest'
-                    }
-                })
-                .then(response => response.text())
-                .then(html => {
-                    const parser = new DOMParser();
-                    const doc = parser.parseFromString(html, 'text/html');
-
-                    const newTableBody = doc.querySelector('#transactionsTableContainer');
-                    const newPagination = doc.querySelector('#paginationContainer');
-                    const newShowingInfo = doc.querySelector('#showingInfo');
-
-                    tableContainer.style.opacity = '0';
-                    paginationContainer.style.opacity = '0';
-
-                    setTimeout(() => {
-                        if (newTableBody) {
-                            tableContainer.innerHTML = newTableBody.innerHTML;
-                        }
-                        if (newPagination) {
-                            paginationContainer.innerHTML = newPagination.innerHTML;
-                        }
-                        if (newShowingInfo) {
-                            showingInfo.textContent = newShowingInfo.textContent;
-                        }
-
-                        tableContainer.style.opacity = '1';
-                        paginationContainer.style.opacity = '1';
-
-                        tableContainer.classList.add('page-change-success');
-                        paginationContainer.classList.add('page-change-success');
-
-                        setTimeout(() => {
-                            tableContainer.classList.remove('page-change-success');
-                            paginationContainer.classList.remove('page-change-success');
-                        }, 500);
-
-                        tableContainer.classList.remove('loading');
-                        paginationContainer.classList.remove('loading');
-
-                        attachPaginationListeners();
-
-                        isLoading = false;
-                    }, 150);
-                })
-                .catch(error => {
-                    console.error('Error loading page:', error);
-
-                    tableContainer.classList.remove('loading');
-                    paginationContainer.classList.remove('loading');
-                    tableContainer.style.opacity = '1';
-                    paginationContainer.style.opacity = '1';
-
-                    isLoading = false;
-
-                    Swal.fire({
-                        title: 'Error!',
-                        text: 'Failed to load page. Please try again.',
-                        icon: 'error',
-                        confirmButtonColor: '#dc2626',
-                        timer: 2000,
-                        showConfirmButton: false
-                    });
-                });
-        }
-
-        function attachPaginationListeners() {
-            document.querySelectorAll(
-                    '.pagination-nav-btn:not(.disabled), .pagination-arrow:not(.disabled), .page-number:not(.active)')
-                .forEach(link => {
-                    link.addEventListener('click', function(e) {
-                        e.preventDefault();
-                        if (!isLoading) {
-                            loadPage(this.href);
-                        }
-                    });
-                });
-        }
+        // REMOVED the old loadPage function (lines 2110-2170) to avoid conflicts
 
         function startAutoRefresh() {
             console.log('Auto-refresh started');
-
-            if (refreshInterval) {
-                clearInterval(refreshInterval);
-            }
-
+            if (refreshInterval) clearInterval(refreshInterval);
             refreshInterval = setInterval(function() {
                 console.log('Auto-refresh triggered');
                 fetchAppointments();
                 fetchRecentTransactions();
             }, 10000);
-
             document.addEventListener('visibilitychange', function() {
                 if (!document.hidden && !isLoading) {
                     console.log('Tab became visible, refreshing');
@@ -1800,19 +1674,15 @@ function fetchRecentTransactionsPage(page = null) {
                 showErrorPopup('Please fix the following errors:', errors);
             @endif
 
-            // Initialize the form with the saved category
             const savedCategory = document.getElementById('selectedCategory').value;
             selectCategory(savedCategory);
 
-            // Debug: Check if age buttons exist for updating form
             console.log('NID Form age buttons:', document.querySelectorAll('#nidForm .age-btn').length);
             console.log('Status Form age buttons:', document.querySelectorAll('#statusForm .age-btn').length);
             console.log('Updating Form age buttons:', document.querySelectorAll('#updatingForm .age-btn').length);
 
             const inlineScanner = document.getElementById('qr-reader-container');
-            if (inlineScanner) {
-                inlineScanner.remove();
-            }
+            if (inlineScanner) inlineScanner.remove();
 
             const openScannerBtn = document.getElementById('openScannerBtn');
             const closeModalBtn = document.getElementById('closeModalBtn');
@@ -1826,14 +1696,9 @@ function fetchRecentTransactionsPage(page = null) {
                         e.preventDefault();
                         return false;
                     }
-
-                    if (!this.checkValidity()) {
-                        return true;
-                    }
-
+                    if (!this.checkValidity()) return true;
                     formSubmitted = true;
                     disableSubmitButton();
-
                     return true;
                 });
             }
@@ -1841,29 +1706,20 @@ function fetchRecentTransactionsPage(page = null) {
             if (openScannerBtn) {
                 openScannerBtn.addEventListener('click', () => {
                     const category = document.getElementById('selectedCategory').value;
-
                     if (category !== 'Status Inquiry') {
                         showWarningPopup('Please select Status Inquiry category first.');
                         selectCategory('Status Inquiry');
                         return;
                     }
-
                     showScannerModal();
                 });
             }
 
-            if (closeModalBtn) {
-                closeModalBtn.addEventListener('click', closeScannerModal);
-            }
-
-            if (cancelScannerBtn) {
-                cancelScannerBtn.addEventListener('click', closeScannerModal);
-            }
+            if (closeModalBtn) closeModalBtn.addEventListener('click', closeScannerModal);
+            if (cancelScannerBtn) cancelScannerBtn.addEventListener('click', closeScannerModal);
 
             window.addEventListener('click', (event) => {
-                if (event.target === modal) {
-                    closeScannerModal();
-                }
+                if (event.target === modal) closeScannerModal();
             });
 
             attachPaginationListeners();
@@ -1873,27 +1729,27 @@ function fetchRecentTransactionsPage(page = null) {
                     const printContent = document.getElementById('printContent').innerHTML;
                     const printWindow = window.open('', '_blank', 'width=300,height=250');
                     printWindow.document.write(`
-            <html>
-            <head>
-                <title>Appointment Slip</title>
-                <style>
-                    @media print {
-                        @page { size: 3in 2.5in; margin: 0; }
-                        body {
-                            margin: 0; padding: 20px; width: 2.5in; height: 2in;
-                            font-family: "Courier New", Courier, monospace; font-size: 10pt;
-                            color: #000; box-sizing: border-box; text-align: center;
-                        }
-                    }
-                    h1 { font-size: 14pt; margin: 0 0 10px 0; }
-                    .info { font-size: 10pt; margin-bottom: 5px; }
-                    .date-time { font-size: 10pt; margin-bottom: 15px; }
-                    .queue-number { font-size: 28pt; font-weight: bold; letter-spacing: 4px; margin: 0; }
-                </style>
-            </head>
-            <body>${printContent}</body>
-            </html>
-        `);
+                        <html>
+                            <head>
+                                <title>Appointment Slip</title>
+                                <style>
+                                    @media print {
+                                        @page { size: 3in 2.5in; margin: 0; }
+                                        body {
+                                            margin: 0; padding: 20px; width: 2.5in; height: 2in;
+                                            font-family: "Courier New", Courier, monospace; font-size: 10pt;
+                                            color: #000; box-sizing: border-box; text-align: center;
+                                        }
+                                    }
+                                    h1 { font-size: 14pt; margin: 0 0 10px 0; }
+                                    .info { font-size: 10pt; margin-bottom: 5px; }
+                                    .date-time { font-size: 10pt; margin-bottom: 15px; }
+                                    .queue-number { font-size: 28pt; font-weight: bold; letter-spacing: 4px; margin: 0; }
+                                </style>
+                            </head>
+                            <body>${printContent}</body>
+                        </html>
+                    `);
                     printWindow.document.close();
                     printWindow.focus();
                     printWindow.onload = () => printWindow.print();
@@ -1909,109 +1765,7 @@ function fetchRecentTransactionsPage(page = null) {
                 });
             }
 
-            document.getElementById('exportPdfBtn')?.addEventListener('click', function(e) {
-                e.preventDefault();
-
-                Swal.fire({
-                    title: 'Export PDF',
-                    text: 'Are you sure you want to export the completed transactions report?',
-                    icon: 'question',
-                    showCancelButton: true,
-                    confirmButtonColor: '#2563eb',
-                    cancelButtonColor: '#dc2626',
-                    confirmButtonText: 'Yes, Export!',
-                    cancelButtonText: 'Cancel',
-                    showLoaderOnConfirm: true,
-                    preConfirm: () => {
-                        return new Promise((resolve) => {
-                            const link = document.createElement('a');
-                            link.href = '{{ route('appointment.export.pdf') }}';
-                            link.download = '';
-                            document.body.appendChild(link);
-                            link.click();
-                            document.body.removeChild(link);
-
-                            setTimeout(resolve, 1000);
-                        });
-                    }
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        Swal.fire({
-                            title: 'Exported Successfully!',
-                            text: 'Your PDF report has been downloaded.',
-                            icon: 'success',
-                            confirmButtonColor: '#2563eb',
-                            timer: 3000,
-                            timerProgressBar: true,
-                            showCloseButton: true
-                        });
-                    }
-                });
-            });
-
-            document.getElementById('exportExcelBtn')?.addEventListener('click', function(e) {
-                e.preventDefault();
-
-                const now = new Date();
-                const year = now.getFullYear();
-                const month = String(now.getMonth() + 1).padStart(2, '0');
-                const day = String(now.getDate()).padStart(2, '0');
-                const hours = String(now.getHours()).padStart(2, '0');
-                const minutes = String(now.getMinutes()).padStart(2, '0');
-                const filename = `RECENT-TRANSACTIONS-${year}-${month}-${day}-${hours}-${minutes}.xlsx`;
-
-                Swal.fire({
-                    title: 'Export to Excel',
-                    html: `<div style="text-align: center;">
-                            Are you sure you want to export the completed transactions report?<br>
-                            <small style="color: #666; display: block; margin-top: 8px; padding: 8px; background: #f3f4f6; border-radius: 4px;">
-                                Filename: ${filename}
-                            </small>
-                           </div>`,
-                    icon: 'question',
-                    showCancelButton: true,
-                    confirmButtonColor: '#059669',
-                    cancelButtonColor: '#dc2626',
-                    confirmButtonText: 'Yes, Export!',
-                    cancelButtonText: 'Cancel',
-                    showLoaderOnConfirm: true,
-                    preConfirm: () => {
-                        showLoading();
-                        return new Promise((resolve) => {
-                            const link = document.createElement('a');
-                            link.href = '{{ route('appointment.export.excel') }}';
-                            link.download = '';
-                            document.body.appendChild(link);
-                            link.click();
-                            document.body.removeChild(link);
-
-                            setTimeout(() => {
-                                hideLoading();
-                                resolve();
-                            }, 1500);
-                        });
-                    }
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        Swal.fire({
-                            title: 'Exported Successfully!',
-                            html: `<div style="text-align: center;">
-                                    Your Excel file <strong>${filename}</strong> has been downloaded.<br>
-                                    <small style="color: #666;">The file includes formatted headers, summary statistics, and styled cells.</small>
-                                   </div>`,
-                            icon: 'success',
-                            confirmButtonColor: '#2563eb',
-                            confirmButtonText: 'OK',
-                            timer: 5000,
-                            timerProgressBar: true,
-                            showCloseButton: true
-                        });
-                    }
-                });
-            });
-
             startAutoRefresh();
-
             setTimeout(() => {
                 fetchAppointments();
                 fetchRecentTransactions();
@@ -2019,25 +1773,21 @@ function fetchRecentTransactionsPage(page = null) {
         });
 
         window.addEventListener('beforeunload', function() {
-            if (refreshInterval) {
-                clearInterval(refreshInterval);
-            }
+            if (refreshInterval) clearInterval(refreshInterval);
         });
 
         function showSuccessPopup(message, queueNumber = null) {
             let html = `<div style="text-align: center;">${message}</div>`;
-
             if (queueNumber) {
                 html = `
-            <div style="text-align: center;">
-                <div style="font-size: 18px; margin-bottom: 10px;">${message}</div>
-                <div style="font-size: 32px; font-weight: bold; color: #059669; background: #ecfdf5; padding: 15px; border-radius: 10px; margin: 10px 0;">
-                    ${queueNumber}
-                </div>
-            </div>
-        `;
+                    <div style="text-align: center;">
+                        <div style="font-size: 18px; margin-bottom: 10px;">${message}</div>
+                        <div style="font-size: 32px; font-weight: bold; color: #059669; background: #ecfdf5; padding: 15px; border-radius: 10px; margin: 10px 0;">
+                            ${queueNumber}
+                        </div>
+                    </div>
+                `;
             }
-
             Swal.fire({
                 title: 'Success!',
                 html: html,
@@ -2050,27 +1800,16 @@ function fetchRecentTransactionsPage(page = null) {
             }).then(() => {
                 formSubmitted = false;
                 restoreSubmitButton();
-                // Clear only the input fields, keep the category selection
                 const form = document.getElementById('appointmentForm');
                 const currentCategory = document.getElementById('selectedCategory').value;
-
-                // Reset the form but preserve category
                 form.reset();
-
-                // Reset age buttons to default (unselected)
                 document.querySelectorAll('.age-btn').forEach(btn => {
                     btn.classList.remove('active');
                     btn.style.backgroundColor = 'white';
                     btn.style.color = '#374151';
                     btn.style.borderColor = '#e5e7eb';
                 });
-
-                // Clear hidden age inputs
-                document.querySelectorAll('[id^="age_category_"]').forEach(input => {
-                    input.value = '';
-                });
-
-                // Restore the category value and trigger form display
+                document.querySelectorAll('[id^="age_category_"]').forEach(input => input.value = '');
                 selectCategory(currentCategory);
             });
         }
@@ -2078,17 +1817,13 @@ function fetchRecentTransactionsPage(page = null) {
         function showErrorPopup(message, errors = null) {
             formSubmitted = false;
             restoreSubmitButton();
-
             let html = `<div style="text-align: center; color: #991b1b;">${message}</div>`;
-
             if (errors) {
                 let errorsList = '<ul style="text-align: left; margin-top: 10px; color: #991b1b;">';
                 if (typeof errors === 'object') {
                     Object.values(errors).forEach(error => {
                         if (Array.isArray(error)) {
-                            error.forEach(err => {
-                                errorsList += `<li>${err}</li>`;
-                            });
+                            error.forEach(err => errorsList += `<li>${err}</li>`);
                         } else {
                             errorsList += `<li>${error}</li>`;
                         }
@@ -2097,7 +1832,6 @@ function fetchRecentTransactionsPage(page = null) {
                 errorsList += '</ul>';
                 html += errorsList;
             }
-
             Swal.fire({
                 title: 'Error!',
                 html: html,
@@ -2118,23 +1852,6 @@ function fetchRecentTransactionsPage(page = null) {
             });
         }
 
-        function showConfirmPopup(title, text, callback) {
-            Swal.fire({
-                title: title,
-                text: text,
-                icon: 'question',
-                showCancelButton: true,
-                confirmButtonColor: '#2563eb',
-                cancelButtonColor: '#dc2626',
-                confirmButtonText: 'Yes, proceed!',
-                cancelButtonText: 'Cancel'
-            }).then((result) => {
-                if (result.isConfirmed && callback) {
-                    callback();
-                }
-            });
-        }
-
         function showLoading() {
             document.getElementById('loadingModal')?.classList.add('show');
         }
@@ -2143,93 +1860,82 @@ function fetchRecentTransactionsPage(page = null) {
             document.getElementById('loadingModal')?.classList.remove('show');
         }
 
-
-// Cancel Appointment Function
-function cancelAppointment(button) {
-    const appointmentId = button.getAttribute('data-id');
-    const clientName = button.getAttribute('data-name');
-    const queueNumber = button.getAttribute('data-queue');
-    const row = button.closest('tr'); // Get the row reference early
-    
-    Swal.fire({
-        title: 'Cancel Appointment?',
-        html: `Are you sure you want to cancel appointment <strong>${queueNumber}</strong> for <strong>${clientName}</strong>?`,
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonColor: '#dc2626',
-        cancelButtonColor: '#6b7280',
-        confirmButtonText: 'Yes, Cancel',
-        cancelButtonText: 'No, Keep',
-        showLoaderOnConfirm: true,
-        preConfirm: () => {
-            return fetch(`/appointment/update-status/${appointmentId}`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                    'Accept': 'application/json'
-                },
-                body: JSON.stringify({
-                    status: 'cancelled'
-                })
-            })
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error(response.statusText);
+        // Cancel Appointment Function
+        function cancelAppointment(button) {
+            const appointmentId = button.getAttribute('data-id');
+            const clientName = button.getAttribute('data-name');
+            const queueNumber = button.getAttribute('data-queue');
+            const row = button.closest('tr');
+            
+            Swal.fire({
+                title: 'Cancel Appointment?',
+                html: `Are you sure you want to cancel appointment <strong>${queueNumber}</strong> for <strong>${clientName}</strong>?`,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#dc2626',
+                cancelButtonColor: '#6b7280',
+                confirmButtonText: 'Yes, Cancel',
+                cancelButtonText: 'No, Keep',
+                showLoaderOnConfirm: true,
+                preConfirm: () => {
+                    return fetch(`/appointment/update-status/${appointmentId}`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                            'Accept': 'application/json'
+                        },
+                        body: JSON.stringify({ status: 'cancelled' })
+                    })
+                    .then(response => {
+                        if (!response.ok) throw new Error(response.statusText);
+                        return response.json();
+                    })
+                    .catch(error => {
+                        Swal.showValidationMessage(`Request failed: ${error}`);
+                    });
                 }
-                return response.json();
-            })
-            .catch(error => {
-                Swal.showValidationMessage(
-                    `Request failed: ${error}`
-                );
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    row.remove();
+                    
+                    const tbody = document.getElementById('appointmentsTableBody');
+                    if (tbody.children.length === 0) {
+                        tbody.innerHTML = `
+                            <tr>
+                                <td colspan="6" class="empty-state">
+                                    <svg viewBox="0 0 20 20" fill="currentColor">
+                                        <path fill-rule="evenodd"
+                                            d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z"
+                                            clip-rule="evenodd" />
+                                    </svg>
+                                    <p>No pending appointments for today</p>
+                                </td>
+                            </tr>
+                        `;
+                    }
+                    
+                    const Toast = Swal.mixin({
+                        toast: true,
+                        position: 'top-end',
+                        showConfirmButton: false,
+                        timer: 3000,
+                        timerProgressBar: true,
+                        didOpen: (toast) => {
+                            toast.addEventListener('mouseenter', Swal.stopTimer);
+                            toast.addEventListener('mouseleave', Swal.resumeTimer);
+                        }
+                    });
+                    
+                    Toast.fire({
+                        icon: 'success',
+                        title: `Appointment ${queueNumber} cancelled successfully`
+                    });
+                    
+                    fetchRecentTransactions();
+                }
             });
         }
-    }).then((result) => {
-        if (result.isConfirmed) {
-            // Remove the row immediately
-            row.remove();
-            
-            // Check if table is empty
-            const tbody = document.getElementById('appointmentsTableBody');
-            if (tbody.children.length === 0) {
-                tbody.innerHTML = `
-                    <tr>
-                        <td colspan="6" class="empty-state">
-                            <svg viewBox="0 0 20 20" fill="currentColor">
-                                <path fill-rule="evenodd"
-                                    d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z"
-                                    clip-rule="evenodd" />
-                            </svg>
-                            <p>No pending appointments for today</p>
-                        </td>
-                    </tr>
-                `;
-            }
-            
-            // Show TOP-RIGHT toast notification instead of center popup
-            const Toast = Swal.mixin({
-                toast: true,
-                position: 'top-end',
-                showConfirmButton: false,
-                timer: 3000,
-                timerProgressBar: true,
-                didOpen: (toast) => {
-                    toast.addEventListener('mouseenter', Swal.stopTimer)
-                    toast.addEventListener('mouseleave', Swal.resumeTimer)
-                }
-            });
-            
-            Toast.fire({
-                icon: 'success',
-                title: `Appointment ${queueNumber} cancelled successfully`
-            });
-            
-            // Refresh the recent transactions table
-            fetchRecentTransactions();
-        }
-    });
-}
     </script>
     
 </main>
