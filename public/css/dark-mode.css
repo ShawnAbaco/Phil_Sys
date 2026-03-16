@@ -890,6 +890,16 @@
     color: var(--text-secondary);
 }
 
+.dark-mode .card.full-width .client-name {
+    font-weight: 500;
+    color: #ffffff;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 180px;
+    font-size: 0.8125rem;
+}
+
 /* ===== BADGES AND INDICATORS DARK MODE ===== */
 .dark-mode .badge-completed {
     background: rgba(16, 185, 129, 0.15);
