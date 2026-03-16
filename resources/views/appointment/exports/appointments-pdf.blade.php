@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PSA PhilSys - Completed Transactions Report</title>
+    <title>PSA PhilSys - Transactions Report</title>
     <style>
         * {
             margin: 0;
@@ -19,6 +19,7 @@
             background: #ffffff;
             line-height: 1.3;
             font-size: 11pt;
+            position: relative;
         }
 
         /* Page break handling */
@@ -30,6 +31,7 @@
         .official-header {
             text-align: center;
             margin-bottom: 25px;
+            position: relative;
         }
 
         .republika {
@@ -62,6 +64,16 @@
             padding: 8px 0;
             margin: 10px 0;
             letter-spacing: 1px;
+        }
+
+        /* Page Number - Top Right Corner (Plain) */
+        .page-number {
+            position: absolute;
+            top: 0;
+            right: 0;
+            font-size: 10pt;
+            color: #333333;
+            font-weight: normal;
         }
 
         /* Reference Line - Appears on every page */
@@ -175,17 +187,34 @@
             text-align: center;
         }
 
+        .remarks-cell {
+            text-align: center;
+            font-weight: 500;
+            text-transform: capitalize;
+        }
+
+        .status-completed {
+            color: #2e7d32;
+            font-weight: 600;
+        }
+
+        .status-cancelled {
+            color: #b71c1c;
+            font-weight: 600;
+        }
+
         /* Column Widths */
         .col-sn { width: 4%; }
         .col-queue { width: 8%; }
-        .col-name { width: 22%; }
-        .col-service { width: 12%; }
-        .col-trn { width: 15%; }
-        .col-pcn { width: 15%; }
+        .col-name { width: 18%; }
+        .col-service { width: 10%; }
+        .col-trn { width: 12%; }
+        .col-pcn { width: 12%; }
         .col-time { width: 10%; }
         .col-window { width: 6%; }
+        .col-remarks { width: 10%; }
 
-        /* Footer - Dynamic page numbering */
+        /* Footer */
         .footer {
             text-align: center;
             font-size: 9pt;
@@ -232,12 +261,16 @@
 
 <body>
     @php
-        // Define how many rows per page (adjust based on your margins and font size)
-        $rowsPerPage = 25;
+        // Define how many rows per page
+        $rowsPerPage = 22;
         $totalRows = $completedAppointments->count();
         $totalPages = ceil($totalRows / $rowsPerPage);
         $currentPage = 1;
         $rowCounter = 0;
+        
+        // Count statistics by status
+        $completedCount = $completedAppointments->where('status', 'completed')->count();
+        $cancelledCount = $completedAppointments->where('status', 'cancelled')->count();
     @endphp
 
     @foreach ($completedAppointments->chunk($rowsPerPage) as $chunk)
@@ -246,12 +279,17 @@
             <div class="republika">Republic of the Philippines</div>
             <div class="psa-title">PHILIPPINE STATISTICS AUTHORITY</div>
             <div class="philsys-title">Philippine Identification System (PhilSys)</div>
-            <div class="report-title">COMPLETED TRANSACTIONS REPORT</div>
+            <div class="report-title">TRANSACTIONS REPORT</div>
+            
+            <!-- Page Number - Top Right Corner (Automatically generates based on total pages) -->
+            <div class="page-number">
+                page {{ $currentPage }} of {{ $totalPages }}
+            </div>
         </div>
 
         <!-- Reference Line (appears on every page) -->
         <div class="reference-line">
-            <span><strong>Report No.:</strong> PSA-COMP-{{ date('YmdHis') }}</span>
+            <span><strong>Report No.:</strong> PSA-REP-{{ date('YmdHis') }}</span>
             <span class="separator">|</span>
             <span><strong>Date:</strong> {{ $dateToday }}</span>
             <span class="separator">|</span>
@@ -261,7 +299,8 @@
         <!-- Summary Line - Only on first page -->
         @if ($currentPage == 1)
             <div class="summary-line">
-                <strong>Total Completed Transactions:</strong> {{ $completedCount }}
+                <strong>Total Transactions:</strong> {{ $completedAppointments->count() }} 
+                (Completed: {{ $completedCount }} | Cancelled: {{ $cancelledCount }})
             </div>
         @endif
 
@@ -278,6 +317,7 @@
                         <th class="col-pcn">PCN</th>
                         <th class="col-time">Time Served</th>
                         <th class="col-window">Window</th>
+                        <th class="col-remarks">Remarks</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -304,9 +344,22 @@
                             $pcn = $app->PCN ?? '—';
                             
                             // Format time
-                            $servedTime = \Carbon\Carbon::parse($app->time_catered)
-                                ->setTimezone('Asia/Manila')
-                                ->format('h:i A');
+                            $servedTime = $app->time_catered
+                                ? \Carbon\Carbon::parse($app->time_catered)
+                                    ->setTimezone('Asia/Manila')
+                                    ->format('h:i A')
+                                : '—';
+                            
+                            // Determine status and class for remarks
+                            $status = $app->status ?? 'completed';
+                            $statusDisplay = ucfirst(str_replace('_', ' ', $status));
+                            $statusClass = '';
+                            
+                            if ($status === 'completed') {
+                                $statusClass = 'status-completed';
+                            } elseif ($status === 'cancelled') {
+                                $statusClass = 'status-cancelled';
+                            }
                         @endphp
                         <tr>
                             <td class="number-cell">{{ $app->row_number }}</td>
@@ -317,6 +370,7 @@
                             <td class="pcn-cell">{{ $pcn }}</td>
                             <td>{{ $servedTime }}</td>
                             <td class="window-cell">{{ $app->window_num ?? '—' }}</td>
+                            <td class="remarks-cell {{ $statusClass }}">{{ $statusDisplay }}</td>
                         </tr>
                     @endforeach
                 </tbody>
@@ -333,11 +387,6 @@
             </div>
         @endif
 
-        <!-- Footer with Dynamic Page Number -->
-        <div class="footer">
-            Page {{ $currentPage }} of {{ $totalPages }} | PSA PhilSys - Official Document
-        </div>
-
         <!-- Page Break (except for last page) -->
         @if (!$loop->last)
             <div class="page-break"></div>
@@ -352,7 +401,12 @@
             <div class="republika">Republic of the Philippines</div>
             <div class="psa-title">PHILIPPINE STATISTICS AUTHORITY</div>
             <div class="philsys-title">Philippine Identification System (PhilSys)</div>
-            <div class="report-title">COMPLETED TRANSACTIONS REPORT</div>
+            <div class="report-title">TRANSACTIONS REPORT</div>
+            
+            <!-- Page Number - Top Right Corner -->
+            <div class="page-number">
+                page 1 of 1
+            </div>
         </div>
 
         <div class="reference-line">
@@ -364,15 +418,11 @@
         </div>
 
         <div class="summary-line">
-            <strong>Total Completed Transactions:</strong> 0
+            <strong>Total Transactions:</strong> 0
         </div>
 
         <div class="empty-state">
-            No completed transactions recorded for this period.
-        </div>
-
-        <div class="footer">
-            <!-- Page 1 of 1 | PSA PhilSys - Official Document -->
+            No transactions recorded for this period.
         </div>
     @endif
 </body>

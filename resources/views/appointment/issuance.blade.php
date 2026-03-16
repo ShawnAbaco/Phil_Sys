@@ -75,7 +75,7 @@
                     <div id="nidForm" class="category-form"
                         style="display: {{ old('category', session('last_category')) == 'NID Registration' ? 'block' : 'none' }};">
                         <div style="border-left: 4px solid #2563eb; padding-left: 15px; margin-bottom: 20px;">
-                            <h4 style="margin: 0 0 5px 0; color: #2563eb; font-size: 16px;">NID Registration Details
+                            <h4 style="margin: 0 0 5px 0; font-size: 16px;">NID Registration Details
                             </h4>
                             <p style="margin: 0; color: #6b7280; font-size: 13px;">Please fill in the required
                                 information below</p>
@@ -231,7 +231,7 @@
                     <div id="statusForm" class="category-form"
                         style="display: {{ old('category', session('last_category')) == 'Status Inquiry' ? 'block' : 'none' }};">
                         <div style="border-left: 4px solid #2563eb; padding-left: 15px; margin-bottom: 20px;">
-                            <h4 style="margin: 0 0 5px 0; color: #2563eb; font-size: 16px;">Status Inquiry Details</h4>
+                            <h4 style="margin: 0 0 5px 0; font-size: 16px;">Status Inquiry Details</h4>
                             <p style="margin: 0; color: #6b7280; font-size: 13px;">Please fill in the required
                                 information below</p>
                         </div>
@@ -409,7 +409,7 @@
                     <div id="updatingForm" class="category-form"
                         style="display: {{ old('category', session('last_category')) == 'Updating' ? 'block' : 'none' }};">
                         <div style="border-left: 4px solid #2563eb; padding-left: 15px; margin-bottom: 20px;">
-                            <h4 style="margin: 0 0 5px 0; color: #2563eb; font-size: 16px;">Updating Details</h4>
+                            <h4 style="margin: 0 0 5px 0; font-size: 16px;">Updating Details</h4>
                             <p style="margin: 0; color: #6b7280; font-size: 13px;">Please fill in the required
                                 information below</p>
                         </div>
@@ -588,158 +588,166 @@
         </div>
 
         {{-- Today's Appointments Card --}}
-        <div class="card">
-            <div class="card-header">
-                <h3>
+<div class="card">
+    <div class="card-header">
+        <h3>
+            <svg viewBox="0 0 20 20" fill="currentColor">
+                <path
+                    d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z" />
+            </svg>
+            Today's Appointments
+        </h3>
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon"
+                    style="background: linear-gradient(135deg, var(--psa-blue), var(--psa-red))">
                     <svg viewBox="0 0 20 20" fill="currentColor">
                         <path
                             d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z" />
                     </svg>
-                    Today's Appointments
-                </h3>
-                <div class="stats-grid">
-                    <div class="stat-card">
-                        <div class="stat-icon"
-                            style="background: linear-gradient(135deg, var(--psa-blue), var(--psa-red))">
-                            <svg viewBox="0 0 20 20" fill="currentColor">
-                                <path
-                                    d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z" />
-                            </svg>
-                        </div>
-                        <div class="stat-content">
-                            <span class="stat-label">Total Queue Today</span>
-                            <span class="stat-value" id="totalQueue">{{ $queueCount ?? 0 }}</span>
-                        </div>
-                    </div>
-
-                    <div class="stat-card">
-                        <div class="stat-icon" style="background: linear-gradient(135deg, #F59E0B, #FBBF24)">
-                            <svg viewBox="0 0 20 20" fill="currentColor">
-                                <path fill-rule="evenodd"
-                                    d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z"
-                                    clip-rule="evenodd" />
-                            </svg>
-                        </div>
-                        <div class="stat-content">
-                            <span class="stat-label">Pending</span>
-                            <span class="stat-value pending" id="pendingCount">{{ $pendingCount ?? 0 }}</span>
-                        </div>
-                    </div>
-
-                    <div class="stat-card">
-                        <div class="stat-icon" style="background: linear-gradient(135deg, #10B981, #34D399)">
-                            <svg viewBox="0 0 20 20" fill="currentColor">
-                                <path fill-rule="evenodd"
-                                    d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                                    clip-rule="evenodd" />
-                            </svg>
-                        </div>
-                        <div class="stat-content">
-                            <span class="stat-label">Completed</span>
-                            <span class="stat-value completed" id="completedCount">{{ $completedCount ?? 0 }}</span>
-                        </div>
-                    </div>
+                </div>
+                <div class="stat-content">
+                    <span class="stat-label">Total Queue Today</span>
+                    <span class="stat-value" id="totalQueue">{{ $queueCount ?? 0 }}</span>
                 </div>
             </div>
-            <div class="card-body">
-                <div class="search-box">
-                    <svg class="search-icon" viewBox="0 0 20 20" fill="currentColor">
+
+            <div class="stat-card">
+                <div class="stat-icon" style="background: linear-gradient(135deg, #F59E0B, #FBBF24)">
+                    <svg viewBox="0 0 20 20" fill="currentColor">
                         <path fill-rule="evenodd"
-                            d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z"
+                            d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z"
                             clip-rule="evenodd" />
                     </svg>
-                    <input type="text" id="searchAppointments" placeholder="Search...">
                 </div>
+                <div class="stat-content">
+                    <span class="stat-label">Pending</span>
+                    <span class="stat-value pending" id="pendingCount">{{ $pendingCount ?? 0 }}</span>
+                </div>
+            </div>
 
-                <div class="table-responsive">
-                    <table class="table">
-                        <thead>
-                            <tr>
-                                <th>Queue #</th>
-                                <th>Name</th>
-                                <th>Priority</th>
-                                <th>Service</th>
-                                <th>Time</th>
-                                <th>Status</th>
-                            </tr>
-                        </thead>
-                        <tbody class="appointments-table-body" id="appointmentsTableBody">
-                            @forelse($appointments as $appointment)
-                                @php
-                                    $servedTime = $appointment->time_catered
-                                        ? \Carbon\Carbon::parse($appointment->time_catered)->setTimezone('Asia/Manila')
-                                        : null;
-                                    $createdTime = \Carbon\Carbon::parse($appointment->date)->setTimezone(
-                                        'Asia/Manila',
-                                    );
-
-                                    // Get the actual status from database
-                                    $status = $appointment->status ?? 'pending';
-
-                                    // Determine if this is a pending appointment (show in this table)
-                                    // Show if status is pending OR (no time_catered and not completed/cancelled/no_show)
-                                    $showInTable =
-                                        in_array($status, ['pending', 'serving']) ||
-                                        (!$appointment->time_catered &&
-                                            !in_array($status, ['completed', 'cancelled', 'no_show']));
-
-                                    $serviceDisplay = $appointment->queue_for;
-
-                                    // Get priority type for display
-                                    $priorityType = $appointment->priority_type ?? 'regular';
-                                    $priorityDisplay = ucfirst($priorityType);
-
-                                    // Format status for display
-                                    $statusDisplay = ucfirst(str_replace('_', ' ', $status));
-                                    $statusClass = $status;
-                                @endphp
-                                {{-- Only show if pending or serving --}}
-                                @if ($showInTable)
-                                    <tr
-                                        data-search="{{ strtolower($appointment->lname . ' ' . $appointment->fname . ' ' . $appointment->trn) }}">
-                                        <td><span class="queue-number">{{ $appointment->q_id }}</span></td>
-                                        <td>
-                                            <div class="client-name">
-                                                {{ $appointment->lname }}, {{ $appointment->fname }}
-                                                @if ($appointment->mname || $appointment->suffix)
-                                                    <small>{{ $appointment->mname }}
-                                                        {{ $appointment->suffix }}</small>
-                                                @endif
-                                            </div>
-                                        </td>
-                                        <td>
-                                            <span class="priority-badge priority-{{ $priorityType }}"
-                                                data-priority="{{ $priorityType }}">
-                                                {{ strtoupper($priorityDisplay) }}
-                                            </span>
-                                        </td>
-                                        <td>{{ $serviceDisplay }}</td>
-                                        <td>{{ $createdTime->format('h:i A') }}</td>
-                                        <td>
-                                            <span class="status-badge status-{{ $statusClass }}">
-                                                <span class="status-dot"></span>
-                                                {{ $statusDisplay }}
-                                            </span>
-                                        </td>
-                                    </tr>
-                                @endif
-                            @empty
-                                <tr>
-                                    <td colspan="6" class="empty-state">
-                                        <svg viewBox="0 0 20 20" fill="currentColor">
-                                            <path fill-rule="evenodd"
-                                                d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z"
-                                                clip-rule="evenodd" />
-                                        </svg>
-                                        <p>No pending appointments for today</p>
-                                    </td>
-                                </tr>
-                            @endforelse
-                        </tbody>
-                    </table>
+            <div class="stat-card">
+                <div class="stat-icon" style="background: linear-gradient(135deg, #10B981, #34D399)">
+                    <svg viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd"
+                            d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                            clip-rule="evenodd" />
+                    </svg>
+                </div>
+                <div class="stat-content">
+                    <span class="stat-label">Completed</span>
+                    <span class="stat-value completed" id="completedCount">{{ $completedCount ?? 0 }}</span>
                 </div>
             </div>
         </div>
+    </div>
+    <div class="card-body">
+        <div class="search-box">
+            <svg class="search-icon" viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd"
+                    d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z"
+                    clip-rule="evenodd" />
+            </svg>
+            <input type="text" id="searchAppointments" placeholder="Search...">
+        </div>
+
+        <div class="table-responsive">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Queue #</th>
+                        <th>Name</th>
+                        <th>Priority</th>
+                        <th>Service</th>
+                        <th>Time</th>
+                        <th>Action</th> <!-- Changed from "Status" to "Action" -->
+                    </tr>
+                </thead>
+                <tbody class="appointments-table-body" id="appointmentsTableBody">
+                    @forelse($appointments as $appointment)
+                        @php
+                            $servedTime = $appointment->time_catered
+                                ? \Carbon\Carbon::parse($appointment->time_catered)->setTimezone('Asia/Manila')
+                                : null;
+                            $createdTime = \Carbon\Carbon::parse($appointment->date)->setTimezone(
+                                'Asia/Manila',
+                            );
+
+                            // Get the actual status from database
+                            $status = $appointment->status ?? 'pending';
+
+                            // Determine if this is a pending appointment (show in this table)
+                            // Show if status is pending OR (no time_catered and not completed/cancelled/no_show)
+                            $showInTable =
+                                in_array($status, ['pending', 'serving']) ||
+                                (!$appointment->time_catered &&
+                                    !in_array($status, ['completed', 'cancelled', 'no_show']));
+
+                            $serviceDisplay = $appointment->queue_for;
+
+                            // Get priority type for display
+                            $priorityType = $appointment->priority_type ?? 'regular';
+                            $priorityDisplay = ucfirst($priorityType);
+
+                            // Format name with full details
+                            $fullName = $appointment->lname . ', ' . $appointment->fname;
+                            if ($appointment->mname && trim($appointment->mname) !== '') {
+                                $fullName .= ' ' . $appointment->mname;
+                            }
+                            if ($appointment->suffix && trim($appointment->suffix) !== '') {
+                                $fullName .= ' ' . $appointment->suffix;
+                            }
+                        @endphp
+                        {{-- Only show if pending or serving --}}
+                        @if ($showInTable)
+                            <tr
+                                data-search="{{ strtolower($appointment->lname . ' ' . $appointment->fname . ' ' . $appointment->trn) }}">
+                                <td><span class="queue-number">{{ $appointment->q_id }}</span></td>
+                                <td>
+                                    <div class="client-name">
+                                        {{ $fullName }}
+                                    </div>
+                                </td>
+                                <td>
+                                    <span class="priority-badge priority-{{ $priorityType }}"
+                                        data-priority="{{ $priorityType }}">
+                                        {{ strtoupper($priorityDisplay) }}
+                                    </span>
+                                </td>
+                                <td>{{ $serviceDisplay }}</td>
+                                <td>{{ $createdTime->format('h:i A') }}</td>
+                                <td>
+                                    <button type="button" 
+                                            class="btn-action cancel-btn" 
+                                            data-id="{{ $appointment->n_id }}"
+                                            data-name="{{ $fullName }}"
+                                            data-queue="{{ $appointment->q_id }}"
+                                            onclick="cancelAppointment(this)">
+                                        <svg viewBox="0 0 20 20" fill="currentColor" width="16" height="16">
+                                            <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" />
+                                        </svg>
+                                        Cancel
+                                    </button>
+                                </td>
+                            </tr>
+                        @endif
+                    @empty
+                        <tr>
+                            <td colspan="6" class="empty-state">
+                                <svg viewBox="0 0 20 20" fill="currentColor">
+                                    <path fill-rule="evenodd"
+                                        d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z"
+                                        clip-rule="evenodd" />
+                                </svg>
+                                <p>No pending appointments for today</p>
+                            </td>
+                        </tr>
+                    @endforelse
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
     </div>
 
     <!-- QR Scanner Modal -->
@@ -813,7 +821,7 @@
         </div>
         <div class="card-body">
             {{-- Optional Service Filter for Screener --}}
-            <div class="filter-section" style="margin-bottom: 15px; display: flex; justify-content: flex-end;">
+            <!-- <div class="filter-section" style="margin-bottom: 15px; display: flex; justify-content: flex-end;">
                 <select id="transactionServiceFilter" class="service-filter"
                     style="padding: 6px 12px; border: 2px solid #e5e7eb; border-radius: 30px; font-size: 13px; color: #374151; background: white; cursor: pointer; width: auto;">
                     <option value="all">All Services</option>
@@ -821,7 +829,7 @@
                     <option value="Status Inquiry">Status Inquiry</option>
                     <option value="Updating">NID Updating</option>
                 </select>
-            </div>
+            </div> -->
 
             <div class="table-responsive">
                 <table class="table">
@@ -1482,10 +1490,10 @@
 
 
         function updateAppointmentsTable(appointments) {
-            const tbody = document.getElementById('appointmentsTableBody');
+    const tbody = document.getElementById('appointmentsTableBody');
 
-            if (!appointments || appointments.length === 0) {
-                tbody.innerHTML = `
+    if (!appointments || appointments.length === 0) {
+        tbody.innerHTML = `
             <tr>
                 <td colspan="6" class="empty-state">
                     <svg viewBox="0 0 20 20" fill="currentColor">
@@ -1497,50 +1505,46 @@
                 </td>
             </tr>
         `;
-                return;
+        return;
+    }
+
+    let html = '';
+    appointments.forEach(app => {
+        // Get the actual status from database
+        const status = app.status || 'pending';
+
+        // Show if status is pending or serving (active appointments)
+        const showInTable = ['pending', 'serving'].includes(status) ||
+            (!app.time_catered && !['completed', 'cancelled', 'no_show'].includes(status));
+
+        if (showInTable) {
+            const createdTime = new Date(app.date).toLocaleTimeString('en-US', {
+                hour: '2-digit',
+                minute: '2-digit',
+                hour12: true,
+                timeZone: 'Asia/Manila'
+            });
+
+            let fullName = app.lname + ', ' + app.fname;
+
+            if (app.mname && app.mname.trim() !== '') {
+                fullName += ' ' + app.mname;
             }
 
-            let html = '';
-            appointments.forEach(app => {
-                // Get the actual status from database
-                const status = app.status || 'pending';
+            if (app.suffix && app.suffix.trim() !== '') {
+                fullName += ' ' + app.suffix;
+            }
 
-                // Show if status is pending or serving (active appointments)
-                const showInTable = ['pending', 'serving'].includes(status) ||
-                    (!app.time_catered && !['completed', 'cancelled', 'no_show'].includes(status));
+            // Get priority type for display
+            const priorityType = app.priority_type?.toLowerCase() || 'regular';
+            const priorityDisplay = priorityType === 'regular' ? 'Regular' :
+                priorityType.charAt(0).toUpperCase() + priorityType.slice(1);
 
-                if (showInTable) {
-                    const createdTime = new Date(app.date).toLocaleTimeString('en-US', {
-                        hour: '2-digit',
-                        minute: '2-digit',
-                        hour12: true,
-                        timeZone: 'Asia/Manila'
-                    });
+            const searchData = (app.lname + ' ' + app.fname + ' ' + (app.trn || '')).toLowerCase();
 
-                    let fullName = app.lname + ', ' + app.fname;
-
-                    if (app.mname && app.mname.trim() !== '') {
-                        fullName += ' ' + app.mname;
-                    }
-
-                    if (app.suffix && app.suffix.trim() !== '') {
-                        fullName += ' ' + app.suffix;
-                    }
-
-                    // Get priority type for display
-                    const priorityType = app.priority_type?.toLowerCase() || 'regular';
-                    const priorityDisplay = priorityType === 'regular' ? 'Regular' :
-                        priorityType.charAt(0).toUpperCase() + priorityType.slice(1);
-
-                    // Format status for display
-                    const statusDisplay = status.replace('_', ' ').split(' ').map(word =>
-                        word.charAt(0).toUpperCase() + word.slice(1)
-                    ).join(' ');
-
-                    const searchData = (app.lname + ' ' + app.fname + ' ' + (app.trn || '')).toLowerCase();
-
-                    html += `
-                <tr data-search="${searchData}" data-priority="${priorityType}" data-status="${status}">
+            // Generate HTML with CANCEL BUTTON instead of status badge
+            html += `
+                <tr data-search="${searchData}" data-priority="${priorityType}" data-status="${status}" data-id="${app.n_id}">
                     <td><span class="queue-number">${app.q_id}</span></td>
                     <td>
                         <div class="client-name">
@@ -1555,18 +1559,25 @@
                     <td>${app.queue_for}</td>
                     <td>${createdTime}</td>
                     <td>
-                        <span class="status-badge status-${status}">
-                            <span class="status-dot"></span>
-                            ${statusDisplay}
-                        </span>
+                        <button type="button" 
+                                class="btn-action cancel-btn" 
+                                data-id="${app.n_id}"
+                                data-name="${fullName}"
+                                data-queue="${app.q_id}"
+                                onclick="cancelAppointment(this)">
+                            <svg viewBox="0 0 20 20" fill="currentColor" width="16" height="16">
+                                <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" />
+                            </svg>
+                            Cancel
+                        </button>
                     </td>
                 </tr>
             `;
-                }
-            });
+        }
+    });
 
-            if (html === '') {
-                tbody.innerHTML = `
+    if (html === '') {
+        tbody.innerHTML = `
             <tr>
                 <td colspan="6" class="empty-state">
                     <svg viewBox="0 0 20 20" fill="currentColor">
@@ -1578,14 +1589,14 @@
                 </td>
             </tr>
         `;
-            } else {
-                tbody.innerHTML = html;
+    } else {
+        tbody.innerHTML = html;
 
-                if (currentSearchTerm) {
-                    filterTableRows();
-                }
-            }
+        if (currentSearchTerm) {
+            filterTableRows();
         }
+    }
+}
 
         function updateStatistics(stats) {
             if (!stats) return;
@@ -2127,5 +2138,94 @@
         function hideLoading() {
             document.getElementById('loadingModal')?.classList.remove('show');
         }
+
+
+// Cancel Appointment Function
+function cancelAppointment(button) {
+    const appointmentId = button.getAttribute('data-id');
+    const clientName = button.getAttribute('data-name');
+    const queueNumber = button.getAttribute('data-queue');
+    const row = button.closest('tr'); // Get the row reference early
+    
+    Swal.fire({
+        title: 'Cancel Appointment?',
+        html: `Are you sure you want to cancel appointment <strong>${queueNumber}</strong> for <strong>${clientName}</strong>?`,
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#dc2626',
+        cancelButtonColor: '#6b7280',
+        confirmButtonText: 'Yes, Cancel',
+        cancelButtonText: 'No, Keep',
+        showLoaderOnConfirm: true,
+        preConfirm: () => {
+            return fetch(`/appointment/update-status/${appointmentId}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                    'Accept': 'application/json'
+                },
+                body: JSON.stringify({
+                    status: 'cancelled'
+                })
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(response.statusText);
+                }
+                return response.json();
+            })
+            .catch(error => {
+                Swal.showValidationMessage(
+                    `Request failed: ${error}`
+                );
+            });
+        }
+    }).then((result) => {
+        if (result.isConfirmed) {
+            // Remove the row immediately
+            row.remove();
+            
+            // Check if table is empty
+            const tbody = document.getElementById('appointmentsTableBody');
+            if (tbody.children.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="6" class="empty-state">
+                            <svg viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd"
+                                    d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z"
+                                    clip-rule="evenodd" />
+                            </svg>
+                            <p>No pending appointments for today</p>
+                        </td>
+                    </tr>
+                `;
+            }
+            
+            // Show TOP-RIGHT toast notification instead of center popup
+            const Toast = Swal.mixin({
+                toast: true,
+                position: 'top-end',
+                showConfirmButton: false,
+                timer: 3000,
+                timerProgressBar: true,
+                didOpen: (toast) => {
+                    toast.addEventListener('mouseenter', Swal.stopTimer)
+                    toast.addEventListener('mouseleave', Swal.resumeTimer)
+                }
+            });
+            
+            Toast.fire({
+                icon: 'success',
+                title: `Appointment ${queueNumber} cancelled successfully`
+            });
+            
+            // Refresh the recent transactions table
+            fetchRecentTransactions();
+        }
+    });
+}
     </script>
+    
 </main>

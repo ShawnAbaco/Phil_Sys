@@ -363,6 +363,9 @@ class AppointmentController extends Controller
         }
     }
 
+    /**
+     * Update appointment status (for cancel, complete, no-show actions)
+     */
     public function updateStatus(Request $request, $id)
     {
         try {
@@ -387,7 +390,8 @@ class AppointmentController extends Controller
 
             return response()->json([
                 'success' => true,
-                'message' => 'Status updated successfully'
+                'message' => 'Status updated successfully',
+                'new_status' => $request->status
             ]);
 
         } catch (\Exception $e) {

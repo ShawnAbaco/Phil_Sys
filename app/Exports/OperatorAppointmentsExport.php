@@ -41,13 +41,13 @@ class OperatorAppointmentsExport implements FromCollection, WithHeadings, WithMa
     public function headings(): array
     {
         return [
-            ['PSA PHILSYS - OPERATOR RECENT TRANSACTIONS REPORT'],
+            ['PSA PHILSYS - OPERATOR TRANSACTIONS REPORT'],
             ['Window Number: ' . $this->windowNum],
             ['Date: ' . $this->dateToday . ' | Generated: ' . $this->timeGenerated],
             ['Total Records: ' . $this->totalCompleted],
             ['Report ID: OPR-EXCEL-' . date('YmdHis')],
             [''],
-            ['#', 'Queue #', 'Last Name', 'First Name', 'Middle Name', 'Suffix', 'Age Category', 'Birthdate', 'TRN', 'PCN', 'Service', 'Served Time', 'Window']
+            ['#', 'Queue #', 'Last Name', 'First Name', 'Middle Name', 'Suffix', 'Age Category', 'Birthdate', 'TRN', 'PCN', 'Service', 'Served Time', 'Remarks']
         ];
     }
 
@@ -60,9 +60,15 @@ class OperatorAppointmentsExport implements FromCollection, WithHeadings, WithMa
             ? Carbon::parse($appointment->birthdate)->format('Y-m-d') 
             : 'N/A';
         
-        $servedTime = Carbon::parse($appointment->time_catered)
-            ->setTimezone('Asia/Manila')
-            ->format('h:i A');
+        $servedTime = $appointment->time_catered
+            ? Carbon::parse($appointment->time_catered)
+                ->setTimezone('Asia/Manila')
+                ->format('h:i A')
+            : '—';
+        
+        // Determine status display
+        $status = $appointment->status ?? 'completed';
+        $statusDisplay = ucfirst(str_replace('_', ' ', $status));
         
         return [
             $rowNumber,
@@ -77,7 +83,7 @@ class OperatorAppointmentsExport implements FromCollection, WithHeadings, WithMa
             $appointment->PCN ?? 'N/A',
             $appointment->queue_for,
             $servedTime,
-            $appointment->window_num ?? 'N/A',
+            $statusDisplay, // Remarks column
         ];
     }
 
@@ -88,19 +94,30 @@ class OperatorAppointmentsExport implements FromCollection, WithHeadings, WithMa
 
     public function styles(Worksheet $sheet)
     {
-        // Merge cells for the title
+        // Count statistics for summary
+        $completedCount = $this->appointments->where('status', 'completed')->count();
+        $cancelledCount = $this->appointments->where('status', 'cancelled')->count();
+        
+        // Insert summary statistics after the headers
+        $sheet->insertNewRowBefore(7, 2);
+        $sheet->setCellValue('A7', 'Summary:');
+        $sheet->setCellValue('B7', 'Completed: ' . $completedCount);
+        $sheet->setCellValue('D7', 'Cancelled: ' . $cancelledCount);
+        
+        // Merge cells for the title - updated from N to M (13 columns)
         $sheet->mergeCells('A1:M1');
         $sheet->mergeCells('A2:M2');
         $sheet->mergeCells('A3:M3');
         $sheet->mergeCells('A4:M4');
         $sheet->mergeCells('A5:M5');
+        $sheet->mergeCells('A6:M6'); // Empty row
         
         // Title styling
         $sheet->getStyle('A1')->applyFromArray([
             'font' => [
                 'bold' => true,
                 'size' => 16,
-                'color' => ['rgb' => '2563EB'],
+                'color' => ['rgb' => '0038A8'], // PSA Blue
             ],
             'alignment' => [
                 'horizontal' => Alignment::HORIZONTAL_CENTER,
@@ -112,7 +129,7 @@ class OperatorAppointmentsExport implements FromCollection, WithHeadings, WithMa
             'font' => [
                 'bold' => true,
                 'size' => 12,
-                'color' => ['rgb' => '059669'],
+                'color' => ['rgb' => 'CE1126'], // PSA Red
             ],
             'alignment' => [
                 'horizontal' => Alignment::HORIZONTAL_CENTER,
@@ -141,24 +158,47 @@ class OperatorAppointmentsExport implements FromCollection, WithHeadings, WithMa
             ],
         ]);
 
-        // Table header styling
-        $sheet->getStyle('A7:M7')->applyFromArray([
+        // Summary row styling
+        $sheet->getStyle('A7:B7')->applyFromArray([
+            'font' => [
+                'bold' => true,
+                'size' => 11,
+            ],
+            'fill' => [
+                'fillType' => Fill::FILL_SOLID,
+                'startColor' => ['rgb' => 'F0F8FF'],
+            ],
+        ]);
+        
+        $sheet->getStyle('D7')->applyFromArray([
+            'font' => [
+                'bold' => true,
+                'size' => 11,
+            ],
+            'fill' => [
+                'fillType' => Fill::FILL_SOLID,
+                'startColor' => ['rgb' => 'FFF0F0'],
+            ],
+        ]);
+
+        // Table header styling (now at row 9 because we inserted 2 rows) - updated from N to M
+        $sheet->getStyle('A9:M9')->applyFromArray([
             'font' => [
                 'bold' => true,
                 'color' => ['rgb' => 'FFFFFF'],
             ],
             'fill' => [
                 'fillType' => Fill::FILL_SOLID,
-                'startColor' => ['rgb' => '2563EB'],
+                'startColor' => ['rgb' => '0038A8'], // PSA Blue
             ],
             'alignment' => [
                 'horizontal' => Alignment::HORIZONTAL_CENTER,
             ],
         ]);
 
-        // Add borders to the table
+        // Add borders to the table - updated from N to M
         $lastRow = $sheet->getHighestRow();
-        $sheet->getStyle('A7:M' . $lastRow)->applyFromArray([
+        $sheet->getStyle('A9:M' . $lastRow)->applyFromArray([
             'borders' => [
                 'allBorders' => [
                     'borderStyle' => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN,
@@ -166,6 +206,31 @@ class OperatorAppointmentsExport implements FromCollection, WithHeadings, WithMa
                 ],
             ],
         ]);
+
+        // Color code the remarks column based on status - updated from N to M (column 13)
+        for ($row = 10; $row <= $lastRow; $row++) {
+            $status = $sheet->getCell('M' . $row)->getValue();
+            if ($status === 'Completed') {
+                $sheet->getStyle('M' . $row)->applyFromArray([
+                    'font' => [
+                        'color' => ['rgb' => '2E7D32'], // Green
+                        'bold' => true,
+                    ],
+                ]);
+            } elseif ($status === 'Cancelled') {
+                $sheet->getStyle('M' . $row)->applyFromArray([
+                    'font' => [
+                        'color' => ['rgb' => 'B71C1C'], // Red
+                        'bold' => true,
+                    ],
+                ]);
+            }
+        }
+
+        // Auto-size columns - updated range from A to M
+        foreach (range('A', 'M') as $column) {
+            $sheet->getColumnDimension($column)->setAutoSize(true);
+        }
 
         return [];
     }

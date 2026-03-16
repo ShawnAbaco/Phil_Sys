@@ -37,14 +37,15 @@ class AppointmentsExport implements FromCollection, WithHeadings, WithMapping, W
     public function headings(): array
     {
         return [
-            ['COMPLETED APPOINTMENTS REPORT'],
+            ['PSA PHILSYS - COMPLETED & CANCELLED TRANSACTIONS REPORT'],
             ['Date: ' . $this->dateToday],
             [''],
             ['Summary Statistics'],
             ['Total Appointments Today:', $this->totalToday],
             ['Completed:', $this->completedCount],
+            ['Cancelled:', $this->appointments->where('status', 'cancelled')->count()],
             [''],
-            ['#', 'Queue #', 'Last Name', 'First Name', 'Middle Name', 'Suffix', 'Service', 'Served Time', 'Window']
+            ['#', 'Queue #', 'Last Name', 'First Name', 'Middle Name', 'Suffix', 'Service', 'Served Time', 'Window', 'Remarks']
         ];
     }
 
@@ -52,6 +53,10 @@ class AppointmentsExport implements FromCollection, WithHeadings, WithMapping, W
     {
         static $rowNumber = 0;
         $rowNumber++;
+        
+        // Determine status display
+        $status = $appointment->status ?? 'completed';
+        $statusDisplay = ucfirst(str_replace('_', ' ', $status));
         
         return [
             $rowNumber,
@@ -61,29 +66,35 @@ class AppointmentsExport implements FromCollection, WithHeadings, WithMapping, W
             $appointment->mname ?? '',
             $appointment->suffix ?? '',
             $appointment->queue_for,
-            Carbon::parse($appointment->time_catered)->setTimezone('Asia/Manila')->format('h:i A'),
-            $appointment->window_num ?? 'N/A',
+            $appointment->time_catered 
+                ? Carbon::parse($appointment->time_catered)->setTimezone('Asia/Manila')->format('h:i A')
+                : '—',
+            $appointment->window_num ?? '—',
+            $statusDisplay, // Remarks column
         ];
     }
 
     public function title(): string
     {
-        return 'Completed Appointments';
+        return 'Daily Transactions';
     }
 
     public function styles(Worksheet $sheet)
     {
-        // Merge cells for the title
-        $sheet->mergeCells('A1:I1');
-        $sheet->mergeCells('A2:I2');
-        $sheet->mergeCells('A4:I4');
+        // Count statistics
+        $cancelledCount = $this->appointments->where('status', 'cancelled')->count();
+        
+        // Merge cells for the title - updated to J (10 columns)
+        $sheet->mergeCells('A1:J1');
+        $sheet->mergeCells('A2:J2');
+        $sheet->mergeCells('A4:J4');
         
         // Title styling
         $sheet->getStyle('A1')->applyFromArray([
             'font' => [
                 'bold' => true,
                 'size' => 16,
-                'color' => ['rgb' => '2563EB'],
+                'color' => ['rgb' => '0038A8'], // PSA Blue
             ],
             'alignment' => [
                 'horizontal' => Alignment::HORIZONTAL_CENTER,
@@ -118,7 +129,7 @@ class AppointmentsExport implements FromCollection, WithHeadings, WithMapping, W
         ]);
 
         // Summary rows styling
-        $sheet->getStyle('A5:B6')->applyFromArray([
+        $sheet->getStyle('A5:B7')->applyFromArray([
             'font' => [
                 'size' => 11,
             ],
@@ -128,28 +139,36 @@ class AppointmentsExport implements FromCollection, WithHeadings, WithMapping, W
         $sheet->getStyle('B6')->applyFromArray([
             'font' => [
                 'bold' => true,
-                'color' => ['rgb' => '059669'],
+                'color' => ['rgb' => '2E7D32'], // Green
             ],
         ]);
 
-        // Table header styling
-        $sheet->getStyle('A8:I8')->applyFromArray([
+        // Cancelled count styling
+        $sheet->getStyle('B7')->applyFromArray([
+            'font' => [
+                'bold' => true,
+                'color' => ['rgb' => 'B71C1C'], // Red
+            ],
+        ]);
+
+        // Table header styling - updated to J
+        $sheet->getStyle('A9:J9')->applyFromArray([
             'font' => [
                 'bold' => true,
                 'color' => ['rgb' => 'FFFFFF'],
             ],
             'fill' => [
                 'fillType' => Fill::FILL_SOLID,
-                'startColor' => ['rgb' => '2563EB'],
+                'startColor' => ['rgb' => '0038A8'], // PSA Blue
             ],
             'alignment' => [
                 'horizontal' => Alignment::HORIZONTAL_CENTER,
             ],
         ]);
 
-        // Add borders to the table
+        // Add borders to the table - updated to J
         $lastRow = $sheet->getHighestRow();
-        $sheet->getStyle('A8:I' . $lastRow)->applyFromArray([
+        $sheet->getStyle('A9:J' . $lastRow)->applyFromArray([
             'borders' => [
                 'allBorders' => [
                     'borderStyle' => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN,
@@ -157,6 +176,31 @@ class AppointmentsExport implements FromCollection, WithHeadings, WithMapping, W
                 ],
             ],
         ]);
+
+        // Color code the remarks column based on status
+        for ($row = 10; $row <= $lastRow; $row++) {
+            $status = $sheet->getCell('J' . $row)->getValue();
+            if ($status === 'Completed') {
+                $sheet->getStyle('J' . $row)->applyFromArray([
+                    'font' => [
+                        'color' => ['rgb' => '2E7D32'], // Green
+                        'bold' => true,
+                    ],
+                ]);
+            } elseif ($status === 'Cancelled') {
+                $sheet->getStyle('J' . $row)->applyFromArray([
+                    'font' => [
+                        'color' => ['rgb' => 'B71C1C'], // Red
+                        'bold' => true,
+                    ],
+                ]);
+            }
+        }
+
+        // Auto-size columns - updated range to J
+        foreach (range('A', 'J') as $column) {
+            $sheet->getColumnDimension($column)->setAutoSize(true);
+        }
 
         return [];
     }

@@ -134,6 +134,7 @@ Route::middleware(['auth'])->group(function () {
     // Export routes
     Route::get('/appointment/export/pdf', [AppointmentController::class, 'exportPDF'])->name('appointment.export.pdf');
     Route::get('/appointment/export/excel', [AppointmentController::class, 'exportExcel'])->name('appointment.export.excel');
+    Route::post('/appointment/update-status/{id}', [AppointmentController::class, 'updateStatus'])->name('appointment.update-status');
 
     //profile routes
     Route::get('/profile/settings', [ProfileController::class, 'settings'])->name('profile.settings');
