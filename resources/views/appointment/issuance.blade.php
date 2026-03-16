@@ -1279,85 +1279,85 @@
             fetchRecentTransactionsPage();
         }
 
-        // ========== SMOOTH AJAX PAGINATION FOR RECENT TRANSACTIONS ==========
-        function loadTransactionsPage(url) {
-            if (isLoading) return;
-            isLoading = true;
+       function loadTransactionsPage(url) {
+    if (isLoading) return;
+    isLoading = true;
 
-            const tableContainer = document.getElementById('transactionsTableContainer');
-            const paginationContainer = document.getElementById('paginationContainer');
-            const showingInfo = document.getElementById('showingInfo');
+    const tableContainer = document.getElementById('transactionsTableContainer');
+    const paginationContainer = document.getElementById('paginationContainer');
+    const showingInfo = document.getElementById('showingInfo');
 
-            if (!tableContainer || !paginationContainer) {
-                isLoading = false;
-                return;
-            }
+    if (!tableContainer || !paginationContainer) {
+        isLoading = false;
+        return;
+    }
 
-            const separator = url.includes('?') ? '&' : '?';
-            const fetchUrl = url + separator + '_=' + new Date().getTime();
+    const separator = url.includes('?') ? '&' : '?';
+    const fetchUrl = url + separator + '_=' + new Date().getTime();
 
-            tableContainer.classList.add('loading');
-            paginationContainer.classList.add('loading');
-            tableContainer.style.opacity = '0';
-            paginationContainer.style.opacity = '0';
+    tableContainer.classList.add('loading');
+    paginationContainer.classList.add('loading');
+    tableContainer.style.opacity = '0';
+    paginationContainer.style.opacity = '0';
 
-            fetch(fetchUrl, {
-                    headers: {
-                        'X-Requested-With': 'XMLHttpRequest',
-                        'Accept': 'application/json',
-                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                    }
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (!data.success) throw new Error(data.message || 'Unknown error occurred');
-
-                    setTimeout(() => {
-                        if (data.table) tableContainer.innerHTML = data.table;
-                        if (data.pagination) paginationContainer.innerHTML = data.pagination;
-                        if (data.showing && showingInfo) showingInfo.textContent = data.showing;
-
-                        tableContainer.style.opacity = '1';
-                        paginationContainer.style.opacity = '1';
-                        tableContainer.classList.remove('loading');
-                        paginationContainer.classList.remove('loading');
-
-                        attachPaginationListeners();
-
-                        // Re-apply service filter
-                        const filter = document.getElementById('transactionServiceFilter');
-                        if (filter) filter.dispatchEvent(new Event('change'));
-
-                        // Add success animation
-                        tableContainer.classList.add('page-change-success');
-                        paginationContainer.classList.add('page-change-success');
-
-                        setTimeout(() => {
-                            tableContainer.classList.remove('page-change-success');
-                            paginationContainer.classList.remove('page-change-success');
-                        }, 500);
-
-                        isLoading = false;
-                    }, 150);
-                })
-                .catch(error => {
-                    console.error('Error loading page:', error);
-                    tableContainer.style.opacity = '1';
-                    paginationContainer.style.opacity = '1';
-                    tableContainer.classList.remove('loading');
-                    paginationContainer.classList.remove('loading');
-                    isLoading = false;
-
-                    Swal.fire({
-                        title: 'Error!',
-                        text: 'Failed to load page. Please try again.',
-                        icon: 'error',
-                        confirmButtonColor: '#dc2626',
-                        timer: 2000,
-                        showConfirmButton: false
-                    });
-                });
+    fetch(fetchUrl, {
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest',
+            'Accept': 'application/json',
+            'X-CSRF-TOKEN': '{{ csrf_token() }}'
         }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (!data.success) throw new Error(data.message || 'Unknown error occurred');
+
+        setTimeout(() => {
+            if (data.table) tableContainer.innerHTML = data.table;
+            if (data.pagination) paginationContainer.innerHTML = data.pagination;
+            if (data.showing && showingInfo) showingInfo.textContent = data.showing;
+
+            tableContainer.style.opacity = '1';
+            paginationContainer.style.opacity = '1';
+            tableContainer.classList.remove('loading');
+            paginationContainer.classList.remove('loading');
+
+            // Re-attach pagination listeners
+            attachPaginationListeners();
+
+            // Re-apply service filter
+            const filter = document.getElementById('transactionServiceFilter');
+            if (filter) filter.dispatchEvent(new Event('change'));
+
+            // Add success animation
+            tableContainer.classList.add('page-change-success');
+            paginationContainer.classList.add('page-change-success');
+            
+            setTimeout(() => {
+                tableContainer.classList.remove('page-change-success');
+                paginationContainer.classList.remove('page-change-success');
+            }, 500);
+
+            isLoading = false;
+        }, 150);
+    })
+    .catch(error => {
+        console.error('Error loading page:', error);
+        tableContainer.style.opacity = '1';
+        paginationContainer.style.opacity = '1';
+        tableContainer.classList.remove('loading');
+        paginationContainer.classList.remove('loading');
+        isLoading = false;
+        
+        Swal.fire({
+            title: 'Error!',
+            text: 'Failed to load page. Please try again.',
+            icon: 'error',
+            confirmButtonColor: '#dc2626',
+            timer: 2000,
+            showConfirmButton: false
+        });
+    });
+}
 
         function attachPaginationListeners() {
             document.querySelectorAll(
@@ -1390,38 +1390,42 @@
         });
 
         // Fetch recent transactions page (for refresh)
-        function fetchRecentTransactionsPage(page = null) {
-            if (isLoading) return;
+function fetchRecentTransactionsPage(page = null) {
+    if (isLoading) return;
 
-            let url = '{{ route('appointment.transactions-page') }}';
-            const params = new URLSearchParams();
+    let url = '{{ route('appointment.transactions-page') }}';
+    const params = new URLSearchParams();
 
-            if (page) params.append('page', page);
+    if (page) params.append('page', page);
 
-            const queryString = params.toString();
-            if (queryString) url += '?' + queryString;
-            url += (url.includes('?') ? '&' : '?') + '_=' + new Date().getTime();
+    const queryString = params.toString();
+    if (queryString) url += '?' + queryString;
+    url += (url.includes('?') ? '&' : '?') + '_=' + new Date().getTime();
 
-            fetch(url, {
-                    headers: {
-                        'X-Requested-With': 'XMLHttpRequest',
-                        'Accept': 'application/json',
-                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                    }
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        if (data.table) transactionsTableContainer.innerHTML = data.table;
-                        if (data.pagination) paginationContainer.innerHTML = data.pagination;
-                        if (data.showing && showingInfo) showingInfo.textContent = data.showing;
-                    }
-                    attachPaginationListeners();
-                    const filter = document.getElementById('transactionServiceFilter');
-                    if (filter) filter.dispatchEvent(new Event('change'));
-                })
-                .catch(error => console.error('Error fetching recent transactions:', error));
+    fetch(url, {
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest',
+            'Accept': 'application/json',
+            'X-CSRF-TOKEN': '{{ csrf_token() }}'
         }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            if (data.table) transactionsTableContainer.innerHTML = data.table;
+            if (data.pagination) paginationContainer.innerHTML = data.pagination;
+            if (data.showing && showingInfo) showingInfo.textContent = data.showing;
+            
+            // Re-attach pagination listeners AFTER updating the HTML
+            attachPaginationListeners();
+            
+            // Re-apply service filter
+            const filter = document.getElementById('transactionServiceFilter');
+            if (filter) filter.dispatchEvent(new Event('change'));
+        }
+    })
+    .catch(error => console.error('Error fetching recent transactions:', error));
+}
 
         // Export PDF with confirmation
         document.getElementById('screenerExportPdfBtn')?.addEventListener('click', function(e) {
