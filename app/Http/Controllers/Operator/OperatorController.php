@@ -18,7 +18,7 @@ use Symfony\Component\HttpFoundation\ResponseHeaderBag;
 
 class OperatorController extends Controller
 {
-   public function dashboard()
+  public function dashboard()
 {
     // Get operator's window number from users table
     $windowNum = Auth::user()->window_num ?? '1';
@@ -41,72 +41,94 @@ class OperatorController extends Controller
                                     ->orderBy('date', 'asc')
                                     ->get();
 
-    // Separate appointments by status
-    $serving = $allAppointments->where('status', 'serving')->values();
-    
-    // Sort pending appointments by priority (senior, infant, pwd, pregnant first, then regular)
-    $pending = $allAppointments->where('status', 'pending')
-                               ->sortBy(function($app) {
-                                   // Priority order: senior/infant/pwd/pregnant first, then regular
-                                   switch($app->priority_type) {
-                                       case 'senior':
-                                       case 'infant':
-                                       case 'pwd':
-                                       case 'pregnant':
-                                           return 1; // High priority
-                                       case 'regular':
-                                       default:
-                                           return 2; // Regular (low priority)
-                                   }
-                               })
-                               ->values();
-    
-    $noShow = $allAppointments->where('status', 'no_show')->sortBy('updated_at')->values();
-
-    // Custom sorting logic for appointments
-    $appointments = collect();
-
-    // 1. Add serving appointments first (should be only one per user)
-    foreach ($serving as $app) {
-        $appointments->push($app);
-    }
-
-    // 2. Add pending appointments (now sorted by priority)
-    foreach ($pending as $app) {
-        $appointments->push($app);
-    }
-
-    // 3. Handle no_show appointments with special positioning
-    if ($noShow->count() > 0) {
-        // Get the oldest no_show (first in the sorted collection)
-        $oldestNoShow = $noShow->shift();
+    // ===== REUSABLE SORTING FUNCTION =====
+    $applySortingLogic = function($collection) {
+        // Separate appointments by status
+        $serving = $collection->where('status', 'serving')->values();
         
-        if ($appointments->count() >= 1) {
-            // Insert the oldest no_show at position 1 (2nd row, 0-indexed)
-            $appointments->splice(1, 0, [$oldestNoShow]);
-        } else {
-            // If no appointments yet, just push it
-            $appointments->push($oldestNoShow);
+        // Separate pending by priority - using updated_at
+        $highPriorityPending = $collection->where('status', 'pending')
+                                         ->filter(function($app) {
+                                             return in_array($app->priority_type, ['senior', 'infant', 'pwd', 'pregnant']);
+                                         })
+                                         ->sortBy('updated_at')
+                                         ->values();
+        
+        $regularPending = $collection->where('status', 'pending')
+                                    ->where('priority_type', 'regular')
+                                    ->sortBy('updated_at')
+                                    ->values();
+        
+        $noShow = $collection->where('status', 'no_show')
+                            ->sortBy('updated_at')
+                            ->values();
+
+        // Custom sorting logic for appointments
+        $sorted = collect();
+
+        // 1. Add serving appointments first (should be only one per user)
+        foreach ($serving as $app) {
+            $sorted->push($app);
         }
-        
-        // Add remaining no_show appointments at the end
+
+        // 2. Handle high priority pending with special positioning
+        if ($highPriorityPending->count() > 0) {
+            // Get the oldest high priority pending (based on updated_at)
+            $oldestHighPriority = $highPriorityPending->shift();
+            
+            // Insert the oldest high priority at the next position
+            $sorted->push($oldestHighPriority);
+            
+            // The rest of high priority pending will be added at the end
+        }
+
+        // 3. Handle no_show appointments with special positioning
+        if ($noShow->count() > 0) {
+            // Get the oldest no_show (first in the sorted collection)
+            $oldestNoShow = $noShow->shift();
+            
+            // Insert the oldest no_show after high priority
+            $sorted->push($oldestNoShow);
+            
+            // The rest of no_show will be added at the end
+        }
+
+        // 4. Add regular pending appointments (sorted by updated_at)
+        foreach ($regularPending as $app) {
+            $sorted->push($app);
+        }
+
+        // 5. Add remaining high priority pending at the end
+        foreach ($highPriorityPending as $app) {
+            $sorted->push($app);
+        }
+
+        // 6. Add remaining no_show appointments at the very end
         foreach ($noShow as $app) {
-            $appointments->push($app);
+            $sorted->push($app);
         }
-    }
 
-    // Filter appointments by service type
-    $nidRegistrationAppointments = $appointments->filter(function($app) {
+        return $sorted;
+    };
+
+    // Apply sorting to ALL appointments (for All Services tab)
+    $appointments = $applySortingLogic($allAppointments);
+
+    // Filter appointments by service type FIRST, THEN apply sorting to each service-specific collection
+    $nidRegistrationCollection = $allAppointments->filter(function($app) {
         return $app->queue_for === 'NID Registration';
     })->values();
+    $nidRegistrationAppointments = $applySortingLogic($nidRegistrationCollection);
 
-    $statusInquiryAppointments = $appointments->filter(function($app) {
+    $statusInquiryCollection = $allAppointments->filter(function($app) {
         return $app->queue_for === 'Status Inquiry';
     })->values();
+    $statusInquiryAppointments = $applySortingLogic($statusInquiryCollection);
 
-    $nidUpdatingAppointments = $appointments->filter(function($app) {
+    $nidUpdatingCollection = $allAppointments->filter(function($app) {
         return $app->queue_for === 'Updating';
     })->values();
+    $nidUpdatingAppointments = $applySortingLogic($nidUpdatingCollection);
 
     // Get TODAY'S COMPLETED & CANCELLED TRANSACTIONS
     $completedTransactions = TblAppointment::whereDate('date', $today)
@@ -119,8 +141,7 @@ class OperatorController extends Controller
                                           ->paginate(10);
 
     // TOTAL QUEUE TODAY - ALL APPOINTMENTS regardless of status or user
-    $queueCount = TblAppointment::whereDate('date', $today)
-                               ->count();
+    $queueCount = TblAppointment::whereDate('date', $today)->count();
 
     // Get pending appointments count (all pending, regardless of user)
     $pendingCount = TblAppointment::whereDate('date', $today)
@@ -184,8 +205,7 @@ public function fetchAppointments()
         $today = Carbon::now('Asia/Manila')->toDateString();
         $userId = Auth::id();
 
-        // Get today's appointments with status: pending, serving, or no_show
-        // For serving status, only show the ones served by this user
+        // Get today's appointments
         $allAppointments = TblAppointment::whereDate('date', $today)
                                         ->where(function($query) use ($userId) {
                                             $query->whereIn('status', ['pending', 'no_show'])
@@ -197,72 +217,77 @@ public function fetchAppointments()
                                         ->orderBy('date', 'asc')
                                         ->get();
 
-        // Separate appointments by status
-        $serving = $allAppointments->where('status', 'serving')->values();
-        
-        // Sort pending appointments by priority (senior, infant, pwd, pregnant first, then regular)
-        $pending = $allAppointments->where('status', 'pending')
-                                   ->sortBy(function($app) {
-                                       // Priority order: senior/infant/pwd/pregnant first, then regular
-                                       switch($app->priority_type) {
-                                           case 'senior':
-                                           case 'infant':
-                                           case 'pwd':
-                                           case 'pregnant':
-                                               return 1; // High priority
-                                           case 'regular':
-                                           default:
-                                               return 2; // Regular (low priority)
-                                       }
-                                   })
-                                   ->values();
-        
-        $noShow = $allAppointments->where('status', 'no_show')->sortBy('updated_at')->values();
-
-        // Custom sorting logic for appointments
-        $appointments = collect();
-
-        // 1. Add serving appointments first (should be only one per user)
-        foreach ($serving as $app) {
-            $appointments->push($app);
-        }
-
-        // 2. Add pending appointments (now sorted by priority)
-        foreach ($pending as $app) {
-            $appointments->push($app);
-        }
-
-        // 3. Handle no_show appointments with special positioning
-        if ($noShow->count() > 0) {
-            // Get the oldest no_show (first in the sorted collection)
-            $oldestNoShow = $noShow->shift();
+        // ===== FUNCTION TO APPLY SORTING LOGIC TO ANY COLLECTION =====
+        $applySortingLogic = function($collection) use ($userId) {
+            // Separate appointments by status
+            $serving = $collection->where('status', 'serving')->values();
             
-            if ($appointments->count() >= 1) {
-                // Insert the oldest no_show at position 1 (2nd row, 0-indexed)
-                $appointments->splice(1, 0, [$oldestNoShow]);
-            } else {
-                // If no appointments yet, just push it
-                $appointments->push($oldestNoShow);
+            $highPriorityPending = $collection->where('status', 'pending')
+                                             ->filter(function($app) {
+                                                 return in_array($app->priority_type, ['senior', 'infant', 'pwd', 'pregnant']);
+                                             })
+                                             ->sortBy('updated_at')
+                                             ->values();
+            
+            $regularPending = $collection->where('status', 'pending')
+                                        ->where('priority_type', 'regular')
+                                        ->sortBy('updated_at')
+                                        ->values();
+            
+            $noShow = $collection->where('status', 'no_show')
+                                ->sortBy('updated_at')
+                                ->values();
+
+            // Custom sorting logic
+            $sorted = collect();
+
+            foreach ($serving as $app) {
+                $sorted->push($app);
             }
-            
-            // Add remaining no_show appointments at the end
+
+            if ($highPriorityPending->count() > 0) {
+                $oldestHighPriority = $highPriorityPending->shift();
+                $sorted->push($oldestHighPriority);
+            }
+
+            if ($noShow->count() > 0) {
+                $oldestNoShow = $noShow->shift();
+                $sorted->push($oldestNoShow);
+            }
+
+            foreach ($regularPending as $app) {
+                $sorted->push($app);
+            }
+
+            foreach ($highPriorityPending as $app) {
+                $sorted->push($app);
+            }
+
             foreach ($noShow as $app) {
-                $appointments->push($app);
+                $sorted->push($app);
             }
-        }
 
-        // Filter appointments by service type
-        $nidRegistrationAppointments = $appointments->filter(function($app) {
+            return $sorted;
+        };
+
+        // Apply sorting to ALL appointments
+        $appointments = $applySortingLogic($allAppointments);
+
+        // Filter by service type FIRST, THEN apply sorting
+        $nidRegistrationCollection = $allAppointments->filter(function($app) {
             return $app->queue_for === 'NID Registration';
         })->values();
+        $nidRegistrationAppointments = $applySortingLogic($nidRegistrationCollection);
 
-        $statusInquiryAppointments = $appointments->filter(function($app) {
+        $statusInquiryCollection = $allAppointments->filter(function($app) {
             return $app->queue_for === 'Status Inquiry';
         })->values();
+        $statusInquiryAppointments = $applySortingLogic($statusInquiryCollection);
 
-        $nidUpdatingAppointments = $appointments->filter(function($app) {
+        $nidUpdatingCollection = $allAppointments->filter(function($app) {
             return $app->queue_for === 'Updating';
         })->values();
+        $nidUpdatingAppointments = $applySortingLogic($nidUpdatingCollection);
 
         // Render each table
         $tableAll = view('operator.partials.appointments-table', [
@@ -289,9 +314,9 @@ public function fetchAppointments()
             'tableId' => 'updating'
         ])->render();
 
-        // Get statistics - FIXED TOTAL to show ALL appointments today
+        // Get statistics
         $stats = [
-            'total' => TblAppointment::whereDate('date', $today)->count(), // ALL appointments today
+            'total' => TblAppointment::whereDate('date', $today)->count(),
             'pending' => TblAppointment::whereDate('date', $today)
                                       ->where('status', 'pending')
                                       ->count(),

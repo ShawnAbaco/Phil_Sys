@@ -173,42 +173,60 @@ class AppointmentController extends Controller
     // Add conditional validation rules based on category
     if ($category === 'NID Registration') {
         $rules = array_merge($rules, [
-            'fname_nid' => 'required|string|max:99',
-            'mname_nid' => 'nullable|string|max:99',
-            'lname_nid' => 'required|string|max:99',
-            'suffix_nid' => 'nullable|string|max:3',
+            'fname_nid' => 'required|string|max:99|regex:/^[A-Za-z\s\-]+$/',
+            'mname_nid' => 'nullable|string|max:99|regex:/^[A-Za-z\s\-]*$/',
+            'lname_nid' => 'required|string|max:99|regex:/^[A-Za-z\s\-]+$/',
+            'suffix_nid' => 'nullable|string|max:3|regex:/^[A-Za-z\s\-]*$/',
             'age_category_nid' => 'required|string|max:99',
             'birthdate_nid' => 'required|date',
             'priority_type_nid' => 'required|string|in:regular,senior,infant,pwd,pregnant',
         ]);
     } elseif ($category === 'Status Inquiry') {
         $rules = array_merge($rules, [
-            'fname_status' => 'required|string|max:99',
-            'mname_status' => 'nullable|string|max:99',
-            'lname_status' => 'required|string|max:99',
-            'suffix_status' => 'nullable|string|max:3',
+            'fname_status' => 'required|string|max:99|regex:/^[A-Za-z\s\-]+$/',
+            'mname_status' => 'nullable|string|max:99|regex:/^[A-Za-z\s\-]*$/',
+            'lname_status' => 'required|string|max:99|regex:/^[A-Za-z\s\-]+$/',
+            'suffix_status' => 'nullable|string|max:3|regex:/^[A-Za-z\s\-]*$/',
             'age_category_status' => 'required|string|max:99',
             'birthdate_status' => 'required|date',
-            'trn' => 'required|string|max:29',
+            'trn' => 'nullable|string|max:29',
             'priority_type_status' => 'required|string|in:regular,senior,infant,pwd,pregnant',
         ]);
     } elseif ($category === 'Updating') {
         $rules = array_merge($rules, [
-            'fname_update' => 'required|string|max:99',
-            'mname_update' => 'nullable|string|max:99',
-            'lname_update' => 'required|string|max:99',
-            'suffix_update' => 'nullable|string|max:3',
+            'fname_update' => 'required|string|max:99|regex:/^[A-Za-z\s\-]+$/',
+            'mname_update' => 'nullable|string|max:99|regex:/^[A-Za-z\s\-]*$/',
+            'lname_update' => 'required|string|max:99|regex:/^[A-Za-z\s\-]+$/',
+            'suffix_update' => 'nullable|string|max:3|regex:/^[A-Za-z\s\-]*$/',
             'age_category_update' => 'required|string|max:99',
             'birthdate_update' => 'required|date',
-            'PCN' => 'required|string|max:16',
+            'PCN' => 'nullable|string|max:16',
             'priority_type_update' => 'required|string|in:regular,senior,infant,pwd,pregnant',
         ]);
     }
 
-    // Validate the request
-    $validated = $request->validate($rules);
+    // ===== INSERT CUSTOM MESSAGES HERE =====
+    // After validation rules, add custom messages
+    $messages = [
+        'fname_nid.regex' => 'First name may only contain letters, spaces, and hyphens.',
+        'mname_nid.regex' => 'Middle name may only contain letters, spaces, and hyphens.',
+        'lname_nid.regex' => 'Last name may only contain letters, spaces, and hyphens.',
+        'suffix_nid.regex' => 'Suffix may only contain letters, spaces, and hyphens.',
+        'fname_status.regex' => 'First name may only contain letters, spaces, and hyphens.',
+        'mname_status.regex' => 'Middle name may only contain letters, spaces, and hyphens.',
+        'lname_status.regex' => 'Last name may only contain letters, spaces, and hyphens.',
+        'suffix_status.regex' => 'Suffix may only contain letters, spaces, and hyphens.',
+        'fname_update.regex' => 'First name may only contain letters, spaces, and hyphens.',
+        'mname_update.regex' => 'Middle name may only contain letters, spaces, and hyphens.',
+        'lname_update.regex' => 'Last name may only contain letters, spaces, and hyphens.',
+        'suffix_update.regex' => 'Suffix may only contain letters, spaces, and hyphens.',
+    ];
+
+    // Validate the request with custom messages
+    $validated = $request->validate($rules, $messages);
 
     try {
+        // Rest of your method remains the same...
         // Set timezone to Philippine Time
         Carbon::setLocale('en');
         $now = Carbon::now('Asia/Manila');

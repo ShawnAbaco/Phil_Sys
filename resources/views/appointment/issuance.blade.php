@@ -383,26 +383,25 @@
                         </div>
 
                         <div class="form-row">
-                            <div class="form-group" style="flex: 2;">
-                                <label for="trn">Transaction Reference Number (TRN) <span
-                                        style="color: #dc2626;">*</span></label>
-                                <div style="display: flex; gap: 8px; align-items: center;">
-                                    <input type="text" name="trn" id="trn" value="{{ old('trn') }}"
-                                        placeholder="Scan QR code or type TRN manually" autocomplete="off"
-                                        data-required="true" class="@error('trn') is-invalid @enderror"
-                                        style="flex: 1;">
-                                    <button type="button" id="openScannerBtn" class="btn btn-primary scan-btn"
-                                        style="white-space: nowrap; padding: 8px 16px; min-width: 100px; background: linear-gradient(135deg, #2563eb, #1d4ed8); color: white; border: none; border-radius: 6px; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 6px; font-weight: 500; box-shadow: 0 2px 4px rgba(37,99,235,0.3);">
-                                        <svg viewBox="0 0 20 20" fill="currentColor" width="16" height="16">
-                                            <path fill-rule="evenodd"
-                                                d="M4 5a2 2 0 00-2 2v8a2 2 0 002 2h12a2 2 0 002-2V7a2 2 0 00-2-2h-1.586a1 1 0 01-.707-.293l-1.121-1.121A2 2 0 0011.172 3H8.828a2 2 0 00-1.414.586L6.293 4.707A1 1 0 015.586 5H4zm6 9a3 3 0 100-6 3 3 0 000 6z"
-                                                clip-rule="evenodd" />
-                                        </svg>
-                                        Scan QR
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
+    <div class="form-group" style="flex: 2;">
+        <label for="trn">Transaction Reference Number (TRN)</label> <!-- Removed asterisk -->
+        <div style="display: flex; gap: 8px; align-items: center;">
+            <input type="text" name="trn" id="trn" value="{{ old('trn') }}"
+                placeholder="Scan QR code or type TRN manually" autocomplete="off"
+                class="@error('trn') is-invalid @enderror" 
+                style="flex: 1;">
+            <button type="button" id="openScannerBtn" class="btn btn-primary scan-btn"
+                style="white-space: nowrap; padding: 8px 16px; min-width: 100px; background: linear-gradient(135deg, #2563eb, #1d4ed8); color: white; border: none; border-radius: 6px; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 6px; font-weight: 500; box-shadow: 0 2px 4px rgba(37,99,235,0.3);">
+                <svg viewBox="0 0 20 20" fill="currentColor" width="16" height="16">
+                    <path fill-rule="evenodd"
+                        d="M4 5a2 2 0 00-2 2v8a2 2 0 002 2h12a2 2 0 002-2V7a2 2 0 00-2-2h-1.586a1 1 0 01-.707-.293l-1.121-1.121A2 2 0 0011.172 3H8.828a2 2 0 00-1.414.586L6.293 4.707A1 1 0 015.586 5H4zm6 9a3 3 0 100-6 3 3 0 000 6z"
+                        clip-rule="evenodd" />
+                </svg>
+                Scan QR
+            </button>
+        </div>
+    </div>
+</div>
                     </div>
 
                     <!-- Updating Form -->
@@ -561,14 +560,13 @@
                         </div>
 
                         <div class="form-row">
-                            <div class="form-group">
-                                <label for="PCN">PhilSys Card Number (PCN) <span
-                                        style="color: #dc2626;">*</span></label>
-                                <input type="text" name="PCN" id="PCN" value="{{ old('PCN') }}"
-                                    data-required="true" class="@error('PCN') is-invalid @enderror"
-                                    placeholder="Enter PCN">
-                            </div>
-                        </div>
+    <div class="form-group">
+        <label for="PCN">PhilSys Card Number (PCN)</label> <!-- Removed asterisk -->
+        <input type="text" name="PCN" id="PCN" value="{{ old('PCN') }}"
+            class="@error('PCN') is-invalid @enderror" 
+            placeholder="Enter PCN">
+    </div>
+</div>
                     </div>
 
                     <div class="form-actions"
