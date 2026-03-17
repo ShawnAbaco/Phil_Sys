@@ -41,13 +41,13 @@ class ClientController extends Controller
         if ($appointment) {
             $calledQueues[(string)$w] = [
                 'q_id' => $appointment->q_id,
-                'lname' => $this->sentenceCase($appointment->lname),
+                'priority_type' => $appointment->priority_type ?? 'regular',
                 'status' => $appointment->status
             ];
         } else {
             $calledQueues[(string)$w] = [
                 'q_id' => '-',
-                'lname' => '',
+                'priority_type' => '',
                 'status' => 'none'
             ];
         }
@@ -63,14 +63,14 @@ class ClientController extends Controller
         ->where('status', 'pending')
         ->orderBy('date', 'asc')
         ->limit(50)
-        ->get(['q_id', 'lname', 'queue_for', 'status']);
+        ->get(['q_id', 'queue_for', 'status', 'priority_type']);
 
     // Get no_show queues - they have window_num but status is no_show
     $noShowQueues = TblAppointment::whereDate('date', $today)
         ->where('status', 'no_show')
         ->orderBy('date', 'asc')
         ->limit(50)
-        ->get(['q_id', 'lname', 'queue_for', 'status']);
+        ->get(['q_id', 'queue_for', 'status', 'priority_type']);
 
     // Merge both collections
     $nextQueuesRaw = $pendingQueues->concat($noShowQueues);
@@ -91,14 +91,14 @@ class ClientController extends Controller
 
     foreach ($nextQueuesRaw as $item) {
         $q = $item->q_id;
-        $lname = $item->lname;
         $status = $item->status;
+        $priorityType = $item->priority_type ?? 'regular';
         
-        // Create array with status information
+        // Create array with status and priority information
         $queueItem = [
             'q_id' => $q, 
-            'lname' => $lname,
-            'status' => $status  // Include status for frontend styling
+            'status' => $status,
+            'priority_type' => $priorityType
         ];
         
         // Filter by queue_for column

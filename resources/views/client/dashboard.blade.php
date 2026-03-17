@@ -18,6 +18,32 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <link rel="stylesheet" href="{{ asset('css/client.css') }}">
 
+    <style>
+        .no-show-badge {
+            background: linear-gradient(135deg, #dc2626, #b91c1c);
+            color: white;
+            margin-left: 8px;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 10px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+        
+        .window-card .client-name {
+            font-size: 1.5rem;
+            font-weight: 500;
+            color: #323a44;
+            
+            margin-top: 5px;
+        }
+        
+        .priority-text {
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+    </style>
 </head>
 
 <body>
@@ -65,13 +91,17 @@
                     <div class="window-number">WINDOW 1</div>
                     <div class="serving-label">Now Serving</div>
                     <div class="queue-number">{{ $calledQueues[1]['q_id'] ?? '-' }}</div>
-                    <div class="client-name">{{ $calledQueues[1]['lname'] ?? '' }}</div>
+                    <div class="client-name priority-text">
+                        {{ $calledQueues[1]['priority_type'] ?? '' }}
+                    </div>
                 </div>
                 <div class="window-card" data-window="2" id="window-2">
                     <div class="window-number">WINDOW 2</div>
                     <div class="serving-label">Now Serving</div>
                     <div class="queue-number">{{ $calledQueues[2]['q_id'] ?? '-' }}</div>
-                    <div class="client-name">{{ $calledQueues[2]['lname'] ?? '' }}</div>
+                    <div class="client-name priority-text">
+                        {{ $calledQueues[2]['priority_type'] ?? '' }}
+                    </div>
                 </div>
 
                 <!-- Row 2 -->
@@ -79,13 +109,17 @@
                     <div class="window-number">WINDOW 3</div>
                     <div class="serving-label">Now Serving</div>
                     <div class="queue-number">{{ $calledQueues[3]['q_id'] ?? '-' }}</div>
-                    <div class="client-name">{{ $calledQueues[3]['lname'] ?? '' }}</div>
+                    <div class="client-name priority-text">
+                        {{ $calledQueues[3]['priority_type'] ?? '' }}
+                    </div>
                 </div>
                 <div class="window-card" data-window="4" id="window-4">
                     <div class="window-number">WINDOW 4</div>
                     <div class="serving-label">Now Serving</div>
                     <div class="queue-number">{{ $calledQueues[4]['q_id'] ?? '-' }}</div>
-                    <div class="client-name">{{ $calledQueues[4]['lname'] ?? '' }}</div>
+                    <div class="client-name priority-text">
+                        {{ $calledQueues[4]['priority_type'] ?? '' }}
+                    </div>
                 </div>
 
                 <!-- Row 3 -->
@@ -93,13 +127,17 @@
                     <div class="window-number">WINDOW 5</div>
                     <div class="serving-label">Now Serving</div>
                     <div class="queue-number">{{ $calledQueues[5]['q_id'] ?? '-' }}</div>
-                    <div class="client-name">{{ $calledQueues[5]['lname'] ?? '' }}</div>
+                    <div class="client-name priority-text">
+                        {{ $calledQueues[5]['priority_type'] ?? '' }}
+                    </div>
                 </div>
                 <div class="window-card" data-window="6" id="window-6">
                     <div class="window-number">WINDOW 6</div>
                     <div class="serving-label">Now Serving</div>
                     <div class="queue-number">{{ $calledQueues[6]['q_id'] ?? '-' }}</div>
-                    <div class="client-name">{{ $calledQueues[6]['lname'] ?? '' }}</div>
+                    <div class="client-name priority-text">
+                        {{ $calledQueues[6]['priority_type'] ?? '' }}
+                    </div>
                 </div>
             </div>
         </div>
@@ -218,7 +256,7 @@
                 if (!(i in lastCalledQueues)) {
                     lastCalledQueues[i] = {
                         q_id: '-',
-                        lname: ''
+                        priority_type: ''
                     };
                 }
             }
@@ -234,10 +272,14 @@
                             const windowCard = document.getElementById(`window-${w}`);
                             if (windowCard && calledQueues[w]) {
                                 const queueNum = windowCard.querySelector('.queue-number');
-                                const clientName = windowCard.querySelector('.client-name');
+                                const clientNameDiv = windowCard.querySelector('.client-name');
 
                                 if (queueNum) queueNum.textContent = calledQueues[w].q_id || '-';
-                                if (clientName) clientName.textContent = calledQueues[w].lname || '';
+                                
+                                // Update priority text
+                                if (clientNameDiv) {
+                                    clientNameDiv.textContent = calledQueues[w].priority_type || '';
+                                }
 
                                 // Add serving indicator class
                                 if (calledQueues[w].q_id !== '-') {
