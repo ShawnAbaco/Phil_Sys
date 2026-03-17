@@ -18,32 +18,6 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <link rel="stylesheet" href="{{ asset('css/client.css') }}">
 
-    <style>
-        .no-show-badge {
-            background: linear-gradient(135deg, #dc2626, #b91c1c);
-            color: white;
-            margin-left: 8px;
-            padding: 2px 6px;
-            border-radius: 4px;
-            font-size: 10px;
-            font-weight: 600;
-            text-transform: uppercase;
-        }
-        
-        .window-card .client-name {
-            font-size: 1.5rem;
-            font-weight: 500;
-            color: #323a44;
-            
-            margin-top: 5px;
-        }
-        
-        .priority-text {
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-    </style>
 </head>
 
 <body>
@@ -66,25 +40,9 @@
             </div>
         </div>
 
-        <!-- Main Content: Video (left) and Windows Grid (right) -->
-        <div class="main-content">
-            <!-- Video Section (Left) -->
-            <div class="video-section">
-                <div class="video-container">
-                    <video id="tutorialVideo" class="tutorial-video" autoplay muted playsinline>
-                        <source src="{{ asset('videos/video1.mp4') }}" type="video/mp4">
-                        Your browser does not support the video tag.
-                    </video>
-                    <div class="video-overlay">
-                        <div class="video-title">Philippine Statistics Authority (NATIONAL ID CENTER)</div>
-                        <div class="video-progress">
-                            <div class="video-progress-bar" id="videoProgress"></div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Windows Grid Section (Right) - 2x3 Grid -->
+        <!-- Main Layout: Windows Left, Queue Columns and Video Right -->
+        <div class="main-layout">
+            <!-- Left Side: All Windows in 3x2 Grid -->
             <div class="windows-grid">
                 <!-- Row 1 -->
                 <div class="window-card" data-window="1" id="window-1">
@@ -140,6 +98,115 @@
                     </div>
                 </div>
             </div>
+
+            <!-- Right Side: Queue Columns (Top) and Video (Bottom) -->
+            <div class="right-side">
+                <!-- Queue Columns: STATUS INQUIRY, REGISTRATION, UPDATING -->
+                <div class="queue-columns">
+                    <!-- Status Inquiry -->
+                    <div class="queue-section">
+                        <div class="queue-header">
+                            <svg viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd"
+                                    d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
+                                    clip-rule="evenodd" />
+                            </svg>
+                            <h2>STATUS INQUIRY</h2>
+                        </div>
+                        <ul class="queue-list" id="status-queue">
+                            @forelse($nextQueues['statusInquiry'] ?? [] as $item)
+                                <li class="queue-item">
+                                    <span class="queue-item-number">{{ $item['q_id'] }}</span>
+                                </li>
+                            @empty
+                                <li class="empty-queue">
+                                    <svg viewBox="0 0 20 20" fill="currentColor">
+                                        <path fill-rule="evenodd"
+                                            d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z"
+                                            clip-rule="evenodd" />
+                                    </svg>
+                                    <p>No queues waiting</p>
+                                </li>
+                            @endforelse
+                        </ul>
+                    </div>
+
+                    <!-- Registration -->
+                    <div class="queue-section">
+                        <div class="queue-header">
+                            <svg viewBox="0 0 20 20" fill="currentColor">
+                                <path
+                                    d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z" />
+                            </svg>
+                            <h2>REGISTRATION</h2>
+                        </div>
+                        <ul class="queue-list" id="registration-queue">
+                            @forelse($nextQueues['registration'] ?? [] as $item)
+                                <li class="queue-item">
+                                    <span class="queue-item-number">{{ $item['q_id'] }}</span>
+                                </li>
+                            @empty
+                                <li class="empty-queue">
+                                    <svg viewBox="0 0 20 20" fill="currentColor">
+                                        <path fill-rule="evenodd"
+                                            d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z"
+                                            clip-rule="evenodd" />
+                                    </svg>
+                                    <p>No queues waiting</p>
+                                </li>
+                            @endforelse
+                        </ul>
+                    </div>
+
+                    <!-- Updating -->
+                    <div class="queue-section">
+                        <div class="queue-header">
+                            <svg viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd"
+                                    d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z"
+                                    clip-rule="evenodd" />
+                            </svg>
+                            <h2>UPDATING</h2>
+                        </div>
+                        <ul class="queue-list" id="updating-queue">
+                            @forelse($nextQueues['updating'] ?? [] as $item)
+                                <li class="queue-item">
+                                    <span class="queue-item-number">{{ $item['q_id'] }}</span>
+                                </li>
+                            @empty
+                                <li class="empty-queue">
+                                    <svg viewBox="0 0 20 20" fill="currentColor">
+                                        <path fill-rule="evenodd"
+                                            d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z"
+                                            clip-rule="evenodd" />
+                                    </svg>
+                                    <p>No queues waiting</p>
+                                </li>
+                            @endforelse
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Video Section with Blur Background -->
+                <div class="video-section">
+                    <!-- Background Blur Video -->
+                    <div class="video-background">
+                        <video id="backgroundVideo" class="background-video" autoplay muted loop playsinline>
+                            <source src="{{ asset('videos/1. DIGITAL NATIONAL ID AUGUST 2024.mp4') }}"
+                                type="video/mp4">
+                        </video>
+                    </div>
+
+                    <!-- Main Foreground Video -->
+                    <div class="video-container">
+                        <video id="tutorialVideo" class="tutorial-video" autoplay muted playsinline>
+                            <source src="{{ asset('videos/1. DIGITAL NATIONAL ID AUGUST 2024.mp4') }}"
+                                type="video/mp4">
+                            Your browser does not support the video tag.
+                        </video>
+                    </div>
+                </div>
+            </div>
         </div>
 
         <!-- Loading Modal -->
@@ -153,22 +220,30 @@
         <script>
             // Video playlist configuration
             const videos = [
-                '{{ asset('videos/video1.mp4') }}',
-                '{{ asset('videos/video2.mp4') }}',
-                '{{ asset('videos/video3.mp4') }}',
-                '{{ asset('videos/video4.mp4') }}'
+                '{{ asset('videos/1. DIGITAL NATIONAL ID AUGUST 2024.mp4') }}',
+                '{{ asset('videos/2. National ID Check .mp4') }}',
+                '{{ asset('videos/3. National ID eVerify .mp4') }}',
             ];
 
             let currentVideoIndex = 0;
             const videoPlayer = document.getElementById('tutorialVideo');
+            const backgroundVideo = document.getElementById('backgroundVideo');
             const progressBar = document.getElementById('videoProgress');
 
             // Function to change video
             function changeVideo() {
                 currentVideoIndex = (currentVideoIndex + 1) % videos.length;
-                videoPlayer.src = videos[currentVideoIndex];
+                const newVideoSrc = videos[currentVideoIndex];
+
+                // Update both foreground and background videos
+                videoPlayer.src = newVideoSrc;
+                backgroundVideo.src = newVideoSrc;
+
                 videoPlayer.load();
+                backgroundVideo.load();
+
                 videoPlayer.play().catch(e => console.log('Autoplay prevented:', e));
+                backgroundVideo.play().catch(e => console.log('Background autoplay prevented:', e));
             }
 
             // Update progress bar
@@ -179,6 +254,19 @@
                 }
             }
 
+            // Sync background video with foreground
+            videoPlayer.addEventListener('play', function() {
+                backgroundVideo.play();
+            });
+
+            videoPlayer.addEventListener('pause', function() {
+                backgroundVideo.pause();
+            });
+
+            videoPlayer.addEventListener('seeked', function() {
+                backgroundVideo.currentTime = videoPlayer.currentTime;
+            });
+
             // Event listeners for video
             videoPlayer.addEventListener('ended', changeVideo);
             videoPlayer.addEventListener('timeupdate', updateProgress);
@@ -188,14 +276,6 @@
                 console.error('Video error:', e);
                 // Skip to next video on error
                 changeVideo();
-            });
-
-            // Preload next video
-            videoPlayer.addEventListener('loadedmetadata', function() {
-                // Preload next video
-                const nextIndex = (currentVideoIndex + 1) % videos.length;
-                const nextVideo = new Audio();
-                nextVideo.src = videos[nextIndex];
             });
 
             // Update date and time
@@ -266,8 +346,9 @@
                     .then(response => response.json())
                     .then(data => {
                         const calledQueues = data.calledQueues;
+                        const nextQueues = data.nextQueues;
 
-                        // Update windows - only showing serving status
+                        // Update windows
                         for (let w = 1; w <= 6; w++) {
                             const windowCard = document.getElementById(`window-${w}`);
                             if (windowCard && calledQueues[w]) {
@@ -275,7 +356,7 @@
                                 const clientNameDiv = windowCard.querySelector('.client-name');
 
                                 if (queueNum) queueNum.textContent = calledQueues[w].q_id || '-';
-                                
+
                                 // Update priority text
                                 if (clientNameDiv) {
                                     clientNameDiv.textContent = calledQueues[w].priority_type || '';
@@ -300,10 +381,43 @@
                             }
                         }
 
+                        // Update queue lists - using the correct structure from the original code
+                        updateQueueList('status-queue', nextQueues.statusInquiry || []);
+                        updateQueueList('registration-queue', nextQueues.registration || []);
+                        updateQueueList('updating-queue', nextQueues.updating || []);
+
                         localStorage.setItem('lastCalledQueues', JSON.stringify(calledQueues));
                         lastCalledQueues = calledQueues;
                     })
                     .catch(err => console.error('Error:', err));
+            }
+
+            function updateQueueList(elementId, queueArray) {
+                const ul = document.getElementById(elementId);
+                if (!ul) return;
+
+                ul.innerHTML = '';
+
+                if (queueArray && queueArray.length > 0) {
+                    queueArray.forEach((item, index) => {
+                        const li = document.createElement('li');
+                        li.className = 'queue-item' + (index < 3 ? ' new' : '');
+                        li.innerHTML = `
+                            <span class="queue-item-number">${escapeHtml(item.q_id)}</span>
+                        `;
+                        ul.appendChild(li);
+                    });
+                } else {
+                    const li = document.createElement('li');
+                    li.className = 'empty-queue';
+                    li.innerHTML = `
+                        <svg viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd" />
+                        </svg>
+                        <p>No queues waiting</p>
+                    `;
+                    ul.appendChild(li);
+                }
             }
 
             function escapeHtml(text) {
