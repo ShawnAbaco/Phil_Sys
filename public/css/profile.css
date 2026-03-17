@@ -441,3 +441,55 @@
         flex-wrap: wrap;
     }
 }
+
+
+
+.designation-group {
+    position: relative;
+}
+
+.designation-input-wrapper {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.designation-input-wrapper input {
+    flex: 1;
+}
+
+.btn-change-designation {
+    padding: 8px 16px;
+    background: linear-gradient(135deg, #f59e0b, #d97706);
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 500;
+    font-size: 14px;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    white-space: nowrap;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 4px rgba(245, 158, 11, 0.3);
+}
+
+.btn-change-designation:hover {
+    background: linear-gradient(135deg, #d97706, #b45309);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 6px rgba(245, 158, 11, 0.4);
+}
+
+.btn-change-designation:active {
+    transform: translateY(0);
+}
+
+.btn-change-designation.editing {
+    background: linear-gradient(135deg, #10b981, #059669);
+    box-shadow: 0 2px 4px rgba(16, 185, 129, 0.3);
+}
+
+.btn-change-designation.editing:hover {
+    background: linear-gradient(135deg, #059669, #047857);
+}
