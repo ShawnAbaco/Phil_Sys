@@ -47,51 +47,41 @@ class ProfileController extends Controller
     }
     
     public function update(Request $request)
-{
-    $user = Auth::user();
-    
-    $rules = [
-        'name' => 'required|string|max:255',
-        'email' => 'required|email|unique:users,email,' . $user->id,
-        'designation' => 'nullable|string|max:99', // ADDED: designation field (max:99 matches your migration)
-    ];
-    
-    // Add username validation since you have username column
-    if (Schema::hasColumn('users', 'username')) {
-        $rules['username'] = 'required|string|min:3|max:99|unique:users,username,' . $user->id . '|regex:/^[a-zA-Z0-9_]+$/';
+    {
+        $user = Auth::user();
+        
+        $rules = [
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|unique:users,email,' . $user->id,
+        ];
+        
+        // Add username validation if your users table has a username column
+        if (Schema::hasColumn('users', 'username')) {
+            $rules['username'] = 'required|string|min:3|max:50|unique:users,username,' . $user->id . '|regex:/^[a-zA-Z0-9_]+$/';
+        }
+        
+        $request->validate($rules, [
+            'username.regex' => 'Username may only contain letters, numbers, and underscores.',
+            'username.unique' => 'This username is already taken.',
+            'username.min' => 'Username must be at least 3 characters.',
+        ]);
+        
+        $user->name = $request->name;
+        $user->full_name = $request->name; // Update both name fields if needed
+        $user->email = $request->email;
+        
+        // Update username if the column exists
+        if (Schema::hasColumn('users', 'username')) {
+            $user->username = $request->username;
+        }
+        
+        $user->save();
+        
+        // Update session data
+        session(['full_name' => $request->name]);
+        
+        return back()->with('success', 'Profile updated successfully!');
     }
-    
-    $request->validate($rules, [
-        'username.regex' => 'Username may only contain letters, numbers, and underscores.',
-        'username.unique' => 'This username is already taken.',
-        'username.min' => 'Username must be at least 3 characters.',
-    ]);
-    
-    // Update user fields
-    $user->name = $request->name;
-    $user->full_name = $request->name; // Update both name fields
-    $user->email = $request->email;
-    
-    // Update designation - THIS IS THE KEY PART THAT WAS MISSING
-    if ($request->has('designation')) {
-        $user->designation = $request->designation;
-    }
-    
-    // Update username if provided
-    if ($request->has('username') && Schema::hasColumn('users', 'username')) {
-        $user->username = $request->username;
-    }
-    
-    $user->save();
-    
-    // Update session data
-    session([
-        'full_name' => $request->name,
-        'designation' => $request->designation ?? $user->designation // Update designation in session
-    ]);
-    
-    return back()->with('success', 'Profile updated successfully!');
-}
     
     public function password(Request $request)
     {

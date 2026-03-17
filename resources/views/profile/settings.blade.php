@@ -1,58 +1,5 @@
 <x-header title="Profile Settings" />
 
-<style>
-/* Additional styles for designation change button */
-.designation-group {
-    position: relative;
-}
-
-.designation-input-wrapper {
-    display: flex;
-    gap: 10px;
-    align-items: center;
-}
-
-.designation-input-wrapper input {
-    flex: 1;
-}
-
-.btn-change-designation {
-    padding: 8px 16px;
-    background: linear-gradient(135deg, #f59e0b, #d97706);
-    color: white;
-    border: none;
-    border-radius: 6px;
-    cursor: pointer;
-    font-weight: 500;
-    font-size: 14px;
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    white-space: nowrap;
-    transition: all 0.3s ease;
-    box-shadow: 0 2px 4px rgba(245, 158, 11, 0.3);
-}
-
-.btn-change-designation:hover {
-    background: linear-gradient(135deg, #d97706, #b45309);
-    transform: translateY(-1px);
-    box-shadow: 0 4px 6px rgba(245, 158, 11, 0.4);
-}
-
-.btn-change-designation:active {
-    transform: translateY(0);
-}
-
-.btn-change-designation.editing {
-    background: linear-gradient(135deg, #10b981, #059669);
-    box-shadow: 0 2px 4px rgba(16, 185, 129, 0.3);
-}
-
-.btn-change-designation.editing:hover {
-    background: linear-gradient(135deg, #059669, #047857);
-}
-</style>
-
 <main class="main-content">
     {{-- Breadcrumb Navigation --}}
     <div class="breadcrumb-container">
@@ -109,17 +56,17 @@
                         @method('PUT')
                         
                         {{-- Display Name (what users see) --}}
-                        <div class="form-group">
-                            <label for="name">Display Name</label>
-                            <input type="text" name="name" id="name" value="{{ old('name', $displayName) }}" 
-                                   class="@error('name') is-invalid @enderror" 
-                                   data-original="{{ $displayName }}"
-                                   required>
-                            <small class="field-hint">This is how you'll appear in the system</small>
-                            @error('name')
-                                <span class="error-message">{{ $message }}</span>
-                            @enderror
-                        </div>
+<div class="form-group">
+    <label for="name">Display Name</label>
+    <input type="text" name="name" id="name" value="{{ old('name', $displayName) }}" 
+           class="@error('name') is-invalid @enderror" 
+           data-original="{{ $displayName }}"  {{-- ADD THIS LINE --}}
+           required>
+    <small class="field-hint">This is how you'll appear in the system</small>
+    @error('name')
+        <span class="error-message">{{ $message }}</span>
+    @enderror
+</div>
 
                         {{-- Username (unique login identifier) --}}
                         <div class="form-group">
@@ -160,26 +107,11 @@
                             @enderror
                         </div>
 
-                        {{-- Designation Field with Change Button --}}
-                        <div class="form-group designation-group">
+                        <div class="form-group">
                             <label for="designation">Designation</label>
-                            <div class="designation-input-wrapper">
-                                <input type="text" name="designation" id="designation" 
-                                       value="{{ old('designation', $designation) }}" 
-                                       class="@error('designation') is-invalid @enderror" 
-                                       data-original="{{ $designation }}"
-                                       readonly disabled>
-                                <button type="button" class="btn-change-designation" id="changeDesignationBtn">
-                                    <svg viewBox="0 0 20 20" fill="currentColor" width="16" height="16">
-                                        <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
-                                    </svg>
-                                    Change
-                                </button>
-                            </div>
-                            <small class="field-hint">Click "Change" to edit your designation</small>
-                            @error('designation')
-                                <span class="error-message">{{ $message }}</span>
-                            @enderror
+                            <input type="text" name="designation" id="designation" value="{{ old('designation', $designation) }}" 
+                                   class="@error('designation') is-invalid @enderror" readonly disabled>
+                            <small class="field-hint">Designation cannot be changed</small>
                         </div>
 
                         @if ($isOperator() && isset($windowNum) && $windowNum)
@@ -383,280 +315,141 @@ document.addEventListener('DOMContentLoaded', function() {
         passwordInput.addEventListener('input', validatePassword);
     }
     
-    // Designation Change Functionality
-    const changeDesignationBtn = document.getElementById('changeDesignationBtn');
-    const designationInput = document.getElementById('designation');
-    const nameInput = document.getElementById('name');
-    const usernameInput = document.getElementById('username');
-    const emailInput = document.getElementById('email');
-    const submitBtn = document.getElementById('submit-btn');
-    
-    let isDesignationEditing = false;
-    let originalDesignation = designationInput?.value;
-    
-    // Get original values from data attributes
-    const nameOriginal = nameInput?.dataset.original;
-    const usernameOriginal = usernameInput?.dataset.original;
-    const emailOriginal = emailInput?.dataset.original;
-    
-    let isUsernameValid = true;
-    let isEmailValid = true;
 
-    // Update submit button state
-    function updateSubmitButton() {
-        if (submitBtn) {
-            // Check if ANY field has changed
-            const nameChanged = nameInput && nameInput.value !== nameOriginal;
-            const usernameChanged = usernameInput && usernameInput.value !== usernameOriginal;
-            const emailChanged = emailInput && emailInput.value !== emailOriginal;
-            const designationChanged = designationInput && designationInput.value !== originalDesignation && !designationInput.readOnly;
-            
-            const hasChanges = nameChanged || usernameChanged || emailChanged || designationChanged;
-            
-            // Enable button if there are changes AND all validations pass
-            submitBtn.disabled = !(hasChanges && isUsernameValid && isEmailValid);
-        }
-    }
+    // Username, email, and name change detection
+const nameInput = document.getElementById('name');
+const usernameInput = document.getElementById('username');
+const emailInput = document.getElementById('email');
+const submitBtn = document.getElementById('submit-btn');
+const nameOriginal = nameInput?.dataset.original;
+const usernameOriginal = usernameInput?.dataset.original;
+const emailOriginal = emailInput?.dataset.original;
 
-    // Add change detection for name input
-    if (nameInput) {
-        nameInput.addEventListener('input', function() {
-            updateSubmitButton();
-        });
-    }
+let isUsernameValid = true;
+let isEmailValid = true;
 
-    // Simplified username validation
-    if (usernameInput) {
-        const usernameFeedback = document.getElementById('username-feedback');
+function updateSubmitButton() {
+    if (submitBtn) {
+        // Check if ANY field has changed
+        const nameChanged = nameInput && nameInput.value !== nameOriginal;
+        const usernameChanged = usernameInput && usernameInput.value !== usernameOriginal;
+        const emailChanged = emailInput && emailInput.value !== emailOriginal;
         
-        const checkUsername = debounce(function() {
-            const username = usernameInput.value;
-            
-            if (username === usernameOriginal) {
-                usernameFeedback.innerHTML = '';
-                usernameFeedback.className = 'input-feedback';
-                isUsernameValid = true;
-                updateSubmitButton();
-                return;
-            }
-            
-            if (username.length < 3) {
-                usernameFeedback.innerHTML = '❌ Too short (min 3 chars)';
-                usernameFeedback.className = 'input-feedback invalid';
-                isUsernameValid = false;
-                updateSubmitButton();
-                return;
-            }
-            
-            if (!/^[a-zA-Z0-9_]+$/.test(username)) {
-                usernameFeedback.innerHTML = '❌ Only letters, numbers, underscore';
-                usernameFeedback.className = 'input-feedback invalid';
-                isUsernameValid = false;
-                updateSubmitButton();
-                return;
-            }
-            
-            // Valid format
+        const hasChanges = nameChanged || usernameChanged || emailChanged;
+        
+        // Enable button if there are changes AND all validations pass
+        submitBtn.disabled = !(hasChanges && isUsernameValid && isEmailValid);
+    }
+}
+
+// Add change detection for name input
+if (nameInput) {
+    nameInput.addEventListener('input', function() {
+        updateSubmitButton();
+    });
+}
+
+// Simplified username validation - no warning message
+if (usernameInput) {
+    const usernameFeedback = document.getElementById('username-feedback');
+    
+    const checkUsername = debounce(function() {
+        const username = usernameInput.value;
+        
+        if (username === usernameOriginal) {
             usernameFeedback.innerHTML = '';
             usernameFeedback.className = 'input-feedback';
             isUsernameValid = true;
             updateSubmitButton();
-            
-        }, 500);
+            return;
+        }
         
-        usernameInput.addEventListener('input', checkUsername);
-    }
+        if (username.length < 3) {
+            usernameFeedback.innerHTML = '❌ Too short (min 3 chars)';
+            usernameFeedback.className = 'input-feedback invalid';
+            isUsernameValid = false;
+            updateSubmitButton();
+            return;
+        }
+        
+        if (!/^[a-zA-Z0-9_]+$/.test(username)) {
+            usernameFeedback.innerHTML = '❌ Only letters, numbers, underscore';
+            usernameFeedback.className = 'input-feedback invalid';
+            isUsernameValid = false;
+            updateSubmitButton();
+            return;
+        }
+        
+        // No message shown for valid format - just clear feedback
+        usernameFeedback.innerHTML = '';
+        usernameFeedback.className = 'input-feedback';
+        isUsernameValid = true;
+        updateSubmitButton();
+        
+    }, 500);
+    
+    usernameInput.addEventListener('input', checkUsername);
+}
 
-    // Check email uniqueness
-    if (emailInput) {
-        const emailFeedback = document.getElementById('email-feedback');
+// Check email uniqueness
+if (emailInput) {
+    const emailFeedback = document.getElementById('email-feedback');
+    
+    const checkEmail = debounce(async function() {
+        const email = emailInput.value;
         
-        const checkEmail = debounce(async function() {
-            const email = emailInput.value;
+        if (email === emailOriginal) {
+            emailFeedback.innerHTML = '';
+            emailFeedback.className = 'input-feedback';
+            isEmailValid = true;
+            updateSubmitButton();
+            return;
+        }
+        
+        if (!email.includes('@') || !email.includes('.')) {
+            emailFeedback.innerHTML = '❌ Invalid email format';
+            emailFeedback.className = 'input-feedback invalid';
+            isEmailValid = false;
+            updateSubmitButton();
+            return;
+        }
+        
+        emailFeedback.innerHTML = '⏳ Checking...';
+        emailFeedback.className = 'input-feedback checking';
+        
+        try {
+            const response = await fetch('/check-email', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                },
+                body: JSON.stringify({ email, current: emailOriginal })
+            });
             
-            if (email === emailOriginal) {
-                emailFeedback.innerHTML = '';
-                emailFeedback.className = 'input-feedback';
+            const data = await response.json();
+            
+            if (data.available) {
+                emailFeedback.innerHTML = '✓ Available';
+                emailFeedback.className = 'input-feedback valid';
                 isEmailValid = true;
-                updateSubmitButton();
-                return;
-            }
-            
-            if (!email.includes('@') || !email.includes('.')) {
-                emailFeedback.innerHTML = '❌ Invalid email format';
+            } else {
+                emailFeedback.innerHTML = '✗ Already in use';
                 emailFeedback.className = 'input-feedback invalid';
                 isEmailValid = false;
-                updateSubmitButton();
-                return;
             }
-            
-            emailFeedback.innerHTML = '⏳ Checking...';
-            emailFeedback.className = 'input-feedback checking';
-            
-            try {
-                const response = await fetch('/check-email', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
-                    },
-                    body: JSON.stringify({ email, current: emailOriginal })
-                });
-                
-                const data = await response.json();
-                
-                if (data.available) {
-                    emailFeedback.innerHTML = '✓ Available';
-                    emailFeedback.className = 'input-feedback valid';
-                    isEmailValid = true;
-                } else {
-                    emailFeedback.innerHTML = '✗ Already in use';
-                    emailFeedback.className = 'input-feedback invalid';
-                    isEmailValid = false;
-                }
-            } catch (error) {
-                emailFeedback.innerHTML = '';
-                emailFeedback.className = 'input-feedback';
-                isEmailValid = true; // Allow submission even if check fails
-            }
-            
-            updateSubmitButton();
-        }, 500);
+        } catch (error) {
+            emailFeedback.innerHTML = '';
+            emailFeedback.className = 'input-feedback';
+            isEmailValid = true; // Allow submission even if check fails
+        }
         
-        emailInput.addEventListener('input', checkEmail);
-    }
+        updateSubmitButton();
+    }, 500);
+    
+    emailInput.addEventListener('input', checkEmail);
+}
 
-    // Designation change button logic
-    if (changeDesignationBtn && designationInput) {
-        changeDesignationBtn.addEventListener('click', function() {
-            if (!isDesignationEditing) {
-                // First click - ask for confirmation to edit
-                Swal.fire({
-                    title: 'Change Designation?',
-                    text: 'Are you sure you want to change your designation? This might affect your system permissions.',
-                    icon: 'warning',
-                    showCancelButton: true,
-                    confirmButtonColor: '#f59e0b',
-                    cancelButtonColor: '#6b7280',
-                    confirmButtonText: 'Yes, edit',
-                    cancelButtonText: 'No, keep'
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        // Enable editing
-                        designationInput.readOnly = false;
-                        designationInput.disabled = false;
-                        designationInput.focus();
-                        changeDesignationBtn.innerHTML = `
-                            <svg viewBox="0 0 20 20" fill="currentColor" width="16" height="16">
-                                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
-                            </svg>
-                            Save Designation
-                        `;
-                        changeDesignationBtn.classList.add('editing');
-                        isDesignationEditing = true;
-                        
-                        // Show hint that editing is enabled
-                        Swal.fire({
-                            title: 'Editing Enabled',
-                            text: 'You can now edit your designation. Click "Save Designation" when done.',
-                            icon: 'info',
-                            timer: 2000,
-                            showConfirmButton: false,
-                            toast: true,
-                            position: 'top-end'
-                        });
-                    }
-                });
-            } else {
-                // Second click - save the changes
-                const newDesignation = designationInput.value.trim();
-                
-                if (newDesignation === originalDesignation) {
-                    // No changes made, just revert
-                    designationInput.readOnly = true;
-                    designationInput.disabled = true;
-                    changeDesignationBtn.innerHTML = `
-                        <svg viewBox="0 0 20 20" fill="currentColor" width="16" height="16">
-                            <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
-                        </svg>
-                        Change
-                    `;
-                    changeDesignationBtn.classList.remove('editing');
-                    isDesignationEditing = false;
-                    
-                    Swal.fire({
-                        title: 'No Changes',
-                        text: 'No changes were made to your designation.',
-                        icon: 'info',
-                        timer: 1500,
-                        showConfirmButton: false,
-                        toast: true,
-                        position: 'top-end'
-                    });
-                    return;
-                }
-                
-                if (newDesignation === '') {
-                    Swal.fire({
-                        title: 'Invalid Designation',
-                        text: 'Designation cannot be empty.',
-                        icon: 'error',
-                        confirmButtonColor: '#dc2626'
-                    });
-                    return;
-                }
-                
-                // Confirm save
-                Swal.fire({
-                    title: 'Save Designation?',
-                    html: `Are you sure you want to change your designation from <strong>${originalDesignation}</strong> to <strong>${newDesignation}</strong>?`,
-                    icon: 'question',
-                    showCancelButton: true,
-                    confirmButtonColor: '#10b981',
-                    cancelButtonColor: '#6b7280',
-                    confirmButtonText: 'Yes, save',
-                    cancelButtonText: 'Cancel'
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        // Submit the form with the new designation
-                        const form = document.getElementById('profileForm');
-                        
-                        // Show loading
-                        Swal.fire({
-                            title: 'Saving...',
-                            html: 'Please wait while we update your designation',
-                            allowOutsideClick: false,
-                            didOpen: () => {
-                                Swal.showLoading();
-                            }
-                        });
-                        
-                        // Submit the form
-                        form.submit();
-                    } else {
-                        // User cancelled, revert to read-only but keep the edited value
-                        designationInput.readOnly = true;
-                        designationInput.disabled = true;
-                        changeDesignationBtn.innerHTML = `
-                            <svg viewBox="0 0 20 20" fill="currentColor" width="16" height="16">
-                                <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
-                            </svg>
-                            Change
-                        `;
-                        changeDesignationBtn.classList.remove('editing');
-                        isDesignationEditing = false;
-                    }
-                });
-            }
-        });
-    }
-
-    // Add change detection for designation input when editable
-    if (designationInput) {
-        designationInput.addEventListener('input', function() {
-            updateSubmitButton();
-        });
-    }
     
     // Form submission with confirmation
     const profileForm = document.getElementById('profileForm');
