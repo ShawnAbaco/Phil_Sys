@@ -380,6 +380,60 @@
         activeService = savedService;
     }
 
+    // ========== SPEECH SYNTHESIS FUNCTION ==========
+    function callAgain(queueNumber, clientName, windowNum) {
+        if (!queueNumber || queueNumber === '-') return;
+        
+        // Use the same speech synthesis as the client display
+        if ('speechSynthesis' in window) {
+            // First announcement
+            const utterance1 = new SpeechSynthesisUtterance(`Window ${windowNum}, now serving ${queueNumber}`);
+            utterance1.rate = 0.9;
+            utterance1.pitch = 1;
+            utterance1.volume = 1;
+            window.speechSynthesis.speak(utterance1);
+
+            // Second announcement with "Please proceed to" prefix
+            setTimeout(() => {
+                const utterance2 = new SpeechSynthesisUtterance(`Please proceed to window ${windowNum}, queue number ${queueNumber}`);
+                utterance2.rate = 0.9;
+                utterance2.pitch = 1;
+                utterance2.volume = 1;
+                window.speechSynthesis.speak(utterance2);
+            }, 1500);
+            
+            // Show toast notification
+            const Toast = Swal.mixin({
+                toast: true,
+                position: 'top-end',
+                showConfirmButton: false,
+                timer: 3000,
+                timerProgressBar: true
+            });
+
+            Toast.fire({
+                icon: 'info',
+                title: `Calling ${queueNumber} again`
+            });
+        } else {
+            Swal.fire({
+                title: 'Not Supported',
+                text: 'Your browser does not support speech synthesis.',
+                icon: 'warning',
+                confirmButtonColor: '#8b5cf6'
+            });
+        }
+    }
+
+    // Handle Volume/Speaker Button Click
+    function handleVolumeClick(e) {
+        const button = e.currentTarget;
+        const queueNumber = button.getAttribute('data-queue');
+        const clientName = button.getAttribute('data-name');
+        
+        callAgain(queueNumber, clientName, windowNum);
+    }
+
     // Check if there's any serving appointment
     function checkServingStatus() {
         const servingRow = document.querySelector('.status-badge.serving');
@@ -759,6 +813,12 @@
         document.querySelectorAll('.cancel-btn').forEach(button => {
             button.removeEventListener('click', handleCancelClick);
             button.addEventListener('click', handleCancelClick);
+        });
+
+        // Add volume button listeners
+        document.querySelectorAll('.volume-btn').forEach(button => {
+            button.removeEventListener('click', handleVolumeClick);
+            button.addEventListener('click', handleVolumeClick);
         });
 
         checkServingStatus();

@@ -8,8 +8,6 @@
                 <th>Queue #</th>
                 <th>Name</th>
                 <th>Priority</th>
-                <th>TRN</th>
-                <th>PCN</th>
                 <th>Service</th>
                 <th>Time</th>
                 <th>Status</th>
@@ -96,8 +94,6 @@ $priorityType = $appointment->priority_type ?? 'regular';
                             {{ strtoupper($priorityDisplay) }}
                         </span>
                     </td>
-                    <td>{{ $appointment->trn ?? 'N/A' }}</td>
-                    <td>{{ $appointment->PCN ?? 'N/A' }}</td>
                     <td><span class="service-tag">{{ $appointment->queue_for }}</span></td>
                     <td>{{ $createdTime->format('h:i A') }}</td>
                     <td>
@@ -107,61 +103,82 @@ $priorityType = $appointment->priority_type ?? 'regular';
                         </span>
                     </td>
                     <td class="action-cell">
-                        @if ($appointment->status === 'pending')
-                            <button class="btn-action serve-btn" data-id="{{ $appointment->n_id }}"
-                                data-name="{{ $appointment->fname }} {{ $appointment->lname }}" data-status="pending"
-                                {{ $serveDisabled ? 'disabled' : '' }}
-                                title="{{ $serveDisabled ? 'Cannot serve while another appointment is being served' : 'Call this appointment to your window' }}">
-                                <svg viewBox="0 0 20 20" fill="currentColor">
-                                    <path fill-rule="evenodd"
-                                        d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                                        clip-rule="evenodd" />
-                                </svg>
-                                Serve
-                            </button>
-                        @elseif($appointment->status === 'serving')
-                            <div class="action-button-group">
-                                <button class="btn-action complete-btn" data-id="{{ $appointment->n_id }}"
-                                    data-name="{{ $appointment->fname }} {{ $appointment->lname }}"
-                                    data-status="serving">
-                                    <svg viewBox="0 0 20 20" fill="currentColor">
-                                        <path fill-rule="evenodd"
-                                            d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                                            clip-rule="evenodd" />
-                                    </svg>
-                                    Done
-                                </button>
-                                <button class="btn-action secondary no-show-btn" data-id="{{ $appointment->n_id }}"
-                                    data-name="{{ $appointment->fname }} {{ $appointment->lname }}"
-                                    data-status="serving">
-                                    No Show
-                                </button>
-                                <button class="btn-action secondary cancel-btn" data-id="{{ $appointment->n_id }}"
-                                    data-name="{{ $appointment->fname }} {{ $appointment->lname }}"
-                                    data-status="serving">
-                                    Cancel
-                                </button>
-                            </div>
-                        @elseif($appointment->status === 'no_show')
-                            <button class="btn-action serve-btn" data-id="{{ $appointment->n_id }}"
-                                data-name="{{ $appointment->fname }} {{ $appointment->lname }}" data-status="no_show"
-                                {{ $serveDisabled ? 'disabled' : '' }}
-                                title="{{ $serveDisabled ? 'Cannot serve while another appointment is being served' : 'Call this no-show appointment to your window' }}">
-                                <svg viewBox="0 0 20 20" fill="currentColor">
-                                    <path fill-rule="evenodd"
-                                        d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                                        clip-rule="evenodd" />
-                                </svg>
-                                Serve Again
-                            </button>
-                        @else
-                            <span class="status-text">{{ $statusDisplay }}</span>
-                        @endif
-                    </td>
+    @if ($appointment->status === 'pending')
+        <div class="action-button-group">
+            <button class="btn-action serve-btn" data-id="{{ $appointment->n_id }}"
+                data-name="{{ $appointment->fname }} {{ $appointment->lname }}" 
+                data-queue="{{ $appointment->q_id }}"
+                data-status="pending"
+                {{ $serveDisabled ? 'disabled' : '' }}
+                title="{{ $serveDisabled ? 'Cannot serve while another appointment is being served' : 'Call this appointment to your window' }}">
+                <svg viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd"
+                        d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                        clip-rule="evenodd" />
+                </svg>
+                Serve
+            </button>
+        </div>
+    @elseif($appointment->status === 'serving')
+        <div class="action-button-group">
+            <button class="btn-action complete-btn" data-id="{{ $appointment->n_id }}"
+                data-name="{{ $appointment->fname }} {{ $appointment->lname }}"
+                data-queue="{{ $appointment->q_id }}"
+                data-status="serving">
+                <svg viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd"
+                        d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                        clip-rule="evenodd" />
+                </svg>
+                Done
+            </button>
+            <button class="btn-action secondary no-show-btn" data-id="{{ $appointment->n_id }}"
+                data-name="{{ $appointment->fname }} {{ $appointment->lname }}"
+                data-queue="{{ $appointment->q_id }}"
+                data-status="serving">
+                No Show
+            </button>
+            <button class="btn-action secondary cancel-btn" data-id="{{ $appointment->n_id }}"
+                data-name="{{ $appointment->fname }} {{ $appointment->lname }}"
+                data-queue="{{ $appointment->q_id }}"
+                data-status="serving">
+                Cancel
+            </button>
+            {{-- Volume button placed after cancel button, only for serving status --}}
+            <button class="btn-action volume-btn" data-id="{{ $appointment->n_id }}"
+                data-name="{{ $appointment->fname }} {{ $appointment->lname }}"
+                data-queue="{{ $appointment->q_id }}"
+                data-status="serving"
+                title="Call again">
+                <svg viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M9.383 3.076A1 1 0 0110 4v12a1 1 0 01-1.707.707L4.586 13H2a1 1 0 01-1-1V8a1 1 0 011-1h2.586l3.707-3.707a1 1 0 011.09-.217zM14.657 2.929a1 1 0 011.414 0A9.972 9.972 0 0119 10a9.972 9.972 0 01-2.929 7.071 1 1 0 01-1.414-1.414A7.971 7.971 0 0017 10c0-2.21-.894-4.208-2.343-5.657a1 1 0 010-1.414zm-2.829 2.828a1 1 0 011.415 0A5.983 5.983 0 0115 10a5.984 5.984 0 01-1.757 4.243 1 1 0 01-1.415-1.415A3.984 3.984 0 0013 10a3.983 3.983 0 00-1.172-2.828 1 1 0 010-1.415z" clip-rule="evenodd" />
+                </svg>
+            </button>
+        </div>
+    @elseif($appointment->status === 'no_show')
+        <div class="action-button-group">
+            <button class="btn-action serve-btn" data-id="{{ $appointment->n_id }}"
+                data-name="{{ $appointment->fname }} {{ $appointment->lname }}" 
+                data-queue="{{ $appointment->q_id }}"
+                data-status="no_show"
+                {{ $serveDisabled ? 'disabled' : '' }}
+                title="{{ $serveDisabled ? 'Cannot serve while another appointment is being served' : 'Call this no-show appointment to your window' }}">
+                <svg viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd"
+                        d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                        clip-rule="evenodd" />
+                </svg>
+                Serve Again
+            </button>
+        </div>
+    @else
+        <span class="status-text">{{ $statusDisplay }}</span>
+    @endif
+</td>
                 </tr>
             @empty
                 <tr>
-                    <td colspan="10" class="empty-state">
+                    <td colspan="8" class="empty-state">
                         <svg viewBox="0 0 20 20" fill="currentColor">
                             <path fill-rule="evenodd"
                                 d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z"

@@ -679,7 +679,7 @@
         border-color: #003cff;
         transform: translateY(-1px);
         box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-        color: black;
+        color: rgb(255, 255, 255);
     }
 
     .btn-action:active {
@@ -1218,6 +1218,8 @@
         display: flex;
         gap: 6px;
         flex-wrap: wrap;
+        justify-content: flex-start;
+        align-items: center;
     }
 
     .btn-action {
@@ -1836,4 +1838,40 @@
 .service-filter-dropdown:focus {
     border-color: var(--psa-blue);
     box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+
+
+
+/* Volume/Speaker button styling - Neutral Professional Gray */
+.volume-btn {
+    background: linear-gradient(135deg, #4b5563, #374151);  /* Professional gray */
+    color: white;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 12px;
+    font-weight: 500;
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 4px rgba(75, 85, 99, 0.2);
+}
+
+.volume-btn:hover {
+    background: linear-gradient(135deg, #374151, #1f2937);  /* Darker gray on hover */
+    transform: translateY(-1px);
+    box-shadow: 0 4px 6px rgba(55, 65, 81, 0.3);
+}
+
+.volume-btn:active {
+    transform: translateY(0);
+    background: linear-gradient(135deg, #1f2937, #111827);  /* Even darker when clicked */
+}
+
+.volume-btn svg {
+    width: 16px;
+    height: 16px;
 }
