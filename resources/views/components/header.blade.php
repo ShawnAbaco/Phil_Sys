@@ -8,7 +8,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ $title }} - PSA - Queue Management System</title>
 
-
     <!-- Favicon -->
     <link rel="icon" type="image/png" sizes="32x32" href="{{ asset('images/loading.png') }}">
     <link rel="apple-touch-icon" href="{{ asset('images/loading.png') }}">
@@ -47,26 +46,26 @@
 </head>
 
 <body>
-    <!-- PSA-themed header with arrow pattern (only for screener) -->
+    <!-- PSA-themed header with arrow pattern (only for screeners) -->
     @if ($isScreener())
         <div class="header-overlay"></div>
     @endif
 
     <header class="main-header">
         <div class="header-content">
-            <!-- Logo Section (same for both) -->
+            <!-- Logo Section -->
             <div class="logo-section {{ $isScreener() ? 'logo-area' : '' }}">
                 <img src="{{ asset('images/logo.png') }}" alt="National ID Logo" class="header-logo">
                 <div class="logo-text">
                     <h1>Queue Management System</h1>
-                    <span class="badge">{{ $isOperator() ? 'OPERATOR PORTAL' : 'SCREENER DASHBOARD' }}</span>
+                    <span class="badge">{{ $getPortalBadge() }}</span>
                 </div>
             </div>
 
-            <!-- User Section -->
-            <div class="user-section {{ $isScreener() ? 'user-area' : '' }}">
-                {{-- WINDOW BADGE - Only show for Operator --}}
-                @if ($isOperator() && $windowNum)
+            <!-- User Section - Same for Operators and Assistants -->
+            <div class="user-section">
+                {{-- WINDOW BADGE - Show for both Operators and Assistants --}}
+                @if ($showWindowBadge())
                     <div class="window-badge">
                         <svg class="window-icon" viewBox="0 0 20 20" fill="currentColor">
                             <path fill-rule="evenodd"
@@ -109,12 +108,10 @@
                         <div class="user-avatar">
                             {{ $userName ? substr($userName, 0, 1) : 'U' }}
                         </div>
-
                     </div>
 
                     <!-- Dropdown Menu -->
                     <div class="dropdown-menu" id="userDropdown">
-
                         <!-- Profile Settings Link -->
                         <a href="{{ route('profile.settings') }}" class="dropdown-item">
                             <svg class="dropdown-icon" viewBox="0 0 20 20" fill="currentColor">
@@ -147,7 +144,7 @@
 
     @if ($isOperator())
         <script>
-            // Update Date and Time for Operator
+            // Update Date and Time for Operators and Assistants
             function updateDateTime() {
                 const now = new Date();
                 const options = {
