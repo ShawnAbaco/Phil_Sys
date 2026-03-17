@@ -1,5 +1,5 @@
 <?php
-// app/Http/Kernel.php - Simplified Version
+// app/Http/Kernel.php
 
 namespace App\Http;
 
@@ -39,8 +39,12 @@ class Kernel extends HttpKernel
      * The application's middleware aliases.
      */
     protected $middlewareAliases = [
+        'auth' => \App\Http\Middleware\Authenticate::class, // Make sure this exists
+        'auth.basic' => \Illuminate\Auth\Middleware\AuthenticateWithBasicAuth::class,
         'auth.session' => \App\Http\Middleware\CheckSessionAuth::class,
         'bindings' => \Illuminate\Routing\Middleware\SubstituteBindings::class,
+        'guest' => \App\Http\Middleware\RedirectIfAuthenticated::class,
         'throttle' => \Illuminate\Routing\Middleware\ThrottleRequests::class,
+        'verified' => \Illuminate\Auth\Middleware\EnsureEmailIsVerified::class,
     ];
 }
