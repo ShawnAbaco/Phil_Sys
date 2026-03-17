@@ -21,70 +21,19 @@ $(document).ready(function() {
 });
 
 function initializeForms() {
-    // Login Form - Traditional submission as fallback
+    // Login Form - Traditional submission
     $('#loginForm').on('submit', function(e) {
-        // Don't prevent default - let it submit traditionally
-        // This ensures it works even without AJAX
         showLoading();
         return true; // Allow traditional form submission
     });
 
-    // Register Form
+    // Register Form - FIXED: Use traditional submission instead of AJAX
     $('#signupFormElement').on('submit', function(e) {
-        e.preventDefault();
-
-        $('#alertContainer').empty();
         showLoading();
-
-        $.ajax({
-            url: $(this).attr('action'),
-            type: 'POST',
-            data: $(this).serialize(),
-            dataType: 'json',
-            success: function(response) {
-                hideLoading();
-
-                if (response.success) {
-                    showAlert('success', response.message);
-
-                    setTimeout(() => {
-                        // Clear form
-                        $('#signupFormElement')[0].reset();
-                        showSignIn();
-                    }, 1500);
-                } else {
-                    showAlert('error', response.message || 'Registration failed');
-                }
-            },
-            error: function(xhr) {
-                hideLoading();
-
-                if (xhr.status === 422) {
-                    const response = xhr.responseJSON;
-                    if (response && response.errors) {
-                        const errors = response.errors;
-                        let errorMessage = '';
-                        for (let key in errors) {
-                            errorMessage += errors[key][0] + '<br>';
-                        }
-                        showAlert('error', errorMessage);
-                    } else {
-                        showAlert('error', 'Validation error');
-                    }
-                } else if (xhr.status === 0) {
-                    // Connection error - fallback to traditional submission
-                    hideLoading();
-                    if (confirm('Connection error. Submit form traditionally?')) {
-                        $('#signupFormElement')[0].submit();
-                    }
-                } else {
-                    showAlert('error', 'Registration failed. Please try again.');
-                }
-            }
-        });
+        return true; // Allow traditional form submission - controller will redirect
     });
 
-    // Forgot Password Form
+    // Forgot Password Form - Keep AJAX if you want
     $('#forgotFormElement').on('submit', function(e) {
         e.preventDefault();
 
@@ -125,6 +74,50 @@ function initializeForms() {
                 }
             }
         });
+    });
+
+    // Add real-time validation for username
+    $('#signup-username').on('blur', function() {
+        const username = $(this).val();
+        if (username.length >= 3) {
+            checkUsername(username);
+        }
+    });
+
+    // Add real-time validation for email
+    $('#signup-email').on('blur', function() {
+        const email = $(this).val();
+        if (email.includes('@') && email.includes('.')) {
+            checkEmail(email);
+        }
+    });
+}
+
+// Check username availability
+function checkUsername(username) {
+    $.ajax({
+        url: '{{ route("check.username") }}',
+        type: 'POST',
+        data: { username: username },
+        success: function(response) {
+            if (!response.available) {
+                showAlert('error', response.message);
+            }
+        }
+    });
+}
+
+// Check email availability
+function checkEmail(email) {
+    $.ajax({
+        url: '{{ route("check.email") }}',
+        type: 'POST',
+        data: { email: email },
+        success: function(response) {
+            if (!response.available) {
+                showAlert('error', response.message);
+            }
+        }
     });
 }
 
@@ -202,7 +195,6 @@ function toggleForm() {
         container.removeClass('swapping');
     }, 600); // Match panel transition time (0.6s)
 }
-
 
 function showForgotPassword() {
     const container = $('#container');
@@ -298,8 +290,6 @@ function togglePassword(inputId, button) {
         button.classList.remove('active');
     }
 }
-
-
 
 function showLoading() {
     $('#loadingModal').addClass('show');

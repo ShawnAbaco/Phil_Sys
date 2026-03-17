@@ -96,27 +96,29 @@ body::before {
     border: 3px solid;
 }
 
-/* Panel Styles - Equal sizing */
+/* Panel Styles - Equal sizing with scrollable content */
 .panel {
     flex: 1 1 50%;
-    padding: 42px;
     min-height: 560px;
+    max-height: 560px;
     display: flex;
     flex-direction: column;
-    justify-content: center;
     position: relative;
     transition: transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
     will-change: transform;
 }
 
-/* Forms Panel */
+/* Forms Panel - Make it scrollable */
 .forms-panel {
     background: white;
     position: relative;
     z-index: 2;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding: 42px;
 }
 
-/* Welcome Panel - PSA Arrow Style */
+/* Welcome Panel - Not scrollable */
 .welcome-panel {
     background: linear-gradient(135deg, var(--psa-red), var(--psa-blue));
     color: white;
@@ -128,6 +130,8 @@ body::before {
     position: relative;
     isolation: isolate;
     z-index: 1;
+    padding: 42px;
+    overflow-y: auto;
 }
 
 .welcome-panel::before {
@@ -173,6 +177,7 @@ body::before {
     border-radius: 60px;
     backdrop-filter: blur(5px);
     border: 2px solid var(--psa-yellow);
+    flex-shrink: 0;
 }
 
 .welcome-logo img {
@@ -272,6 +277,7 @@ body::before {
     margin-bottom: 30px;
     position: relative;
     padding-bottom: 15px;
+    flex-shrink: 0;
 }
 
 .panel-header::after {
@@ -307,6 +313,7 @@ body::before {
     color: white;
     letter-spacing: -0.5px;
     text-shadow: 2px 2px 0 var(--psa-red), 4px 4px 0 var(--psa-blue);
+    flex-shrink: 0;
 }
 
 .welcome-panel p {
@@ -316,11 +323,25 @@ body::before {
     opacity: 0.95;
     color: white;
     max-width: 260px;
+    flex-shrink: 0;
 }
 
-/* Form Styles */
+/* Form Styles - Make forms scrollable */
+.form-section {
+    display: block;
+    opacity: 1;
+    transition: opacity 0.3s ease;
+    width: 100%;
+}
+
+.form-section.hidden {
+    display: none;
+    opacity: 0;
+}
+
 .form-group {
     margin-bottom: 20px;
+    width: 100%;
 }
 
 .form-group label {
@@ -360,12 +381,59 @@ body::before {
     background: var(--psa-red-light);
 }
 
+/* Password requirements styling */
+.password-requirements {
+    margin: 15px 0 20px;
+    padding: 15px;
+    background: #f8f9fa;
+    border-radius: 12px;
+    border-left: 4px solid var(--psa-blue);
+}
+
+.password-requirements p {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--psa-blue);
+    margin-bottom: 8px;
+}
+
+.password-requirements ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.requirement {
+    font-size: 12px;
+    color: #6b7280;
+    margin-bottom: 5px;
+    padding-left: 20px;
+    position: relative;
+}
+
+.requirement::before {
+    content: '○';
+    position: absolute;
+    left: 0;
+    color: #9ca3af;
+}
+
+.requirement.valid {
+    color: #10b981;
+}
+
+.requirement.valid::before {
+    content: '✓';
+    color: #10b981;
+}
+
 .form-options {
     display: flex;
     justify-content: space-between;
     align-items: center;
     margin-bottom: 24px;
     font-size: 13px;
+    flex-shrink: 0;
 }
 
 .checkbox-label {
@@ -415,6 +483,8 @@ body::before {
     overflow: hidden;
     letter-spacing: 0.5px;
     border-bottom: 4px solid var(--psa-red);
+    flex-shrink: 0;
+    margin-top: 10px;
 }
 
 .btn-primary::before {
@@ -460,6 +530,7 @@ body::before {
     letter-spacing: 1px;
     position: relative;
     overflow: hidden;
+    flex-shrink: 0;
 }
 
 .btn-outline::before {
@@ -485,18 +556,6 @@ body::before {
     box-shadow: 0 12px 25px -8px rgba(0, 0, 0, 0.4);
 }
 
-/* Form Transitions */
-.form-section {
-    display: block;
-    opacity: 1;
-    transition: opacity 0.3s ease;
-}
-
-.form-section.hidden {
-    display: none;
-    opacity: 0;
-}
-
 /* Alert Messages */
 .alert {
     padding: 14px 18px;
@@ -507,6 +566,7 @@ body::before {
     gap: 12px;
     font-size: 13px;
     animation: slideInDown 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+    flex-shrink: 0;
 }
 
 .alert-error {
@@ -585,32 +645,6 @@ body::before {
     color: #007bff;
 }
 
-/* Forgot password text */
-.forgot-password-text {
-    text-align: center;
-    margin-top: 16px;
-    font-size: 13px;
-}
-
-.forgot-password-text .forgot-link {
-    color: white;
-    text-decoration: none;
-    font-weight: 600;
-    background: none;
-    border: none;
-    font-size: 13px;
-    transition: all 0.3s ease;
-    padding: 8px 16px;
-    border-radius: 20px;
-    background: rgba(255, 255, 255, 0.1);
-}
-
-.forgot-password-text .forgot-link:hover {
-    background: var(--psa-yellow);
-    color: var(--psa-blue);
-    transform: translateX(2px);
-}
-
 /* Loading Modal - Updated for rotating loading.png */
 .loading-modal {
     display: none;
@@ -631,6 +665,16 @@ body::before {
     animation: fadeIn 0.3s ease;
 }
 
+.loading-content {
+    background: white;
+    padding: 30px 40px;
+    border-radius: 20px;
+    text-align: center;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+    border: 3px solid var(--psa-yellow);
+    max-width: 90%;
+}
+
 /* Rotating loading.png logo */
 .rotate-logo {
     width: 80px;
@@ -649,10 +693,36 @@ body::before {
 }
 
 .loading-text {
-    color: #0038A8;
+    color: var(--psa-blue);
     font-weight: 600;
     font-size: 16px;
     letter-spacing: 0.5px;
+}
+
+/* Scrollbar Styling */
+.forms-panel::-webkit-scrollbar {
+    width: 6px;
+}
+
+.forms-panel::-webkit-scrollbar-track {
+    background: #F1F5F9;
+    border-radius: 20px;
+}
+
+.forms-panel::-webkit-scrollbar-thumb {
+    background: var(--psa-blue);
+    border-radius: 20px;
+    transition: background 0.3s ease;
+}
+
+.forms-panel::-webkit-scrollbar-thumb:hover {
+    background: var(--psa-red);
+}
+
+/* Firefox scrollbar */
+.forms-panel {
+    scrollbar-width: thin;
+    scrollbar-color: var(--psa-blue) #F1F5F9;
 }
 
 /* Animations */
@@ -683,13 +753,22 @@ body::before {
         border-radius: 24px;
         margin: 16px;
         max-width: 400px;
+        width: 90%;
     }
 
     .panel {
         flex: 1 1 auto;
-        min-height: auto;
-        padding: 30px 24px;
+        min-height: 500px;
+        max-height: 500px;
         transition: transform 0.4s ease;
+    }
+
+    .forms-panel {
+        padding: 30px 24px;
+    }
+
+    .welcome-panel {
+        padding: 30px 24px;
     }
 
     /* Reset animations for mobile */
@@ -755,19 +834,33 @@ body::before {
         opacity: 1 !important;
         transition: none !important;
     }
+
+    /* Adjust scrollbar for mobile */
+    .forms-panel::-webkit-scrollbar {
+        width: 3px;
+    }
 }
 
-/* Scrollbar */
-.panel::-webkit-scrollbar {
-    width: 4px;
-}
-
-.panel::-webkit-scrollbar-track {
-    background: #F1F5F9;
-    border-radius: 20px;
-}
-
-.panel::-webkit-scrollbar-thumb {
-    background: var(--psa-blue);
-    border-radius: 20px;
+/* Small height screens */
+@media (max-height: 700px) {
+    .panel {
+        min-height: 450px;
+        max-height: 450px;
+    }
+    
+    .forms-panel {
+        padding: 25px;
+    }
+    
+    .welcome-panel {
+        padding: 25px;
+    }
+    
+    .panel-header {
+        margin-bottom: 20px;
+    }
+    
+    .form-group {
+        margin-bottom: 15px;
+    }
 }

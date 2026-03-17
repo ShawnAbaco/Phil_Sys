@@ -63,6 +63,15 @@
                         </ul>
                     </div>
                 @endif
+                
+                @if(session('success'))
+                    <div class="alert alert-success">
+                        <svg class="alert-icon" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                        </svg>
+                        <span>{{ session('success') }}</span>
+                    </div>
+                @endif
             </div>
 
             <!-- Log In Form -->
@@ -106,48 +115,80 @@
 
             <!-- Register Form -->
             <div id="signupForm" class="form-section hidden">
-                <form method="POST" action="#" autocomplete="off" id="signupFormElement">
+                <form method="POST" action="{{ route('register.submit') }}" autocomplete="off" id="signupFormElement">
                     @csrf
                     <div class="form-group">
-                        <label for="signup-name">Full Name</label>
-                        <input type="text" id="signup-name" name="full_name" class="form-input"
-                            placeholder="John Doe" required>
+                        <label for="signup-fullname">Full Name</label>
+                        <input type="text" id="signup-fullname" name="full_name" class="form-input"
+                            placeholder="John Doe" value="{{ old('full_name') }}" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="signup-email">Email Address</label>
+                        <input type="email" id="signup-email" name="email" class="form-input"
+                            placeholder="john@example.com" value="{{ old('email') }}" required>
                     </div>
 
                     <div class="form-group">
                         <label for="signup-username">Username</label>
                         <input type="text" id="signup-username" name="username" class="form-input"
-                            placeholder="johndoe" required>
+                            placeholder="johndoe" value="{{ old('username') }}" required>
                     </div>
 
                     <div class="form-group">
                         <label for="signup-password">Password</label>
-                        <input type="password" id="signup-password" name="password" class="form-input"
-                            placeholder="••••••••" required>
+                        <div class="password-wrapper">
+                            <input type="password" id="signup-password" name="password" class="form-input"
+                                placeholder="••••••••" required>
+                            <button type="button" class="password-toggle" onclick="togglePassword('signup-password', this)">
+                                <svg class="eye-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                                    <circle cx="12" cy="12" r="3"></circle>
+                                </svg>
+                            </button>
+                        </div>
                     </div>
 
                     <div class="form-group">
                         <label for="signup-password_confirmation">Confirm Password</label>
-                        <input type="password" id="signup-password_confirmation" name="password_confirmation"
-                            class="form-input" placeholder="••••••••" required>
+                        <div class="password-wrapper">
+                            <input type="password" id="signup-password_confirmation" name="password_confirmation"
+                                class="form-input" placeholder="••••••••" required>
+                            <button type="button" class="password-toggle" onclick="togglePassword('signup-password_confirmation', this)">
+                                <svg class="eye-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                                    <circle cx="12" cy="12" r="3"></circle>
+                                </svg>
+                            </button>
+                        </div>
                     </div>
 
-                    <button type="submit" class="btn-primary">Create Account</button>
+                    <div class="password-requirements">
+                        <p>Password must contain:</p>
+                        <ul>
+                            <li id="length-check" class="requirement">At least 8 characters</li>
+                            <li id="uppercase-check" class="requirement">At least one uppercase letter</li>
+                            <li id="lowercase-check" class="requirement">At least one lowercase letter</li>
+                            <li id="number-check" class="requirement">At least one number</li>
+                            <li id="special-check" class="requirement">At least one special character</li>
+                        </ul>
+                    </div>
+
+                    <button type="submit" class="btn-primary" id="signupSubmit">CREATE ACCOUNT</button>
                 </form>
             </div>
 
             <!-- Forgot Password Form -->
             <div id="forgotForm" class="form-section hidden">
-                <form method="POST" action="#" autocomplete="off" id="forgotFormElement">
-
+                <form method="POST" action="{{ route('password.email') }}" autocomplete="off" id="forgotFormElement">
+                    @csrf
                     <div class="form-group">
-                        <label for="forgot-username">Username</label>
-                        <input type="text" id="forgot-username" name="username" class="form-input"
-                            placeholder="Enter your username" required>
+                        <label for="forgot-email">Email Address</label>
+                        <input type="email" id="forgot-email" name="email" class="form-input"
+                            placeholder="Enter your email" required>
                     </div>
                     <button type="submit" class="btn-primary">Send Reset Link</button>
-                    <div class="forgot-password-text">
-                    </div>
+                    <div class="forgot-password-text"></div>
                     <br>
                     <div>
                         <button type="button" class="forgot-link" onclick="showSignIn()">Back to Log In</button>
@@ -178,6 +219,124 @@
     <!-- Include jQuery for AJAX -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="{{ asset('js/login.js') }}"></script>
+    
+    <script>
+        // Toggle password visibility
+        function togglePassword(inputId, button) {
+            const input = document.getElementById(inputId);
+            const type = input.getAttribute('type') === 'password' ? 'text' : 'password';
+            input.setAttribute('type', type);
+            
+            // Toggle the eye icon if needed (optional)
+            const svg = button.querySelector('svg');
+            if (type === 'text') {
+                svg.style.opacity = '0.7';
+            } else {
+                svg.style.opacity = '1';
+            }
+        }
+        
+        // Password validation for registration
+        document.addEventListener('DOMContentLoaded', function() {
+            const passwordInput = document.getElementById('signup-password');
+            
+            if (passwordInput) {
+                const requirements = {
+                    length: document.getElementById('length-check'),
+                    uppercase: document.getElementById('uppercase-check'),
+                    lowercase: document.getElementById('lowercase-check'),
+                    number: document.getElementById('number-check'),
+                    special: document.getElementById('special-check')
+                };
+                
+                function validatePassword() {
+                    const password = passwordInput.value;
+                    
+                    // Length check
+                    if (requirements.length) {
+                        requirements.length.classList.toggle('valid', password.length >= 8);
+                    }
+                    
+                    // Uppercase check
+                    if (requirements.uppercase) {
+                        requirements.uppercase.classList.toggle('valid', /[A-Z]/.test(password));
+                    }
+                    
+                    // Lowercase check
+                    if (requirements.lowercase) {
+                        requirements.lowercase.classList.toggle('valid', /[a-z]/.test(password));
+                    }
+                    
+                    // Number check
+                    if (requirements.number) {
+                        requirements.number.classList.toggle('valid', /[0-9]/.test(password));
+                    }
+                    
+                    // Special character check
+                    if (requirements.special) {
+                        requirements.special.classList.toggle('valid', /[!@#$%^&*(),.?":{}|<>]/.test(password));
+                    }
+                }
+                
+                passwordInput.addEventListener('input', validatePassword);
+            }
+            
+            // Show loading modal on form submit
+            const signupForm = document.getElementById('signupFormElement');
+            const loginForm = document.getElementById('loginForm');
+            
+            if (signupForm) {
+                signupForm.addEventListener('submit', function() {
+                    document.getElementById('loadingModal').classList.add('show');
+                });
+            }
+            
+            if (loginForm) {
+                loginForm.addEventListener('submit', function() {
+                    document.getElementById('loadingModal').classList.add('show');
+                });
+            }
+        });
+    </script>
+
+
+<script>
+    // Check username availability
+    function checkUsername(username) {
+        $.ajax({
+            url: '{{ route("check.username") }}',
+            type: 'POST',
+            data: { username: username },
+            success: function(response) {
+                if (!response.available) {
+                    showAlert('error', response.message);
+                }
+            },
+            error: function(xhr) {
+                console.error('Username check failed:', xhr);
+            }
+        });
+    }
+
+    // Check email availability
+    function checkEmail(email) {
+        $.ajax({
+            url: '{{ route("check.email") }}',
+            type: 'POST',
+            data: { email: email },
+            success: function(response) {
+                if (!response.available) {
+                    showAlert('error', response.message);
+                }
+            },
+            error: function(xhr) {
+                console.error('Email check failed:', xhr);
+            }
+        });
+    }
+</script>
+
+
 </body>
 
 </html>

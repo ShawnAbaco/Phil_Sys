@@ -19,6 +19,22 @@ use App\Http\Controllers\Admin\LogController;
 use App\Http\Controllers\Admin\WindowController;
 use App\Http\Controllers\Admin\ExportController;
 
+Route::get('/test-email', function() {
+    try {
+        $mailService = new App\Services\PHPMailerService();
+        
+        $result = $mailService->sendPlain(
+            'test@example.com', // Replace with your email
+            'Test Email from National ID System',
+            'This is a test email to verify PHPMailer is working correctly.'
+        );
+        
+        return 'Email sent successfully!';
+    } catch (Exception $e) {
+        return 'Error: ' . $e->getMessage();
+    }
+});
+
 
 Route::get('/test-json', function() {
     return response()->json(['message' => 'JSON is working']);
@@ -115,6 +131,38 @@ Route::middleware(['guest'])->group(function () {
     Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login');
     Route::post('/login', [LoginController::class, 'login'])->name('login.submit');
 });
+
+// Registration routes
+Route::get('/register', [App\Http\Controllers\Auth\RegistrationController::class, 'showRegistrationForm'])
+    ->name('register.form');
+Route::post('/register', [App\Http\Controllers\Auth\RegistrationController::class, 'register'])
+    ->name('register.submit');
+
+// AJAX checks for registration
+Route::post('/check-username', [App\Http\Controllers\Auth\RegistrationController::class, 'checkUsername'])
+    ->name('check.username');
+Route::post('/check-email', [App\Http\Controllers\Auth\RegistrationController::class, 'checkEmail'])
+    ->name('check.email');
+
+
+    // Password Reset Routes
+Route::get('/forgot-password', function () {
+    return view('auth.forgot-password');
+})->middleware('guest')->name('password.request');
+
+Route::post('/forgot-password', [App\Http\Controllers\Auth\PasswordResetController::class, 'sendResetLink'])
+    ->middleware('guest')
+    ->name('password.email');
+
+Route::get('/reset-password/{token}', function ($token) {
+    return view('auth.reset-password', ['token' => $token]);
+})->middleware('guest')->name('password.reset');
+
+Route::post('/reset-password', [App\Http\Controllers\Auth\PasswordResetController::class, 'reset'])
+    ->middleware('guest')
+    ->name('password.update');
+
+
 
 // Logout route
 Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
