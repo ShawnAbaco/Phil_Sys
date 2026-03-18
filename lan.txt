@@ -8,7 +8,7 @@ U will see a IPV4 Address, copy that to paste later in the VS Code Terminal
 
 Example your IPV4 Address: 192.168.227.189
 
-Then this is u will Command in the Terminal: php artisan serve --host=192.168.227.189 --port=8000
+Then this is u will Command in the Terminal: php artisan serve --host=192.168.227.191 --port=8000
 
 3. Search this IP Local Server into any browsers: 192.168.227.189:8000
 

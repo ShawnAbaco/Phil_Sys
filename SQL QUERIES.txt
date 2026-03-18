@@ -15,3 +15,19 @@ AFTER age_category;
 ALTER TABLE tbl_appointment 
 MODIFY COLUMN priority_type ENUM('regular', 'senior', 'infant', 'pwd', 'pregnant') 
 NOT NULL DEFAULT 'regular';
+
+
+
+
+
+-- Add status column as ENUM
+ALTER TABLE users 
+ADD COLUMN status ENUM('pending', 'active', 'inactive', 'suspended') 
+NOT NULL DEFAULT 'pending' 
+AFTER password_hashed;
+
+-- Add index for status column
+CREATE INDEX users_status_index ON users (status);
+
+-- Set all existing accounts to active
+UPDATE users SET status = 'active';

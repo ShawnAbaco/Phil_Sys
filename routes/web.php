@@ -115,6 +115,22 @@ Route::get('/force-logout', function() {
         ->header('Expires', '0');
 });
 
+
+
+// Admin approval routes (public - accessible via email link)
+Route::get('/admin/approve/user/{token}', [App\Http\Controllers\Admin\ApprovalController::class, 'approve'])
+    ->name('admin.approve.user');
+Route::get('/admin/reject/user/{token}', [App\Http\Controllers\Admin\ApprovalController::class, 'reject'])
+    ->name('admin.reject.user');
+
+// OTP Verification Routes
+Route::post('/verification/send-otp', [App\Http\Controllers\Auth\VerificationController::class, 'sendOtp'])
+    ->name('verification.send-otp');
+Route::post('/verification/verify-otp', [App\Http\Controllers\Auth\VerificationController::class, 'verifyOtp'])
+    ->name('verification.verify-otp');
+Route::post('/verification/check', [App\Http\Controllers\Auth\VerificationController::class, 'checkVerification'])
+    ->name('verification.check');
+
 // Public routes (no authentication required)
 Route::get('/', function () {
     return redirect()->route('login');

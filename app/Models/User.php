@@ -30,6 +30,7 @@ class User extends Authenticatable
         'specific_loc',
         'username',
         'password_hashed',
+        'status', // Just added this
     ];
 
     /**

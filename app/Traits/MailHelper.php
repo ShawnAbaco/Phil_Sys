@@ -4,6 +4,8 @@ namespace App\Traits;
 
 use App\Services\PHPMailerService;
 use Illuminate\Support\Facades\View;
+use Illuminate\Support\Facades\Log; // Add this line
+
 
 trait MailHelper
 {
@@ -27,15 +29,19 @@ trait MailHelper
                 $htmlContent
             );
             
+            Log::info('Welcome email sent', ['user_id' => $user->id, 'email' => $user->email]);
             return true;
         } catch (\Exception $e) {
-            \Log::error('Welcome email failed: ' . $e->getMessage());
+            Log::error('Welcome email failed: ' . $e->getMessage(), [
+                'user_id' => $user->id,
+                'trace' => $e->getTraceAsString()
+            ]);
             return false;
         }
     }
 
     /**
-     * Send account approval email
+     * Send account approval email to user
      */
     protected function sendApprovalEmail($user)
     {
@@ -45,19 +51,24 @@ trait MailHelper
             $htmlContent = View::make('emails.account-approved', [
                 'name' => $user->full_name ?? $user->name,
                 'username' => $user->username,
+                'email' => $user->email,
                 'designation' => $user->designation,
-                'windowNum' => $user->window_num
+                'window_num' => $user->window_num
             ])->render();
             
             $mailService->sendHTML(
                 $user->email,
-                'Your Account Has Been Approved',
+                'Your Account Has Been Approved - National ID System',
                 $htmlContent
             );
             
+            Log::info('Approval email sent', ['user_id' => $user->id, 'email' => $user->email]);
             return true;
         } catch (\Exception $e) {
-            \Log::error('Approval email failed: ' . $e->getMessage());
+            Log::error('Approval email failed: ' . $e->getMessage(), [
+                'user_id' => $user->id,
+                'trace' => $e->getTraceAsString()
+            ]);
             return false;
         }
     }
@@ -72,9 +83,15 @@ trait MailHelper
             
             $htmlContent = View::make($view, $data)->render();
             
-            return $mailService->sendHTML($to, $subject, $htmlContent);
+            $result = $mailService->sendHTML($to, $subject, $htmlContent);
+            
+            Log::info('Custom email sent', ['to' => $to, 'subject' => $subject]);
+            return $result;
         } catch (\Exception $e) {
-            \Log::error('Custom email failed: ' . $e->getMessage());
+            Log::error('Custom email failed: ' . $e->getMessage(), [
+                'to' => $to,
+                'trace' => $e->getTraceAsString()
+            ]);
             return false;
         }
     }

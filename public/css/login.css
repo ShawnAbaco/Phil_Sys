@@ -864,3 +864,87 @@ body::before {
         margin-bottom: 15px;
     }
 }
+
+
+/* OTP Button Styles */
+.btn-otp {
+    padding: 14px 18px;
+    background: #6b7280;
+    color: white;
+    border: none;
+    border-radius: 12px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    white-space: nowrap;
+}
+
+.btn-otp:hover:not(:disabled) {
+    background: #4b5563;
+    transform: translateY(-1px);
+}
+
+.btn-otp:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.btn-otp.sent {
+    background: #10b981;
+}
+
+.btn-verify {
+    padding: 14px 18px;
+    background: #0038A8;
+    color: white;
+    border: none;
+    border-radius: 12px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.btn-verify:hover:not(:disabled) {
+    background: #002a7a;
+    transform: translateY(-1px);
+}
+
+.btn-verify:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+#otp {
+    font-family: monospace;
+    font-weight: 600;
+}
+
+#otpMessage .success {
+    color: #10b981;
+}
+
+#otpMessage .error {
+    color: #ef4444;
+}
+
+#otpTimer {
+    font-family: monospace;
+    font-weight: 600;
+}
+
+#otpTimer.warning {
+    color: #f59e0b;
+}
+
+#otpTimer.expired {
+    color: #ef4444;
+}
+
+.field-hint {
+    color: #666;
+    font-size: 12px;
+    margin-top: 5px;
+    display: block;
+}

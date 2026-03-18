@@ -22,7 +22,7 @@ return new class extends Migration
             $table->rememberToken();
             $table->timestamps();
 
-            // YOUR CUSTOM FIELDS (from tbl_user) - NO FOREIGN KEYS YET
+            // YOUR CUSTOM FIELDS (from tbl_user)
             $table->string('full_name', 999)->nullable();
             $table->string('designation', 99)->nullable();
             $table->integer('window_num')->nullable();
@@ -33,6 +33,9 @@ return new class extends Migration
             $table->string('specific_loc', 99)->nullable();
             $table->string('username', 99)->unique()->nullable();
             $table->string('password_hashed', 255)->nullable();
+            
+            // STATUS FIELD with actual words
+            $table->enum('status', ['pending', 'active', 'inactive', 'suspended'])->default('pending');
 
             // Add indexes for better performance
             $table->index('reg');
@@ -40,6 +43,7 @@ return new class extends Migration
             $table->index('mun');
             $table->index('brgy');
             $table->index('username');
+            $table->index('status');
         });
 
         Schema::create('password_reset_tokens', function (Blueprint $table) {
