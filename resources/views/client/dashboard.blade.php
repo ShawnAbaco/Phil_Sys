@@ -192,16 +192,14 @@
                     <!-- Background Blur Video -->
                     <div class="video-background">
                         <video id="backgroundVideo" class="background-video" autoplay muted loop playsinline>
-                            <source src="{{ asset('videos/1. DIGITAL NATIONAL ID AUGUST 2024.mp4') }}"
-                                type="video/mp4">
+                            <source src="{{ asset('videos/2. National ID Check .mp4') }}" type="video/mp4">
                         </video>
                     </div>
 
                     <!-- Main Foreground Video -->
                     <div class="video-container">
                         <video id="tutorialVideo" class="tutorial-video" autoplay muted playsinline>
-                            <source src="{{ asset('videos/1. DIGITAL NATIONAL ID AUGUST 2024.mp4') }}"
-                                type="video/mp4">
+                            <source src="{{ asset('videos/2. National ID Check .mp4') }}" type="video/mp4">
                             Your browser does not support the video tag.
                         </video>
                     </div>
@@ -220,7 +218,6 @@
         <script>
             // Video playlist configuration
             const videos = [
-                '{{ asset('videos/1. DIGITAL NATIONAL ID AUGUST 2024.mp4') }}',
                 '{{ asset('videos/2. National ID Check .mp4') }}',
                 '{{ asset('videos/3. National ID eVerify .mp4') }}',
             ];
