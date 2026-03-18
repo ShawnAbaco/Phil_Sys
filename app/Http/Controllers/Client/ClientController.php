@@ -62,14 +62,14 @@ class ClientController extends Controller
         ->whereDate('date', $today)
         ->where('status', 'pending')
         ->orderBy('date', 'asc')
-        ->limit(50)
+        ->limit(100)
         ->get(['q_id', 'queue_for', 'status', 'priority_type']);
 
     // Get no_show queues - they have window_num but status is no_show
     $noShowQueues = TblAppointment::whereDate('date', $today)
         ->where('status', 'no_show')
         ->orderBy('date', 'asc')
-        ->limit(50)
+        ->limit(100)
         ->get(['q_id', 'queue_for', 'status', 'priority_type']);
 
     // Merge both collections
