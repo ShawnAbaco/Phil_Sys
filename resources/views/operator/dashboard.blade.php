@@ -381,58 +381,172 @@
     }
 
     // ========== SPEECH SYNTHESIS FUNCTION ==========
-    function callAgain(queueNumber, clientName, windowNum) {
-        if (!queueNumber || queueNumber === '-') return;
+function callAgain(queueNumber, clientName, windowNum) {
+    if (!queueNumber || queueNumber === '-') return;
+    
+    // Format the name properly (remove any extra spaces)
+    const formattedName = clientName.trim();
+    
+    // Use the same speech synthesis as the client display
+    if ('speechSynthesis' in window) {
+        // First announcement - Queue number and name together
+        const utterance1 = new SpeechSynthesisUtterance(`Window ${windowNum}, now serving ${queueNumber}, ${formattedName}`);
+        utterance1.rate = 0.9;
+        utterance1.pitch = 1;
+        utterance1.volume = 1;
+        window.speechSynthesis.speak(utterance1);
+
+        // Second announcement - Repeat with "Please proceed"
+        setTimeout(() => {
+            const utterance2 = new SpeechSynthesisUtterance(`Please proceed to window ${windowNum}, ${queueNumber}, ${formattedName}`);
+            utterance2.rate = 0.9;
+            utterance2.pitch = 1;
+            utterance2.volume = 1;
+            window.speechSynthesis.speak(utterance2);
+        }, 2000); // Slightly longer delay for longer announcement
         
-        // Use the same speech synthesis as the client display
-        if ('speechSynthesis' in window) {
-            // First announcement
-            const utterance1 = new SpeechSynthesisUtterance(`Window ${windowNum}, now serving ${queueNumber}`);
-            utterance1.rate = 0.9;
-            utterance1.pitch = 1;
-            utterance1.volume = 1;
-            window.speechSynthesis.speak(utterance1);
+        // Show toast notification with queue number and name
+        const Toast = Swal.mixin({
+            toast: true,
+            position: 'top-end',
+            showConfirmButton: false,
+            timer: 3000,
+            timerProgressBar: true
+        });
 
-            // Second announcement with "Please proceed to" prefix
-            setTimeout(() => {
-                const utterance2 = new SpeechSynthesisUtterance(`Please proceed to window ${windowNum}, queue number ${queueNumber}`);
-                utterance2.rate = 0.9;
-                utterance2.pitch = 1;
-                utterance2.volume = 1;
-                window.speechSynthesis.speak(utterance2);
-            }, 1500);
-            
-            // Show toast notification
-            const Toast = Swal.mixin({
-                toast: true,
-                position: 'top-end',
-                showConfirmButton: false,
-                timer: 3000,
-                timerProgressBar: true
-            });
+        Toast.fire({
+            icon: 'info',
+            title: `Calling ${queueNumber} - ${formattedName} again`
+        });
+    } else {
+        Swal.fire({
+            title: 'Not Supported',
+            text: 'Your browser does not support speech synthesis.',
+            icon: 'warning',
+            confirmButtonColor: '#8b5cf6'
+        });
+    }
+}
 
-            Toast.fire({
-                icon: 'info',
-                title: `Calling ${queueNumber} again`
-            });
-        } else {
-            Swal.fire({
-                title: 'Not Supported',
-                text: 'Your browser does not support speech synthesis.',
-                icon: 'warning',
-                confirmButtonColor: '#8b5cf6'
-            });
-        }
+// Handle Serve Button Click - Also update the initial serving announcement
+function handleServeClick(e) {
+    const button = e.currentTarget;
+
+    if (isCurrentlyServing) {
+        Swal.fire({
+            title: 'Cannot Serve',
+            text: 'You are currently serving another appointment. Please complete or cancel it first.',
+            icon: 'warning',
+            confirmButtonColor: '#2563eb'
+        });
+        return;
     }
 
-    // Handle Volume/Speaker Button Click
-    function handleVolumeClick(e) {
-        const button = e.currentTarget;
-        const queueNumber = button.getAttribute('data-queue');
-        const clientName = button.getAttribute('data-name');
-        
-        callAgain(queueNumber, clientName, windowNum);
-    }
+    const n_id = button.getAttribute('data-id');
+    const name = button.getAttribute('data-name');
+    const queueNumber = button.getAttribute('data-queue');
+    const originalStatus = button.getAttribute('data-status');
+    const row = button.closest('tr');
+
+    Swal.fire({
+        title: originalStatus === 'no_show' ? 'Serve No-Show Appointment?' : 'Start Serving?',
+        html: `Call <strong>${name}</strong> (${queueNumber}) to window <strong>#${windowNum}</strong>?`,
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonColor: '#2563eb',
+        cancelButtonColor: '#dc2626',
+        confirmButtonText: 'Yes, Start Serving'
+    }).then((result) => {
+        if (!result.isConfirmed) return;
+
+        button.disabled = true;
+        const originalHtml = button.innerHTML;
+        button.innerHTML = '<span class="spinner"></span> Processing...';
+
+        fetch('{{ route('operator.update-window') }}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': csrfToken,
+                    'Accept': 'application/json'
+                },
+                body: JSON.stringify({
+                    n_id: n_id,
+                    window_num: windowNum,
+                    status: 'serving'
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Make the initial announcement with queue number and name
+                    if ('speechSynthesis' in window) {
+                        const formattedName = name.trim();
+                        const utterance1 = new SpeechSynthesisUtterance(`Window ${windowNum}, now serving ${queueNumber}, ${formattedName}`);
+                        utterance1.rate = 0.9;
+                        utterance1.pitch = 1;
+                        utterance1.volume = 1;
+                        window.speechSynthesis.speak(utterance1);
+
+                        setTimeout(() => {
+                            const utterance2 = new SpeechSynthesisUtterance(`Please proceed to window ${windowNum}, ${queueNumber}, ${formattedName}`);
+                            utterance2.rate = 0.9;
+                            utterance2.pitch = 1;
+                            utterance2.volume = 1;
+                            window.speechSynthesis.speak(utterance2);
+                        }, 2000);
+                    }
+                    
+                    updateRowForServing(row, n_id, name);
+                    isCurrentlyServing = true;
+
+                    document.querySelectorAll('.serve-btn').forEach(btn => {
+                        if (btn !== button) {
+                            btn.disabled = true;
+                            btn.title = 'Cannot serve while another appointment is being served';
+                        }
+                    });
+
+                    const Toast = Swal.mixin({
+                        toast: true,
+                        position: 'top-end',
+                        showConfirmButton: false,
+                        timer: 3000,
+                        timerProgressBar: true
+                    });
+
+                    Toast.fire({
+                        icon: 'success',
+                        title: `Now serving ${queueNumber} - ${name}`
+                    });
+
+                    updatePendingCount();
+                    fetchDashboardData();
+                } else {
+                    showMessage('Failed to update.', 'error');
+                    button.disabled = false;
+                    button.innerHTML = originalHtml;
+                    checkServingStatus();
+                }
+            })
+            .catch(err => {
+                console.error('Error:', err);
+                showMessage('Error connecting to server.', 'error');
+                button.disabled = false;
+                button.innerHTML = originalHtml;
+                checkServingStatus();
+            });
+    });
+}
+
+// Handle Volume/Speaker Button Click
+function handleVolumeClick(e) {
+    const button = e.currentTarget;
+    const queueNumber = button.getAttribute('data-queue');
+    const clientName = button.getAttribute('data-name');
+    
+    callAgain(queueNumber, clientName, windowNum);
+}
 
     // Check if there's any serving appointment
     function checkServingStatus() {
@@ -459,98 +573,7 @@
         });
     }
 
-    // Handle Serve Button Click
-    function handleServeClick(e) {
-        const button = e.currentTarget;
 
-        if (isCurrentlyServing) {
-            Swal.fire({
-                title: 'Cannot Serve',
-                text: 'You are currently serving another appointment. Please complete or cancel it first.',
-                icon: 'warning',
-                confirmButtonColor: '#2563eb'
-            });
-            return;
-        }
-
-        const n_id = button.getAttribute('data-id');
-        const name = button.getAttribute('data-name');
-        const originalStatus = button.getAttribute('data-status');
-        const row = button.closest('tr');
-
-        Swal.fire({
-            title: originalStatus === 'no_show' ? 'Serve No-Show Appointment?' : 'Start Serving?',
-            html: `Call <strong>${name}</strong> to window <strong>#${windowNum}</strong>?`,
-            icon: 'question',
-            showCancelButton: true,
-            confirmButtonColor: '#2563eb',
-            cancelButtonColor: '#dc2626',
-            confirmButtonText: 'Yes, Start Serving'
-        }).then((result) => {
-            if (!result.isConfirmed) return;
-
-            button.disabled = true;
-            const originalHtml = button.innerHTML;
-            button.innerHTML = '<span class="spinner"></span> Processing...';
-
-            fetch('{{ route('operator.update-window') }}', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': csrfToken,
-                        'Accept': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        n_id: n_id,
-                        window_num: windowNum,
-                        status: 'serving'
-                    })
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        updateRowForServing(row, n_id, name);
-                        isCurrentlyServing = true;
-
-                        document.querySelectorAll('.serve-btn').forEach(btn => {
-                            if (btn !== button) {
-                                btn.disabled = true;
-                                btn.title =
-                                'Cannot serve while another appointment is being served';
-                            }
-                        });
-
-                        const Toast = Swal.mixin({
-                            toast: true,
-                            position: 'top-end',
-                            showConfirmButton: false,
-                            timer: 3000,
-                            timerProgressBar: true
-                        });
-
-                        Toast.fire({
-                            icon: 'success',
-                            title: `Now serving ${name}`
-                        });
-
-                        updatePendingCount();
-                        fetchDashboardData();
-                    } else {
-                        showMessage('Failed to update.', 'error');
-                        button.disabled = false;
-                        button.innerHTML = originalHtml;
-                        checkServingStatus();
-                    }
-                })
-                .catch(err => {
-                    console.error('Error:', err);
-                    showMessage('Error connecting to server.', 'error');
-                    button.disabled = false;
-                    button.innerHTML = originalHtml;
-                    checkServingStatus();
-                });
-        });
-    }
 
     // Handle Complete Button Click
     function handleCompleteClick(e) {
