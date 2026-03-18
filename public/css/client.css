@@ -271,7 +271,7 @@ body {
 
 /* Show only 3 rows */
 .queue-list > *:nth-child(n+19) {
-    display: none;
+    display: none; /* Hides items beyond 3 rows (2 columns × 3 rows = 6 items) */
 }
 
 .queue-item {
