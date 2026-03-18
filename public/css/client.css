@@ -418,7 +418,7 @@ body {
 }
 
 .queue-number {
-    font-size: 4rem;
+    font-size: 6rem;
     font-weight: 800;
     color: var(--psa-red);
     line-height: 1;
@@ -530,7 +530,7 @@ body {
 /* Responsive adjustments */
 @media (max-width: 1600px) {
     .window-number { font-size: 1.8rem; }
-    .queue-number { font-size: 2.2rem; }
+    .queue-number { font-size: 4.2rem; }
     .client-name { font-size: 0.9rem; }
     .queue-item-number { font-size: 1rem; }
     .queue-header h2 { font-size: 0.8rem; }
@@ -538,14 +538,14 @@ body {
 
 @media (max-width: 1400px) {
     .window-number { font-size: 1.6rem; }
-    .queue-number { font-size: 2rem; }
+    .queue-number { font-size: 4rem; }
     .client-name { font-size: 0.8rem; }
     .queue-header h2 { font-size: 0.7rem; }
 }
 
 @media (max-width: 1200px) {
     .window-number { font-size: 1.4rem; }
-    .queue-number { font-size: 1.8rem; }
+    .queue-number { font-size: 3.8rem; }
     .client-name { font-size: 0.7rem; }
     .queue-header h2 { font-size: 0.65rem; }
 }
