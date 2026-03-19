@@ -14,6 +14,7 @@ use Illuminate\Http\Response;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Exports\OperatorAppointmentsExport;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Cache;
 use Symfony\Component\HttpFoundation\ResponseHeaderBag;
 
 class OperatorController extends Controller
@@ -704,4 +705,44 @@ public function fetchAppointments()
         ], 500);
     }
 }
+
+/**
+ * Trigger announcement on client display
+ */
+public function triggerAnnouncement(Request $request)
+{
+    try {
+        $request->validate([
+            'window_num' => 'required|string',
+            'queue_number' => 'required|string',
+            'client_name' => 'nullable|string'
+        ]);
+
+        // Store announcement in cache for 10 seconds
+        $announcement = [
+            'window' => $request->window_num,
+            'queue' => $request->queue_number,
+            'name' => $request->client_name,
+            'timestamp' => now()->timestamp
+        ];
+        
+        Cache::put('last_announcement', $announcement, 10);
+        
+        // Also store in session as backup
+        session(['last_announcement' => $announcement]);
+        
+        return response()->json([
+            'success' => true,
+            'message' => 'Announcement triggered'
+        ]);
+        
+    } catch (\Exception $e) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Error: ' . $e->getMessage()
+        ], 500);
+    }
+}
+
+
 }

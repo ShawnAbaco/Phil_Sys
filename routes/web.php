@@ -142,6 +142,16 @@ Route::get('/client-dashboard', [ClientController::class, 'dashboard'])
 Route::get('/client/queues', [ClientController::class, 'getQueues'])
      ->name('client.queues');
 
+
+     // Operator trigger announcement
+Route::post('/operator/trigger-announcement', [OperatorController::class, 'triggerAnnouncement'])
+    ->name('operator.trigger-announcement');
+
+// Client check announcement
+Route::get('/client/check-announcement', [ClientController::class, 'checkAnnouncement'])
+    ->name('client.check-announcement');
+
+    
 // Guest routes (for non-authenticated users only)
 Route::middleware(['guest'])->group(function () {
     Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login');

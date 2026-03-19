@@ -380,55 +380,9 @@
         activeService = savedService;
     }
 
-    // ========== SPEECH SYNTHESIS FUNCTION ==========
-function callAgain(queueNumber, clientName, windowNum) {
-    if (!queueNumber || queueNumber === '-') return;
-    
-    // Format the name properly (remove any extra spaces)
-    const formattedName = clientName.trim();
-    
-    // Use the same speech synthesis as the client display
-    if ('speechSynthesis' in window) {
-        // First announcement - Queue number and name together
-        const utterance1 = new SpeechSynthesisUtterance(`Window ${windowNum}, now serving ${queueNumber}, ${formattedName}`);
-        utterance1.rate = 0.9;
-        utterance1.pitch = 1;
-        utterance1.volume = 1;
-        window.speechSynthesis.speak(utterance1);
+  
 
-        // Second announcement - Repeat with "Please proceed"
-        setTimeout(() => {
-            const utterance2 = new SpeechSynthesisUtterance(`Please proceed to window ${windowNum}, ${queueNumber}, ${formattedName}`);
-            utterance2.rate = 0.9;
-            utterance2.pitch = 1;
-            utterance2.volume = 1;
-            window.speechSynthesis.speak(utterance2);
-        }, 2000); // Slightly longer delay for longer announcement
-        
-        // Show toast notification with queue number and name
-        const Toast = Swal.mixin({
-            toast: true,
-            position: 'top-end',
-            showConfirmButton: false,
-            timer: 3000,
-            timerProgressBar: true
-        });
-
-        Toast.fire({
-            icon: 'info',
-            title: `Calling ${queueNumber} - ${formattedName} again`
-        });
-    } else {
-        Swal.fire({
-            title: 'Not Supported',
-            text: 'Your browser does not support speech synthesis.',
-            icon: 'warning',
-            confirmButtonColor: '#8b5cf6'
-        });
-    }
-}
-
-// Handle Serve Button Click - Also update the initial serving announcement
+// Handle Serve Button Click - Trigger announcement on client display
 function handleServeClick(e) {
     const button = e.currentTarget;
 
@@ -479,23 +433,27 @@ function handleServeClick(e) {
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
-                    // Make the initial announcement with queue number and name
-                    if ('speechSynthesis' in window) {
-                        const formattedName = name.trim();
-                        const utterance1 = new SpeechSynthesisUtterance(`Window ${windowNum}, now serving ${queueNumber}, ${formattedName}`);
-                        utterance1.rate = 0.9;
-                        utterance1.pitch = 1;
-                        utterance1.volume = 1;
-                        window.speechSynthesis.speak(utterance1);
-
-                        setTimeout(() => {
-                            const utterance2 = new SpeechSynthesisUtterance(`Please proceed to window ${windowNum}, ${queueNumber}, ${formattedName}`);
-                            utterance2.rate = 0.9;
-                            utterance2.pitch = 1;
-                            utterance2.volume = 1;
-                            window.speechSynthesis.speak(utterance2);
-                        }, 2000);
-                    }
+                    // Trigger announcement on client display
+                    fetch('{{ route('operator.trigger-announcement') }}', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': csrfToken,
+                            'Accept': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            window_num: windowNum,
+                            queue_number: queueNumber,
+                            client_name: name
+                        })
+                    })
+                    .then(response => response.json())
+                    .then(announceData => {
+                        if (!announceData.success) {
+                            console.error('Failed to trigger announcement');
+                        }
+                    })
+                    .catch(err => console.error('Error triggering announcement:', err));
                     
                     updateRowForServing(row, n_id, name);
                     isCurrentlyServing = true;
@@ -539,13 +497,61 @@ function handleServeClick(e) {
     });
 }
 
-// Handle Volume/Speaker Button Click
+// Handle Volume/Speaker Button Click - Trigger announcement on client display
 function handleVolumeClick(e) {
     const button = e.currentTarget;
     const queueNumber = button.getAttribute('data-queue');
     const clientName = button.getAttribute('data-name');
+    const windowNum = String({{ Js::from(session('window_num') ?? ($windowNum ?? '1')) }});
     
-    callAgain(queueNumber, clientName, windowNum);
+    // Show loading state on button
+    const originalHtml = button.innerHTML;
+    button.disabled = true;
+    button.innerHTML = '<span class="spinner"></span>';
+    
+    // Call the server to trigger announcement on client display
+    fetch('{{ route('operator.trigger-announcement') }}', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': csrfToken,
+            'Accept': 'application/json'
+        },
+        body: JSON.stringify({
+            window_num: windowNum,
+            queue_number: queueNumber,
+            client_name: clientName
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Show success toast
+            const Toast = Swal.mixin({
+                toast: true,
+                position: 'top-end',
+                showConfirmButton: false,
+                timer: 2000,
+                timerProgressBar: true
+            });
+
+            Toast.fire({
+                icon: 'success',
+                title: `Announcement triggered for ${queueNumber}`
+            });
+        } else {
+            showMessage('Failed to trigger announcement', 'error');
+        }
+    })
+    .catch(err => {
+        console.error('Error:', err);
+        showMessage('Error connecting to server', 'error');
+    })
+    .finally(() => {
+        // Restore button
+        button.disabled = false;
+        button.innerHTML = originalHtml;
+    });
 }
 
     // Check if there's any serving appointment
