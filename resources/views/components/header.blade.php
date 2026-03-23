@@ -25,6 +25,7 @@
     <link rel="stylesheet" href="{{ asset('css/profile.css') }}">
     <!-- Dark Mode CSS - loaded separately -->
     <link rel="stylesheet" href="{{ asset('css/dark-mode.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/mobile-responsive.css') }}">
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
     <!-- Dark Mode Script -->

@@ -186,9 +186,7 @@
                         </ul>
                     </div>
                 </div>
-<!-- <button onclick="testSpeech()" style="position: fixed; bottom: 10px; right: 10px; z-index: 9999; padding: 10px; background: blue; color: white;">
-    Test Speech
-</button> -->
+
                 <!-- Video Section with Blur Background -->
                 <div class="video-section">
                     <!-- Background Blur Video -->
@@ -225,52 +223,59 @@
             ];
 
             let currentVideoIndex = 0;
+            let isLooping = true; // Set to true for continuous looping
             const videoPlayer = document.getElementById('tutorialVideo');
             const backgroundVideo = document.getElementById('backgroundVideo');
-            // const progressBar = document.getElementById('videoProgress');
 
-            // Function to change video
-            // Function to change video
-function changeVideo() {
-    currentVideoIndex = (currentVideoIndex + 1) % videos.length;
-    const newVideoSrc = videos[currentVideoIndex];
+            // Function to play next video or loop to beginning
+            function playNextVideo() {
+                if (isLooping) {
+                    // Move to next video or loop back to first
+                    currentVideoIndex = (currentVideoIndex + 1) % videos.length;
+                    const newVideoSrc = videos[currentVideoIndex];
 
-    // Update both foreground and background videos
-    videoPlayer.src = newVideoSrc;
-    backgroundVideo.src = newVideoSrc;
+                    // Update both foreground and background videos
+                    videoPlayer.src = newVideoSrc;
+                    backgroundVideo.src = newVideoSrc;
 
-    videoPlayer.load();
-    backgroundVideo.load();
+                    // Load and play the new video
+                    videoPlayer.load();
+                    backgroundVideo.load();
 
-    // Use Promise to handle autoplay
-    const playPromise = videoPlayer.play();
-    const bgPlayPromise = backgroundVideo.play();
-    
-    if (playPromise !== undefined) {
-        playPromise.catch(error => {
-            console.log('Video autoplay prevented. User interaction needed.');
-            // Add a play button or handle user interaction
-        });
-    }
-    
-    if (bgPlayPromise !== undefined) {
-        bgPlayPromise.catch(error => {
-            console.log('Background video autoplay prevented.');
-        });
-    }
-}
+                    // Attempt to play both videos
+                    const playPromise = videoPlayer.play();
+                    const bgPlayPromise = backgroundVideo.play();
 
-            // Update progress bar
-            // function updateProgress() {
-            //     if (videoPlayer.duration) {
-            //         const progress = (videoPlayer.currentTime / videoPlayer.duration) * 100;
-            //         progressBar.style.width = progress + '%';
-            //     }
-            // }
+                    if (playPromise !== undefined) {
+                        playPromise.catch(error => {
+                            console.log('Video autoplay prevented. User interaction needed.');
+                            // Add a play button or handle user interaction
+                        });
+                    }
+
+                    if (bgPlayPromise !== undefined) {
+                        bgPlayPromise.catch(error => {
+                            console.log('Background video autoplay prevented.');
+                        });
+                    }
+                } else {
+                    // If not looping, just replay the current video
+                    videoPlayer.currentTime = 0;
+                    backgroundVideo.currentTime = 0;
+                    videoPlayer.play().catch(e => console.log('Playback prevented:', e));
+                    backgroundVideo.play().catch(e => console.log('Background playback prevented:', e));
+                }
+            }
+
+            // Alternative: Use the 'ended' event for continuous looping
+            videoPlayer.addEventListener('ended', function() {
+                console.log('Video ended, playing next in playlist...');
+                playNextVideo();
+            });
 
             // Sync background video with foreground
             videoPlayer.addEventListener('play', function() {
-                backgroundVideo.play();
+                backgroundVideo.play().catch(e => console.log('Background play error:', e));
             });
 
             videoPlayer.addEventListener('pause', function() {
@@ -281,16 +286,38 @@ function changeVideo() {
                 backgroundVideo.currentTime = videoPlayer.currentTime;
             });
 
-            // Event listeners for video
-            videoPlayer.addEventListener('ended', changeVideo);
-            // videoPlayer.addEventListener('timeupdate', updateProgress);
-
             // Handle video errors
             videoPlayer.addEventListener('error', function(e) {
                 console.error('Video error:', e);
                 // Skip to next video on error
-                changeVideo();
+                playNextVideo();
             });
+
+            // Ensure videos start playing and continue looping
+            function initializeVideoPlayback() {
+                // Set both videos to loop individually as backup
+                videoPlayer.loop = false; // We'll handle looping manually
+                backgroundVideo.loop = true; // Background can loop independently
+
+                // Start playing
+                const playPromise = videoPlayer.play();
+                if (playPromise !== undefined) {
+                    playPromise.then(() => {
+                        console.log('Video playback started successfully');
+                        backgroundVideo.play().catch(e => console.log('Background play error:', e));
+                    }).catch(error => {
+                        console.log('Autoplay prevented. Waiting for user interaction...');
+                        // Add click handler to start videos
+                        document.body.addEventListener('click', function startVideos() {
+                            videoPlayer.play();
+                            backgroundVideo.play();
+                            document.body.removeEventListener('click', startVideos);
+                        }, {
+                            once: true
+                        });
+                    });
+                }
+            }
 
             // Update date and time
             function updateDateTime() {
@@ -317,75 +344,57 @@ function changeVideo() {
             setInterval(updateDateTime, 1000);
 
             // Speech synthesis
-// Speech synthesis
-function speakMessage(text) {
-    console.log('Attempting to speak:', text);
-    
-    if (!('speechSynthesis' in window)) {
-        console.error('Speech synthesis not supported');
-        return;
-    }
-    
-    // Cancel any ongoing speech
-    window.speechSynthesis.cancel();
-    
-    // First announcement
-    const utterance1 = new SpeechSynthesisUtterance(text);
-    utterance1.rate = 0.9;
-    utterance1.pitch = 1;
-    utterance1.volume = 1;
-    utterance1.lang = 'en-US';
-    
-    utterance1.onstart = function() {
-        console.log('First announcement started');
-    };
-    
-    utterance1.onerror = function(event) {
-        console.error('Speech error:', event.error);
-    };
-    
-    window.speechSynthesis.speak(utterance1);
+            function speakMessage(text) {
+                console.log('Attempting to speak:', text);
 
-    // Second announcement with "Please proceed to" prefix
-    setTimeout(() => {
-        // Extract window and queue number from the text
-        const matches = text.match(/Window (\d+), now serving (.+)/);
-        if (matches) {
-            const windowNum = matches[1];
-            const queueInfo = matches[2];
-            const secondText = `Please proceed to window ${windowNum}, ${queueInfo}`;
+                if (!('speechSynthesis' in window)) {
+                    console.error('Speech synthesis not supported');
+                    return;
+                }
 
-            const utterance2 = new SpeechSynthesisUtterance(secondText);
-            utterance2.rate = 0.9;
-            utterance2.pitch = 1;
-            utterance2.volume = 1;
-            utterance2.lang = 'en-US';
-            
-            utterance2.onstart = function() {
-                console.log('Second announcement started');
-            };
-            
-            window.speechSynthesis.speak(utterance2);
-        }
-    }, 2000);
-}
+                // Cancel any ongoing speech
+                window.speechSynthesis.cancel();
 
+                // First announcement
+                const utterance1 = new SpeechSynthesisUtterance(text);
+                utterance1.rate = 0.9;
+                utterance1.pitch = 1;
+                utterance1.volume = 1;
+                utterance1.lang = 'en-US';
 
-// Test speech function - add this temporarily
-function testSpeech() {
-    if ('speechSynthesis' in window) {
-        const testUtterance = new SpeechSynthesisUtterance("This is a test announcement");
-        window.speechSynthesis.speak(testUtterance);
-        console.log('Speech test triggered');
-    } else {
-        console.log('Speech synthesis not supported');
-    }
-}
+                utterance1.onstart = function() {
+                    console.log('First announcement started');
+                };
 
-// Call it on page load to test
-window.addEventListener('load', function() {
-    setTimeout(testSpeech, 2000);
-});
+                utterance1.onerror = function(event) {
+                    console.error('Speech error:', event.error);
+                };
+
+                window.speechSynthesis.speak(utterance1);
+
+                // Second announcement with "Please proceed to" prefix
+                setTimeout(() => {
+                    // Extract window and queue number from the text
+                    const matches = text.match(/Window (\d+), now serving (.+)/);
+                    if (matches) {
+                        const windowNum = matches[1];
+                        const queueInfo = matches[2];
+                        const secondText = `Please proceed to window ${windowNum}, ${queueInfo}`;
+
+                        const utterance2 = new SpeechSynthesisUtterance(secondText);
+                        utterance2.rate = 0.9;
+                        utterance2.pitch = 1;
+                        utterance2.volume = 1;
+                        utterance2.lang = 'en-US';
+
+                        utterance2.onstart = function() {
+                            console.log('Second announcement started');
+                        };
+
+                        window.speechSynthesis.speak(utterance2);
+                    }
+                }, 2000);
+            }
 
             let lastCalledQueues = JSON.parse(localStorage.getItem('lastCalledQueues') || '{}');
             for (let i = 1; i <= 6; i++) {
@@ -398,97 +407,92 @@ window.addEventListener('load', function() {
             }
 
             // Also update the announcement when a new call is detected
-function updateQueues() {
-    fetch('{{ route('client.queues') }}')
-        .then(response => response.json())
-        .then(data => {
-            const calledQueues = data.calledQueues;
-            const nextQueues = data.nextQueues;
+            function updateQueues() {
+                fetch('{{ route('client.queues') }}')
+                    .then(response => response.json())
+                    .then(data => {
+                        const calledQueues = data.calledQueues;
+                        const nextQueues = data.nextQueues;
 
-            // Update windows
-            for (let w = 1; w <= 6; w++) {
-                const windowCard = document.getElementById(`window-${w}`);
-                if (windowCard && calledQueues[w]) {
-                    const queueNum = windowCard.querySelector('.queue-number');
-                    const clientNameDiv = windowCard.querySelector('.client-name');
+                        // Update windows
+                        for (let w = 1; w <= 6; w++) {
+                            const windowCard = document.getElementById(`window-${w}`);
+                            if (windowCard && calledQueues[w]) {
+                                const queueNum = windowCard.querySelector('.queue-number');
+                                const clientNameDiv = windowCard.querySelector('.client-name');
 
-                    if (queueNum) queueNum.textContent = calledQueues[w].q_id || '-';
+                                if (queueNum) queueNum.textContent = calledQueues[w].q_id || '-';
 
-                    // Update priority text
-                    if (clientNameDiv) {
-                        clientNameDiv.textContent = calledQueues[w].priority_type || '';
-                    }
+                                // Update priority text
+                                if (clientNameDiv) {
+                                    clientNameDiv.textContent = calledQueues[w].priority_type || '';
+                                }
 
-                    // Add serving indicator class
-                    if (calledQueues[w].q_id !== '-') {
-                        windowCard.classList.add('active-serving');
-                    } else {
-                        windowCard.classList.remove('active-serving');
-                    }
+                                // Add serving indicator class
+                                if (calledQueues[w].q_id !== '-') {
+                                    windowCard.classList.add('active-serving');
+                                } else {
+                                    windowCard.classList.remove('active-serving');
+                                }
 
-                    // Check if this is a new call
-                    // Check if this is a new call
-if (lastCalledQueues[w] && lastCalledQueues[w].q_id !== calledQueues[w].q_id &&
-    calledQueues[w].q_id !== '-') {
-    windowCard.classList.add('new-call');
-    setTimeout(() => windowCard.classList.remove('new-call'), 3000);
+                                // Check if this is a new call
+                                if (lastCalledQueues[w] && lastCalledQueues[w].q_id !== calledQueues[w].q_id &&
+                                    calledQueues[w].q_id !== '-') {
+                                    windowCard.classList.add('new-call');
+                                    setTimeout(() => windowCard.classList.remove('new-call'), 3000);
 
-    console.log(`New call detected: Window ${w}, Queue ${calledQueues[w].q_id}`);
-    
-    // Announce the new call
-    speakMessage(`Window ${w}, now serving ${calledQueues[w].q_id}`);
-}
-                }
+                                    console.log(`New call detected: Window ${w}, Queue ${calledQueues[w].q_id}`);
+
+                                    // Announce the new call
+                                    speakMessage(`Window ${w}, now serving ${calledQueues[w].q_id}`);
+                                }
+                            }
+                        }
+
+                        // Update queue lists
+                        updateQueueList('status-queue', nextQueues.statusInquiry || []);
+                        updateQueueList('registration-queue', nextQueues.registration || []);
+                        updateQueueList('updating-queue', nextQueues.updating || []);
+
+                        localStorage.setItem('lastCalledQueues', JSON.stringify(calledQueues));
+                        lastCalledQueues = calledQueues;
+                    })
+                    .catch(err => console.error('Error:', err));
             }
 
-            // Update queue lists
-            updateQueueList('status-queue', nextQueues.statusInquiry || []);
-            updateQueueList('registration-queue', nextQueues.registration || []);
-            updateQueueList('updating-queue', nextQueues.updating || []);
+            // Check for triggered announcements from operator
+            function checkForAnnouncements() {
+                fetch('{{ route('client.check-announcement') }}')
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error('Network response was not ok');
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        console.log('Announcement check response:', data);
+                        if (data.announcement) {
+                            const ann = data.announcement;
+                            console.log('Received announcement:', ann);
 
-            localStorage.setItem('lastCalledQueues', JSON.stringify(calledQueues));
-            lastCalledQueues = calledQueues;
-        })
-        .catch(err => console.error('Error:', err));
-}
+                            // Format the message with queue number and name
+                            let message;
+                            if (ann.name && ann.name !== 'undefined' && ann.name.trim() !== '') {
+                                // If name is available, use it
+                                message = `Window ${ann.window}, now serving ${ann.queue}, ${ann.name}`;
+                            } else {
+                                // Fallback to queue number only
+                                message = `Window ${ann.window}, now serving ${ann.queue}`;
+                            }
 
-// Check for triggered announcements from operator
-function checkForAnnouncements() {
-    fetch('{{ route('client.check-announcement') }}')
-        .then(response => {
-            if (!response.ok) {
-                throw new Error('Network response was not ok');
+                            console.log('Speaking message:', message);
+
+                            // Trigger the speech
+                            speakMessage(message);
+                        }
+                    })
+                    .catch(err => console.error('Error checking announcements:', err));
             }
-            return response.json();
-        })
-        .then(data => {
-            console.log('Announcement check response:', data);
-            if (data.announcement) {
-                const ann = data.announcement;
-                console.log('Received announcement:', ann);
-                
-                // Format the message with queue number and name
-                let message;
-                if (ann.name && ann.name !== 'undefined' && ann.name.trim() !== '') {
-                    // If name is available, use it
-                    message = `Window ${ann.window}, now serving ${ann.queue}, ${ann.name}`;
-                } else {
-                    // Fallback to queue number only
-                    message = `Window ${ann.window}, now serving ${ann.queue}`;
-                }
-                
-                console.log('Speaking message:', message);
-                
-                // Trigger the speech
-                speakMessage(message);
-            }
-        })
-        .catch(err => console.error('Error checking announcements:', err));
-}
-
-// Add this to your existing setInterval calls
-setInterval(checkForAnnouncements, 2000);
-
 
             function updateQueueList(elementId, queueArray) {
                 const ul = document.getElementById(elementId);
@@ -531,9 +535,12 @@ setInterval(checkForAnnouncements, 2000);
                 });
             }
 
+            // Initialize everything
             updateDateTime();
             updateQueues();
+            initializeVideoPlayback();
             setInterval(updateQueues, 5000);
+            setInterval(checkForAnnouncements, 2000);
         </script>
 </body>
 

@@ -50,6 +50,7 @@ body {
     top: 0;
     z-index: 50;
     border-bottom: 3px solid var(--psa-yellow);
+    width: 100%;
 }
 
 .header-content {
@@ -60,6 +61,8 @@ body {
     display: flex;
     align-items: center;
     justify-content: space-between;
+    gap: 20px;
+    width: 100%;
 }
 
 /* Logo Section */
@@ -67,16 +70,19 @@ body {
     display: flex;
     align-items: center;
     gap: 15px;
+    flex: 0 1 auto;
 }
 
 .header-logo {
     height: 50px;
     width: auto;
+    flex-shrink: 0;
 }
 
 .logo-text {
     display: flex;
     flex-direction: column;
+    white-space: nowrap;
 }
 
 .logo-text h1 {
@@ -84,12 +90,14 @@ body {
     font-weight: 700;
     color: var(--psa-blue);
     line-height: 1.2;
+    white-space: nowrap;
 }
 
 .logo-text .badge {
     font-size: 0.8rem;
     color: var(--psa-red);
     font-weight: 600;
+    white-space: nowrap;
 }
 
 /* User Section */
@@ -97,12 +105,14 @@ body {
     display: flex;
     align-items: center;
     gap: 25px;
+    flex: 0 1 auto;
 }
 
 /* User Menu Container */
 .user-menu-container {
     position: relative;
     display: inline-block;
+    flex-shrink: 0;
 }
 
 .user-info {
@@ -112,30 +122,35 @@ body {
     padding: 8px 20px;
     cursor: pointer;
     transition: all 0.2s var(--transition-smooth);
+    white-space: nowrap;
 }
 
 .user-designation {
     font-size: 0.8rem;
     color: var(--psa-red);
     font-weight: 600;
+    white-space: nowrap;
 }
 
 .user-details {
     display: flex;
     flex-direction: column;
-    align-items: center;
+    align-items: flex-start;
+    white-space: nowrap;
 }
 
 .user-name {
     font-weight: 700;
     color: var(--psa-blue);
     font-size: 0.95rem;
+    white-space: nowrap;
 }
 
 .user-role {
     font-size: 0.8rem;
     color: var(--psa-red);
     font-weight: 600;
+    white-space: nowrap;
 }
 
 .user-avatar {
@@ -150,12 +165,16 @@ body {
     font-weight: 700;
     color: white;
     border: 2px solid var(--psa-yellow);
+    flex-shrink: 0;
 }
 
 .dropdown-arrow {
     margin-left: 4px;
     transition: transform 0.2s var(--transition-smooth);
     color: var(--psa-blue);
+    flex-shrink: 0;
+    width: 16px;
+    height: 16px;
 }
 
 .dropdown-arrow.rotated {
@@ -218,6 +237,7 @@ body {
     text-align: left;
     font-size: 0.95rem;
     font-weight: 500;
+    white-space: nowrap;
 }
 
 .dropdown-item:hover {
@@ -237,6 +257,7 @@ body {
 .dropdown-icon {
     width: 18px;
     height: 18px;
+    flex-shrink: 0;
 }
 
 /* Overlay for clicking outside */
@@ -250,7 +271,6 @@ body {
     display: none;
 }
 
-
 .window-badge {
     display: flex;
     align-items: center;
@@ -263,12 +283,15 @@ body {
     font-size: 0.95rem;
     box-shadow: 0 4px 10px rgba(206, 17, 38, 0.2);
     border: 1px solid var(--psa-yellow);
+    white-space: nowrap;
+    flex-shrink: 0;
 }
 
 .window-icon {
     width: 18px;
     height: 18px;
     color: var(--psa-yellow);
+    flex-shrink: 0;
 }
 
 .datetime-display {
@@ -281,76 +304,14 @@ body {
     color: var(--gray-700);
     font-size: 0.9rem;
     font-weight: 500;
+    white-space: nowrap;
+    flex-shrink: 0;
 }
 
 .datetime-display svg {
     width: 18px;
     height: 18px;
     color: var(--psa-blue);
+    flex-shrink: 0;
 }
 
-/* Responsive */
-@media (max-width: 1200px) {
-    .user-section {
-        gap: 15px;
-    }
-
-    .datetime-display {
-        display: none;
-    }
-}
-
-@media (max-width: 768px) {
-    .header-content {
-        flex-direction: column;
-        height: auto;
-        padding: 15px;
-        gap: 15px;
-    }
-
-    .logo-section {
-        width: 100%;
-        justify-content: center;
-    }
-
-    .user-section {
-        width: 100%;
-        flex-wrap: wrap;
-        justify-content: center;
-    }
-
-    .dropdown-menu {
-        position: fixed;
-        top: auto;
-        bottom: 0;
-        left: 0;
-        right: 0;
-        width: 100%;
-        max-width: 100%;
-        border-radius: 20px 20px 0 0;
-        transform: translateY(100%);
-    }
-
-    .dropdown-menu.show {
-        transform: translateY(0);
-    }
-}
-
-/* Animations */
-@keyframes slideInDown {
-    from {
-        opacity: 0;
-        transform: translateY(-20px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-/* Print Styles */
-@media print {
-    .main-header {
-        display: none;
-    }
-}
