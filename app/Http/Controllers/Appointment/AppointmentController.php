@@ -173,10 +173,10 @@ class AppointmentController extends Controller
     // Add conditional validation rules based on category
     if ($category === 'NID Registration') {
         $rules = array_merge($rules, [
-            'fname_nid' => 'required|string|max:99|regex:/^[A-Za-z\s\-]+$/',
-            'mname_nid' => 'nullable|string|max:99|regex:/^[A-Za-z\s\-]*$/',
-            'lname_nid' => 'required|string|max:99|regex:/^[A-Za-z\s\-]+$/',
-            'suffix_nid' => 'nullable|string|max:3|regex:/^[A-Za-z\s\-]*$/',
+            'fname_nid' => 'required|string|max:99|regex:/^[A-Za-zÑñ\s\-]+$/',
+            'mname_nid' => 'nullable|string|max:99|regex:/^[A-Za-zÑñ\s\-]*$/',
+            'lname_nid' => 'required|string|max:99|regex:/^[A-Za-zÑñ\s\-]+$/',
+            'suffix_nid' => 'nullable|string|max:3|regex:/^[A-Za-zÑñ\s\-\.]*$/',
             'age_category_nid' => 'required|string|max:99',
             'birthdate_nid' => 'required|date',
             'priority_type_nid' => 'required|string|in:regular,senior,infant,pwd,pregnant',

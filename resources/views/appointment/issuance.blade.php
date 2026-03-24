@@ -64,7 +64,7 @@
                     </div>
                 </div>
 
-                <form method="POST" action="{{ route('appointment.issue') }}" id="appointmentForm">
+                <form method="POST" action="{{ route('appointment.issue') }}" id="appointmentForm" accept-charset="UTF-8">
                     @csrf
 
                     {{-- Hidden input to store selected category --}}
@@ -156,12 +156,18 @@
                                 <label for="fname_nid">First Name <span style="color: #dc2626;">*</span></label>
                                 <input type="text" name="fname_nid" id="fname_nid"
                                     value="{{ old('fname_nid') }}" data-required="true"
-                                    class="@error('fname_nid') is-invalid @enderror" placeholder="Enter first name">
+                                    pattern="[A-Za-zÑñ\s\-']+" 
+                                    title="Only letters, spaces, hyphens, and apostrophes are allowed"
+                                    class="@error('fname_nid') is-invalid @enderror" 
+                                    placeholder="Enter first name">
                             </div>
                             <div class="form-group">
                                 <label for="mname_nid">Middle Name</label>
                                 <input type="text" name="mname_nid" id="mname_nid"
-                                    value="{{ old('mname_nid') }}" placeholder="Enter middle name">
+                                    value="{{ old('mname_nid') }}" 
+                                    pattern="[A-Za-zÑñ\s\-']*" 
+                                    title="Only letters, spaces, hyphens, and apostrophes are allowed"
+                                    placeholder="Enter middle name">
                             </div>
                         </div>
 
@@ -170,12 +176,18 @@
                                 <label for="lname_nid">Last Name <span style="color: #dc2626;">*</span></label>
                                 <input type="text" name="lname_nid" id="lname_nid"
                                     value="{{ old('lname_nid') }}" data-required="true"
-                                    class="@error('lname_nid') is-invalid @enderror" placeholder="Enter last name">
+                                    pattern="[A-Za-zÑñ\s\-']+" 
+                                    title="Only letters, spaces, hyphens, and apostrophes are allowed"
+                                    class="@error('lname_nid') is-invalid @enderror" 
+                                    placeholder="Enter last name">
                             </div>
                             <div class="form-group">
                                 <label for="suffix_nid">Suffix</label>
                                 <input type="text" name="suffix_nid" id="suffix_nid"
-                                    value="{{ old('suffix_nid') }}" placeholder="Jr., Sr., III">
+                                    value="{{ old('suffix_nid') }}" 
+                                    pattern="[A-Za-zÑñ\s\-'.]*" 
+                                    title="Only letters, spaces, hyphens, apostrophes, and periods are allowed"
+                                    placeholder="Jr., Sr., III">
                             </div>
                         </div>
 
@@ -227,7 +239,7 @@
                         </div>
                     </div>
 
-                    <!-- Status Inquiry Form -->
+                    <!-- Status Inquiry Form (UPDATED with pattern attributes) -->
                     <div id="statusForm" class="category-form"
                         style="display: {{ old('category', session('last_category')) == 'Status Inquiry' ? 'block' : 'none' }};">
                         <div style="border-left: 4px solid #2563eb; padding-left: 15px; margin-bottom: 20px;">
@@ -311,13 +323,18 @@
                                 <label for="fname_status">First Name <span style="color: #dc2626;">*</span></label>
                                 <input type="text" name="fname_status" id="fname_status"
                                     value="{{ old('fname_status') }}" data-required="true"
+                                    pattern="[A-Za-zÑñ\s\-']+" 
+                                    title="Only letters, spaces, hyphens, and apostrophes are allowed"
                                     class="@error('fname_status') is-invalid @enderror"
                                     placeholder="Enter first name">
                             </div>
                             <div class="form-group">
                                 <label for="mname_status">Middle Name</label>
                                 <input type="text" name="mname_status" id="mname_status"
-                                    value="{{ old('mname_status') }}" placeholder="Enter middle name">
+                                    value="{{ old('mname_status') }}" 
+                                    pattern="[A-Za-zÑñ\s\-']*" 
+                                    title="Only letters, spaces, hyphens, and apostrophes are allowed"
+                                    placeholder="Enter middle name">
                             </div>
                         </div>
 
@@ -326,12 +343,18 @@
                                 <label for="lname_status">Last Name <span style="color: #dc2626;">*</span></label>
                                 <input type="text" name="lname_status" id="lname_status"
                                     value="{{ old('lname_status') }}" data-required="true"
-                                    class="@error('lname_status') is-invalid @enderror" placeholder="Enter last name">
+                                    pattern="[A-Za-zÑñ\s\-']+" 
+                                    title="Only letters, spaces, hyphens, and apostrophes are allowed"
+                                    class="@error('lname_status') is-invalid @enderror" 
+                                    placeholder="Enter last name">
                             </div>
                             <div class="form-group">
                                 <label for="suffix_status">Suffix</label>
                                 <input type="text" name="suffix_status" id="suffix_status"
-                                    value="{{ old('suffix_status') }}" placeholder="Jr., Sr., III">
+                                    value="{{ old('suffix_status') }}" 
+                                    pattern="[A-Za-zÑñ\s\-'.]*" 
+                                    title="Only letters, spaces, hyphens, apostrophes, and periods are allowed"
+                                    placeholder="Jr., Sr., III">
                             </div>
                         </div>
 
@@ -383,28 +406,28 @@
                         </div>
 
                         <div class="form-row">
-    <div class="form-group" style="flex: 2;">
-        <label for="trn">Transaction Reference Number (TRN)</label> <!-- Removed asterisk -->
-        <div style="display: flex; gap: 8px; align-items: center;">
-            <input type="text" name="trn" id="trn" value="{{ old('trn') }}"
-                placeholder="Scan QR code or type TRN manually" autocomplete="off"
-                class="@error('trn') is-invalid @enderror" 
-                style="flex: 1;">
-            <button type="button" id="openScannerBtn" class="btn btn-primary scan-btn"
-                style="white-space: nowrap; padding: 8px 16px; min-width: 100px; background: linear-gradient(135deg, #2563eb, #1d4ed8); color: white; border: none; border-radius: 6px; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 6px; font-weight: 500; box-shadow: 0 2px 4px rgba(37,99,235,0.3);">
-                <svg viewBox="0 0 20 20" fill="currentColor" width="16" height="16">
-                    <path fill-rule="evenodd"
-                        d="M4 5a2 2 0 00-2 2v8a2 2 0 002 2h12a2 2 0 002-2V7a2 2 0 00-2-2h-1.586a1 1 0 01-.707-.293l-1.121-1.121A2 2 0 0011.172 3H8.828a2 2 0 00-1.414.586L6.293 4.707A1 1 0 015.586 5H4zm6 9a3 3 0 100-6 3 3 0 000 6z"
-                        clip-rule="evenodd" />
-                </svg>
-                Scan QR
-            </button>
-        </div>
-    </div>
-</div>
+                            <div class="form-group" style="flex: 2;">
+                                <label for="trn">Transaction Reference Number (TRN)</label>
+                                <div style="display: flex; gap: 8px; align-items: center;">
+                                    <input type="text" name="trn" id="trn" value="{{ old('trn') }}"
+                                        placeholder="Scan QR code or type TRN manually" autocomplete="off"
+                                        class="@error('trn') is-invalid @enderror" 
+                                        style="flex: 1;">
+                                    <button type="button" id="openScannerBtn" class="btn btn-primary scan-btn"
+                                        style="white-space: nowrap; padding: 8px 16px; min-width: 100px; background: linear-gradient(135deg, #2563eb, #1d4ed8); color: white; border: none; border-radius: 6px; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 6px; font-weight: 500; box-shadow: 0 2px 4px rgba(37,99,235,0.3);">
+                                        <svg viewBox="0 0 20 20" fill="currentColor" width="16" height="16">
+                                            <path fill-rule="evenodd"
+                                                d="M4 5a2 2 0 00-2 2v8a2 2 0 002 2h12a2 2 0 002-2V7a2 2 0 00-2-2h-1.586a1 1 0 01-.707-.293l-1.121-1.121A2 2 0 0011.172 3H8.828a2 2 0 00-1.414.586L6.293 4.707A1 1 0 015.586 5H4zm6 9a3 3 0 100-6 3 3 0 000 6z"
+                                                clip-rule="evenodd" />
+                                        </svg>
+                                        Scan QR
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
                     </div>
 
-                    <!-- Updating Form -->
+                    <!-- Updating Form (UPDATED with pattern attributes) -->
                     <div id="updatingForm" class="category-form"
                         style="display: {{ old('category', session('last_category')) == 'Updating' ? 'block' : 'none' }};">
                         <div style="border-left: 4px solid #2563eb; padding-left: 15px; margin-bottom: 20px;">
@@ -488,13 +511,18 @@
                                 <label for="fname_update">First Name <span style="color: #dc2626;">*</span></label>
                                 <input type="text" name="fname_update" id="fname_update"
                                     value="{{ old('fname_update') }}" data-required="true"
+                                    pattern="[A-Za-zÑñ\s\-']+" 
+                                    title="Only letters, spaces, hyphens, and apostrophes are allowed"
                                     class="@error('fname_update') is-invalid @enderror"
                                     placeholder="Enter first name">
                             </div>
                             <div class="form-group">
                                 <label for="mname_update">Middle Name</label>
                                 <input type="text" name="mname_update" id="mname_update"
-                                    value="{{ old('mname_update') }}" placeholder="Enter middle name">
+                                    value="{{ old('mname_update') }}" 
+                                    pattern="[A-Za-zÑñ\s\-']*" 
+                                    title="Only letters, spaces, hyphens, and apostrophes are allowed"
+                                    placeholder="Enter middle name">
                             </div>
                         </div>
 
@@ -503,12 +531,18 @@
                                 <label for="lname_update">Last Name <span style="color: #dc2626;">*</span></label>
                                 <input type="text" name="lname_update" id="lname_update"
                                     value="{{ old('lname_update') }}" data-required="true"
-                                    class="@error('lname_update') is-invalid @enderror" placeholder="Enter last name">
+                                    pattern="[A-Za-zÑñ\s\-']+" 
+                                    title="Only letters, spaces, hyphens, and apostrophes are allowed"
+                                    class="@error('lname_update') is-invalid @enderror" 
+                                    placeholder="Enter last name">
                             </div>
                             <div class="form-group">
                                 <label for="suffix_update">Suffix</label>
                                 <input type="text" name="suffix_update" id="suffix_update"
-                                    value="{{ old('suffix_update') }}" placeholder="Jr., Sr., III">
+                                    value="{{ old('suffix_update') }}" 
+                                    pattern="[A-Za-zÑñ\s\-'.]*" 
+                                    title="Only letters, spaces, hyphens, apostrophes, and periods are allowed"
+                                    placeholder="Jr., Sr., III">
                             </div>
                         </div>
 
@@ -560,13 +594,13 @@
                         </div>
 
                         <div class="form-row">
-    <div class="form-group">
-        <label for="PCN">PhilSys Card Number (PCN)</label> <!-- Removed asterisk -->
-        <input type="text" name="PCN" id="PCN" value="{{ old('PCN') }}"
-            class="@error('PCN') is-invalid @enderror" 
-            placeholder="Enter PCN">
-    </div>
-</div>
+                            <div class="form-group">
+                                <label for="PCN">PhilSys Card Number (PCN)</label>
+                                <input type="text" name="PCN" id="PCN" value="{{ old('PCN') }}"
+                                    class="@error('PCN') is-invalid @enderror" 
+                                    placeholder="Enter PCN">
+                            </div>
+                        </div>
                     </div>
 
                     <div class="form-actions"
@@ -585,168 +619,162 @@
             </div>
         </div>
 
-        {{-- Today's Appointments Card --}}
-<div class="card">
-    <div class="card-header">
-        <h3>
-            <svg viewBox="0 0 20 20" fill="currentColor">
-                <path
-                    d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z" />
-            </svg>
-            Today's Appointments
-        </h3>
-        <div class="stats-grid">
-            <div class="stat-card">
-                <div class="stat-icon"
-                    style="background: linear-gradient(135deg, var(--psa-blue), var(--psa-red))">
+        {{-- Today's Appointments Card (unchanged from your original) --}}
+        <div class="card">
+            <div class="card-header">
+                <h3>
                     <svg viewBox="0 0 20 20" fill="currentColor">
                         <path
                             d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z" />
                     </svg>
-                </div>
-                <div class="stat-content">
-                    <span class="stat-label">Total Queue Today</span>
-                    <span class="stat-value" id="totalQueue">{{ $queueCount ?? 0 }}</span>
+                    Today's Appointments
+                </h3>
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon"
+                            style="background: linear-gradient(135deg, var(--psa-blue), var(--psa-red))">
+                            <svg viewBox="0 0 20 20" fill="currentColor">
+                                <path
+                                    d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z" />
+                            </svg>
+                        </div>
+                        <div class="stat-content">
+                            <span class="stat-label">Total Queue Today</span>
+                            <span class="stat-value" id="totalQueue">{{ $queueCount ?? 0 }}</span>
+                        </div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-icon" style="background: linear-gradient(135deg, #F59E0B, #FBBF24)">
+                            <svg viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd"
+                                    d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z"
+                                    clip-rule="evenodd" />
+                            </svg>
+                        </div>
+                        <div class="stat-content">
+                            <span class="stat-label">Pending</span>
+                            <span class="stat-value pending" id="pendingCount">{{ $pendingCount ?? 0 }}</span>
+                        </div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-icon" style="background: linear-gradient(135deg, #10B981, #34D399)">
+                            <svg viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd"
+                                    d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                                    clip-rule="evenodd" />
+                            </svg>
+                        </div>
+                        <div class="stat-content">
+                            <span class="stat-label">Completed</span>
+                            <span class="stat-value completed" id="completedCount">{{ $completedCount ?? 0 }}</span>
+                        </div>
+                    </div>
                 </div>
             </div>
-
-            <div class="stat-card">
-                <div class="stat-icon" style="background: linear-gradient(135deg, #F59E0B, #FBBF24)">
-                    <svg viewBox="0 0 20 20" fill="currentColor">
+            <div class="card-body">
+                <div class="search-box">
+                    <svg class="search-icon" viewBox="0 0 20 20" fill="currentColor">
                         <path fill-rule="evenodd"
-                            d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z"
+                            d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z"
                             clip-rule="evenodd" />
                     </svg>
+                    <input type="text" id="searchAppointments" placeholder="Search...">
                 </div>
-                <div class="stat-content">
-                    <span class="stat-label">Pending</span>
-                    <span class="stat-value pending" id="pendingCount">{{ $pendingCount ?? 0 }}</span>
-                </div>
-            </div>
 
-            <div class="stat-card">
-                <div class="stat-icon" style="background: linear-gradient(135deg, #10B981, #34D399)">
-                    <svg viewBox="0 0 20 20" fill="currentColor">
-                        <path fill-rule="evenodd"
-                            d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                            clip-rule="evenodd" />
-                    </svg>
-                </div>
-                <div class="stat-content">
-                    <span class="stat-label">Completed</span>
-                    <span class="stat-value completed" id="completedCount">{{ $completedCount ?? 0 }}</span>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="card-body">
-        <div class="search-box">
-            <svg class="search-icon" viewBox="0 0 20 20" fill="currentColor">
-                <path fill-rule="evenodd"
-                    d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z"
-                    clip-rule="evenodd" />
-            </svg>
-            <input type="text" id="searchAppointments" placeholder="Search...">
-        </div>
-
-        <div class="table-responsive">
-            <table class="table">
-                <thead>
-                    <tr>
-                        <th>Queue #</th>
-                        <th>Name</th>
-                        <th>Priority</th>
-                        <th>Service</th>
-                        <th>Time</th>
-                        <th>Action</th> <!-- Changed from "Status" to "Action" -->
-                    </tr>
-                </thead>
-                <tbody class="appointments-table-body" id="appointmentsTableBody">
-                    @forelse($appointments as $appointment)
-                        @php
-                            $servedTime = $appointment->time_catered
-                                ? \Carbon\Carbon::parse($appointment->time_catered)->setTimezone('Asia/Manila')
-                                : null;
-                            $createdTime = \Carbon\Carbon::parse($appointment->date)->setTimezone(
-                                'Asia/Manila',
-                            );
-
-                            // Get the actual status from database
-                            $status = $appointment->status ?? 'pending';
-
-                            // Determine if this is a pending appointment (show in this table)
-                            // Show if status is pending OR (no time_catered and not completed/cancelled/no_show)
-                            $showInTable =
-                                in_array($status, ['pending', 'serving']) ||
-                                (!$appointment->time_catered &&
-                                    !in_array($status, ['completed', 'cancelled', 'no_show']));
-
-                            $serviceDisplay = $appointment->queue_for;
-
-                            // Get priority type for display
-                            $priorityType = $appointment->priority_type ?? 'regular';
-                            $priorityDisplay = ucfirst($priorityType);
-
-                            // Format name with full details
-                            $fullName = $appointment->lname . ', ' . $appointment->fname;
-                            if ($appointment->mname && trim($appointment->mname) !== '') {
-                                $fullName .= ' ' . $appointment->mname;
-                            }
-                            if ($appointment->suffix && trim($appointment->suffix) !== '') {
-                                $fullName .= ' ' . $appointment->suffix;
-                            }
-                        @endphp
-                        {{-- Only show if pending or serving --}}
-                        @if ($showInTable)
-                            <tr
-                                data-search="{{ strtolower($appointment->lname . ' ' . $appointment->fname . ' ' . $appointment->trn) }}">
-                                <td><span class="queue-number">{{ $appointment->q_id }}</span></td>
-                                <td>
-                                    <div class="client-name">
-                                        {{ $fullName }}
-                                    </div>
-                                </td>
-                                <td>
-                                    <span class="priority-badge priority-{{ $priorityType }}"
-                                        data-priority="{{ $priorityType }}">
-                                        {{ strtoupper($priorityDisplay) }}
-                                    </span>
-                                </td>
-                                <td>{{ $serviceDisplay }}</td>
-                                <td>{{ $createdTime->format('h:i A') }}</td>
-                                <td>
-                                    <button type="button" 
-                                            class="btn-action cancel-btn" 
-                                            data-id="{{ $appointment->n_id }}"
-                                            data-name="{{ $fullName }}"
-                                            data-queue="{{ $appointment->q_id }}"
-                                            onclick="cancelAppointment(this)">
-                                        <svg viewBox="0 0 20 20" fill="currentColor" width="16" height="16">
-                                            <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" />
-                                        </svg>
-                                        Cancel
-                                    </button>
-                                </td>
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Queue #</th>
+                                <th>Name</th>
+                                <th>Priority</th>
+                                <th>Service</th>
+                                <th>Time</th>
+                                <th>Action</th>
                             </tr>
-                        @endif
-                    @empty
-                        <tr>
-                            <td colspan="6" class="empty-state">
-                                <svg viewBox="0 0 20 20" fill="currentColor">
-                                    <path fill-rule="evenodd"
-                                        d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z"
-                                        clip-rule="evenodd" />
-                                </svg>
-                                <p>No pending appointments for today</p>
-                            </td>
-                        </tr>
-                    @endforelse
-                </tbody>
-            </table>
+                        </thead>
+                        <tbody class="appointments-table-body" id="appointmentsTableBody">
+                            @forelse($appointments as $appointment)
+                                @php
+                                    $servedTime = $appointment->time_catered
+                                        ? \Carbon\Carbon::parse($appointment->time_catered)->setTimezone('Asia/Manila')
+                                        : null;
+                                    $createdTime = \Carbon\Carbon::parse($appointment->date)->setTimezone(
+                                        'Asia/Manila',
+                                    );
+
+                                    $status = $appointment->status ?? 'pending';
+                                    $showInTable =
+                                        in_array($status, ['pending', 'serving']) ||
+                                        (!$appointment->time_catered &&
+                                            !in_array($status, ['completed', 'cancelled', 'no_show']));
+
+                                    $serviceDisplay = $appointment->queue_for;
+                                    $priorityType = $appointment->priority_type ?? 'regular';
+                                    $priorityDisplay = ucfirst($priorityType);
+
+                                    $fullName = $appointment->lname . ', ' . $appointment->fname;
+                                    if ($appointment->mname && trim($appointment->mname) !== '') {
+                                        $fullName .= ' ' . $appointment->mname;
+                                    }
+                                    if ($appointment->suffix && trim($appointment->suffix) !== '') {
+                                        $fullName .= ' ' . $appointment->suffix;
+                                    }
+                                @endphp
+                                @if ($showInTable)
+                                    <tr
+                                        data-search="{{ strtolower($appointment->lname . ' ' . $appointment->fname . ' ' . $appointment->trn) }}">
+                                        <td><span class="queue-number">{{ $appointment->q_id }}</span></td>
+                                        <td>
+                                            <div class="client-name">
+                                                {{ $fullName }}
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <span class="priority-badge priority-{{ $priorityType }}"
+                                                data-priority="{{ $priorityType }}">
+                                                {{ strtoupper($priorityDisplay) }}
+                                            </span>
+                                        </td>
+                                        <td>{{ $serviceDisplay }}</td>
+                                        <td>{{ $createdTime->format('h:i A') }}</td>
+                                        <td>
+                                            <button type="button" 
+                                                    class="btn-action cancel-btn" 
+                                                    data-id="{{ $appointment->n_id }}"
+                                                    data-name="{{ $fullName }}"
+                                                    data-queue="{{ $appointment->q_id }}"
+                                                    onclick="cancelAppointment(this)">
+                                                <svg viewBox="0 0 20 20" fill="currentColor" width="16" height="16">
+                                                    <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" />
+                                                </svg>
+                                                Cancel
+                                            </button>
+                                        </td>
+                                    </tr>
+                                @endif
+                            @empty
+                                <tr>
+                                    <td colspan="6" class="empty-state">
+                                        <svg viewBox="0 0 20 20" fill="currentColor">
+                                            <path fill-rule="evenodd"
+                                                d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z"
+                                                clip-rule="evenodd" />
+                                        </svg>
+                                        <p>No pending appointments for today</p>
+                                    </td>
+                                </tr>
+                            @endforelse
+                        </tbody>
+                    </table>
+                </div>
+            </div>
         </div>
     </div>
-</div>
-    </div>
+
+
 
     <!-- QR Scanner Modal -->
     <div id="scannerModal" class="scanner-modal" style="display: none;">
