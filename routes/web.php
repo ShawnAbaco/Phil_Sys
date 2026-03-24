@@ -19,6 +19,13 @@ use App\Http\Controllers\Admin\LogController;
 use App\Http\Controllers\Admin\WindowController;
 use App\Http\Controllers\Admin\ExportController;
 
+
+Route::get('/test-export', function() {
+    $appointments = App\Models\TblAppointment::limit(5)->get();
+    return Excel::download(new App\Exports\Admin\ReportExport($appointments, 'summary'), 'test.xlsx');
+});
+
+
 Route::get('/test-email', function() {
     try {
         $mailService = new App\Services\PHPMailerService();
@@ -279,6 +286,7 @@ Route::prefix('admin')->name('admin.')->middleware(['auth'])->group(function () 
         Route::get('/monthly', [ReportController::class, 'monthly'])->name('monthly');
         Route::get('/custom', [ReportController::class, 'custom'])->name('custom');
         Route::get('/chart-data', [ReportController::class, 'getChartData'])->name('chart-data');
+        Route::get('/export', [ReportController::class, 'export'])->name('export');
     });
     
     // Settings

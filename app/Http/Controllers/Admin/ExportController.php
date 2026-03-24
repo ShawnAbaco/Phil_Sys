@@ -10,12 +10,11 @@ use Barryvdh\DomPDF\Facade\Pdf;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Exports\UsersExport;
 use App\Exports\AppointmentsExport;
+use App\Exports\Admin\ReportExport;
 use Carbon\Carbon;
 
-class ExportController extends AdminController
+class ExportController extends Controller  // Changed from AdminController to Controller
 {
-
-
     /**
      * Export users data.
      */
@@ -116,22 +115,103 @@ class ExportController extends AdminController
         $filename = 'logs-export-' . Carbon::now()->format('Y-m-d-His');
         
         // Log export logic here
+        // You can implement this later
         
-        return $this->sendSuccess('Logs export started');
+        return response()->json([
+            'success' => true,
+            'message' => 'Logs export started'
+        ]);
     }
 
     /**
      * Export report data.
      */
     public function exportReport(Request $request)
+{
+    \Log::info('Export Report Request', $request->all());
+    
+    $type = $request->get('type', 'daily');
+    $format = $request->get('format', 'excel');
+    $start = $request->get('start');
+    $end = $request->get('end');
+    $date = $request->get('date');
+    $month = $request->get('month');
+    $year = $request->get('year');
+    
+    $appointments = collect();
+    $reportType = $request->get('report_type', 'summary');
+    $startDate = null;
+    $endDate = null;
+    
+    switch ($type) {
+        case 'daily':
+            $startDate = $date ? Carbon::parse($date) : Carbon::today();
+            $endDate = $startDate;
+            $appointments = TblAppointment::whereDate('date', $startDate)
+                ->orderBy('time_catered', 'desc')
+                ->get();
+            break;
+        case 'weekly':
+            $dateObj = $date ? Carbon::parse($date) : Carbon::today();
+            $startDate = $dateObj->copy()->startOfWeek();
+            $endDate = $dateObj->copy()->endOfWeek();
+            $appointments = TblAppointment::whereBetween('date', [$startDate, $endDate])
+                ->orderBy('date', 'desc')
+                ->get();
+            break;
+        case 'monthly':
+            $monthNum = $month ?: Carbon::now()->month;
+            $yearNum = $year ?: Carbon::now()->year;
+            $startDate = Carbon::createFromDate($yearNum, $monthNum, 1)->startOfMonth();
+            $endDate = Carbon::createFromDate($yearNum, $monthNum, 1)->endOfMonth();
+            $appointments = TblAppointment::whereBetween('date', [$startDate, $endDate])
+                ->orderBy('date', 'desc')
+                ->get();
+            break;
+        case 'custom':
+            if ($start && $end) {
+                $startDate = Carbon::parse($start);
+                $endDate = Carbon::parse($end);
+                $appointments = TblAppointment::whereBetween('date', [$startDate, $endDate])
+                    ->orderBy('date', 'desc')
+                    ->get();
+            }
+            break;
+    }
+    
+    $fileName = $this->generateFileName($type, $startDate, $endDate);
+    
+    try {
+        if ($format === 'csv') {
+            return Excel::download(new ReportExport($appointments, $reportType, $startDate, $endDate), $fileName . '.csv', \Maatwebsite\Excel\Excel::CSV);
+        }
+        
+        return Excel::download(new ReportExport($appointments, $reportType, $startDate, $endDate), $fileName . '.xlsx');
+    } catch (\Exception $e) {
+        \Log::error('Export error: ' . $e->getMessage());
+        return back()->with('error', 'Failed to export report: ' . $e->getMessage());
+    }
+}
+    
+    /**
+     * Generate filename for export
+     */
+    private function generateFileName($type, $startDate, $endDate)
     {
-        $format = $request->get('format', 'pdf');
-        $reportType = $request->get('type', 'daily');
-        $filename = $reportType . '-report-' . Carbon::now()->format('Y-m-d-His');
+        $now = Carbon::now()->format('Y-m-d_H-i-s');
         
-        // Report export logic based on type
-        
-        return $this->sendSuccess('Report export started');
+        switch ($type) {
+            case 'daily':
+                return 'Daily_Report_' . $startDate->format('Y-m-d') . '_' . $now;
+            case 'weekly':
+                return 'Weekly_Report_' . $startDate->format('Y-m-d') . '_to_' . $endDate->format('Y-m-d') . '_' . $now;
+            case 'monthly':
+                return 'Monthly_Report_' . $startDate->format('Y-m') . '_' . $now;
+            case 'custom':
+                return 'Custom_Report_' . $startDate->format('Y-m-d') . '_to_' . $endDate->format('Y-m-d') . '_' . $now;
+            default:
+                return 'Report_' . $now;
+        }
     }
 
     /**
@@ -146,7 +226,7 @@ class ExportController extends AdminController
         $filePath = storage_path('app/backups/' . $request->file);
         
         if (!file_exists($filePath)) {
-            return $this->sendError('Backup file not found');
+            return redirect()->back()->with('error', 'Backup file not found');
         }
         
         return response()->download($filePath);
