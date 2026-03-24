@@ -1129,9 +1129,9 @@ body {
 }
 
 .page-number.active {
-    background: var(--primary);
-    border-color: var(--primary);
-    color: white;
+    /* background: var(--primary); */
+    /* border-color: var(--primary); */
+    color: black;
     cursor: default;
     pointer-events: none;
     animation: page-active-pop 0.3s ease;
