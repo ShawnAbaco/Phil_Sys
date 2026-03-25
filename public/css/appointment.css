@@ -6,8 +6,8 @@
 }
 
 :root {
-    --primary: #2563eb;
-    --primary-dark: #1d4ed8;
+    --primary: #3b414e;
+    --primary-dark: #272d3d;
     --success: #059669;
     --warning: #d97706;
     --danger: #dc2626;
@@ -325,7 +325,7 @@ body {
 .btn-action svg {
     width: 0.875rem;
     height: 0.875rem;
-    color: var(--success);
+    
 }
 
 /* ===== SEARCH BOX ===== */
@@ -380,13 +380,11 @@ body {
     background: var(--gray-50);
     color: var(--gray-600);
     font-weight: 600;
-    border-bottom: 1px solid var(--gray-200);
     white-space: nowrap;
 }
 
 .table td {
     padding: 0.875rem 1rem;
-    border-bottom: 1px solid var(--gray-200);
     color: var(--gray-600);
     vertical-align: middle;
 }
@@ -1131,9 +1129,9 @@ body {
 }
 
 .page-number.active {
-    background: var(--primary);
-    border-color: var(--primary);
-    color: white;
+    /* background: var(--primary); */
+    /* border-color: var(--primary); */
+    color: black;
     cursor: default;
     pointer-events: none;
     animation: page-active-pop 0.3s ease;

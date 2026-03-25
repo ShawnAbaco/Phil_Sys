@@ -380,6 +380,180 @@
         activeService = savedService;
     }
 
+  
+
+// Handle Serve Button Click - Trigger announcement on client display
+function handleServeClick(e) {
+    const button = e.currentTarget;
+
+    if (isCurrentlyServing) {
+        Swal.fire({
+            title: 'Cannot Serve',
+            text: 'You are currently serving another appointment. Please complete or cancel it first.',
+            icon: 'warning',
+            confirmButtonColor: '#2563eb'
+        });
+        return;
+    }
+
+    const n_id = button.getAttribute('data-id');
+    const name = button.getAttribute('data-name');
+    const queueNumber = button.getAttribute('data-queue');
+    const originalStatus = button.getAttribute('data-status');
+    const row = button.closest('tr');
+
+    Swal.fire({
+        title: originalStatus === 'no_show' ? 'Serve No-Show Appointment?' : 'Start Serving?',
+        html: `Call <strong>${name}</strong> (${queueNumber}) to window <strong>#${windowNum}</strong>?`,
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonColor: '#2563eb',
+        cancelButtonColor: '#dc2626',
+        confirmButtonText: 'Yes, Start Serving'
+    }).then((result) => {
+        if (!result.isConfirmed) return;
+
+        button.disabled = true;
+        const originalHtml = button.innerHTML;
+        button.innerHTML = '<span class="spinner"></span> Processing...';
+
+        fetch('{{ route('operator.update-window') }}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': csrfToken,
+                    'Accept': 'application/json'
+                },
+                body: JSON.stringify({
+                    n_id: n_id,
+                    window_num: windowNum,
+                    status: 'serving'
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Trigger announcement on client display
+                    fetch('{{ route('operator.trigger-announcement') }}', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': csrfToken,
+                            'Accept': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            window_num: windowNum,
+                            queue_number: queueNumber,
+                            client_name: name
+                        })
+                    })
+                    .then(response => response.json())
+                    .then(announceData => {
+                        if (!announceData.success) {
+                            console.error('Failed to trigger announcement');
+                        }
+                    })
+                    .catch(err => console.error('Error triggering announcement:', err));
+                    
+                    updateRowForServing(row, n_id, name);
+                    isCurrentlyServing = true;
+
+                    document.querySelectorAll('.serve-btn').forEach(btn => {
+                        if (btn !== button) {
+                            btn.disabled = true;
+                            btn.title = 'Cannot serve while another appointment is being served';
+                        }
+                    });
+
+                    const Toast = Swal.mixin({
+                        toast: true,
+                        position: 'top-end',
+                        showConfirmButton: false,
+                        timer: 3000,
+                        timerProgressBar: true
+                    });
+
+                    Toast.fire({
+                        icon: 'success',
+                        title: `Now serving ${queueNumber} - ${name}`
+                    });
+
+                    updatePendingCount();
+                    fetchDashboardData();
+                } else {
+                    showMessage('Failed to update.', 'error');
+                    button.disabled = false;
+                    button.innerHTML = originalHtml;
+                    checkServingStatus();
+                }
+            })
+            .catch(err => {
+                console.error('Error:', err);
+                showMessage('Error connecting to server.', 'error');
+                button.disabled = false;
+                button.innerHTML = originalHtml;
+                checkServingStatus();
+            });
+    });
+}
+
+// Handle Volume/Speaker Button Click - Trigger announcement on client display
+function handleVolumeClick(e) {
+    const button = e.currentTarget;
+    const queueNumber = button.getAttribute('data-queue');
+    const clientName = button.getAttribute('data-name');
+    const windowNum = String({{ Js::from(session('window_num') ?? ($windowNum ?? '1')) }});
+    
+    // Show loading state on button
+    const originalHtml = button.innerHTML;
+    button.disabled = true;
+    button.innerHTML = '<span class="spinner"></span>';
+    
+    // Call the server to trigger announcement on client display
+    fetch('{{ route('operator.trigger-announcement') }}', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': csrfToken,
+            'Accept': 'application/json'
+        },
+        body: JSON.stringify({
+            window_num: windowNum,
+            queue_number: queueNumber,
+            client_name: clientName
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Show success toast
+            const Toast = Swal.mixin({
+                toast: true,
+                position: 'top-end',
+                showConfirmButton: false,
+                timer: 2000,
+                timerProgressBar: true
+            });
+
+            Toast.fire({
+                icon: 'success',
+                title: `Announcement triggered for ${queueNumber}`
+            });
+        } else {
+            showMessage('Failed to trigger announcement', 'error');
+        }
+    })
+    .catch(err => {
+        console.error('Error:', err);
+        showMessage('Error connecting to server', 'error');
+    })
+    .finally(() => {
+        // Restore button
+        button.disabled = false;
+        button.innerHTML = originalHtml;
+    });
+}
+
     // Check if there's any serving appointment
     function checkServingStatus() {
         const servingRow = document.querySelector('.status-badge.serving');
@@ -405,98 +579,7 @@
         });
     }
 
-    // Handle Serve Button Click
-    function handleServeClick(e) {
-        const button = e.currentTarget;
 
-        if (isCurrentlyServing) {
-            Swal.fire({
-                title: 'Cannot Serve',
-                text: 'You are currently serving another appointment. Please complete or cancel it first.',
-                icon: 'warning',
-                confirmButtonColor: '#2563eb'
-            });
-            return;
-        }
-
-        const n_id = button.getAttribute('data-id');
-        const name = button.getAttribute('data-name');
-        const originalStatus = button.getAttribute('data-status');
-        const row = button.closest('tr');
-
-        Swal.fire({
-            title: originalStatus === 'no_show' ? 'Serve No-Show Appointment?' : 'Start Serving?',
-            html: `Call <strong>${name}</strong> to window <strong>#${windowNum}</strong>?`,
-            icon: 'question',
-            showCancelButton: true,
-            confirmButtonColor: '#2563eb',
-            cancelButtonColor: '#dc2626',
-            confirmButtonText: 'Yes, Start Serving'
-        }).then((result) => {
-            if (!result.isConfirmed) return;
-
-            button.disabled = true;
-            const originalHtml = button.innerHTML;
-            button.innerHTML = '<span class="spinner"></span> Processing...';
-
-            fetch('{{ route('operator.update-window') }}', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': csrfToken,
-                        'Accept': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        n_id: n_id,
-                        window_num: windowNum,
-                        status: 'serving'
-                    })
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        updateRowForServing(row, n_id, name);
-                        isCurrentlyServing = true;
-
-                        document.querySelectorAll('.serve-btn').forEach(btn => {
-                            if (btn !== button) {
-                                btn.disabled = true;
-                                btn.title =
-                                'Cannot serve while another appointment is being served';
-                            }
-                        });
-
-                        const Toast = Swal.mixin({
-                            toast: true,
-                            position: 'top-end',
-                            showConfirmButton: false,
-                            timer: 3000,
-                            timerProgressBar: true
-                        });
-
-                        Toast.fire({
-                            icon: 'success',
-                            title: `Now serving ${name}`
-                        });
-
-                        updatePendingCount();
-                        fetchDashboardData();
-                    } else {
-                        showMessage('Failed to update.', 'error');
-                        button.disabled = false;
-                        button.innerHTML = originalHtml;
-                        checkServingStatus();
-                    }
-                })
-                .catch(err => {
-                    console.error('Error:', err);
-                    showMessage('Error connecting to server.', 'error');
-                    button.disabled = false;
-                    button.innerHTML = originalHtml;
-                    checkServingStatus();
-                });
-        });
-    }
 
     // Handle Complete Button Click
     function handleCompleteClick(e) {
@@ -759,6 +842,12 @@
         document.querySelectorAll('.cancel-btn').forEach(button => {
             button.removeEventListener('click', handleCancelClick);
             button.addEventListener('click', handleCancelClick);
+        });
+
+        // Add volume button listeners
+        document.querySelectorAll('.volume-btn').forEach(button => {
+            button.removeEventListener('click', handleVolumeClick);
+            button.addEventListener('click', handleVolumeClick);
         });
 
         checkServingStatus();

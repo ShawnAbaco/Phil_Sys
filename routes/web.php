@@ -20,6 +20,29 @@ use App\Http\Controllers\Admin\WindowController;
 use App\Http\Controllers\Admin\ExportController;
 
 
+Route::get('/test-export', function() {
+    $appointments = App\Models\TblAppointment::limit(5)->get();
+    return Excel::download(new App\Exports\Admin\ReportExport($appointments, 'summary'), 'test.xlsx');
+});
+
+
+Route::get('/test-email', function() {
+    try {
+        $mailService = new App\Services\PHPMailerService();
+        
+        $result = $mailService->sendPlain(
+            'test@example.com', // Replace with your email
+            'Test Email from National ID System',
+            'This is a test email to verify PHPMailer is working correctly.'
+        );
+        
+        return 'Email sent successfully!';
+    } catch (Exception $e) {
+        return 'Error: ' . $e->getMessage();
+    }
+});
+
+
 Route::get('/test-json', function() {
     return response()->json(['message' => 'JSON is working']);
 });
@@ -99,6 +122,22 @@ Route::get('/force-logout', function() {
         ->header('Expires', '0');
 });
 
+
+
+// Admin approval routes (public - accessible via email link)
+Route::get('/admin/approve/user/{token}', [App\Http\Controllers\Admin\ApprovalController::class, 'approve'])
+    ->name('admin.approve.user');
+Route::get('/admin/reject/user/{token}', [App\Http\Controllers\Admin\ApprovalController::class, 'reject'])
+    ->name('admin.reject.user');
+
+// OTP Verification Routes
+Route::post('/verification/send-otp', [App\Http\Controllers\Auth\VerificationController::class, 'sendOtp'])
+    ->name('verification.send-otp');
+Route::post('/verification/verify-otp', [App\Http\Controllers\Auth\VerificationController::class, 'verifyOtp'])
+    ->name('verification.verify-otp');
+Route::post('/verification/check', [App\Http\Controllers\Auth\VerificationController::class, 'checkVerification'])
+    ->name('verification.check');
+
 // Public routes (no authentication required)
 Route::get('/', function () {
     return redirect()->route('login');
@@ -110,11 +149,53 @@ Route::get('/client-dashboard', [ClientController::class, 'dashboard'])
 Route::get('/client/queues', [ClientController::class, 'getQueues'])
      ->name('client.queues');
 
+
+     // Operator trigger announcement
+Route::post('/operator/trigger-announcement', [OperatorController::class, 'triggerAnnouncement'])
+    ->name('operator.trigger-announcement');
+
+// Client check announcement
+Route::get('/client/check-announcement', [ClientController::class, 'checkAnnouncement'])
+    ->name('client.check-announcement');
+
+    
 // Guest routes (for non-authenticated users only)
 Route::middleware(['guest'])->group(function () {
     Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login');
     Route::post('/login', [LoginController::class, 'login'])->name('login.submit');
 });
+
+// Registration routes
+Route::get('/register', [App\Http\Controllers\Auth\RegistrationController::class, 'showRegistrationForm'])
+    ->name('register.form');
+Route::post('/register', [App\Http\Controllers\Auth\RegistrationController::class, 'register'])
+    ->name('register.submit');
+
+// AJAX checks for registration
+Route::post('/check-username', [App\Http\Controllers\Auth\RegistrationController::class, 'checkUsername'])
+    ->name('check.username');
+Route::post('/check-email', [App\Http\Controllers\Auth\RegistrationController::class, 'checkEmail'])
+    ->name('check.email');
+
+
+    // Password Reset Routes
+Route::get('/forgot-password', function () {
+    return view('auth.forgot-password');
+})->middleware('guest')->name('password.request');
+
+Route::post('/forgot-password', [App\Http\Controllers\Auth\PasswordResetController::class, 'sendResetLink'])
+    ->middleware('guest')
+    ->name('password.email');
+
+Route::get('/reset-password/{token}', function ($token) {
+    return view('auth.reset-password', ['token' => $token]);
+})->middleware('guest')->name('password.reset');
+
+Route::post('/reset-password', [App\Http\Controllers\Auth\PasswordResetController::class, 'reset'])
+    ->middleware('guest')
+    ->name('password.update');
+
+
 
 // Logout route
 Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
@@ -205,6 +286,7 @@ Route::prefix('admin')->name('admin.')->middleware(['auth'])->group(function () 
         Route::get('/monthly', [ReportController::class, 'monthly'])->name('monthly');
         Route::get('/custom', [ReportController::class, 'custom'])->name('custom');
         Route::get('/chart-data', [ReportController::class, 'getChartData'])->name('chart-data');
+        Route::get('/export', [ReportController::class, 'export'])->name('export');
     });
     
     // Settings

@@ -10,7 +10,7 @@ use App\Models\TblAppointment;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 
-class DashboardController extends AdminController
+class DashboardController extends Controller
 {
 
 
@@ -102,8 +102,12 @@ class DashboardController extends AdminController
     /**
      * Get notifications for the admin.
      */
-    public function getNotifications()
-    {
+    /**
+ * Get notifications for the admin.
+ */
+public function getNotifications()
+{
+    try {
         $pendingCount = TblAppointment::whereNull('window_num')
             ->whereNull('time_catered')
             ->count();
@@ -119,30 +123,49 @@ class DashboardController extends AdminController
         }
         
         // Check for system alerts
-        $failedLogins = User::where('last_login_at', '<', Carbon::now()->subDays(7))
+        $inactiveUsers = User::where('last_login_at', '<', Carbon::now()->subDays(7))
             ->where('status', 'active')
             ->count();
             
-        if ($failedLogins > 5) {
+        if ($inactiveUsers > 5) {
             $notifications[] = [
-                'message' => "{$failedLogins} users haven't logged in for over a week",
+                'message' => "{$inactiveUsers} users haven't logged in for over a week",
                 'time' => '5 minutes ago',
                 'type' => 'info'
             ];
         }
         
+        // Get today's appointments
+        $todayAppointments = TblAppointment::whereDate('date', Carbon::today())->count();
+        if ($todayAppointments > 50) {
+            $notifications[] = [
+                'message' => "High volume today: {$todayAppointments} appointments",
+                'time' => 'Just now',
+                'type' => 'info'
+            ];
+        }
+        
         return response()->json($notifications);
+        
+    } catch (\Exception $e) {
+        \Log::error('Notifications error: ' . $e->getMessage());
+        return response()->json([], 200);
     }
+}
 
     /**
-     * Global search functionality.
-     */
-    public function search(Request $request)
-    {
+ * Global search functionality.
+ */
+public function search(Request $request)
+{
+    try {
         $query = $request->get('q');
         
         if (strlen($query) < 2) {
-            return $this->sendError('Search query too short');
+            return response()->json([
+                'success' => false,
+                'message' => 'Search query too short'
+            ], 400);
         }
         
         $users = User::where('name', 'like', "%{$query}%")
@@ -158,17 +181,32 @@ class DashboardController extends AdminController
             ->limit(5)
             ->get(['n_id', 'q_id', 'fname', 'lname', 'queue_for']);
             
-        return $this->sendSuccess('Search results', [
-            'users' => $users,
-            'appointments' => $appointments
+        return response()->json([
+            'success' => true,
+            'data' => [
+                'users' => $users,
+                'appointments' => $appointments
+            ]
         ]);
+        
+    } catch (\Exception $e) {
+        \Log::error('Search error: ' . $e->getMessage());
+        return response()->json([
+            'success' => false,
+            'message' => 'Search failed'
+        ], 500);
     }
+}
 
     /**
      * Get quick stats for the dashboard.
      */
-    public function getQuickStats()
-    {
+    /**
+ * Get quick stats for the dashboard.
+ */
+public function getQuickStats()
+{
+    try {
         $today = Carbon::today();
         
         $stats = [
@@ -180,6 +218,17 @@ class DashboardController extends AdminController
             'windows_active' => User::whereNotNull('window_num')->where('status', 'active')->count(),
         ];
         
-        return $this->sendSuccess('Quick stats retrieved', $stats);
+        return response()->json([
+            'success' => true,
+            'data' => $stats
+        ]);
+        
+    } catch (\Exception $e) {
+        \Log::error('Quick stats error: ' . $e->getMessage());
+        return response()->json([
+            'success' => false,
+            'message' => 'Failed to load stats'
+        ], 500);
     }
+}
 }

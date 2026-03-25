@@ -6,6 +6,7 @@ namespace App\Http\Controllers\Client;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\TblAppointment;
+use Illuminate\Support\Facades\Cache;
 use Carbon\Carbon;
 
 class ClientController extends Controller
@@ -41,13 +42,13 @@ class ClientController extends Controller
         if ($appointment) {
             $calledQueues[(string)$w] = [
                 'q_id' => $appointment->q_id,
-                'lname' => $this->sentenceCase($appointment->lname),
+                'priority_type' => $appointment->priority_type ?? 'regular',
                 'status' => $appointment->status
             ];
         } else {
             $calledQueues[(string)$w] = [
                 'q_id' => '-',
-                'lname' => '',
+                'priority_type' => '',
                 'status' => 'none'
             ];
         }
@@ -62,15 +63,15 @@ class ClientController extends Controller
         ->whereDate('date', $today)
         ->where('status', 'pending')
         ->orderBy('date', 'asc')
-        ->limit(50)
-        ->get(['q_id', 'lname', 'queue_for', 'status']);
+        ->limit(100)
+        ->get(['q_id', 'queue_for', 'status', 'priority_type']);
 
     // Get no_show queues - they have window_num but status is no_show
     $noShowQueues = TblAppointment::whereDate('date', $today)
         ->where('status', 'no_show')
         ->orderBy('date', 'asc')
-        ->limit(50)
-        ->get(['q_id', 'lname', 'queue_for', 'status']);
+        ->limit(100)
+        ->get(['q_id', 'queue_for', 'status', 'priority_type']);
 
     // Merge both collections
     $nextQueuesRaw = $pendingQueues->concat($noShowQueues);
@@ -91,14 +92,14 @@ class ClientController extends Controller
 
     foreach ($nextQueuesRaw as $item) {
         $q = $item->q_id;
-        $lname = $item->lname;
         $status = $item->status;
+        $priorityType = $item->priority_type ?? 'regular';
         
-        // Create array with status information
+        // Create array with status and priority information
         $queueItem = [
             'q_id' => $q, 
-            'lname' => $lname,
-            'status' => $status  // Include status for frontend styling
+            'status' => $status,
+            'priority_type' => $priorityType
         ];
         
         // Filter by queue_for column
@@ -143,4 +144,37 @@ class ClientController extends Controller
         $string = strtolower($string);
         return ucfirst($string);
     }
+
+    /**
+ * Check for triggered announcements
+ */
+public function checkAnnouncement()
+{
+    try {
+        // Check cache first
+        $announcement = Cache::get('last_announcement');
+        
+        // If not in cache, check session
+        if (!$announcement) {
+            $announcement = session('last_announcement');
+        }
+        
+        // Clear after retrieving (prevent replay)
+        if ($announcement) {
+            Cache::forget('last_announcement');
+            session()->forget('last_announcement');
+        }
+        
+        return response()->json([
+            'success' => true,
+            'announcement' => $announcement
+        ]);
+        
+    } catch (\Exception $e) {
+        return response()->json([
+            'success' => false,
+            'message' => $e->getMessage()
+        ], 500);
+    }
+}
 }

@@ -25,12 +25,16 @@ class Header extends Component
     }
 
     /**
-     * Determine if the current user is an operator
+     * Determine if the current user is an operator or assistant
+     * Both have window numbers and use the same UI
      */
     public function isOperator()
     {
-        return $this->userRole === 'operator' ||
-               str_contains(strtolower($this->userDesignation ?? ''), 'operator');
+        $designation = strtolower($this->userDesignation ?? '');
+        // Both operators and assistants are considered "operators" for UI purposes
+        return str_contains($designation, 'operator') || 
+               str_contains($designation, 'assistant') ||
+               $this->userRole === 'operator';
     }
 
     /**
@@ -38,8 +42,36 @@ class Header extends Component
      */
     public function isScreener()
     {
-        return $this->userRole === 'screener' ||
-               str_contains(strtolower($this->userDesignation ?? ''), 'screener');
+        $designation = strtolower($this->userDesignation ?? '');
+        return $this->userRole === 'screener' || 
+               str_contains($designation, 'screener');
+    }
+
+    /**
+     * Determine if window badge should be shown
+     * Show for both operators and assistants since both have window numbers
+     */
+    public function showWindowBadge()
+    {
+        return $this->isOperator() && $this->windowNum;
+    }
+
+    /**
+     * Get the portal badge text
+     */
+    public function getPortalBadge()
+    {
+        $designation = strtolower($this->userDesignation ?? '');
+        
+        if (str_contains($designation, 'operator')) {
+            return 'OPERATOR PORTAL';
+        } elseif (str_contains($designation, 'assistant')) {
+            return 'ASSISTANT PORTAL';
+        } elseif ($this->isScreener()) {
+            return 'SCREENER DASHBOARD';
+        }
+        
+        return 'PORTAL';
     }
 
     /**

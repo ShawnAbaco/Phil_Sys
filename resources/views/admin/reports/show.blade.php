@@ -14,13 +14,13 @@
     </div>
     <div class="report-actions">
         <button class="btn btn-outline" onclick="window.print()">
-            <svg viewBox="0 0 20 20" fill="currentColor">
+            <svg viewBox="0 0 20 20" fill="currentColor" width="16" height="16">
                 <path fill-rule="evenodd" d="M5 4v3H4a2 2 0 00-2 2v3a2 2 0 002 2h1v2a2 2 0 002 2h6a2 2 0 002-2v-2h1a2 2 0 002-2V9a2 2 0 00-2-2h-1V4a2 2 0 00-2-2H7a2 2 0 00-2 2zm8 0H7v3h6V4zm0 8H7v4h6v-4z" clip-rule="evenodd" />
             </svg>
             Print
         </button>
         <button class="btn btn-primary" onclick="exportReport()">
-            <svg viewBox="0 0 20 20" fill="currentColor">
+            <svg viewBox="0 0 20 20" fill="currentColor" width="16" height="16">
                 <path fill-rule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clip-rule="evenodd" />
             </svg>
             Export
@@ -32,46 +32,46 @@
 <div class="summary-cards">
     <div class="summary-card">
         <div class="summary-icon" style="background: var(--psa-blue-light);">
-            <svg viewBox="0 0 20 20" fill="currentColor">
+            <svg viewBox="0 0 20 20" fill="currentColor" width="24" height="24">
                 <path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z" />
             </svg>
         </div>
         <div>
             <div class="summary-label">Total Appointments</div>
-            <div class="summary-value">{{ $totalAppointments ?? 156 }}</div>
+            <div class="summary-value">{{ $totalAppointments ?? 0 }}</div>
         </div>
     </div>
     <div class="summary-card">
         <div class="summary-icon" style="background: var(--psa-yellow-light);">
-            <svg viewBox="0 0 20 20" fill="currentColor">
+            <svg viewBox="0 0 20 20" fill="currentColor" width="24" height="24">
                 <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd" />
             </svg>
         </div>
         <div>
             <div class="summary-label">Pending</div>
-            <div class="summary-value">{{ $pendingAppointments ?? 42 }}</div>
+            <div class="summary-value">{{ $pendingAppointments ?? 0 }}</div>
         </div>
     </div>
     <div class="summary-card">
         <div class="summary-icon" style="background: var(--success); color: white;">
-            <svg viewBox="0 0 20 20" fill="currentColor">
+            <svg viewBox="0 0 20 20" fill="currentColor" width="24" height="24">
                 <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
             </svg>
         </div>
         <div>
             <div class="summary-label">Completed</div>
-            <div class="summary-value">{{ $completedAppointments ?? 114 }}</div>
+            <div class="summary-value">{{ $completedAppointments ?? 0 }}</div>
         </div>
     </div>
     <div class="summary-card">
         <div class="summary-icon" style="background: var(--psa-red-light);">
-            <svg viewBox="0 0 20 20" fill="currentColor">
+            <svg viewBox="0 0 20 20" fill="currentColor" width="24" height="24">
                 <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
             </svg>
         </div>
         <div>
             <div class="summary-label">Issues</div>
-            <div class="summary-value">{{ $issuesCount ?? 3 }}</div>
+            <div class="summary-value">{{ $issuesCount ?? 0 }}</div>
         </div>
     </div>
 </div>
@@ -87,14 +87,14 @@
                 <option value="monthly">Monthly</option>
             </select>
         </div>
-        <canvas id="trendsChart" style="height: 300px; width: 100%;"></canvas>
+        <canvas id="trendsChart" style="height: 300px; max-height: 350px; width: 100%;"></canvas>
     </div>
     
     <div class="chart-card">
         <div class="chart-header">
             <h3>Service Distribution</h3>
         </div>
-        <canvas id="distributionChart" style="height: 300px; width: 100%;"></canvas>
+        <canvas id="distributionChart" style="height: 300px; max-height: 350px; width: 100%;"></canvas>
     </div>
 </div>
 
@@ -127,17 +127,17 @@
                 </tr>
             </thead>
             <tbody id="reportTableBody">
-                @forelse($transactions ?? [] as $transaction)
+                @forelse($appointments as $transaction)
                 <tr>
-                    <td>#{{ $transaction->id }}</td>
+                    <td>#{{ $transaction->n_id }}</td>
                     <td><span class="queue-badge">{{ $transaction->q_id }}</span></td>
                     <td>{{ $transaction->lname }}, {{ $transaction->fname }}</td>
                     <td>{{ $transaction->queue_for }}</td>
                     <td>{{ \Carbon\Carbon::parse($transaction->date)->format('M d, Y h:i A') }}</td>
                     <td>{{ $transaction->window_num ? 'Window '.$transaction->window_num : '—' }}</td>
                     <td>
-                        <span class="status-badge status-{{ $transaction->time_catered ? 'completed' : 'pending' }}">
-                            {{ $transaction->time_catered ? 'Completed' : 'Pending' }}
+                        <span class="status-badge status-{{ $transaction->status }}">
+                            {{ ucfirst($transaction->status ?? 'pending') }}
                         </span>
                     </td>
                 </tr>
@@ -154,7 +154,7 @@
     
     <!-- Pagination -->
     <div class="pagination-container">
-        {{ $transactions->links() ?? '' }}
+        {{ $appointments->links() ?? '' }}
     </div>
 </div>
 
@@ -379,14 +379,14 @@
             new Chart(distCtx, {
                 type: 'doughnut',
                 data: {
-                    labels: ['Registration', 'Status Inquiry', 'Updating', 'Others'],
+                    labels: ['Registration', 'Status Inquiry', 'Updating'],
                     datasets: [{
-                        data: [45, 25, 20, 10],
+                        data: [45, 25, 20],
                         backgroundColor: [
                             '#0038A8',
                             '#CE1126',
-                            '#FCD116',
-                            '#10b981'
+                            '#FCD116'
+                            
                         ],
                         borderWidth: 0
                     }]
@@ -405,17 +405,60 @@
     });
     
     function exportReport() {
-        showLoading();
+    // Build URL with parameters
+    let exportUrl = '{{ route("admin.export.report") }}';
+    let params = new URLSearchParams();
+    
+    params.append('type', '{{ $reportType }}');
+    params.append('format', 'excel');
+    
+    @if($reportType === 'daily')
+        params.append('date', '{{ $date->format("Y-m-d") ?? now()->format("Y-m-d") }}');
+    @elseif($reportType === 'weekly')
+        @if(isset($startDate))
+            params.append('date', '{{ $startDate->format("Y-m-d") }}');
+        @endif
+    @elseif($reportType === 'monthly')
+        @if(isset($startDate))
+            params.append('month', '{{ $startDate->month }}');
+            params.append('year', '{{ $startDate->year }}');
+        @endif
+    @elseif($reportType === 'custom')
+        @if(isset($startDate) && isset($endDate))
+            params.append('start', '{{ $startDate->format("Y-m-d") }}');
+            params.append('end', '{{ $endDate->format("Y-m-d") }}');
+        @endif
+    @endif
+    
+    exportUrl += '?' + params.toString();
+    
+    console.log('Export URL:', exportUrl);
+    
+    // Show loading
+    showLoading();
+    
+    // Create an iframe to download without redirect
+    const iframe = document.createElement('iframe');
+    iframe.style.display = 'none';
+    iframe.src = exportUrl;
+    document.body.appendChild(iframe);
+    
+    // Hide loading after a delay
+    setTimeout(() => {
+        hideLoading();
+        Swal.fire({
+            title: 'Export Started',
+            text: 'Your report is being generated and will download shortly.',
+            icon: 'success',
+            confirmButtonColor: '#0038A8',
+            timer: 2000,
+            showConfirmButton: false
+        });
         setTimeout(() => {
-            hideLoading();
-            Swal.fire({
-                title: 'Export Started',
-                text: 'Your report is being generated and will download shortly.',
-                icon: 'success',
-                confirmButtonColor: '#0038A8'
-            });
-        }, 1500);
-    }
+            document.body.removeChild(iframe);
+        }, 5000);
+    }, 2000);
+}
     
     // Table search
     document.getElementById('tableSearch')?.addEventListener('keyup', function() {
