@@ -4,23 +4,7 @@
 <div class="app-container">
     <x-operator.sidebar />    
     <style>
-        .app-container {
-            display: flex;
-            min-height: 100vh;
-        }
-
-        .main-content {
-            flex: 1;
-            margin-left: 0;
-            padding: 30px;
-            transition: all 0.3s ease;
-        }
-
-        @media (min-width: 769px) {
-            .main-content {
-                margin-left: 280px;
-            }
-        }
+       
 
         /* Report Cards */
         .report-cards-grid {
