@@ -88,43 +88,59 @@ return new class extends Migration
         // TABLE: tbl_appointment (Appointments)
         // =============================================
         Schema::create('tbl_appointment', function (Blueprint $table) {
-            $table->integer('n_id', true)->autoIncrement();
+            $table->bigIncrements('n_id');
             $table->string('q_id', 255);
-            $table->dateTime('date')->default(DB::raw('CURRENT_TIMESTAMP'));
+            $table->dateTime('date')->useCurrent();
             $table->string('queue_for', 99);
 
-            $table->enum('status', ['pending', 'serving', 'completed', 'cancelled', 'no_show'])
-                    ->default('pending')
-                    ->after('queue_for');
+            // FINAL status (no ALTER needed)
+            $table->enum('status', [
+                'pending',
+                'serving',
+                'completed',
+                'cancelled',
+                'no_show'
+            ])->default('pending');
+
             $table->string('fname', 99);
-            $table->string('mname', 99);
+            $table->string('mname', 99)->nullable();
             $table->string('lname', 99);
-            $table->string('suffix', 3);
+            $table->string('suffix', 10)->nullable();
+
             $table->string('age_category', 99);
-            $table->enum('priority_type', ['regular', 'senior', 'infant', 'pwd', 'pregnant'])
-                    ->default('regular')
-                    ->after('age_category');
+
+            // FINAL priority_type (already correct)
+            $table->enum('priority_type', [
+                'regular',
+                'senior',
+                'infant',
+                'pwd',
+                'pregnant'
+            ])->default('regular');
+
             $table->string('trn', 29);
             $table->date('birthdate');
             $table->string('PCN', 16);
+
             $table->string('window_num', 9)->nullable();
             $table->dateTime('time_catered')->nullable();
+
             $table->unsignedBigInteger('user_id')->nullable();
             $table->timestamps();
 
-            // Add indexes for better performance
+            // Indexes
             $table->index('q_id');
             $table->index('date');
             $table->index('window_num');
             $table->index('user_id');
             $table->index('time_catered');
-            $table->index('priority_type');  // <-- ADD THIS LINE for priority queries
-            
-            // Foreign key constraint
+            $table->index('priority_type');
+
+            // FK
             $table->foreign('user_id')
                 ->references('id')
                 ->on('users')
-                ->onDelete('set null');
+                ->nullOnDelete();
         });
           
         // =============================================
