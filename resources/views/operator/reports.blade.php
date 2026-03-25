@@ -2,8 +2,7 @@
 <x-header title="Reports" />
 
 <div class="app-container">
-    <x-sidebar />
-    
+    <x-operator.sidebar />    
     <style>
         .app-container {
             display: flex;
