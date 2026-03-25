@@ -5,6 +5,7 @@ use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Appointment\AppointmentController;
 use App\Http\Controllers\Client\ClientController;
 use App\Http\Controllers\Operator\OperatorController;
+use App\Http\Controllers\Operator\OReportController;
 use App\Http\Controllers\Profile\ProfileController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
@@ -239,6 +240,16 @@ Route::middleware(['auth'])->group(function () {
          ->name('operator.recent-transactions');
     Route::get('/operator/transactions-page', [OperatorController::class, 'getTransactionsPage'])
          ->name('operator.transactions-page');
+
+    // Serving for Operator
+    Route::get('/operator/serving', [OperatorController::class, 'serving'])->name('operator.serving');
+    Route::get('/operator/transactions', [OperatorController::class, 'transactions'])->name('operator.transactions');
+    // Add these inside the auth middleware group
+    Route::get('/operator/reports', [OReportController::class, 'reports'])->name('operator.reports');
+    Route::get('/operator/reports/data', [OReportController::class, 'getReportData'])->name('operator.reports.data');
+    Route::get('/operator/reports/export/pdf', [OReportController::class, 'exportReportPDF'])->name('operator.reports.export.pdf');
+    Route::get('/operator/reports/export/excel', [OReportController::class, 'exportReportExcel'])->name('operator.reports.export.excel');
+
     // Export routes
     Route::get('/operator/export/pdf', [OperatorController::class, 'exportPDF'])->name('operator.export.pdf');
     Route::get('/operator/export/excel', [OperatorController::class, 'exportExcel'])->name('operator.export.excel');

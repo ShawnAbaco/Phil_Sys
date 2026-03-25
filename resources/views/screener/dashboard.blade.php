@@ -1,5 +1,5 @@
 <x-header title="Appointment Issuance" />
-
+    <x-screener.sidebar />
 <!-- Main Container -->
 <main class="main-container">
     <div class="dashboard-grid">
@@ -873,7 +873,7 @@
                     </thead>
                     <tbody id="transactionsTableContainer">
                         {{-- This will be populated by AJAX --}}
-                        @include('appointment.partials.transactions-table', [
+                        @include('screener.partials.transactions-table', [
                             'completedTransactions' => $completedTransactions,
                         ])
                     </tbody>
@@ -882,7 +882,7 @@
 
             {{-- Enhanced Pagination with Strict 5-Page Blocks --}}
             <div class="enhanced-pagination" id="paginationContainer">
-                @include('appointment.partials.pagination-links', [
+                @include('screener.partials.pagination-links', [
                     'completedTransactions' => $completedTransactions,
                 ])
             </div>

@@ -74,7 +74,7 @@ class AppointmentController extends Controller
                                         })
                                         ->count();
 
-        return view('appointment.issuance', compact(
+        return view('screener.dashboard', compact(
             'appointments',
             'completedTransactions',
             'queueCount',
@@ -287,12 +287,12 @@ class AppointmentController extends Controller
             'service' => $queueFor
         ];
 
-        return redirect()->route('appointment.issuance')
+        return redirect()->route('screener.dashboard')
                        ->with('success', 'Appointment issued successfully! Queue Number: ' . $queueId)
                        ->with('printSlip', $printData);
                        
     } catch (\Exception $e) {
-        return redirect()->route('appointment.issuance')
+        return redirect()->route('screener.dashboard')
                        ->with('error', 'Failed to issue appointment: ' . $e->getMessage())
                        ->withInput();
     }
@@ -464,8 +464,8 @@ class AppointmentController extends Controller
                                               ->withQueryString();
         
         if ($request->ajax()) {
-            $tableHtml = view('appointment.partials.transactions-table', compact('completedTransactions'))->render();
-            $paginationHtml = view('appointment.partials.pagination-links', compact('completedTransactions'))->render();
+            $tableHtml = view('screener.partials.transactions-table', compact('completedTransactions'))->render();
+            $paginationHtml = view('screener.partials.pagination-links', compact('completedTransactions'))->render();
             $showingInfo = 'Showing ' . $completedTransactions->firstItem() . '-' . $completedTransactions->lastItem() . ' of ' . $completedTransactions->total();
             
             return response()->json([

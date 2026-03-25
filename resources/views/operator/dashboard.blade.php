@@ -1,5 +1,8 @@
 <x-header title="Operator Dashboard" />
 
+<div class="app-container">
+    <x-operator.sidebar />
+    
 <!-- Main Content -->
 <main class="main-content">
     <!-- Message Container -->

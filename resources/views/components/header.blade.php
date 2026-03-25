@@ -1,3 +1,4 @@
+{{-- resources/views/components/header.blade.php --}}
 @props(['title' => 'PSA - Queue Management System'])
 
 <!DOCTYPE html>
@@ -55,14 +56,23 @@
     <header class="main-header">
         <div class="header-content">
             <!-- Logo Section -->
-            <div class="logo-section {{ $isScreener() ? 'logo-area' : '' }}">
-                <img src="{{ asset('images/logo.png') }}" alt="National ID Logo" class="header-logo">
-                <div class="logo-text">
-                    <h1>Queue Management System</h1>
-                    <span class="badge">{{ $getPortalBadge() }}</span>
-                </div>
-            </div>
+             <div class="page-header">
+    <div class="page-title">
+        <span>{{ $title }}</span>
+    </div>
+    <div class="welcome-message">
+        <svg viewBox="0 0 20 20" fill="currentColor">
+            <path fill-rule="evenodd"
+                d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z"
+                clip-rule="evenodd" />
+        </svg>
+        <span>Welcome back, <span class="welcome-role">{{ $getUserRoleGreeting() }}</span>!</span>
+    </div>
+</div>
 
+    <!-- Overlay for clicking outside -->
+    <div class="dropdown-overlay" id="dropdownOverlay"></div>
+            
             <!-- User Section - Same for Operators and Assistants -->
             <div class="user-section">
                 {{-- WINDOW BADGE - Show for both Operators and Assistants --}}
@@ -140,8 +150,8 @@
         </div>
     </header>
 
-    <!-- Overlay for clicking outside -->
-    <div class="dropdown-overlay" id="dropdownOverlay"></div>
+    <!-- Page Header with Title and Welcome Message -->
+
 
     @if ($isOperator())
         <script>

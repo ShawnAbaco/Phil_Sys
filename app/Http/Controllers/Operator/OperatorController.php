@@ -743,6 +743,64 @@ public function triggerAnnouncement(Request $request)
         ], 500);
     }
 }
-
+/**
+ * Display serving appointments page
+ */
+public function serving()
+{
+    $userId = Auth::id();
+    $today = Carbon::now('Asia/Manila')->toDateString();
+    
+    // Get serving appointments for this operator
+    $servingAppointments = TblAppointment::whereDate('date', $today)
+                                        ->where('status', 'serving')
+                                        ->where('user_id', $userId)
+                                        ->orderBy('updated_at', 'desc')
+                                        ->get();
+    
+    // Get counts for stats
+    $servingCount = $servingAppointments->count();
+    $completedCount = TblAppointment::whereDate('date', $today)
+                                    ->where('status', 'completed')
+                                    ->where('user_id', $userId)
+                                    ->count();
+    $pendingCount = TblAppointment::whereDate('date', $today)
+                                  ->where('status', 'pending')
+                                  ->count();
+    
+    return view('operator.serving', compact(
+        'servingAppointments',
+        'servingCount',
+        'completedCount',
+        'pendingCount'
+    ));
+}
+/**
+ * Display transactions page
+ */
+public function transactions(Request $request)
+{
+    $userId = Auth::id();
+    $today = Carbon::now('Asia/Manila')->toDateString();
+    $perPage = $request->get('per_page', 10);
+    $perPage = in_array($perPage, [10, 20, 50, 100]) ? $perPage : 10;
+    
+    $completedTransactions = TblAppointment::whereDate('date', $today)
+                                          ->whereIn('status', ['completed', 'cancelled'])
+                                          ->where('user_id', $userId)
+                                          ->select([
+                                              'n_id', 'q_id', 'fname', 'mname', 'lname', 'suffix',
+                                              'queue_for', 'time_catered', 'updated_at', 'window_num',
+                                              'status', 'trn', 'PCN', 'priority_type', 'created_at', 'date'
+                                          ])
+                                          ->orderByRaw("CASE 
+                                              WHEN time_catered IS NOT NULL THEN time_catered 
+                                              ELSE updated_at 
+                                          END DESC")
+                                          ->paginate($perPage)
+                                          ->withQueryString();
+    
+    return view('operator.transactions', compact('completedTransactions'));
+}
 
 }

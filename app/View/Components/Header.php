@@ -75,6 +75,26 @@ class Header extends Component
     }
 
     /**
+     * Get user role greeting text
+     */
+    public function getUserRoleGreeting()
+    {
+        $designation = strtolower($this->userDesignation ?? '');
+        
+        if (str_contains($designation, 'operator')) {
+            return 'Operator';
+        } elseif (str_contains($designation, 'assistant')) {
+            return 'Assistant';
+        } elseif ($this->isScreener()) {
+            return 'Screener';
+        } elseif ($this->userRole === 'admin') {
+            return 'Administrator';
+        }
+        
+        return 'User';
+    }
+
+    /**
      * Get the view / contents that represent the component.
      */
     public function render()
