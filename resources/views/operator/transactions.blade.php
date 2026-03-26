@@ -455,7 +455,7 @@
                 <h1>Recent Transactions</h1>
             </div>
             <div class="breadcrumb">
-                <a href="{{ route('screener.dashboard') }}">Home</a>
+                <a href="{{ route('operator.dashboard') }}">Home</a>
                 <span>/</span>
                 <span>Recent Transactions</span>
             </div>

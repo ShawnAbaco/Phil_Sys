@@ -104,7 +104,7 @@
                 <h1>Serving</h1>
             </div>
             <div class="breadcrumb">
-                <a href="{{ route('screener.dashboard') }}">Home</a>
+                <a href="{{ route('operator.dashboard') }}">Home</a>
                 <span>/</span>
                 <span>Serving</span>
             </div>

@@ -463,12 +463,12 @@
                 <h1>Dashboard</h1>
             </div>
             <div class="breadcrumb">
-                <a href="{{ route('screener.dashboard') }}">Home</a>
+                <a href="{{ route('operator.dashboard') }}">Home</a>
                 <span>/</span>
                 <span>Dashboard</span>
             </div>
         </div>
-        
+
         <!-- Stats Cards -->
         <div class="stats-grid">
             <div class="stat-card">
