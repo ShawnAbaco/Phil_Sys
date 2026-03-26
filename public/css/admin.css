@@ -1,13 +1,13 @@
 /* public/css/admin.css */
 
 /* Import all modular CSS files */
-@import url('admin/sidebar.css');
-@import url('admin/header.css');
+@import url('admin/appointments.css');
 @import url('admin/buttons.css');
 @import url('admin/dashboard.css');
-@import url('admin/appointments.css');
+@import url('admin/header.css');
 @import url('admin/logs.css');
 @import url('admin/reports.css');
 @import url('admin/settings.css');
+@import url('admin/sidebar.css');
 @import url('admin/users.css');
 @import url('admin/window.css');

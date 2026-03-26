@@ -620,9 +620,9 @@ tr:hover td {
    ============================================ */
 .notification-panel {
     position: fixed;
-    top: 70px;
-    right: 20px;
-    width: 340px;
+    top: 50px;
+    right: 260px;
+    width: 300px;
     max-height: 480px;
     background: white;
     border-radius: 12px;
@@ -640,8 +640,7 @@ tr:hover td {
 
 .notification-header {
     padding: 14px 18px;
-    background: #0038a8;
-    color: white;
+    background: linear-gradient(135deg, #0038a8, #ce1126);    color: white;
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -745,7 +744,7 @@ tr:hover td {
     }
     
     .stats-grid {
-        grid-template-columns: 1fr;
+        grid-template-columns: 2fr 2fr;
     }
     
     .quick-actions {
@@ -767,9 +766,9 @@ tr:hover td {
     }
     
     .notification-panel {
-        width: calc(100% - 40px);
+        width: calc(100% - 350px);
         right: 20px;
-        left: 20px;
+        left: 285px;
     }
 }
 

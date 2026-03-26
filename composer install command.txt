@@ -1,4 +1,0 @@
-composer require barryvdh/laravel-dompdf
-
-
-composer require maatwebsite/excel

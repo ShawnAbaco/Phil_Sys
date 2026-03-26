@@ -24,7 +24,7 @@
 
 /* Report Header */
 .report-header-modern {
-    background: linear-gradient(135deg, var(--primary-blue) 0%, #002a7a 100%);
+    background: linear-gradient(135deg, #0038a8, #ce1126);
     border-radius: 20px;
     padding: 30px;
     margin-bottom: 30px;
@@ -668,7 +668,7 @@
     }
     
     .stats-row-modern {
-        flex-direction: column;
+        flex-direction: 2fr 2fr;
     }
     
     .stat-card-modern {
@@ -676,7 +676,7 @@
     }
     
     .reports-grid-modern {
-        grid-template-columns: 1fr;
+        grid-template-columns: 2fr 2fr;
     }
     
     .charts-section-modern {
