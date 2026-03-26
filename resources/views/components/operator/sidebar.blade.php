@@ -337,6 +337,7 @@
     display: flex;
     align-items: center;
     gap: 8px;
+    margin-left: 60px;
 }
 
 .welcome-message svg {
