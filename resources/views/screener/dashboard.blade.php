@@ -5,7 +5,145 @@
     <x-screener.sidebar />
     
     <style>
-      
+        
+
+        /* Page Header */
+        .page-header {
+            margin-bottom: 10px;
+        }
+
+        .page-title1 {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+
+        .page-title1 svg {
+            width: 32px;
+            height: 32px;
+            color: #2563eb;
+        }
+
+        .page-title1 h1 {
+            font-size: 28px;
+            font-weight: 700;
+            color: #1e293b;
+            margin: 0;
+        }
+
+        .breadcrumb {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+}
+
+.breadcrumb a {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: #1e293b;
+    text-decoration: none;
+    padding: 6px 10px;
+    border-radius: var(--radius);
+    background: var(--gray-100);
+    transition: all 0.2s ease;
+}
+
+.breadcrumb a:hover {
+    background: var(--primary);
+    color: #fff;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(37, 99, 235, 0.2);
+}
+
+.breadcrumb a svg {
+    color: var(--primary);
+    transition: color 0.2s ease;
+}
+
+.breadcrumb a:hover svg {
+    color: #fff;
+}
+
+.breadcrumb span {
+    color: #676e79;
+}
+
+.breadcrumb .current {
+    color: var(--gray-800);
+    font-weight: 500;
+    padding: 6px 10px;
+    background: var(--gray-100);
+    border-radius: var(--radius);
+}
+
+        /* Quick Actions Section Header */
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .section-header h2 {
+            font-size: 20px;
+            font-weight: 600;
+            color: #1e293b;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .section-header h2 svg {
+            width: 24px;
+            height: 24px;
+            color: #2563eb;
+        }
+
+        /* Stats Section Header */
+        .stats-header {
+            margin-bottom: 20px;
+        }
+
+        .stats-header h2 {
+            font-size: 20px;
+            font-weight: 600;
+            color: #1e293b;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .stats-header h2 svg {
+            width: 24px;
+            height: 24px;
+            color: #2563eb;
+        }
+
+        /* Charts Section Header */
+        .charts-header {
+            margin-bottom: 20px;
+        }
+
+        .charts-header h2 {
+            font-size: 20px;
+            font-weight: 600;
+            color: #1e293b;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .charts-header h2 svg {
+            width: 24px;
+            height: 24px;
+            color: #2563eb;
+        }
 
         /* Welcome Section */
         .welcome-section {
@@ -136,6 +274,55 @@
         .trend-up { color: #10b981; }
         .trend-down { color: #ef4444; }
 
+        /* Quick Actions */
+        .quick-actions {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+            margin-bottom: 32px;
+        }
+
+        .action-btn {
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 16px;
+            padding: 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+        }
+
+        .action-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+            border-color: #2563eb;
+        }
+
+        .action-icon {
+            width: 48px;
+            height: 48px;
+            background: linear-gradient(135deg, #2563eb, #1d4ed8);
+            border-radius: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 12px;
+            color: white;
+        }
+
+        .action-btn h4 {
+            font-size: 14px;
+            font-weight: 600;
+            color: #1e293b;
+            margin-bottom: 4px;
+        }
+
+        .action-btn p {
+            font-size: 12px;
+            color: #64748b;
+        }
+
         /* Charts Section */
         .charts-grid {
             display: grid;
@@ -191,6 +378,15 @@
             font-size: 18px;
             font-weight: 600;
             color: #1e293b;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .recent-header h3 svg {
+            width: 20px;
+            height: 20px;
+            color: #2563eb;
         }
 
         .view-all {
@@ -252,55 +448,6 @@
             color: #94a3b8;
         }
 
-        /* Quick Actions */
-        .quick-actions {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 16px;
-            margin-bottom: 32px;
-        }
-
-        .action-btn {
-            background: white;
-            border: 1px solid #e2e8f0;
-            border-radius: 16px;
-            padding: 20px;
-            text-align: center;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            text-decoration: none;
-        }
-
-        .action-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
-            border-color: #2563eb;
-        }
-
-        .action-icon {
-            width: 48px;
-            height: 48px;
-            background: linear-gradient(135deg, #2563eb, #1d4ed8);
-            border-radius: 24px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin: 0 auto 12px;
-            color: white;
-        }
-
-        .action-btn h4 {
-            font-size: 14px;
-            font-weight: 600;
-            color: #1e293b;
-            margin-bottom: 4px;
-        }
-
-        .action-btn p {
-            font-size: 12px;
-            color: #64748b;
-        }
-
         @media (max-width: 1024px) {
             .stats-grid {
                 grid-template-columns: repeat(2, 1fr);
@@ -315,9 +462,23 @@
     </style>
 
     <main class="main-content">
-       
+        <!-- Page Header with Breadcrumb -->
+        <div class="page-header">
+            <div class="page-title1">
+                <svg viewBox="0 0 20 20" fill="currentColor">
+                    <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z" />
+                </svg>
+                <h1>Dashboard</h1>
+            </div>
+            <div class="breadcrumb">
+                <a href="{{ route('screener.dashboard') }}">Home</a>
+                <span>/</span>
+                <span>Dashboard</span>
+            </div>
+        </div>
 
-        <!-- Quick Actions -->
+        
+        
         <div class="quick-actions">
             <a href="{{ route('screener.appointments') }}" class="action-btn">
                 <div class="action-icon">
@@ -348,7 +509,7 @@
             </a>
         </div>
 
-        <!-- Stats Cards -->
+       
         <div class="stats-grid">
             <div class="stat-card">
                 <div class="stat-header">
@@ -438,7 +599,7 @@
             </div>
         </div>
 
-        <!-- Charts Section -->
+        
         <div class="charts-grid">
             <div class="chart-card">
                 <div class="chart-header">
@@ -466,10 +627,15 @@
             </div>
         </div>
 
-        <!-- Recent Activity -->
+        <!-- Recent Activity Section -->
         <div class="recent-section">
             <div class="recent-header">
-                <h3>Recent Activity</h3>
+                <h3>
+                    <svg viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd" />
+                    </svg>
+                    Recent Activity
+                </h3>
                 <a href="{{ route('screener.transactions') }}" class="view-all">View All →</a>
             </div>
             <div class="activity-list">

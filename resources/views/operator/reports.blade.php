@@ -4,7 +4,78 @@
 <div class="app-container">
     <x-operator.sidebar />    
     <style>
-       
+         /* Page Header */
+        .page-header {
+            margin-bottom: 10px;
+        }
+
+        .page-title1 {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+
+        .page-title1 svg {
+            width: 32px;
+            height: 32px;
+            color: #2563eb;
+        }
+
+        .page-title1 h1 {
+            font-size: 28px;
+            font-weight: 700;
+            color: #1e293b;
+            margin: 0;
+        }
+
+        .breadcrumb {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+}
+
+.breadcrumb a {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: #1e293b;
+    text-decoration: none;
+    padding: 6px 10px;
+    border-radius: var(--radius);
+    background: var(--gray-100);
+    transition: all 0.2s ease;
+}
+
+.breadcrumb a:hover {
+    background: var(--primary);
+    color: #fff;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(37, 99, 235, 0.2);
+}
+
+.breadcrumb a svg {
+    color: var(--primary);
+    transition: color 0.2s ease;
+}
+
+.breadcrumb a:hover svg {
+    color: #fff;
+}
+
+.breadcrumb span {
+    color: #676e79;
+}
+
+.breadcrumb .current {
+    color: var(--gray-800);
+    font-weight: 500;
+    padding: 6px 10px;
+    background: var(--gray-100);
+    border-radius: var(--radius);
+}
+
 
         /* Report Cards */
         .report-cards-grid {
@@ -375,6 +446,22 @@
 
     <!-- Main Content -->
     <main class="main-content">
+        <!-- Page Header with Breadcrumb -->
+        <div class="page-header">
+            <div class="page-title1">
+                <svg viewBox="0 0 20 20" fill="currentColor">
+                    <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z" />
+                </svg>
+                <h1>Reports</h1>
+            </div>
+            <div class="breadcrumb">
+                <a href="{{ route('screener.dashboard') }}">Home</a>
+                <span>/</span>
+                <span>Reports</span>
+            </div>
+        </div>
+
+
         <!-- Message Container -->
         <div class="message-container" id="messageContainer"></div>
 

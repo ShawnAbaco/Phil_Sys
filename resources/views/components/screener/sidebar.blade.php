@@ -24,13 +24,13 @@
 
 <aside class="sidebar" id="mainSidebar">
     <div class="sidebar-header">
-        <div class="sidebar-logo">
-            <img src="{{ asset('images/logo.png') }}" alt="National ID Logo" class="sidebar-logo-img">
-            <div class="sidebar-logo-text">
-                <h2>Queue Management System</h2>
-                <span class="sidebar-badge">{{ $portalBadge }}</span>
+
+    <div class="logo-section">
+                <img src="{{ asset('images/logo.png') }}" alt="National ID Logo" class="header-logo">
+                <div class="logo-text">
+                </div>
             </div>
-        </div>
+        
         <button class="sidebar-close-btn" id="closeSidebarBtn">
             <svg viewBox="0 0 20 20" fill="currentColor">
                 <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" />

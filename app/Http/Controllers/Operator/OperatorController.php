@@ -21,182 +21,120 @@ class OperatorController extends Controller
 {
   public function dashboard()
 {
-    // Get operator's window number from users table
     $windowNum = Auth::user()->window_num ?? '1';
     $userId = Auth::id();
     
-    // Set timezone to Philippine Time
     Carbon::setLocale('en');
     $today = Carbon::now('Asia/Manila')->toDateString();
 
-    // Get today's appointments with status: pending, serving, or no_show
-    // For serving status, only show the ones served by this user
+    // Get today's appointments
     $allAppointments = TblAppointment::whereDate('date', $today)
-                                    ->where(function($query) use ($userId) {
-                                        $query->whereIn('status', ['pending', 'no_show'])
-                                              ->orWhere(function($q) use ($userId) {
-                                                  $q->where('status', 'serving')
-                                                    ->where('user_id', $userId);
-                                              });
-                                    })
-                                    ->orderBy('date', 'asc')
-                                    ->get();
+        ->where(function($query) use ($userId) {
+            $query->whereIn('status', ['pending', 'no_show'])
+                  ->orWhere(function($q) use ($userId) {
+                      $q->where('status', 'serving')->where('user_id', $userId);
+                  });
+        })
+        ->orderBy('date', 'asc')
+        ->get();
 
-    // ===== REUSABLE SORTING FUNCTION =====
+    // Apply sorting logic
     $applySortingLogic = function($collection) {
-        // Separate appointments by status
         $serving = $collection->where('status', 'serving')->values();
-        
-        // Separate pending by priority - using updated_at
         $highPriorityPending = $collection->where('status', 'pending')
-                                         ->filter(function($app) {
-                                             return in_array($app->priority_type, ['senior', 'infant', 'pwd', 'pregnant']);
-                                         })
-                                         ->sortBy('updated_at')
-                                         ->values();
-        
+            ->filter(fn($app) => in_array($app->priority_type, ['senior', 'infant', 'pwd', 'pregnant']))
+            ->sortBy('updated_at')->values();
         $regularPending = $collection->where('status', 'pending')
-                                    ->where('priority_type', 'regular')
-                                    ->sortBy('updated_at')
-                                    ->values();
-        
-        $noShow = $collection->where('status', 'no_show')
-                            ->sortBy('updated_at')
-                            ->values();
+            ->where('priority_type', 'regular')->sortBy('updated_at')->values();
+        $noShow = $collection->where('status', 'no_show')->sortBy('updated_at')->values();
 
-        // Custom sorting logic for appointments
         $sorted = collect();
-
-        // 1. Add serving appointments first (should be only one per user)
-        foreach ($serving as $app) {
-            $sorted->push($app);
-        }
-
-        // 2. Handle high priority pending with special positioning
-        if ($highPriorityPending->count() > 0) {
-            // Get the oldest high priority pending (based on updated_at)
-            $oldestHighPriority = $highPriorityPending->shift();
-            
-            // Insert the oldest high priority at the next position
-            $sorted->push($oldestHighPriority);
-            
-            // The rest of high priority pending will be added at the end
-        }
-
-        // 3. Handle no_show appointments with special positioning
-        if ($noShow->count() > 0) {
-            // Get the oldest no_show (first in the sorted collection)
-            $oldestNoShow = $noShow->shift();
-            
-            // Insert the oldest no_show after high priority
-            $sorted->push($oldestNoShow);
-            
-            // The rest of no_show will be added at the end
-        }
-
-        // 4. Add regular pending appointments (sorted by updated_at)
-        foreach ($regularPending as $app) {
-            $sorted->push($app);
-        }
-
-        // 5. Add remaining high priority pending at the end
-        foreach ($highPriorityPending as $app) {
-            $sorted->push($app);
-        }
-
-        // 6. Add remaining no_show appointments at the very end
-        foreach ($noShow as $app) {
-            $sorted->push($app);
-        }
-
+        foreach ($serving as $app) $sorted->push($app);
+        if ($highPriorityPending->count() > 0) $sorted->push($highPriorityPending->shift());
+        if ($noShow->count() > 0) $sorted->push($noShow->shift());
+        foreach ($regularPending as $app) $sorted->push($app);
+        foreach ($highPriorityPending as $app) $sorted->push($app);
+        foreach ($noShow as $app) $sorted->push($app);
         return $sorted;
     };
 
-    // Apply sorting to ALL appointments (for All Services tab)
     $appointments = $applySortingLogic($allAppointments);
+    
+    $nidRegistrationAppointments = $applySortingLogic($allAppointments->filter(fn($app) => $app->queue_for === 'NID Registration')->values());
+    $statusInquiryAppointments = $applySortingLogic($allAppointments->filter(fn($app) => $app->queue_for === 'Status Inquiry')->values());
+    $nidUpdatingAppointments = $applySortingLogic($allAppointments->filter(fn($app) => $app->queue_for === 'Updating')->values());
 
-    // Filter appointments by service type FIRST, THEN apply sorting to each service-specific collection
-    $nidRegistrationCollection = $allAppointments->filter(function($app) {
-        return $app->queue_for === 'NID Registration';
-    })->values();
-    $nidRegistrationAppointments = $applySortingLogic($nidRegistrationCollection);
-
-    $statusInquiryCollection = $allAppointments->filter(function($app) {
-        return $app->queue_for === 'Status Inquiry';
-    })->values();
-    $statusInquiryAppointments = $applySortingLogic($statusInquiryCollection);
-
-    $nidUpdatingCollection = $allAppointments->filter(function($app) {
-        return $app->queue_for === 'Updating';
-    })->values();
-    $nidUpdatingAppointments = $applySortingLogic($nidUpdatingCollection);
-
-    // Get TODAY'S COMPLETED & CANCELLED TRANSACTIONS
-    $completedTransactions = TblAppointment::whereDate('date', $today)
-                                          ->whereIn('status', ['completed', 'cancelled'])
-                                          ->where('user_id', $userId)
-                                          ->orderByRaw("CASE 
-                                              WHEN time_catered IS NOT NULL THEN time_catered 
-                                              ELSE updated_at 
-                                          END DESC")
-                                          ->paginate(10);
-
-    // TOTAL QUEUE TODAY - ALL APPOINTMENTS regardless of status or user
+    // Get statistics
     $queueCount = TblAppointment::whereDate('date', $today)->count();
+    $pendingCount = TblAppointment::whereDate('date', $today)->where('status', 'pending')->count();
+    $completedCount = TblAppointment::whereDate('date', $today)->where('status', 'completed')->where('user_id', $userId)->count();
+    $cancelledCount = TblAppointment::whereDate('date', $today)->where('status', 'cancelled')->where('user_id', $userId)->count();
+    $servingCount = TblAppointment::whereDate('date', $today)->where('status', 'serving')->where('user_id', $userId)->count();
+    $noShowCount = TblAppointment::whereDate('date', $today)->where('status', 'no_show')->count();
+    $allCompletedToday = TblAppointment::whereDate('date', $today)->where('status', 'completed')->count();
+    $allCancelledToday = TblAppointment::whereDate('date', $today)->where('status', 'cancelled')->count();
 
-    // Get pending appointments count (all pending, regardless of user)
-    $pendingCount = TblAppointment::whereDate('date', $today)
-                                  ->where('status', 'pending')
-                                  ->count();
+    // Priority counts
+    $priorityCounts = [
+        'senior' => TblAppointment::whereDate('date', $today)->where('priority_type', 'senior')->count(),
+        'infant' => TblAppointment::whereDate('date', $today)->where('priority_type', 'infant')->count(),
+        'pwd' => TblAppointment::whereDate('date', $today)->where('priority_type', 'pwd')->count(),
+        'pregnant' => TblAppointment::whereDate('date', $today)->where('priority_type', 'pregnant')->count(),
+        'regular' => TblAppointment::whereDate('date', $today)->where('priority_type', 'regular')->count(),
+    ];
 
-    // Get completed appointments count for this user
-    $completedCount = TblAppointment::whereDate('date', $today)
-                                    ->where('status', 'completed')
-                                    ->where('user_id', $userId)
-                                    ->count();
+    // Daily data for last 7 days
+    $dailyLabels = [];
+    $dailyServed = [];
+    $dailyCompleted = [];
+    
+    for ($i = 6; $i >= 0; $i--) {
+        $date = Carbon::now('Asia/Manila')->subDays($i)->toDateString();
+        $dailyLabels[] = Carbon::now('Asia/Manila')->subDays($i)->format('M d');
+        $dailyServed[] = TblAppointment::whereDate('date', $date)->where('user_id', $userId)
+            ->whereIn('status', ['completed', 'serving'])->count();
+        $dailyCompleted[] = TblAppointment::whereDate('date', $date)->where('user_id', $userId)
+            ->where('status', 'completed')->count();
+    }
 
-    // Get cancelled appointments count for this user
-    $cancelledCount = TblAppointment::whereDate('date', $today)
-                                    ->where('status', 'cancelled')
-                                    ->where('user_id', $userId)
-                                    ->count();
+    // Status distribution
+    $statusData = [
+        'pending' => $pendingCount,
+        'serving' => $servingCount,
+        'completed' => $completedCount,
+        'cancelled' => $cancelledCount,
+        'no_show' => $noShowCount,
+    ];
 
-    // Get serving appointments count (only this user's serving)
-    $servingCount = TblAppointment::whereDate('date', $today)
-                                  ->where('status', 'serving')
-                                  ->where('user_id', $userId)
-                                  ->count();
+    // Recent activities
+    $recentActivities = TblAppointment::whereDate('date', $today)
+        ->where('user_id', $userId)
+        ->whereIn('status', ['completed', 'cancelled'])
+        ->orderBy('updated_at', 'desc')
+        ->limit(5)
+        ->get()
+        ->map(function($appointment) {
+            return [
+                'type' => $appointment->status,
+                'title' => $appointment->status === 'completed' ? 'Appointment Completed' : 'Appointment Cancelled',
+                'description' => $appointment->q_id . ' - ' . $appointment->lname . ', ' . $appointment->fname,
+                'time' => Carbon::parse($appointment->updated_at)->setTimezone('Asia/Manila')->diffForHumans(),
+            ];
+        });
 
-    // Get no show appointments count (all no_show, regardless of user)
-    $noShowCount = TblAppointment::whereDate('date', $today)
-                                 ->where('status', 'no_show')
-                                 ->count();
-
-    // Get all completed today (for additional stat)
-    $allCompletedToday = TblAppointment::whereDate('date', $today)
-                                      ->where('status', 'completed')
-                                      ->count();
-
-    // Get all cancelled today (for additional stat)
-    $allCancelledToday = TblAppointment::whereDate('date', $today)
-                                      ->where('status', 'cancelled')
-                                      ->count();
+    // Transactions pagination
+    $completedTransactions = TblAppointment::whereDate('date', $today)
+        ->whereIn('status', ['completed', 'cancelled'])
+        ->where('user_id', $userId)
+        ->orderByRaw("CASE WHEN time_catered IS NOT NULL THEN time_catered ELSE updated_at END DESC")
+        ->paginate(10);
 
     return view('operator.dashboard', compact(
-        'windowNum',
-        'appointments',
-        'nidRegistrationAppointments',
-        'statusInquiryAppointments',
-        'nidUpdatingAppointments',
-        'completedTransactions',
-        'queueCount',
-        'pendingCount',
-        'completedCount',
-        'cancelledCount',
-        'servingCount',
-        'noShowCount',
-        'allCompletedToday',
-        'allCancelledToday'
+        'windowNum', 'appointments', 'nidRegistrationAppointments', 'statusInquiryAppointments',
+        'nidUpdatingAppointments', 'completedTransactions', 'queueCount', 'pendingCount',
+        'completedCount', 'cancelledCount', 'servingCount', 'noShowCount', 'allCompletedToday',
+        'allCancelledToday', 'priorityCounts', 'dailyLabels', 'dailyServed', 'dailyCompleted',
+        'statusData', 'recentActivities'
     ));
 }
 

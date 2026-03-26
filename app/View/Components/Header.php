@@ -68,7 +68,7 @@ class Header extends Component
         } elseif (str_contains($designation, 'assistant')) {
             return 'ASSISTANT PORTAL';
         } elseif ($this->isScreener()) {
-            return 'SCREENER DASHBOARD';
+            return 'SCREENER PORTAL';
         }
         
         return 'PORTAL';

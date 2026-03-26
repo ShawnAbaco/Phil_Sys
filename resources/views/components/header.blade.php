@@ -49,25 +49,32 @@
 
 <body>
     <!-- PSA-themed header with arrow pattern (only for screeners) -->
-    @if ($isScreener())
+    
         <div class="header-overlay"></div>
-    @endif
+    
 
     <header class="main-header">
         <div class="header-content">
+
+
+        
             <!-- Logo Section -->
+             
              <div class="page-header">
+                
     <div class="page-title">
-        <span>{{ $title }}</span>
+        <div class="logo-section">
+                <div class="logo-text">
+                    <h1>Queue Management System</h1>
+                    <span class="badge">{{ $getPortalBadge() }}</span>
+                </div>
+            </div>
+
     </div>
-    <div class="welcome-message">
-        <svg viewBox="0 0 20 20" fill="currentColor">
-            <path fill-rule="evenodd"
-                d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z"
-                clip-rule="evenodd" />
-        </svg>
-        <span>Welcome back, <span class="welcome-role">{{ $getUserRoleGreeting() }}</span>!</span>
-    </div>
+    
+      
+        
+    
 </div>
 
     <!-- Overlay for clicking outside -->

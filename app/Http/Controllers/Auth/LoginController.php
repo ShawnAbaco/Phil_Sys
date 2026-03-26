@@ -78,7 +78,7 @@ class LoginController extends Controller
 
         // Screener
         if ($designation == 'screener') {
-            return redirect()->route('appointment.issuance');
+            return redirect()->route('screener.dashboard');
         }
         // Registration Kit Operator
         elseif ($designation == 'registration kit operator') {
