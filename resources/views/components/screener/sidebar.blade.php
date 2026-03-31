@@ -41,14 +41,14 @@
     <nav class="sidebar-nav">
         @if($isOperator)
             {{-- Operator Navigation --}}
-            <a href="{{ route('operator.dashboard') }}" class="sidebar-link {{ request()->routeIs('operator.dashboard') ? 'active' : '' }}">
+            <a href="{{ route('screener.dashboard') }}" class="sidebar-link {{ request()->routeIs('screener.dashboard') ? 'active' : '' }}">
                 <svg viewBox="0 0 20 20" fill="currentColor">
                     <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z" />
                 </svg>
                 <span>Dashboard</span>
             </a>
 
-            <a href="{{ route('operator.serving') }}" class="sidebar-link {{ request()->routeIs('operator.serving') ? 'active' : '' }}">
+            <a href="{{ route('screener.appointments') }}" class="sidebar-link {{ request()->routeIs('screener.appointments') ? 'active' : '' }}">
                 <svg viewBox="0 0 20 20" fill="currentColor">
                     <path fill-rule="evenodd"
                         d="M11.3 1.046A1 1 0 0112 2v5h4a1 1 0 01.82 1.573l-7 10A1 1 0 018 18v-5H4a1 1 0 01-.82-1.573l7-10a1 1 0 011.12-.38z"
@@ -66,7 +66,7 @@
                 @endif
             </a>
 
-            <a href="{{ route('operator.transactions') }}" class="sidebar-link {{ request()->routeIs('operator.transactions*') ? 'active' : '' }}">
+            <a href="{{ route('screener.transactions') }}" class="sidebar-link {{ request()->routeIs('screener.transactions*') ? 'active' : '' }}">
                 <svg viewBox="0 0 20 20" fill="currentColor">
                     <path fill-rule="evenodd"
                         d="M4 4a2 2 0 00-2 2v8a2 2 0 002 2h12a2 2 0 002-2V8a2 2 0 00-2-2h-5L9 4H4zm7 4a1 1 0 10-2 0v3.586l-.293-.293a1 1 0 10-1.414 1.414l2 2a1 1 0 001.414 0l2-2a1 1 0 10-1.414-1.414l-.293.293V8z"
@@ -75,7 +75,7 @@
                 <span>Recent Transactions</span>
             </a>
 
-            <a href="{{ route('operator.reports') }}" class="sidebar-link {{ request()->routeIs('operator.reports*') ? 'active' : '' }}">
+            <a href="{{ route('screener.reports') }}" class="sidebar-link {{ request()->routeIs('screener.reports*') ? 'active' : '' }}">
                 <svg viewBox="0 0 20 20" fill="currentColor">
                     <path fill-rule="evenodd"
                         d="M3 3a1 1 0 000 2v8a2 2 0 002 2h2.586l-1.293 1.293a1 1 0 101.414 1.414L10 15.414l2.293 2.293a1 1 0 001.414-1.414L12.414 15H15a2 2 0 002-2V5a1 1 0 100-2H3zm11 4a1 1 0 10-2 0v4a1 1 0 102 0V7zm-3 1a1 1 0 10-2 0v3a1 1 0 102 0V8zM8 9a1 1 0 00-2 0v2a1 1 0 102 0V9z"

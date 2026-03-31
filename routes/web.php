@@ -260,6 +260,7 @@ Route::prefix('screener')->name('screener.')->middleware(['auth'])->group(functi
 
     // Serving for Operator
     Route::get('/operator/serving', [OperatorController::class, 'serving'])->name('operator.serving');
+    Route::get('/operator/fetch-windows-status', [OperatorController::class, 'fetchWindowsStatus'])->name('operator.fetch-windows-status');
     Route::get('/operator/transactions', [OperatorController::class, 'transactions'])->name('operator.transactions');
     // Add these inside the auth middleware group
     Route::get('/operator/reports', [OReportController::class, 'reports'])->name('operator.reports');

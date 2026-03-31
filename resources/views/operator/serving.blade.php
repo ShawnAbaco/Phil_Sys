@@ -4,98 +4,402 @@
 <div class="app-container">
     <x-operator.sidebar />    
     <style>
-       
-  /* Page Header */
-        .page-header {
-            margin-bottom: 10px;
+    /* Page Header */
+    .page-header {
+        margin-bottom: 10px;
+    }
+
+    .page-title1 {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 12px;
+    }
+
+    .page-title1 svg {
+        width: 32px;
+        height: 32px;
+        color: #2563eb;
+    }
+
+    .page-title1 h1 {
+        font-size: 28px;
+        font-weight: 700;
+        color: #1e293b;
+        margin: 0;
+    }
+
+    .breadcrumb {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 14px;
+    }
+
+    .breadcrumb a {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        color: #1e293b;
+        text-decoration: none;
+        padding: 6px 10px;
+        border-radius: var(--radius);
+        background: var(--gray-100);
+        transition: all 0.2s ease;
+    }
+
+    .breadcrumb a:hover {
+        background: var(--primary);
+        color: #fff;
+        transform: translateY(-1px);
+        box-shadow: 0 2px 4px rgba(37, 99, 235, 0.2);
+    }
+
+    .breadcrumb a svg {
+        color: var(--primary);
+        transition: color 0.2s ease;
+    }
+
+    .breadcrumb a:hover svg {
+        color: #fff;
+    }
+
+    .breadcrumb span {
+        color: #676e79;
+    }
+
+    .breadcrumb .current {
+        color: var(--gray-800);
+        font-weight: 500;
+        padding: 6px 10px;
+        background: var(--gray-100);
+        border-radius: var(--radius);
+    }
+
+    /* Windows Grid - 6 columns */
+    .windows-grid {
+        display: grid;
+        grid-template-columns: repeat(6, 1fr);
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 1400px) {
+        .windows-grid {
+            grid-template-columns: repeat(3, 1fr);
         }
+    }
 
-        .page-title1 {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            margin-bottom: 12px;
+    @media (max-width: 768px) {
+        .windows-grid {
+            grid-template-columns: repeat(2, 1fr);
         }
+    }
 
-        .page-title1 svg {
-            width: 32px;
-            height: 32px;
-            color: #2563eb;
+    @media (max-width: 480px) {
+        .windows-grid {
+            grid-template-columns: 1fr;
         }
+    }
 
-        .page-title1 h1 {
-            font-size: 28px;
-            font-weight: 700;
-            color: #1e293b;
-            margin: 0;
+    .window-card {
+        background: white;
+        border-radius: 0.75rem;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        border: 1px solid #e2e8f0;
+        transition: all 0.2s ease;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .window-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+
+    .window-card.window-active {
+        border-left: 4px solid #10b981;
+        background: linear-gradient(135deg, #f0fdf4, #ffffff);
+    }
+
+    /* Window Header with My Window badge */
+    .window-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0.75rem 1rem;
+        background: #f8fafc;
+        border-bottom: 1px solid #e2e8f0;
+    }
+
+    .window-number {
+        font-size: 0.875rem;
+        font-weight: 700;
+        color: #1e293b;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .window-number .my-window-badge {
+        background: #10b981;
+        color: white;
+        font-size: 0.625rem;
+        font-weight: 600;
+        padding: 0.125rem 0.5rem;
+        border-radius: 20px;
+        text-transform: uppercase;
+    }
+
+    .window-badge {
+        padding: 0.25rem 0.75rem;
+        border-radius: 20px;
+        font-size: 0.6875rem;
+        font-weight: 600;
+    }
+
+    .window-badge.idle {
+        background: #f1f5f9;
+        color: #64748b;
+    }
+
+    .window-badge.busy {
+        background: #fee2e2;
+        color: #dc2626;
+    }
+
+    .window-badge.serving {
+        background: #dbeafe;
+        color: #2563eb;
+        animation: pulse-blue 1.5s infinite;
+    }
+
+    @keyframes pulse-blue {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.7; background: #bfdbfe; }
+    }
+
+    /* Serving Section - CENTERED */
+    .window-serving-info {
+        padding: 0.875rem 1rem;
+        border-bottom: 1px solid #eef2ff;
+        text-align: center;
+    }
+
+    .serving-label {
+        font-size: 0.625rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        color: #94a3b8;
+        letter-spacing: 0.5px;
+        margin-bottom: 0.5rem;
+        text-align: center;
+    }
+
+    .serving-queue {
+        font-size: 1.125rem;
+        font-weight: 700;
+        font-family: monospace;
+        color: #1e293b;
+        background: #f1f5f9;
+        display: inline-block;
+        padding: 0.25rem 0.625rem;
+        border-radius: 0.375rem;
+        margin-bottom: 0.5rem;
+        text-align: center;
+    }
+
+    .serving-name {
+        font-size: 0.75rem;
+        color: #475569;
+        line-height: 1.3;
+        word-break: break-word;
+        text-align: center;
+    }
+
+    /* Previous Served Section - CENTERED */
+    .previous-serving {
+        padding: 0.875rem 1rem;
+        background: #fafbfc;
+        text-align: center;
+    }
+
+    .previous-label {
+        font-size: 0.625rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        color: #94a3b8;
+        letter-spacing: 0.5px;
+        margin-bottom: 0.5rem;
+        text-align: center;
+    }
+
+    .previous-queue {
+        font-size: 0.875rem;
+        font-weight: 600;
+        font-family: monospace;
+        color: #475569;
+        background: #f1f5f9;
+        display: inline-block;
+        padding: 0.1875rem 0.5rem;
+        border-radius: 0.25rem;
+        margin-bottom: 0.25rem;
+        text-align: center;
+    }
+
+    .previous-name {
+        font-size: 0.6875rem;
+        color: #64748b;
+        line-height: 1.3;
+        word-break: break-word;
+        text-align: center;
+    }
+
+    .empty-window {
+        text-align: center;
+        padding: 0.5rem 0;
+        color: #94a3b8;
+        font-size: 0.6875rem;
+        font-style: italic;
+    }
+
+    /* Summary Cards Grid - 5 columns */
+    .summary-cards-grid {
+        display: grid;
+        grid-template-columns: repeat(5, 1fr);
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+    }
+
+    /* Responsive adjustments for summary cards */
+    @media (max-width: 1200px) {
+        .summary-cards-grid {
+            grid-template-columns: repeat(3, 1fr);
         }
+    }
 
-        .breadcrumb {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    font-size: 14px;
-}
-
-.breadcrumb a {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    color: #1e293b;
-    text-decoration: none;
-    padding: 6px 10px;
-    border-radius: var(--radius);
-    background: var(--gray-100);
-    transition: all 0.2s ease;
-}
-
-.breadcrumb a:hover {
-    background: var(--primary);
-    color: #fff;
-    transform: translateY(-1px);
-    box-shadow: 0 2px 4px rgba(37, 99, 235, 0.2);
-}
-
-.breadcrumb a svg {
-    color: var(--primary);
-    transition: color 0.2s ease;
-}
-
-.breadcrumb a:hover svg {
-    color: #fff;
-}
-
-.breadcrumb span {
-    color: #676e79;
-}
-
-.breadcrumb .current {
-    color: var(--gray-800);
-    font-weight: 500;
-    padding: 6px 10px;
-    background: var(--gray-100);
-    border-radius: var(--radius);
-}
-
-        .serving-badge-header {
-            background: linear-gradient(135deg, #ef4444, #dc2626);
-            color: white;
-            padding: 4px 12px;
-            border-radius: 20px;
-            font-size: 0.75rem;
-            font-weight: 600;
-            margin-left: 10px;
+    @media (max-width: 768px) {
+        .summary-cards-grid {
+            grid-template-columns: repeat(2, 1fr);
         }
+    }
 
-        .serving-card {
-            border-left: 4px solid #ef4444;
+    @media (max-width: 480px) {
+        .summary-cards-grid {
+            grid-template-columns: 1fr;
         }
-    </style>
+    }
+
+    .summary-card {
+        background: white;
+        border-radius: 0.75rem;
+        padding: 1rem;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        border: 1px solid #e2e8f0;
+        transition: all 0.2s ease;
+    }
+
+    .summary-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+
+    .summary-card-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 0.75rem;
+        padding-bottom: 0.5rem;
+        border-bottom: 2px solid #e2e8f0;
+    }
+
+    .summary-card-title {
+        font-size: 0.875rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        color: #64748b;
+    }
+
+    .summary-card-icon {
+        width: 32px;
+        height: 32px;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+    }
+
+    .summary-card-value {
+        font-size: 2rem;
+        font-weight: 700;
+        color: #1e293b;
+        margin-bottom: 0.25rem;
+    }
+
+    .summary-card-value.pending {
+        color: #f59e0b;
+    }
+
+    .summary-card-value.cancelled {
+        color: #ef4444;
+    }
+
+    .summary-card-value.no-show {
+        color: #6b7280;
+    }
+
+    .summary-card-value.completed {
+        color: #10b981;
+    }
+
+    .summary-card-sub {
+        font-size: 0.75rem;
+        color: #64748b;
+    }
+
+    .priority-stats {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.75rem;
+        margin-top: 0.5rem;
+    }
+
+    .priority-stat-item {
+        flex: 1;
+        min-width: 80px;
+        text-align: center;
+        padding: 0.5rem;
+        background: #f8fafc;
+        border-radius: 0.5rem;
+    }
+
+    .priority-stat-label {
+        font-size: 0.6875rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        color: #64748b;
+        margin-bottom: 0.25rem;
+    }
+
+    .priority-stat-number {
+        font-size: 1.125rem;
+        font-weight: 700;
+    }
+
+    .priority-stat-number.senior { color: #8b5cf6; }
+    .priority-stat-number.infant { color: #f59e0b; }
+    .priority-stat-number.pwd { color: #10b981; }
+    .priority-stat-number.pregnant { color: #ec4899; }
+    .priority-stat-number.regular { color: #64748b; }
+</style>
 
     <!-- Main Content -->
     <main class="main-content">
 
-    <!-- Page Header with Breadcrumb -->
+        <!-- Page Header with Breadcrumb -->
         <div class="page-header">
             <div class="page-title1">
                 <svg viewBox="0 0 20 20" fill="currentColor">
@@ -110,288 +414,321 @@
             </div>
         </div>
 
+        <!-- ========== SUMMARY CARDS SECTION (5 CARDS) ========== -->
+        <div class="summary-cards-grid">
+            <!-- ALL COMPLETED Card -->
+            <div class="summary-card">
+                <div class="summary-card-header">
+                    <span class="summary-card-title">All Completed</span>
+                    <div class="summary-card-icon" style="background: linear-gradient(135deg, #10b981, #059669)">
+                        <svg viewBox="0 0 20 20" fill="currentColor" width="20" height="20">
+                            <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+                        </svg>
+                    </div>
+                </div>
+                <div class="summary-card-value" id="allCompletedCount">{{ $allCompletedToday ?? 0 }}</div>
+                <div class="summary-card-sub">Total completed appointments today</div>
+            </div>
+
+            <!-- MY COMPLETED Card -->
+            <div class="summary-card">
+                <div class="summary-card-header">
+                    <span class="summary-card-title">My Completed</span>
+                    <div class="summary-card-icon" style="background: linear-gradient(135deg, #3b82f6, #2563eb)">
+                        <svg viewBox="0 0 20 20" fill="currentColor" width="20" height="20">
+                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                        </svg>
+                    </div>
+                </div>
+                <div class="summary-card-value" id="myCompletedCount">{{ $completedCount ?? 0 }}</div>
+                <div class="summary-card-sub">Completed by window #{{ $windowNum }}</div>
+            </div>
+
+            <!-- PENDING Card -->
+            <div class="summary-card">
+                <div class="summary-card-header">
+                    <span class="summary-card-title">Pending</span>
+                    <div class="summary-card-icon" style="background: linear-gradient(135deg, #f59e0b, #d97706)">
+                        <svg viewBox="0 0 20 20" fill="currentColor" width="20" height="20">
+                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd" />
+                        </svg>
+                    </div>
+                </div>
+                <div class="summary-card-value pending" id="pendingCountSummary">{{ $pendingCount ?? 0 }}</div>
+                <div class="summary-card-sub">Waiting to be served</div>
+            </div>
+
+            <!-- CANCELLED Card -->
+            <div class="summary-card">
+                <div class="summary-card-header">
+                    <span class="summary-card-title">Cancelled</span>
+                    <div class="summary-card-icon" style="background: linear-gradient(135deg, #ef4444, #dc2626)">
+                        <svg viewBox="0 0 20 20" fill="currentColor" width="20" height="20">
+                            <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" />
+                        </svg>
+                    </div>
+                </div>
+                <div class="summary-card-value cancelled" id="cancelledCountSummary">{{ $cancelledCount ?? 0 }}</div>
+                <div class="summary-card-sub">Cancelled appointments</div>
+            </div>
+
+            <!-- NO SHOW Card -->
+            <div class="summary-card">
+                <div class="summary-card-header">
+                    <span class="summary-card-title">No Show</span>
+                    <div class="summary-card-icon" style="background: linear-gradient(135deg, #6b7280, #4b5563)">
+                        <svg viewBox="0 0 20 20" fill="currentColor" width="20" height="20">
+                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
+                        </svg>
+                    </div>
+                </div>
+                <div class="summary-card-value no-show" id="noShowCountSummary">{{ $noShowCount ?? 0 }}</div>
+                <div class="summary-card-sub">Did not show up</div>
+            </div>
+        </div>
+
         <!-- Message Container -->
         <div class="message-container" id="messageContainer"></div>
-        <div class="stats-grid">
-                <div class="stat-card">
-                    <div class="stat-icon" style="background: linear-gradient(135deg, var(--psa-blue), var(--psa-red))">
-                        <svg viewBox="0 0 20 20" fill="currentColor">
-                            <path
-                                d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z" />
-                        </svg>
-                    </div>
-                    <div class="stat-content">
-                        <span class="stat-label">Total Queue Today</span>
-                        <span class="stat-value" id="totalQueue">{{ $queueCount ?? 0 }}</span>
-                    </div>
-                </div>
 
-                <div class="stat-card">
-                    <div class="stat-icon" style="background: linear-gradient(135deg, #F59E0B, #FBBF24)">
-                        <svg viewBox="0 0 20 20" fill="currentColor">
-                            <path fill-rule="evenodd"
-                                d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z"
-                                clip-rule="evenodd" />
-                        </svg>
-                    </div>
-                    <div class="stat-content">
-                        <span class="stat-label">Pending</span>
-                        <span class="stat-value pending" id="pendingCount">{{ $pendingCount ?? 0 }}</span>
-                    </div>
-                </div>
-
-                <div class="stat-card">
-                    <div class="stat-icon" style="background: linear-gradient(135deg, #10B981, #34D399)">
-                        <svg viewBox="0 0 20 20" fill="currentColor">
-                            <path fill-rule="evenodd"
-                                d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                                clip-rule="evenodd" />
-                        </svg>
-                    </div>
-                    <div class="stat-content">
-                        <span class="stat-label">Completed</span>
-                        <span class="stat-value completed" id="completedCount">{{ $completedCount ?? 0 }}</span>
-                    </div>
-                </div>
-            </div>
-
-          {{-- Today's Appointments Card --}}
-    <div class="card">
-        <div class="card-header">
-            <h3>
-                <svg viewBox="0 0 20 20" fill="currentColor">
-                    <path
-                        d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z" />
-                </svg>
-                Today's Appointments
-            </h3>
-            
+        <!-- ========== ALL WINDOWS STATUS CARDS ========== -->
+        <div class="windows-grid" id="windowsGrid">
+            <!-- Windows 1-6 will be populated dynamically via JavaScript -->
         </div>
 
-        {{-- Service Type Tabs --}}
-        <div class="service-tabs">
-            <button class="service-tab active" data-service="all">All Services</button>
-            <button class="service-tab" data-service="NID Registration">NID Registration</button>
-            <button class="service-tab" data-service="Status Inquiry">Status Inquiry</button>
-            <button class="service-tab" data-service="Updating">NID Updating</button>
+        <!-- PRIORITY BREAKDOWN Card -->
+        <div class="card" style="margin-bottom: 1.5rem;">
+            <div class="card-header">
+                <h3>
+                    <svg viewBox="0 0 20 20" fill="currentColor">
+                        <path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z" />
+                    </svg>
+                    Priority Breakdown
+                </h3>
+            </div>
+            <div class="card-body">
+                <div class="priority-stats">
+                    <div class="priority-stat-item">
+                        <div class="priority-stat-label">Senior Citizens</div>
+                        <div class="priority-stat-number senior" id="seniorCount">{{ $seniorCount ?? 0 }}</div>
+                    </div>
+                    <div class="priority-stat-item">
+                        <div class="priority-stat-label">Infant</div>
+                        <div class="priority-stat-number infant" id="infantCount">{{ $infantCount ?? 0 }}</div>
+                    </div>
+                    <div class="priority-stat-item">
+                        <div class="priority-stat-label">PWD</div>
+                        <div class="priority-stat-number pwd" id="pwdCount">{{ $pwdCount ?? 0 }}</div>
+                    </div>
+                    <div class="priority-stat-item">
+                        <div class="priority-stat-label">Pregnant</div>
+                        <div class="priority-stat-number pregnant" id="pregnantCount">{{ $pregnantCount ?? 0 }}</div>
+                    </div>
+                    <div class="priority-stat-item">
+                        <div class="priority-stat-label">Regular</div>
+                        <div class="priority-stat-number regular" id="regularCount">{{ $regularCount ?? 0 }}</div>
+                    </div>
+                </div>
+            </div>
         </div>
 
-        <div class="card-body">
-            {{-- Search and Selection Bar --}}
-            <div class="search-and-selection-bar">
-
-                {{-- Selection Controls for All Services --}}
-                <div class="selection-controls" id="selection-controls-all">
-                    <div class="selection-info">
-                        <label class="select-all-container">
-                            <input type="checkbox" class="select-all-checkbox" data-table="all">
-                            <span>Select All</span>
-                        </label>
-                        <span class="selected-count" id="selected-count-all">0 selected</span>
-                    </div>
-                    <div class="bulk-actions" style="display: none;" id="bulk-actions-all">
-                        <button type="button" class="btn-status bulk-complete" data-table="all"
-                            data-status="completed">
-                            <svg viewBox="0 0 20 20" fill="currentColor" width="16" height="16">
-                                <path fill-rule="evenodd"
-                                    d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                                    clip-rule="evenodd" />
-                            </svg>
-                            Complete
-                        </button>
-                        <button type="button" class="btn-status bulk-no-show" data-table="all" data-status="no_show">
-                            <svg viewBox="0 0 20 20" fill="currentColor" width="16" height="16">
-                                <path fill-rule="evenodd"
-                                    d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
-                                    clip-rule="evenodd" />
-                            </svg>
-                            No Show
-                        </button>
-                        <button type="button" class="btn-status bulk-cancel" data-table="all" data-status="cancelled">
-                            <svg viewBox="0 0 20 20" fill="currentColor" width="16" height="16">
-                                <path fill-rule="evenodd"
-                                    d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
-                                    clip-rule="evenodd" />
-                            </svg>
-                            Cancel
-                        </button>
-                    </div>
-                </div>
-
-                {{-- Selection Controls for NID Registration --}}
-                <div class="selection-controls" id="selection-controls-nid-registration" style="display: none;">
-                    <div class="selection-info">
-                        <label class="select-all-container">
-                            <input type="checkbox" class="select-all-checkbox" data-table="nid-registration">
-                            <span>Select All</span>
-                        </label>
-                        <span class="selected-count" id="selected-count-nid-registration">0 selected</span>
-                    </div>
-                    <div class="bulk-actions" style="display: none;" id="bulk-actions-nid-registration">
-                        <button type="button" class="btn-status bulk-complete" data-table="nid-registration"
-                            data-status="completed">
-                            <svg viewBox="0 0 20 20" fill="currentColor" width="16" height="16">
-                                <path fill-rule="evenodd"
-                                    d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                                    clip-rule="evenodd" />
-                            </svg>
-                            Complete
-                        </button>
-                        <button type="button" class="btn-status bulk-no-show" data-table="nid-registration"
-                            data-status="no_show">
-                            <svg viewBox="0 0 20 20" fill="currentColor" width="16" height="16">
-                                <path fill-rule="evenodd"
-                                    d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
-                                    clip-rule="evenodd" />
-                            </svg>
-                            No Show
-                        </button>
-                        <button type="button" class="btn-status bulk-cancel" data-table="nid-registration"
-                            data-status="cancelled">
-                            <svg viewBox="0 0 20 20" fill="currentColor" width="16" height="16">
-                                <path fill-rule="evenodd"
-                                    d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
-                                    clip-rule="evenodd" />
-                            </svg>
-                            Cancel
-                        </button>
-                    </div>
-                </div>
-
-                {{-- Selection Controls for Status Inquiry --}}
-                <div class="selection-controls" id="selection-controls-status-inquiry" style="display: none;">
-                    <div class="selection-info">
-                        <label class="select-all-container">
-                            <input type="checkbox" class="select-all-checkbox" data-table="status-inquiry">
-                            <span>Select All</span>
-                        </label>
-                        <span class="selected-count" id="selected-count-status-inquiry">0 selected</span>
-                    </div>
-                    <div class="bulk-actions" style="display: none;" id="bulk-actions-status-inquiry">
-                        <button type="button" class="btn-status bulk-complete" data-table="status-inquiry"
-                            data-status="completed">
-                            <svg viewBox="0 0 20 20" fill="currentColor" width="16" height="16">
-                                <path fill-rule="evenodd"
-                                    d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                                    clip-rule="evenodd" />
-                            </svg>
-                            Complete
-                        </button>
-                        <button type="button" class="btn-status bulk-no-show" data-table="status-inquiry"
-                            data-status="no_show">
-                            <svg viewBox="0 0 20 20" fill="currentColor" width="16" height="16">
-                                <path fill-rule="evenodd"
-                                    d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
-                                    clip-rule="evenodd" />
-                            </svg>
-                            No Show
-                        </button>
-                        <button type="button" class="btn-status bulk-cancel" data-table="status-inquiry"
-                            data-status="cancelled">
-                            <svg viewBox="0 0 20 20" fill="currentColor" width="16" height="16">
-                                <path fill-rule="evenodd"
-                                    d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
-                                    clip-rule="evenodd" />
-                            </svg>
-                            Cancel
-                        </button>
-                    </div>
-                </div>
-
-                {{-- Selection Controls for NID Updating --}}
-                <div class="selection-controls" id="selection-controls-updating" style="display: none;">
-                    <div class="selection-info">
-                        <label class="select-all-container">
-                            <input type="checkbox" class="select-all-checkbox" data-table="updating">
-                            <span>Select All</span>
-                        </label>
-                        <span class="selected-count" id="selected-count-updating">0 selected</span>
-                    </div>
-                    <div class="bulk-actions" style="display: none;" id="bulk-actions-updating">
-                        <button type="button" class="btn-status bulk-complete" data-table="updating"
-                            data-status="completed">
-                            <svg viewBox="0 0 20 20" fill="currentColor" width="16" height="16">
-                                <path fill-rule="evenodd"
-                                    d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                                    clip-rule="evenodd" />
-                            </svg>
-                            Complete
-                        </button>
-                        <button type="button" class="btn-status bulk-no-show" data-table="updating"
-                            data-status="no_show">
-                            <svg viewBox="0 0 20 20" fill="currentColor" width="16" height="16">
-                                <path fill-rule="evenodd"
-                                    d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
-                                    clip-rule="evenodd" />
-                            </svg>
-                            No Show
-                        </button>
-                        <button type="button" class="btn-status bulk-cancel" data-table="updating"
-                            data-status="cancelled">
-                            <svg viewBox="0 0 20 20" fill="currentColor" width="16" height="16">
-                                <path fill-rule="evenodd"
-                                    d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
-                                    clip-rule="evenodd" />
-                            </svg>
-                            Cancel
-                        </button>
-                    </div>
-                </div>
-
-                <div class="search-box-wrapper">
-                    <div class="search-box">
-                        <svg class="search-icon" viewBox="0 0 20 20" fill="currentColor">
-                            <path fill-rule="evenodd"
-                                d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z"
-                                clip-rule="evenodd" />
-                        </svg>
-                        <input type="text" id="searchAppointments" placeholder="Search by name or TRN...">
-                    </div>
-                </div>
+        <!-- Today's Appointments Card -->
+        <div class="card">
+            <div class="card-header">
+                <h3>
+                    <svg viewBox="0 0 20 20" fill="currentColor">
+                        <path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z" />
+                    </svg>
+                    Today's Appointments
+                </h3>
             </div>
 
-            {{-- All Services Table --}}
-            <div class="service-table-container" id="table-all">
-                @include('operator.partials.appointments-table', [
-                    'appointments' => $appointments,
-                    'showAll' => true,
-                    'tableId' => 'all',
-                ])
+            <!-- Service Type Tabs -->
+            <div class="service-tabs">
+                <button class="service-tab active" data-service="all">All Services</button>
+                <button class="service-tab" data-service="NID Registration">NID Registration</button>
+                <button class="service-tab" data-service="Status Inquiry">Status Inquiry</button>
+                <button class="service-tab" data-service="Updating">NID Updating</button>
             </div>
 
-            {{-- NID Registration Table --}}
-            <div class="service-table-container" id="table-nid-registration" style="display: none;">
-                @include('operator.partials.appointments-table', [
-                    'appointments' => $nidRegistrationAppointments,
-                    'serviceType' => 'NID Registration',
-                    'tableId' => 'nid-registration',
-                ])
-            </div>
+            <div class="card-body">
+                <!-- Search and Selection Bar -->
+                <div class="search-and-selection-bar">
+                    <!-- Selection Controls for All Services -->
+                    <div class="selection-controls" id="selection-controls-all">
+                        <div class="selection-info">
+                            <label class="select-all-container">
+                                <input type="checkbox" class="select-all-checkbox" data-table="all">
+                                <span>Select All</span>
+                            </label>
+                            <span class="selected-count" id="selected-count-all">0 selected</span>
+                        </div>
+                        <div class="bulk-actions" style="display: none;" id="bulk-actions-all">
+                            <button type="button" class="btn-status bulk-complete" data-table="all" data-status="completed">
+                                <svg viewBox="0 0 20 20" fill="currentColor" width="16" height="16">
+                                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+                                </svg>
+                                Complete
+                            </button>
+                            <button type="button" class="btn-status bulk-no-show" data-table="all" data-status="no_show">
+                                <svg viewBox="0 0 20 20" fill="currentColor" width="16" height="16">
+                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
+                                </svg>
+                                No Show
+                            </button>
+                            <button type="button" class="btn-status bulk-cancel" data-table="all" data-status="cancelled">
+                                <svg viewBox="0 0 20 20" fill="currentColor" width="16" height="16">
+                                    <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" />
+                                </svg>
+                                Cancel
+                            </button>
+                        </div>
+                    </div>
 
-            {{-- Status Inquiry Table --}}
-            <div class="service-table-container" id="table-status-inquiry" style="display: none;">
-                @include('operator.partials.appointments-table', [
-                    'appointments' => $statusInquiryAppointments,
-                    'serviceType' => 'Status Inquiry',
-                    'tableId' => 'status-inquiry',
-                ])
-            </div>
+                    <!-- Selection Controls for NID Registration -->
+                    <div class="selection-controls" id="selection-controls-nid-registration" style="display: none;">
+                        <div class="selection-info">
+                            <label class="select-all-container">
+                                <input type="checkbox" class="select-all-checkbox" data-table="nid-registration">
+                                <span>Select All</span>
+                            </label>
+                            <span class="selected-count" id="selected-count-nid-registration">0 selected</span>
+                        </div>
+                        <div class="bulk-actions" style="display: none;" id="bulk-actions-nid-registration">
+                            <button type="button" class="btn-status bulk-complete" data-table="nid-registration" data-status="completed">
+                                <svg viewBox="0 0 20 20" fill="currentColor" width="16" height="16">
+                                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+                                </svg>
+                                Complete
+                            </button>
+                            <button type="button" class="btn-status bulk-no-show" data-table="nid-registration" data-status="no_show">
+                                <svg viewBox="0 0 20 20" fill="currentColor" width="16" height="16">
+                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
+                                </svg>
+                                No Show
+                            </button>
+                            <button type="button" class="btn-status bulk-cancel" data-table="nid-registration" data-status="cancelled">
+                                <svg viewBox="0 0 20 20" fill="currentColor" width="16" height="16">
+                                    <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" />
+                                </svg>
+                                Cancel
+                            </button>
+                        </div>
+                    </div>
 
-            {{-- NID Updating Table --}}
-            <div class="service-table-container" id="table-updating" style="display: none;">
-                @include('operator.partials.appointments-table', [
-                    'appointments' => $nidUpdatingAppointments,
-                    'serviceType' => 'Updating',
-                    'tableId' => 'updating',
-                ])
+                    <!-- Selection Controls for Status Inquiry -->
+                    <div class="selection-controls" id="selection-controls-status-inquiry" style="display: none;">
+                        <div class="selection-info">
+                            <label class="select-all-container">
+                                <input type="checkbox" class="select-all-checkbox" data-table="status-inquiry">
+                                <span>Select All</span>
+                            </label>
+                            <span class="selected-count" id="selected-count-status-inquiry">0 selected</span>
+                        </div>
+                        <div class="bulk-actions" style="display: none;" id="bulk-actions-status-inquiry">
+                            <button type="button" class="btn-status bulk-complete" data-table="status-inquiry" data-status="completed">
+                                <svg viewBox="0 0 20 20" fill="currentColor" width="16" height="16">
+                                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+                                </svg>
+                                Complete
+                            </button>
+                            <button type="button" class="btn-status bulk-no-show" data-table="status-inquiry" data-status="no_show">
+                                <svg viewBox="0 0 20 20" fill="currentColor" width="16" height="16">
+                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
+                                </svg>
+                                No Show
+                            </button>
+                            <button type="button" class="btn-status bulk-cancel" data-table="status-inquiry" data-status="cancelled">
+                                <svg viewBox="0 0 20 20" fill="currentColor" width="16" height="16">
+                                    <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" />
+                                </svg>
+                                Cancel
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Selection Controls for NID Updating -->
+                    <div class="selection-controls" id="selection-controls-updating" style="display: none;">
+                        <div class="selection-info">
+                            <label class="select-all-container">
+                                <input type="checkbox" class="select-all-checkbox" data-table="updating">
+                                <span>Select All</span>
+                            </label>
+                            <span class="selected-count" id="selected-count-updating">0 selected</span>
+                        </div>
+                        <div class="bulk-actions" style="display: none;" id="bulk-actions-updating">
+                            <button type="button" class="btn-status bulk-complete" data-table="updating" data-status="completed">
+                                <svg viewBox="0 0 20 20" fill="currentColor" width="16" height="16">
+                                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+                                </svg>
+                                Complete
+                            </button>
+                            <button type="button" class="btn-status bulk-no-show" data-table="updating" data-status="no_show">
+                                <svg viewBox="0 0 20 20" fill="currentColor" width="16" height="16">
+                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
+                                </svg>
+                                No Show
+                            </button>
+                            <button type="button" class="btn-status bulk-cancel" data-table="updating" data-status="cancelled">
+                                <svg viewBox="0 0 20 20" fill="currentColor" width="16" height="16">
+                                    <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" />
+                                </svg>
+                                Cancel
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="search-box-wrapper">
+                        <div class="search-box">
+                            <svg class="search-icon" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd" />
+                            </svg>
+                            <input type="text" id="searchAppointments" placeholder="Search by name or TRN...">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- All Services Table -->
+                <div class="service-table-container" id="table-all">
+                    @include('operator.partials.appointments-table', [
+                        'appointments' => $appointments,
+                        'showAll' => true,
+                        'tableId' => 'all',
+                    ])
+                </div>
+
+                <!-- NID Registration Table -->
+                <div class="service-table-container" id="table-nid-registration" style="display: none;">
+                    @include('operator.partials.appointments-table', [
+                        'appointments' => $nidRegistrationAppointments,
+                        'serviceType' => 'NID Registration',
+                        'tableId' => 'nid-registration',
+                    ])
+                </div>
+
+                <!-- Status Inquiry Table -->
+                <div class="service-table-container" id="table-status-inquiry" style="display: none;">
+                    @include('operator.partials.appointments-table', [
+                        'appointments' => $statusInquiryAppointments,
+                        'serviceType' => 'Status Inquiry',
+                        'tableId' => 'status-inquiry',
+                    ])
+                </div>
+
+                <!-- NID Updating Table -->
+                <div class="service-table-container" id="table-updating" style="display: none;">
+                    @include('operator.partials.appointments-table', [
+                        'appointments' => $nidUpdatingAppointments,
+                        'serviceType' => 'Updating',
+                        'tableId' => 'updating',
+                    ])
+                </div>
             </div>
         </div>
-    </div>
     </main>
 </div>
 
 <script>
-   // Configuration - Ensure windowNum is a string
+// Configuration
 const windowNum = String({{ Js::from(session('window_num') ?? ($windowNum ?? '1')) }});
 const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
 
@@ -399,7 +736,7 @@ const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribut
 const messageContainer = document.getElementById('messageContainer');
 const searchInput = document.getElementById('searchAppointments');
 
-// Store current search term and active service
+// Store current state
 let currentSearchTerm = '';
 let activeService = 'all';
 let refreshInterval;
@@ -408,10 +745,130 @@ let isProcessing = false;
 let isBulkProcessing = false;
 let hasSelectedCheckboxes = false;
 
-// ========== REMEMBER ACTIVE TAB ON PAGE REFRESH ==========
+// ========== REMEMBER ACTIVE TAB ==========
 const savedService = localStorage.getItem('activeServiceTab');
 if (savedService) {
     activeService = savedService;
+}
+
+// ========== FETCH AND RENDER ALL WINDOWS STATUS ==========
+function fetchAndRenderWindows() {
+    fetch('{{ route('operator.fetch-windows-status') }}', {
+        method: 'GET',
+        headers: {
+            'Accept': 'application/json',
+            'X-Requested-With': 'XMLHttpRequest'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            renderWindowsGrid(data.windows);
+        }
+    })
+    .catch(error => console.error('Error fetching windows status:', error));
+}
+
+function renderWindowsGrid(windows) {
+    const grid = document.getElementById('windowsGrid');
+    if (!grid) return;
+    
+    let html = '';
+    
+    for (let i = 1; i <= 6; i++) {
+        const windowData = windows[i] || { serving: null, previous: null };
+        const isActiveWindow = i == windowNum;
+        const hasServing = windowData.serving !== null;
+        
+        let statusClass = 'idle';
+        let statusText = 'Idle';
+        
+        if (hasServing) {
+            statusClass = 'serving';
+            statusText = 'Serving';
+        } else if (windowData.previous) {
+            statusClass = 'busy';
+            statusText = 'Completed';
+        }
+        
+        html += `
+            <div class="window-card ${isActiveWindow ? 'window-active' : ''}">
+                <div class="window-header">
+                    <span class="window-number">
+                        WINDOW ${i}
+                    </span>
+                    <span class="window-badge ${statusClass}">${statusText}</span>
+                </div>
+                
+                <div class="window-serving-info">
+                    <div class="serving-label">CURRENTLY SERVING</div>
+                    ${hasServing ? `
+                        <div class="serving-queue">${windowData.serving.queue}</div>
+                        <div class="serving-name">${windowData.serving.name}</div>
+                    ` : `
+                        <div class="empty-window">— No active serving —</div>
+                    `}
+                </div>
+                
+                <div class="previous-serving">
+                    <div class="previous-label">PREVIOUS SERVED</div>
+                    ${windowData.previous ? `
+                        <div class="previous-queue">${windowData.previous.queue}</div>
+                        <div class="previous-name">${windowData.previous.name}</div>
+                    ` : `
+                        <div class="empty-window">— No previous served —</div>
+                    `}
+                </div>
+            </div>
+        `;
+    }
+    
+    grid.innerHTML = html;
+}
+
+// ========== UPDATE SUMMARY CARDS ==========
+function updateSummaryCards(stats) {
+    if (!stats) return;
+    
+    // Update the 5 summary cards that exist in your HTML
+    if (stats.allCompleted !== undefined && document.getElementById('allCompletedCount')) {
+        document.getElementById('allCompletedCount').textContent = stats.allCompleted;
+    }
+    if (stats.myCompleted !== undefined && document.getElementById('myCompletedCount')) {
+        document.getElementById('myCompletedCount').textContent = stats.myCompleted;
+    }
+    if (stats.pending !== undefined && document.getElementById('pendingCountSummary')) {
+        document.getElementById('pendingCountSummary').textContent = stats.pending;
+    }
+    if (stats.cancelled !== undefined && document.getElementById('cancelledCountSummary')) {
+        document.getElementById('cancelledCountSummary').textContent = stats.cancelled;
+    }
+    if (stats.no_show !== undefined && document.getElementById('noShowCountSummary')) {
+        document.getElementById('noShowCountSummary').textContent = stats.no_show;
+    }
+    
+    // Update priority breakdown
+    if (stats.senior !== undefined && document.getElementById('seniorCount')) {
+        document.getElementById('seniorCount').textContent = stats.senior;
+    }
+    if (stats.infant !== undefined && document.getElementById('infantCount')) {
+        document.getElementById('infantCount').textContent = stats.infant;
+    }
+    if (stats.pwd !== undefined && document.getElementById('pwdCount')) {
+        document.getElementById('pwdCount').textContent = stats.pwd;
+    }
+    if (stats.pregnant !== undefined && document.getElementById('pregnantCount')) {
+        document.getElementById('pregnantCount').textContent = stats.pregnant;
+    }
+    if (stats.regular !== undefined && document.getElementById('regularCount')) {
+        document.getElementById('regularCount').textContent = stats.regular;
+    }
+}
+
+// Update statistics - simplified since we don't have totalQueue and completedCount elements
+function updateStatistics(stats) {
+    if (!stats) return;
+    // Only update what exists - pendingCount is already updated in updateSummaryCards
 }
 
 // Handle Serve Button Click
@@ -505,6 +962,7 @@ function handleServeClick(e) {
 
                 updatePendingCount();
                 fetchDashboardData();
+                fetchAndRenderWindows();
             } else {
                 showMessage('Failed to update.', 'error');
                 button.disabled = false;
@@ -576,7 +1034,7 @@ function handleVolumeClick(e) {
 
 // Check if there's any serving appointment
 function checkServingStatus() {
-    const servingRow = document.querySelector('.status-badge.serving');
+    const servingRow = document.querySelector('.status-badge.status-serving');
     isCurrentlyServing = !!servingRow;
 
     document.querySelectorAll('.serve-btn').forEach(btn => {
@@ -604,6 +1062,7 @@ function handleCompleteClick(e) {
     const button = e.currentTarget;
     const n_id = button.getAttribute('data-id');
     const name = button.getAttribute('data-name');
+    const queueNumber = button.getAttribute('data-queue');
     const row = button.closest('tr');
 
     Swal.fire({
@@ -616,7 +1075,7 @@ function handleCompleteClick(e) {
         confirmButtonText: 'Yes, Complete'
     }).then((result) => {
         if (result.isConfirmed) {
-            updateAppointmentStatus(n_id, 'completed', row, 'completed');
+            updateAppointmentStatus(n_id, 'completed', row, 'completed', queueNumber, name);
         }
     });
 }
@@ -626,6 +1085,7 @@ function handleNoShowClick(e) {
     const button = e.currentTarget;
     const n_id = button.getAttribute('data-id');
     const name = button.getAttribute('data-name');
+    const queueNumber = button.getAttribute('data-queue');
     const row = button.closest('tr');
 
     Swal.fire({
@@ -638,7 +1098,7 @@ function handleNoShowClick(e) {
         confirmButtonText: 'Yes, No Show'
     }).then((result) => {
         if (result.isConfirmed) {
-            updateAppointmentStatus(n_id, 'no_show', row, 'no_show');
+            updateAppointmentStatus(n_id, 'no_show', row, 'no_show', queueNumber, name);
         }
     });
 }
@@ -648,6 +1108,7 @@ function handleCancelClick(e) {
     const button = e.currentTarget;
     const n_id = button.getAttribute('data-id');
     const name = button.getAttribute('data-name');
+    const queueNumber = button.getAttribute('data-queue');
     const row = button.closest('tr');
 
     Swal.fire({
@@ -660,13 +1121,13 @@ function handleCancelClick(e) {
         confirmButtonText: 'Yes, Cancel'
     }).then((result) => {
         if (result.isConfirmed) {
-            updateAppointmentStatus(n_id, 'cancelled', row, 'cancelled');
+            updateAppointmentStatus(n_id, 'cancelled', row, 'cancelled', queueNumber, name);
         }
     });
 }
 
 // Update appointment status
-function updateAppointmentStatus(n_id, status, row, statusClass) {
+function updateAppointmentStatus(n_id, status, row, statusClass, queueNumber, name) {
     if (isProcessing) return;
     isProcessing = true;
 
@@ -714,6 +1175,7 @@ function updateAppointmentStatus(n_id, status, row, statusClass) {
             });
 
             fetchDashboardData();
+            fetchAndRenderWindows();
         } else {
             showMessage('Failed to update.', 'error');
             buttons.forEach(btn => btn.disabled = false);
@@ -883,7 +1345,7 @@ function showMessage(text, type = 'success') {
     setTimeout(() => messageDiv.remove(), 5000);
 }
 
-// Service Tab Switching with localStorage
+// Service Tab Switching
 document.querySelectorAll('.service-tab').forEach(tab => {
     if (tab.dataset.service === activeService) {
         tab.classList.add('active');
@@ -979,7 +1441,9 @@ function updatePendingCount() {
     const visibleTable = document.querySelector('.service-table-container[style*="display: block"]');
     if (visibleTable) {
         const pendingCount = visibleTable.querySelectorAll('tbody tr:not(.empty-state)').length;
-        document.getElementById('pendingCount').textContent = pendingCount;
+        if (document.getElementById('pendingCountSummary')) {
+            document.getElementById('pendingCountSummary').textContent = pendingCount;
+        }
     }
 }
 
@@ -996,7 +1460,9 @@ function fetchDashboardData() {
     .then(data => {
         if (data.success) {
             updateAppointmentsTables(data);
-            updateStatistics(data.stats);
+            if (data.summaryStats) {
+                updateSummaryCards(data.summaryStats);
+            }
         }
     })
     .catch(error => console.error('Error fetching dashboard data:', error));
@@ -1023,14 +1489,6 @@ function updateAppointmentsTables(data) {
     if (currentSearchTerm) {
         filterTableRows();
     }
-}
-
-// Update statistics
-function updateStatistics(stats) {
-    if (!stats) return;
-    if (stats.total !== undefined) document.getElementById('totalQueue').textContent = stats.total;
-    if (stats.pending !== undefined) document.getElementById('pendingCount').textContent = stats.pending;
-    if (stats.completed !== undefined) document.getElementById('completedCount').textContent = stats.completed;
 }
 
 // ========== CHECKBOX SELECTION FUNCTIONALITY ==========
@@ -1162,6 +1620,7 @@ function bulkUpdateStatus(ids, status, tableId) {
             });
 
             fetchDashboardData();
+            fetchAndRenderWindows();
             return;
         }
 
@@ -1205,6 +1664,7 @@ function initializeAllTableCheckboxes() {
 refreshInterval = setInterval(function() {
     if (!hasSelectedCheckboxes && !document.querySelector('.serve-btn[disabled]')) {
         fetchDashboardData();
+        fetchAndRenderWindows();
     }
 }, 10000);
 
@@ -1212,6 +1672,7 @@ refreshInterval = setInterval(function() {
 document.addEventListener('visibilitychange', function() {
     if (!document.hidden && !hasSelectedCheckboxes && !document.querySelector('.serve-btn[disabled]')) {
         fetchDashboardData();
+        fetchAndRenderWindows();
     }
 });
 
@@ -1220,5 +1681,7 @@ document.addEventListener('DOMContentLoaded', function() {
     attachServeButtonListeners();
     initializeAllTableCheckboxes();
     checkServingStatus();
+    fetchDashboardData();
+    fetchAndRenderWindows();
 });
 </script>

@@ -5,12 +5,18 @@
     $userRole = session('user_role', '');
     
     $portalBadge = '';
+    $isOperator = false;
+    $isScreener = false;
+    
     if (str_contains(strtolower($designation), 'operator')) {
         $portalBadge = 'OPERATOR PORTAL';
+        $isOperator = true;
     } elseif (str_contains(strtolower($designation), 'assistant')) {
         $portalBadge = 'ASSISTANT PORTAL';
+        $isOperator = true;
     } elseif ($userRole === 'screener' || str_contains(strtolower($designation), 'screener')) {
         $portalBadge = 'SCREENER DASHBOARD';
+        $isScreener = true;
     } else {
         $portalBadge = 'PORTAL';
     }
@@ -18,13 +24,13 @@
 
 <aside class="sidebar" id="mainSidebar">
     <div class="sidebar-header">
-        <div class="sidebar-logo">
-            <img src="{{ asset('images/logo.png') }}" alt="National ID Logo" class="sidebar-logo-img">
-            <div class="sidebar-logo-text">
-                <h2>Queue Management System</h2>
-                <span class="sidebar-badge">{{ $portalBadge }}</span>
+
+    <div class="logo-section">
+                <img src="{{ asset('images/logo.png') }}" alt="National ID Logo" class="header-logo">
+                <div class="logo-text">
+                </div>
             </div>
-        </div>
+        
         <button class="sidebar-close-btn" id="closeSidebarBtn">
             <svg viewBox="0 0 20 20" fill="currentColor">
                 <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" />
@@ -33,63 +39,95 @@
     </div>
 
     <nav class="sidebar-nav">
-        <a href="{{ route('operator.dashboard') }}" class="sidebar-link {{ request()->routeIs('operator.dashboard') ? 'active' : '' }}">
-            <svg viewBox="0 0 20 20" fill="currentColor">
-                <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z" />
-            </svg>
-            <span>Dashboard</span>
-        </a>
+        @if($isOperator)
+            {{-- Operator Navigation --}}
+            <a href="{{ route('operator.dashboard') }}" class="sidebar-link {{ request()->routeIs('screener.dashboard') ? 'active' : '' }}">
+                <svg viewBox="0 0 20 20" fill="currentColor">
+                    <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z" />
+                </svg>
+                <span>Dashboard</span>
+            </a>
 
-        <a href="{{ route('operator.serving') }}" class="sidebar-link {{ request()->routeIs('operator.serving') ? 'active' : '' }}">
-            <svg viewBox="0 0 20 20" fill="currentColor">
-                <path fill-rule="evenodd"
-                    d="M11.3 1.046A1 1 0 0112 2v5h4a1 1 0 01.82 1.573l-7 10A1 1 0 018 18v-5H4a1 1 0 01-.82-1.573l7-10a1 1 0 011.12-.38z"
-                    clip-rule="evenodd" />
-            </svg>
-            <span>Serving</span>
-            @php
-                $servingCount = \App\Models\TblAppointment::whereDate('date', Carbon\Carbon::now('Asia/Manila')->toDateString())
-                    ->where('status', 'serving')
-                    ->where('user_id', Auth::id())
-                    ->count();
-            @endphp
-            @if($servingCount > 0)
-                <span class="badge serving-badge">{{ $servingCount }}</span>
-            @endif
-        </a>
-
-        <a href="{{ route('operator.transactions') }}" class="sidebar-link {{ request()->routeIs('operator.transactions*') ? 'active' : '' }}">
-            <svg viewBox="0 0 20 20" fill="currentColor">
-                <path fill-rule="evenodd"
-                    d="M4 4a2 2 0 00-2 2v8a2 2 0 002 2h12a2 2 0 002-2V8a2 2 0 00-2-2h-5L9 4H4zm7 4a1 1 0 10-2 0v3.586l-.293-.293a1 1 0 10-1.414 1.414l2 2a1 1 0 001.414 0l2-2a1 1 0 10-1.414-1.414l-.293.293V8z"
-                    clip-rule="evenodd" />
-            </svg>
-            <span>Recent Transactions</span>
-        </a>
-
-        <a href="{{ route('operator.reports') }}" class="sidebar-link {{ request()->routeIs('operator.reports*') ? 'active' : '' }}">
-            <svg viewBox="0 0 20 20" fill="currentColor">
-                <path fill-rule="evenodd"
-                    d="M3 3a1 1 0 000 2v8a2 2 0 002 2h2.586l-1.293 1.293a1 1 0 101.414 1.414L10 15.414l2.293 2.293a1 1 0 001.414-1.414L12.414 15H15a2 2 0 002-2V5a1 1 0 100-2H3zm11 4a1 1 0 10-2 0v4a1 1 0 102 0V7zm-3 1a1 1 0 10-2 0v3a1 1 0 102 0V8zM8 9a1 1 0 00-2 0v2a1 1 0 102 0V9z"
-                    clip-rule="evenodd" />
-            </svg>
-            <span>Reports</span>
-        </a>
-    </nav>
-
-    <div class="sidebar-footer">
-        <form method="POST" action="{{ route('logout') }}">
-            @csrf
-            <button type="submit" class="logout-btn">
+            <a href="{{ route('operator.serving') }}" class="sidebar-link {{ request()->routeIs('operator.serving') ? 'active' : '' }}">
                 <svg viewBox="0 0 20 20" fill="currentColor">
                     <path fill-rule="evenodd"
-                        d="M3 3a1 1 0 00-1 1v12a1 1 0 001 1h12a1 1 0 001-1V7.414l-5-5H3zm7 10a1 1 0 11-2 0V9.414l-1.293 1.293a1 1 0 01-1.414-1.414l3-3a1 1 0 011.414 0l3 3a1 1 0 01-1.414 1.414L10 9.414V13z"
+                        d="M11.3 1.046A1 1 0 0112 2v5h4a1 1 0 01.82 1.573l-7 10A1 1 0 018 18v-5H4a1 1 0 01-.82-1.573l7-10a1 1 0 011.12-.38z"
                         clip-rule="evenodd" />
                 </svg>
-                <span>Logout</span>
-            </button>
-        </form>
-    </div>
+                <span>Serving</span>
+                @php
+                    $servingCount = \App\Models\TblAppointment::whereDate('date', Carbon\Carbon::now('Asia/Manila')->toDateString())
+                        ->where('status', 'serving')
+                        ->where('user_id', Auth::id())
+                        ->count();
+                @endphp
+                @if($servingCount > 0)
+                    <span class="badge serving-badge">{{ $servingCount }}</span>
+                @endif
+            </a>
+
+            <a href="{{ route('operator.transactions') }}" class="sidebar-link {{ request()->routeIs('operatoroperator.transactions*') ? 'active' : '' }}">
+                <svg viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd"
+                        d="M4 4a2 2 0 00-2 2v8a2 2 0 002 2h12a2 2 0 002-2V8a2 2 0 00-2-2h-5L9 4H4zm7 4a1 1 0 10-2 0v3.586l-.293-.293a1 1 0 10-1.414 1.414l2 2a1 1 0 001.414 0l2-2a1 1 0 10-1.414-1.414l-.293.293V8z"
+                        clip-rule="evenodd" />
+                </svg>
+                <span>Recent Transactions</span>
+            </a>
+
+            <a href="{{ route('operator.reports') }}" class="sidebar-link {{ request()->routeIs('operator.reports*') ? 'active' : '' }}">
+                <svg viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd"
+                        d="M3 3a1 1 0 000 2v8a2 2 0 002 2h2.586l-1.293 1.293a1 1 0 101.414 1.414L10 15.414l2.293 2.293a1 1 0 001.414-1.414L12.414 15H15a2 2 0 002-2V5a1 1 0 100-2H3zm11 4a1 1 0 10-2 0v4a1 1 0 102 0V7zm-3 1a1 1 0 10-2 0v3a1 1 0 102 0V8zM8 9a1 1 0 00-2 0v2a1 1 0 102 0V9z"
+                        clip-rule="evenodd" />
+                </svg>
+                <span>Reports</span>
+            </a>
+        @elseif($isScreener)
+            {{-- Screener Navigation --}}
+            <a href="{{ route('screener.dashboard') }}" class="sidebar-link {{ request()->routeIs('screener.dashboard') ? 'active' : '' }}">
+                <svg viewBox="0 0 20 20" fill="currentColor">
+                    <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z" />
+                </svg>
+                <span>Dashboard</span>
+            </a>
+
+            <a href="{{ route('screener.appointments') }}" class="sidebar-link {{ request()->routeIs('screener.appointments') ? 'active' : '' }}">
+                <svg viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clip-rule="evenodd" />
+                </svg>
+                <span>Appointments</span>
+                @php
+                    $pendingCount = \App\Models\TblAppointment::whereDate('date', Carbon\Carbon::now('Asia/Manila')->toDateString())
+                        ->where('status', 'pending')
+                        ->count();
+                @endphp
+                @if($pendingCount > 0)
+                    <span class="badge pending-badge">{{ $pendingCount }}</span>
+                @endif
+            </a>
+
+            <a href="{{ route('screener.transactions') }}" class="sidebar-link {{ request()->routeIs('screener.transactions*') ? 'active' : '' }}">
+                <svg viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd"
+                        d="M4 4a2 2 0 00-2 2v8a2 2 0 002 2h12a2 2 0 002-2V8a2 2 0 00-2-2h-5L9 4H4zm7 4a1 1 0 10-2 0v3.586l-.293-.293a1 1 0 10-1.414 1.414l2 2a1 1 0 001.414 0l2-2a1 1 0 10-1.414-1.414l-.293.293V8z"
+                        clip-rule="evenodd" />
+                </svg>
+                <span>Recent Transactions</span>
+            </a>
+
+            <a href="{{ route('screener.reports') }}" class="sidebar-link {{ request()->routeIs('screener.reports*') ? 'active' : '' }}">
+                <svg viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd"
+                        d="M3 3a1 1 0 000 2v8a2 2 0 002 2h2.586l-1.293 1.293a1 1 0 101.414 1.414L10 15.414l2.293 2.293a1 1 0 001.414-1.414L12.414 15H15a2 2 0 002-2V5a1 1 0 100-2H3zm11 4a1 1 0 10-2 0v4a1 1 0 102 0V7zm-3 1a1 1 0 10-2 0v3a1 1 0 102 0V8zM8 9a1 1 0 00-2 0v2a1 1 0 102 0V9z"
+                        clip-rule="evenodd" />
+                </svg>
+                <span>Reports</span>
+            </a>
+        @endif
+    </nav>
+
+    
 </aside>
 
 <style>
@@ -222,6 +260,20 @@
     position: absolute;
     right: 16px;
     background: #ef4444;
+    color: white;
+    font-size: 0.6875rem;
+    font-weight: 600;
+    padding: 2px 8px;
+    border-radius: 20px;
+    min-width: 24px;
+    text-align: center;
+    animation: pulse-badge 1.5s infinite;
+}
+
+.pending-badge {
+    position: absolute;
+    right: 16px;
+    background: #f59e0b;
     color: white;
     font-size: 0.6875rem;
     font-weight: 600;
