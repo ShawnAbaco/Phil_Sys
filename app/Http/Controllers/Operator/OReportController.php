@@ -68,50 +68,20 @@ public function reports(Request $request)
 /**
  * Get report data via AJAX
  */
+/**
+ * Get report data via AJAX - UPDATED with complete data
+ */
 public function getReportData(Request $request)
 {
     try {
         $userId = Auth::id();
-        $dateRange = $request->get('date_range', 'this_month');
         $startDate = $request->get('start_date');
         $endDate = $request->get('end_date');
         $serviceType = $request->get('service_type', 'all');
         $statusFilter = $request->get('status', 'all');
         
-        // Set date range
-        $start = null;
-        $end = null;
-        
-        switch ($dateRange) {
-            case 'today':
-                $start = Carbon::now('Asia/Manila')->startOfDay();
-                $end = Carbon::now('Asia/Manila')->endOfDay();
-                break;
-            case 'yesterday':
-                $start = Carbon::now('Asia/Manila')->subDay()->startOfDay();
-                $end = Carbon::now('Asia/Manila')->subDay()->endOfDay();
-                break;
-            case 'this_week':
-                $start = Carbon::now('Asia/Manila')->startOfWeek();
-                $end = Carbon::now('Asia/Manila')->endOfWeek();
-                break;
-            case 'last_week':
-                $start = Carbon::now('Asia/Manila')->subWeek()->startOfWeek();
-                $end = Carbon::now('Asia/Manila')->subWeek()->endOfWeek();
-                break;
-            case 'this_month':
-                $start = Carbon::now('Asia/Manila')->startOfMonth();
-                $end = Carbon::now('Asia/Manila')->endOfMonth();
-                break;
-            case 'last_month':
-                $start = Carbon::now('Asia/Manila')->subMonth()->startOfMonth();
-                $end = Carbon::now('Asia/Manila')->subMonth()->endOfMonth();
-                break;
-            case 'custom':
-                $start = Carbon::parse($startDate)->startOfDay();
-                $end = Carbon::parse($endDate)->endOfDay();
-                break;
-        }
+        $start = Carbon::parse($startDate)->startOfDay();
+        $end = Carbon::parse($endDate)->endOfDay();
         
         // Build query
         $query = TblAppointment::where('user_id', $userId)
@@ -134,14 +104,23 @@ public function getReportData(Request $request)
             'completed' => $transactions->where('status', 'completed')->count(),
             'cancelled' => $transactions->where('status', 'cancelled')->count(),
             'no_show' => $transactions->where('status', 'no_show')->count(),
-            'pending' => TblAppointment::where('user_id', $userId)
-                                       ->where('status', 'pending')
-                                       ->whereDate('date', Carbon::now('Asia/Manila')->toDateString())
-                                       ->count(),
-            'served' => TblAppointment::where('user_id', $userId)
-                                      ->where('status', 'completed')
-                                      ->whereDate('date', Carbon::now('Asia/Manila')->toDateString())
-                                      ->count(),
+            'served' => $transactions->where('status', 'completed')->count(),
+            'senior' => $transactions->where('priority_type', 'senior')->count(),
+            'infant' => $transactions->where('priority_type', 'infant')->count(),
+            'pwd' => $transactions->where('priority_type', 'pwd')->count(),
+            'pregnant' => $transactions->where('priority_type', 'pregnant')->count(),
+            'regular' => $transactions->where('priority_type', 'regular')->count(),
+        ];
+        
+        // Quick stats (today, week, month, year)
+        $today = Carbon::now('Asia/Manila')->toDateString();
+        $quickStats = [
+            'today' => TblAppointment::where('user_id', $userId)->whereDate('date', $today)->count(),
+            'week' => TblAppointment::where('user_id', $userId)->whereBetween('date', [Carbon::now()->startOfWeek(), Carbon::now()->endOfWeek()])->count(),
+            'month' => TblAppointment::where('user_id', $userId)->whereMonth('date', Carbon::now()->month)->count(),
+            'year' => TblAppointment::where('user_id', $userId)->whereYear('date', Carbon::now()->year)->count(),
+            'avgDaily' => round(TblAppointment::where('user_id', $userId)->whereMonth('date', Carbon::now()->month)->count() / Carbon::now()->daysInMonth, 1),
+            'completionRate' => $stats['completed'] > 0 ? round(($stats['completed'] / ($stats['completed'] + $stats['cancelled'])) * 100) : 0,
         ];
         
         // Prepare chart data
@@ -170,11 +149,34 @@ public function getReportData(Request $request)
                 'completed' => array_column($dailyData, 'completed'),
                 'cancelled' => array_column($dailyData, 'cancelled'),
             ],
-            'status' => [
-                $stats['completed'],
-                $stats['cancelled'],
-                $stats['no_show']
+            'status' => [$stats['completed'], $stats['cancelled'], $stats['no_show']],
+            'priority' => [$stats['senior'], $stats['infant'], $stats['pwd'], $stats['pregnant'], $stats['regular']],
+            'services' => [
+                $transactions->where('queue_for', 'NID Registration')->count(),
+                $transactions->where('queue_for', 'Status Inquiry')->count(),
+                $transactions->where('queue_for', 'Updating')->count(),
             ]
+        ];
+        
+        // Calculate trends
+        $previousStart = Carbon::parse($start)->subDays($start->diffInDays($end) + 1);
+        $previousEnd = Carbon::parse($start)->subDay();
+        
+        $previousCompleted = TblAppointment::where('user_id', $userId)
+                                           ->where('status', 'completed')
+                                           ->whereBetween('date', [$previousStart, $previousEnd])
+                                           ->count();
+        
+        $currentCompleted = $stats['completed'];
+        $completedTrend = $previousCompleted > 0 
+            ? round((($currentCompleted - $previousCompleted) / $previousCompleted) * 100, 1)
+            : ($currentCompleted > 0 ? 100 : 0);
+        
+        $trends = [
+            'completed' => ($completedTrend >= 0 ? '↑ ' : '↓ ') . abs($completedTrend) . '%',
+            'cancelled' => '→ 0%',
+            'no_show' => '→ 0%',
+            'served' => '↑ 0%',
         ];
         
         // Format transactions for table
@@ -203,131 +205,13 @@ public function getReportData(Request $request)
             ];
         });
         
-        // Calculate trends (compare with previous period)
-        $previousStart = Carbon::parse($start)->subDays($start->diffInDays($end) + 1);
-        $previousEnd = Carbon::parse($start)->subDay();
-        
-        $previousCompleted = TblAppointment::where('user_id', Auth::id())
-                                           ->where('status', 'completed')
-                                           ->whereBetween('date', [$previousStart, $previousEnd])
-                                           ->count();
-        
-        $currentCompleted = $stats['completed'];
-        $completedTrend = $previousCompleted > 0 
-            ? round((($currentCompleted - $previousCompleted) / $previousCompleted) * 100, 1)
-            : ($currentCompleted > 0 ? 100 : 0);
-        
-        $trends = [
-            'completed' => ($completedTrend >= 0 ? '↑ ' : '↓ ') . abs($completedTrend) . '%',
-            'cancelled' => '→ 0%',
-            'pending' => '→ 0%',
-            'served' => '↑ 0%',
-        ];
-        
         return response()->json([
             'success' => true,
             'stats' => $stats,
+            'quickStats' => $quickStats,
             'charts' => $charts,
             'transactions' => $formattedTransactions,
             'trends' => $trends,
-        ]);
-        
-    } catch (\Exception $e) {
-        return response()->json([
-            'success' => false,
-            'message' => $e->getMessage()
-        ], 500);
-    }
-}
-
-/**
- * Export report as PDF
- */
-public function exportReportPDF(Request $request)
-{
-    try {
-        $userId = Auth::id();
-        $dateRange = $request->get('date_range', 'this_month');
-        $startDate = $request->get('start_date');
-        $endDate = $request->get('end_date');
-        $serviceType = $request->get('service_type', 'all');
-        $statusFilter = $request->get('status', 'all');
-        
-        // Build query similar to getReportData
-        $start = null;
-        $end = null;
-        
-        switch ($dateRange) {
-            case 'today':
-                $start = Carbon::now('Asia/Manila')->startOfDay();
-                $end = Carbon::now('Asia/Manila')->endOfDay();
-                break;
-            case 'yesterday':
-                $start = Carbon::now('Asia/Manila')->subDay()->startOfDay();
-                $end = Carbon::now('Asia/Manila')->subDay()->endOfDay();
-                break;
-            case 'this_week':
-                $start = Carbon::now('Asia/Manila')->startOfWeek();
-                $end = Carbon::now('Asia/Manila')->endOfWeek();
-                break;
-            case 'last_week':
-                $start = Carbon::now('Asia/Manila')->subWeek()->startOfWeek();
-                $end = Carbon::now('Asia/Manila')->subWeek()->endOfWeek();
-                break;
-            case 'this_month':
-                $start = Carbon::now('Asia/Manila')->startOfMonth();
-                $end = Carbon::now('Asia/Manila')->endOfMonth();
-                break;
-            case 'last_month':
-                $start = Carbon::now('Asia/Manila')->subMonth()->startOfMonth();
-                $end = Carbon::now('Asia/Manila')->subMonth()->endOfMonth();
-                break;
-            case 'custom':
-                $start = Carbon::parse($startDate)->startOfDay();
-                $end = Carbon::parse($endDate)->endOfDay();
-                break;
-        }
-        
-        $query = TblAppointment::where('user_id', $userId)
-                               ->whereBetween('date', [$start, $end]);
-        
-        if ($serviceType !== 'all') {
-            $query->where('queue_for', $serviceType);
-        }
-        
-        if ($statusFilter !== 'all') {
-            $query->where('status', $statusFilter);
-        } else {
-            $query->whereIn('status', ['completed', 'cancelled', 'no_show']);
-        }
-        
-        $transactions = $query->orderBy('updated_at', 'desc')->get();
-        
-        $dateRangeText = '';
-        switch ($dateRange) {
-            case 'today': $dateRangeText = 'Today'; break;
-            case 'yesterday': $dateRangeText = 'Yesterday'; break;
-            case 'this_week': $dateRangeText = 'This Week'; break;
-            case 'last_week': $dateRangeText = 'Last Week'; break;
-            case 'this_month': $dateRangeText = 'This Month'; break;
-            case 'last_month': $dateRangeText = 'Last Month'; break;
-            case 'custom': $dateRangeText = Carbon::parse($startDate)->format('M d, Y') . ' - ' . Carbon::parse($endDate)->format('M d, Y'); break;
-        }
-        
-        $pdf = Pdf::loadView('operator.exports.report-pdf', compact(
-            'transactions',
-            'dateRangeText',
-            'serviceType',
-            'statusFilter'
-        ));
-        
-        $pdf->setPaper('A4', 'landscape');
-        
-        $filename = 'REPORT-' . Carbon::now('Asia/Manila')->format('Y-m-d-H-i') . '.pdf';
-        
-        return response($pdf->output(), 200, [
-            'Content-Type' => 'application/pdf',
-            'Content-Disposition' => 'attachment; filename="' . $filename . '"',
         ]);
         
     } catch (\Exception $e) {
