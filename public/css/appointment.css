@@ -1923,3 +1923,137 @@ body {
 }
 
 
+/* ===== AGE CATEGORY BUTTONS STYLES ===== */
+.age-category-buttons {
+    display: flex;
+    gap: 12px;
+    margin-top: 8px;
+    flex-wrap: wrap;
+}
+
+.age-btn {
+    padding: 12px 24px;
+    border: 2px solid #e2e8f0;
+    border-radius: 12px;
+    background: white;
+    color: #1e293b;
+    font-weight: 600;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    flex: 1;
+    min-width: 140px;
+    position: relative;
+    overflow: hidden;
+    letter-spacing: 0.3px;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+/* Hover effect */
+.age-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 16px -4px rgba(0, 0, 0, 0.1);
+    border-color: #cbd5e1;
+    background: #f8fafc;
+}
+
+/* Active state */
+.age-btn.active {
+    background: linear-gradient(135deg, #10b981, #059669) !important;
+    color: white !important;
+    border-color: transparent !important;
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+    transform: translateY(-1px);
+}
+
+/* Active state with pulse animation */
+.age-btn.active::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.3);
+    transform: translate(-50%, -50%);
+    transition: width 0.4s ease, height 0.4s ease;
+}
+
+.age-btn.active:active::before {
+    width: 100%;
+    height: 100%;
+}
+
+/* Disabled state */
+.age-btn.disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    pointer-events: none;
+}
+
+/* Focus state for accessibility */
+.age-btn:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.2);
+}
+
+/* Icon inside buttons (if you add icons) */
+.age-btn svg {
+    width: 18px;
+    height: 18px;
+    margin-right: 8px;
+    vertical-align: middle;
+    transition: transform 0.2s ease;
+}
+
+.age-btn:hover svg {
+    transform: scale(1.1);
+}
+
+.age-btn.active svg {
+    filter: brightness(0) invert(1);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .age-category-buttons {
+        gap: 10px;
+    }
+    
+    .age-btn {
+        padding: 10px 20px;
+        font-size: 13px;
+        min-width: 120px;
+    }
+}
+
+@media (max-width: 480px) {
+    .age-category-buttons {
+        flex-direction: column;
+        gap: 8px;
+    }
+    
+    .age-btn {
+        width: 100%;
+        padding: 10px 16px;
+        min-width: auto;
+    }
+}
+
+/* Animation for active state change */
+@keyframes ageSelectPulse {
+    0% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.02);
+    }
+    100% {
+        transform: scale(1);
+    }
+}
+
+.age-btn.active {
+    animation: ageSelectPulse 0.3s ease;
+}

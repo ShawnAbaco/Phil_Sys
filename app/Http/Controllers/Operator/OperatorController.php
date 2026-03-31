@@ -686,31 +686,120 @@ public function triggerAnnouncement(Request $request)
  */
 public function serving()
 {
+    $windowNum = Auth::user()->window_num ?? '1';
     $userId = Auth::id();
+    
+    Carbon::setLocale('en');
     $today = Carbon::now('Asia/Manila')->toDateString();
+
+    // Get today's appointments
+    $allAppointments = TblAppointment::whereDate('date', $today)
+        ->where(function($query) use ($userId) {
+            $query->whereIn('status', ['pending', 'no_show'])
+                  ->orWhere(function($q) use ($userId) {
+                      $q->where('status', 'serving')->where('user_id', $userId);
+                  });
+        })
+        ->orderBy('date', 'asc')
+        ->get();
+
+    // Apply sorting logic
+    $applySortingLogic = function($collection) {
+        $serving = $collection->where('status', 'serving')->values();
+        $highPriorityPending = $collection->where('status', 'pending')
+            ->filter(fn($app) => in_array($app->priority_type, ['senior', 'infant', 'pwd', 'pregnant']))
+            ->sortBy('updated_at')->values();
+        $regularPending = $collection->where('status', 'pending')
+            ->where('priority_type', 'regular')->sortBy('updated_at')->values();
+        $noShow = $collection->where('status', 'no_show')->sortBy('updated_at')->values();
+
+        $sorted = collect();
+        foreach ($serving as $app) $sorted->push($app);
+        if ($highPriorityPending->count() > 0) $sorted->push($highPriorityPending->shift());
+        if ($noShow->count() > 0) $sorted->push($noShow->shift());
+        foreach ($regularPending as $app) $sorted->push($app);
+        foreach ($highPriorityPending as $app) $sorted->push($app);
+        foreach ($noShow as $app) $sorted->push($app);
+        return $sorted;
+    };
+
+    $appointments = $applySortingLogic($allAppointments);
     
-    // Get serving appointments for this operator
-    $servingAppointments = TblAppointment::whereDate('date', $today)
-                                        ->where('status', 'serving')
-                                        ->where('user_id', $userId)
-                                        ->orderBy('updated_at', 'desc')
-                                        ->get();
+    $nidRegistrationAppointments = $applySortingLogic($allAppointments->filter(fn($app) => $app->queue_for === 'NID Registration')->values());
+    $statusInquiryAppointments = $applySortingLogic($allAppointments->filter(fn($app) => $app->queue_for === 'Status Inquiry')->values());
+    $nidUpdatingAppointments = $applySortingLogic($allAppointments->filter(fn($app) => $app->queue_for === 'Updating')->values());
+
+    // Get statistics
+    $queueCount = TblAppointment::whereDate('date', $today)->count();
+    $pendingCount = TblAppointment::whereDate('date', $today)->where('status', 'pending')->count();
+    $completedCount = TblAppointment::whereDate('date', $today)->where('status', 'completed')->where('user_id', $userId)->count();
+    $cancelledCount = TblAppointment::whereDate('date', $today)->where('status', 'cancelled')->where('user_id', $userId)->count();
+    $servingCount = TblAppointment::whereDate('date', $today)->where('status', 'serving')->where('user_id', $userId)->count();
+    $noShowCount = TblAppointment::whereDate('date', $today)->where('status', 'no_show')->count();
+    $allCompletedToday = TblAppointment::whereDate('date', $today)->where('status', 'completed')->count();
+    $allCancelledToday = TblAppointment::whereDate('date', $today)->where('status', 'cancelled')->count();
+
+    // Priority counts
+    $priorityCounts = [
+        'senior' => TblAppointment::whereDate('date', $today)->where('priority_type', 'senior')->count(),
+        'infant' => TblAppointment::whereDate('date', $today)->where('priority_type', 'infant')->count(),
+        'pwd' => TblAppointment::whereDate('date', $today)->where('priority_type', 'pwd')->count(),
+        'pregnant' => TblAppointment::whereDate('date', $today)->where('priority_type', 'pregnant')->count(),
+        'regular' => TblAppointment::whereDate('date', $today)->where('priority_type', 'regular')->count(),
+    ];
+
+    // Daily data for last 7 days
+    $dailyLabels = [];
+    $dailyServed = [];
+    $dailyCompleted = [];
     
-    // Get counts for stats
-    $servingCount = $servingAppointments->count();
-    $completedCount = TblAppointment::whereDate('date', $today)
-                                    ->where('status', 'completed')
-                                    ->where('user_id', $userId)
-                                    ->count();
-    $pendingCount = TblAppointment::whereDate('date', $today)
-                                  ->where('status', 'pending')
-                                  ->count();
-    
+    for ($i = 6; $i >= 0; $i--) {
+        $date = Carbon::now('Asia/Manila')->subDays($i)->toDateString();
+        $dailyLabels[] = Carbon::now('Asia/Manila')->subDays($i)->format('M d');
+        $dailyServed[] = TblAppointment::whereDate('date', $date)->where('user_id', $userId)
+            ->whereIn('status', ['completed', 'serving'])->count();
+        $dailyCompleted[] = TblAppointment::whereDate('date', $date)->where('user_id', $userId)
+            ->where('status', 'completed')->count();
+    }
+
+    // Status distribution
+    $statusData = [
+        'pending' => $pendingCount,
+        'serving' => $servingCount,
+        'completed' => $completedCount,
+        'cancelled' => $cancelledCount,
+        'no_show' => $noShowCount,
+    ];
+
+    // Recent activities
+    $recentActivities = TblAppointment::whereDate('date', $today)
+        ->where('user_id', $userId)
+        ->whereIn('status', ['completed', 'cancelled'])
+        ->orderBy('updated_at', 'desc')
+        ->limit(5)
+        ->get()
+        ->map(function($appointment) {
+            return [
+                'type' => $appointment->status,
+                'title' => $appointment->status === 'completed' ? 'Appointment Completed' : 'Appointment Cancelled',
+                'description' => $appointment->q_id . ' - ' . $appointment->lname . ', ' . $appointment->fname,
+                'time' => Carbon::parse($appointment->updated_at)->setTimezone('Asia/Manila')->diffForHumans(),
+            ];
+        });
+
+    // Transactions pagination
+    $completedTransactions = TblAppointment::whereDate('date', $today)
+        ->whereIn('status', ['completed', 'cancelled'])
+        ->where('user_id', $userId)
+        ->orderByRaw("CASE WHEN time_catered IS NOT NULL THEN time_catered ELSE updated_at END DESC")
+        ->paginate(10);
+
     return view('operator.serving', compact(
-        'servingAppointments',
-        'servingCount',
-        'completedCount',
-        'pendingCount'
+        'windowNum', 'appointments', 'nidRegistrationAppointments', 'statusInquiryAppointments',
+        'nidUpdatingAppointments', 'completedTransactions', 'queueCount', 'pendingCount',
+        'completedCount', 'cancelledCount', 'servingCount', 'noShowCount', 'allCompletedToday',
+        'allCancelledToday', 'priorityCounts', 'dailyLabels', 'dailyServed', 'dailyCompleted',
+        'statusData', 'recentActivities'
     ));
 }
 /**

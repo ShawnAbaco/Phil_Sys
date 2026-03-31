@@ -179,12 +179,12 @@ public function appointments()
             'service' => $queueFor
         ];
 
-        return redirect()->route('screener.dashboard')
+        return redirect()->route('screener.appointments')
                        ->with('success', 'Appointment issued successfully! Queue Number: ' . $queueId)
                        ->with('printSlip', $printData);
                        
     } catch (\Exception $e) {
-        return redirect()->route('screener.dashboard')
+        return redirect()->route('screener.appointments')
                        ->with('error', 'Failed to issue appointment: ' . $e->getMessage())
                        ->withInput();
     }
