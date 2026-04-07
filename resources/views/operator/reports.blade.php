@@ -379,32 +379,6 @@
             position: relative;
         }
 
-        /* Priority Breakdown */
-        .priority-breakdown {
-            display: grid;
-            grid-template-columns: repeat(5, 1fr);
-            gap: 1rem;
-            margin-top: 1rem;
-        }
-
-        .priority-item {
-            text-align: center;
-            padding: 0.75rem;
-            background: #f9fafb;
-            border-radius: 0.75rem;
-            font-size: 0.875rem;
-            font-weight: 500;
-            color: #374151;
-        }
-
-        .priority-color {
-            width: 12px;
-            height: 12px;
-            border-radius: 50%;
-            display: inline-block;
-            margin-right: 0.5rem;
-        }
-
         /* Table Styles */
         .table-container {
             background: white;
@@ -432,6 +406,27 @@
             display: flex;
             align-items: center;
             gap: 0.5rem;
+        }
+
+        .per-page-selector {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .per-page-dropdown {
+            padding: 6px 12px;
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+            background: white;
+            font-size: 0.875rem;
+            color: #374151;
+            cursor: pointer;
+            outline: none;
+        }
+
+        .per-page-dropdown:hover {
+            border-color: #2563eb;
         }
 
         .export-buttons {
@@ -482,6 +477,10 @@
         .btn-export-print:hover { 
             background: #4b5563; 
             transform: translateY(-1px);
+        }
+
+        .table-responsive {
+            overflow-x: auto;
         }
 
         .data-table {
@@ -582,24 +581,152 @@
             color: #d1d5db;
         }
 
+        /* Enhanced Pagination Styles */
+        .enhanced-pagination {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 20px;
+            padding: 20px 20px 10px 20px;
+            border-top: 2px solid #e2e8f0;
+            gap: 15px;
+            flex-wrap: wrap;
+            background: white;
+        }
+
+        .pagination-nav-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            border: 1px solid #cbd5e1;
+            border-radius: 0.5rem;
+            background: white;
+            color: #4b5563;
+            font-size: 0.875rem;
+            font-weight: 500;
+            text-decoration: none;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .pagination-nav-btn:hover:not(.disabled) {
+            background: #f8fafc;
+            border-color: #2563eb;
+            color: #2563eb;
+        }
+
+        .pagination-nav-btn.disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            pointer-events: none;
+        }
+
+        .pagination-center-group {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            background: #f8fafc;
+            padding: 4px 8px;
+            border-radius: 30px;
+            border: 1px solid #e2e8f0;
+        }
+
+        .pagination-arrow {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 32px;
+            height: 32px;
+            border: 1px solid #cbd5e1;
+            border-radius: 50%;
+            background: white;
+            color: #4b5563;
+            text-decoration: none;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .pagination-arrow:hover:not(.disabled) {
+            background: #f8fafc;
+            border-color: #2563eb;
+            color: #2563eb;
+        }
+
+        .pagination-arrow.disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            pointer-events: none;
+        }
+
+        .pagination-numbers {
+            display: flex;
+            align-items: center;
+            gap: 3px;
+        }
+
+        .page-number {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 32px;
+            height: 32px;
+            padding: 0 4px;
+            border-radius: 6px;
+            background: transparent;
+            color: #4b5563;
+            font-size: 0.875rem;
+            font-weight: 500;
+            text-decoration: none;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .page-number:hover:not(.active) {
+            background: #e2e8f0;
+        }
+
+        .page-number.active {
+            background: #2563eb;
+            color: white;
+            cursor: default;
+            pointer-events: none;
+        }
+
+        .page-dots {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 24px;
+            height: 32px;
+            color: #9ca3af;
+            font-size: 0.875rem;
+        }
+
+        .showing-info {
+            font-size: 0.875rem;
+            color: #6b7280;
+            background: #f3f4f6;
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+        }
+
         /* Responsive */
         @media (max-width: 1200px) {
             .quick-stats-grid { grid-template-columns: repeat(3, 1fr); }
             .stats-grid { grid-template-columns: repeat(2, 1fr); }
             .charts-grid { grid-template-columns: 1fr; }
-            .priority-breakdown { grid-template-columns: repeat(3, 1fr); }
         }
 
         @media (max-width: 768px) {
             .quick-stats-grid { grid-template-columns: repeat(2, 1fr); }
             .stats-grid { grid-template-columns: 1fr; }
-            .priority-breakdown { grid-template-columns: 1fr; }
             .filter-row { flex-direction: column; }
             .filter-group { width: 100%; }
         }
 
         @media print {
-            .sidebar, .filter-card, .export-buttons, .btn-primary, .btn-secondary {
+            .sidebar, .filter-card, .export-buttons, .btn-primary, .btn-secondary, .enhanced-pagination {
                 display: none !important;
             }
             .stat-card, .chart-card, .table-container {
@@ -617,7 +744,7 @@
                 <svg viewBox="0 0 20 20" fill="currentColor">
                     <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z" />
                 </svg>
-                <h1>Advanced Analytics & Reports</h1>
+                <h1>Analytics & Reports</h1>
             </div>
             <div class="breadcrumb">
                 <a href="{{ route('operator.dashboard') }}">
@@ -812,38 +939,6 @@
             </div>
         </div>
 
-        <!-- Priority Breakdown -->
-        <div class="chart-card" style="margin-bottom: 2rem;">
-            <div class="chart-title">
-                <svg viewBox="0 0 20 20" fill="currentColor">
-                    <path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z" />
-                </svg>
-                Priority Breakdown
-            </div>
-            <div class="priority-breakdown">
-                <div class="priority-item">
-                    <span class="priority-color" style="background: #8b5cf6;"></span> 
-                    Senior: <strong id="seniorCount">0</strong>
-                </div>
-                <div class="priority-item">
-                    <span class="priority-color" style="background: #f59e0b;"></span> 
-                    Infant: <strong id="infantCount">0</strong>
-                </div>
-                <div class="priority-item">
-                    <span class="priority-color" style="background: #10b981;"></span> 
-                    PWD: <strong id="pwdCount">0</strong>
-                </div>
-                <div class="priority-item">
-                    <span class="priority-color" style="background: #ec4899;"></span> 
-                    Pregnant: <strong id="pregnantCount">0</strong>
-                </div>
-                <div class="priority-item">
-                    <span class="priority-color" style="background: #6b7280;"></span> 
-                    Regular: <strong id="regularCount">0</strong>
-                </div>
-            </div>
-        </div>
-
         <!-- Transaction Table -->
         <div class="table-container">
             <div class="table-header">
@@ -853,28 +948,39 @@
                     </svg>
                     Detailed Transaction Log
                 </h4>
-                <div class="export-buttons">
-                    <button class="btn-export btn-export-pdf" id="exportPdfBtn">
-                        <svg viewBox="0 0 20 20" fill="currentColor">
-                            <path fill-rule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4z" clip-rule="evenodd" />
-                        </svg>
-                        PDF
-                    </button>
-                    <button class="btn-export btn-export-excel" id="exportExcelBtn">
-                        <svg viewBox="0 0 20 20" fill="currentColor">
-                            <path fill-rule="evenodd" d="M4 4a2 2 0 012-2h8a2 2 0 012 2v12a2 2 0 01-2 2H6a2 2 0 01-2-2V4z" clip-rule="evenodd" />
-                        </svg>
-                        Excel
-                    </button>
-                    <button class="btn-export btn-export-print" id="printBtn">
-                        <svg viewBox="0 0 20 20" fill="currentColor">
-                            <path fill-rule="evenodd" d="M5 4v3H4a2 2 0 00-2 2v3a2 2 0 002 2h1v2a2 2 0 002 2h6a2 2 0 002-2v-2h1a2 2 0 002-2V9a2 2 0 00-2-2h-1V4a2 2 0 00-2-2H7a2 2 0 00-2 2zm8 0H7v3h6V4zm0 8h-2v2h2v-2z" clip-rule="evenodd" />
-                        </svg>
-                        Print
-                    </button>
+                <div style="display: flex; gap: 1rem; align-items: center;">
+                    <div class="per-page-selector">
+                        <span class="filter-label">Show:</span>
+                        <select id="reportPerPageSelect" class="per-page-dropdown">
+                            <option value="10">10 per page</option>
+                            <option value="20">20 per page</option>
+                            <option value="50">50 per page</option>
+                            <option value="100">100 per page</option>
+                        </select>
+                    </div>
+                    <div class="export-buttons">
+                        <button class="btn-export btn-export-pdf" id="exportPdfBtn">
+                            <svg viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4z" clip-rule="evenodd" />
+                            </svg>
+                            PDF
+                        </button>
+                        <button class="btn-export btn-export-excel" id="exportExcelBtn">
+                            <svg viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M4 4a2 2 0 012-2h8a2 2 0 012 2v12a2 2 0 01-2 2H6a2 2 0 01-2-2V4z" clip-rule="evenodd" />
+                            </svg>
+                            Excel
+                        </button>
+                        <button class="btn-export btn-export-print" id="printBtn">
+                            <svg viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M5 4v3H4a2 2 0 00-2 2v3a2 2 0 002 2h1v2a2 2 0 002 2h6a2 2 0 002-2v-2h1a2 2 0 002-2V9a2 2 0 00-2-2h-1V4a2 2 0 00-2-2H7a2 2 0 00-2 2zm8 0H7v3h6V4zm0 8h-2v2h2v-2z" clip-rule="evenodd" />
+                            </svg>
+                            Print
+                        </button>
+                    </div>
                 </div>
             </div>
-            <div style="overflow-x: auto;">
+            <div class="table-responsive">
                 <table class="data-table">
                     <thead>
                         <tr>
@@ -893,6 +999,10 @@
                     </tbody>
                 </table>
             </div>
+            <!-- Enhanced Pagination -->
+            <div class="enhanced-pagination" id="reportPaginationContainer">
+                <!-- Pagination will be loaded here -->
+            </div>
         </div>
     </main>
 </div>
@@ -908,6 +1018,9 @@
         serviceType: 'all', 
         statusFilter: 'all' 
     };
+    let currentPage = 1;
+    let currentPerPage = 10;
+    let isLoading = false;
 
     // Get date range based on period
     function getDateRange(period) {
@@ -915,11 +1028,9 @@
         let start, end;
         
         if (period === 'daily') {
-            // Today
             start = new Date(now.getFullYear(), now.getMonth(), now.getDate());
             end = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59);
         } else if (period === 'weekly') {
-            // This week (Monday to Sunday)
             const day = now.getDay();
             const diff = day === 0 ? -6 : 1 - day;
             start = new Date(now);
@@ -929,11 +1040,9 @@
             end.setDate(start.getDate() + 6);
             end.setHours(23, 59, 59, 999);
         } else if (period === 'monthly') {
-            // This month
             start = new Date(now.getFullYear(), now.getMonth(), 1);
             end = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59, 999);
         } else if (period === 'yearly') {
-            // This year
             start = new Date(now.getFullYear(), 0, 1);
             end = new Date(now.getFullYear(), 11, 31, 23, 59, 59, 999);
         }
@@ -977,6 +1086,19 @@
                         fill: true, 
                         tension: 0.4,
                         pointBackgroundColor: '#ef4444',
+                        pointBorderColor: '#fff',
+                        pointBorderWidth: 2,
+                        pointRadius: 4,
+                        pointHoverRadius: 6
+                    },
+                    { 
+                        label: '⚠️ No Show', 
+                        data: [], 
+                        borderColor: '#f59e0b', 
+                        backgroundColor: 'rgba(245,158,11,0.1)', 
+                        fill: true, 
+                        tension: 0.4,
+                        pointBackgroundColor: '#f59e0b',
                         pointBorderColor: '#fff',
                         pointBorderWidth: 2,
                         pointRadius: 4,
@@ -1068,13 +1190,17 @@
         });
     }
 
-    // Fetch report data
-    function fetchReportData() {
+    // Fetch report data with pagination
+    function fetchReportData(page = 1, perPage = null) {
+        if (isLoading) return;
+        isLoading = true;
+        
         let url = '{{ route("operator.reports.data") }}?';
         
         if (currentPeriod === 'custom') {
             if (!currentFilters.startDate || !currentFilters.endDate) {
                 console.error('Custom date range requires start and end dates');
+                isLoading = false;
                 return;
             }
             url += `start_date=${currentFilters.startDate}&end_date=${currentFilters.endDate}`;
@@ -1084,6 +1210,13 @@
         }
         
         url += `&service_type=${currentFilters.serviceType}&status=${currentFilters.statusFilter}`;
+        url += `&page=${page}&per_page=${perPage !== null ? perPage : currentPerPage}`;
+        
+        const tableBody = document.getElementById('reportTableBody');
+        const paginationContainer = document.getElementById('reportPaginationContainer');
+        
+        if (tableBody) tableBody.style.opacity = '0';
+        if (paginationContainer) paginationContainer.style.opacity = '0';
         
         fetch(url, { 
             headers: { 
@@ -1097,14 +1230,156 @@
             if (data.success) {
                 updateStats(data.stats);
                 updateCharts(data.charts);
-                updateTable(data.transactions);
                 updateQuickStats(data.quickStats);
                 updateTrends(data.trends);
+                updateTableWithPagination(data);
+                
+                if (data.transactions) {
+                    currentPage = data.transactions.current_page;
+                    currentPerPage = data.transactions.per_page;
+                }
             } else {
                 console.error('Error fetching data:', data.message);
             }
+            isLoading = false;
         })
-        .catch(error => console.error('Error fetching report data:', error));
+        .catch(error => {
+            console.error('Error fetching report data:', error);
+            isLoading = false;
+        });
+    }
+
+    // Update table with pagination data
+    function updateTableWithPagination(data) {
+        const tbody = document.getElementById('reportTableBody');
+        const paginationContainer = document.getElementById('reportPaginationContainer');
+        
+        if (!tbody) return;
+        
+        if (data.transactions && data.transactions.data && data.transactions.data.length > 0) {
+            let html = '';
+            data.transactions.data.forEach(t => {
+                const priorityClass = t.priority_type || 'regular';
+                const statusClass = t.status;
+                const statusDisplay = t.status.replace('_', ' ').toUpperCase();
+                
+                html += `
+                    <tr>
+                        <td>${t.date}</td>
+                        <td><span class="queue-badge">${t.q_id}</span></td>
+                        <td>${t.client_name}</td>
+                        <td>${t.service}</td>
+                        <td><span class="priority-badge priority-${priorityClass}">${priorityClass.toUpperCase()}</span></td>
+                        <td><span class="status-badge ${statusClass}"><span class="status-dot"></span>${statusDisplay}</span></td>
+                        <td>${t.window_num || 'N/A'}</td>
+                        <td>${t.served_time}</td>
+                    </tr>
+                `;
+            });
+            tbody.innerHTML = html;
+        } else {
+            tbody.innerHTML = '<tr><td colspan="8" class="empty-state">No transactions found</td></tr>';
+        }
+        
+        tbody.style.opacity = '1';
+        
+        if (paginationContainer && data.transactions) {
+            paginationContainer.innerHTML = renderPagination(data.transactions);
+            paginationContainer.style.opacity = '1';
+            attachPaginationListeners();
+        }
+    }
+
+    // Render pagination HTML
+    function renderPagination(paginationData) {
+        const currentPage = paginationData.current_page;
+        const lastPage = paginationData.last_page;
+        const total = paginationData.total;
+        const from = paginationData.from;
+        const to = paginationData.to;
+        
+        let html = `
+            <div class="showing-info">
+                Showing ${from || 0}-${to || 0} of ${total}
+            </div>
+            <div class="pagination-center-group">
+        `;
+        
+        if (currentPage > 1) {
+            html += `<a href="#" class="pagination-arrow" data-page="${currentPage - 1}">←</a>`;
+        } else {
+            html += `<span class="pagination-arrow disabled">←</span>`;
+        }
+        
+        html += `<div class="pagination-numbers">`;
+        
+        let startPage = Math.max(1, currentPage - 2);
+        let endPage = Math.min(lastPage, currentPage + 2);
+        
+        if (startPage > 1) {
+            html += `<a href="#" class="page-number" data-page="1">1</a>`;
+            if (startPage > 2) {
+                html += `<span class="page-dots">...</span>`;
+            }
+        }
+        
+        for (let i = startPage; i <= endPage; i++) {
+            if (i === currentPage) {
+                html += `<span class="page-number active">${i}</span>`;
+            } else {
+                html += `<a href="#" class="page-number" data-page="${i}">${i}</a>`;
+            }
+        }
+        
+        if (endPage < lastPage) {
+            if (endPage < lastPage - 1) {
+                html += `<span class="page-dots">...</span>`;
+            }
+            html += `<a href="#" class="page-number" data-page="${lastPage}">${lastPage}</a>`;
+        }
+        
+        html += `</div>`;
+        
+        if (currentPage < lastPage) {
+            html += `<a href="#" class="pagination-arrow" data-page="${currentPage + 1}">→</a>`;
+        } else {
+            html += `<span class="pagination-arrow disabled">→</span>`;
+        }
+        
+        html += `</div>`;
+        
+        html += `<div style="display: flex; gap: 8px;">`;
+        if (currentPage > 1) {
+            html += `<a href="#" class="pagination-nav-btn" data-page="1">⏮ First</a>`;
+        } else {
+            html += `<span class="pagination-nav-btn disabled">⏮ First</span>`;
+        }
+        
+        if (currentPage < lastPage) {
+            html += `<a href="#" class="pagination-nav-btn" data-page="${lastPage}">Last ⏭</a>`;
+        } else {
+            html += `<span class="pagination-nav-btn disabled">Last ⏭</span>`;
+        }
+        html += `</div>`;
+        
+        return html;
+    }
+
+    // Attach pagination listeners
+    function attachPaginationListeners() {
+        document.querySelectorAll('#reportPaginationContainer .pagination-arrow:not(.disabled), #reportPaginationContainer .page-number:not(.active), #reportPaginationContainer .pagination-nav-btn:not(.disabled)').forEach(link => {
+            link.removeEventListener('click', handlePaginationClick);
+            link.addEventListener('click', handlePaginationClick);
+        });
+    }
+
+    function handlePaginationClick(e) {
+        e.preventDefault();
+        const page = parseInt(this.dataset.page);
+        if (!isNaN(page) && page !== currentPage) {
+            currentPage = page;
+            fetchReportData(currentPage, currentPerPage);
+        }
     }
 
     // Update statistics
@@ -1113,11 +1388,6 @@
         document.getElementById('totalCancelled').textContent = stats.cancelled || 0;
         document.getElementById('totalNoShow').textContent = stats.no_show || 0;
         document.getElementById('totalServed').textContent = stats.served || 0;
-        document.getElementById('seniorCount').textContent = stats.senior || 0;
-        document.getElementById('infantCount').textContent = stats.infant || 0;
-        document.getElementById('pwdCount').textContent = stats.pwd || 0;
-        document.getElementById('pregnantCount').textContent = stats.pregnant || 0;
-        document.getElementById('regularCount').textContent = stats.regular || 0;
     }
 
     // Update quick stats
@@ -1153,6 +1423,7 @@
             trendChart.data.labels = charts.daily.labels;
             trendChart.data.datasets[0].data = charts.daily.completed;
             trendChart.data.datasets[1].data = charts.daily.cancelled;
+            trendChart.data.datasets[2].data = charts.daily.no_show || [];
             trendChart.update();
         }
         
@@ -1170,37 +1441,6 @@
             serviceChart.data.datasets[0].data = charts.services;
             serviceChart.update();
         }
-    }
-
-    // Update table
-    function updateTable(transactions) {
-        const tbody = document.getElementById('reportTableBody');
-        if (!transactions || transactions.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="8" class="empty-state">No transactions found</td></tr>';
-            return;
-        }
-        
-        let html = '';
-        transactions.forEach(t => {
-            const priorityClass = t.priority_type || 'regular';
-            const statusClass = t.status;
-            const statusDisplay = t.status.replace('_', ' ').toUpperCase();
-            
-            html += `
-                <tr>
-                    <td>${t.date}</td>
-                    <td><span class="queue-badge">${t.q_id}</span></td>
-                    <td>${t.client_name}</td>
-                    <td>${t.service}</td>
-                    <td><span class="priority-badge priority-${priorityClass}">${priorityClass.toUpperCase()}</span></td>
-                    <td><span class="status-badge ${statusClass}"><span class="status-dot"></span>${statusDisplay}</span></td>
-                    <td>${t.window_num || 'N/A'}</td>
-                    <td>${t.served_time}</td>
-                </tr>
-            `;
-        });
-        
-        tbody.innerHTML = html;
     }
 
     // Toggle custom date fields
@@ -1244,8 +1484,9 @@
         
         currentFilters.serviceType = document.getElementById('serviceType').value;
         currentFilters.statusFilter = document.getElementById('statusFilter').value;
+        currentPage = 1;
         
-        fetchReportData();
+        fetchReportData(1, currentPerPage);
         
         Swal.fire({
             title: 'Filters Applied',
@@ -1275,7 +1516,8 @@
             currentFilters.endDate = today;
         }
         
-        fetchReportData();
+        currentPage = 1;
+        fetchReportData(1, currentPerPage);
         
         Swal.fire({
             title: 'Filters Reset',
@@ -1344,9 +1586,10 @@
             btn.classList.add('active');
             currentPeriod = btn.dataset.period;
             toggleCustomDateFields();
+            currentPage = 1;
             
             if (currentPeriod !== 'custom') {
-                fetchReportData();
+                fetchReportData(1, currentPerPage);
             }
         });
     });
@@ -1356,9 +1599,21 @@
     document.getElementById('exportPdfBtn')?.addEventListener('click', exportPDF);
     document.getElementById('exportExcelBtn')?.addEventListener('click', exportExcel);
     document.getElementById('printBtn')?.addEventListener('click', printReport);
+    
+    const perPageSelect = document.getElementById('reportPerPageSelect');
+    if (perPageSelect) {
+        perPageSelect.addEventListener('change', function() {
+            const newPerPage = parseInt(this.value);
+            if (newPerPage !== currentPerPage) {
+                currentPerPage = newPerPage;
+                currentPage = 1;
+                fetchReportData(1, newPerPage);
+            }
+        });
+    }
 
     // Initialize
     initCharts();
-    fetchReportData();
+    fetchReportData(1, 10);
     toggleCustomDateFields();
 </script>

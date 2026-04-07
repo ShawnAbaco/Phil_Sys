@@ -267,10 +267,6 @@ Route::prefix('screener')->name('screener.')->middleware(['auth'])->group(functi
     Route::get('/operator/reports/data', [OReportController::class, 'getReportData'])->name('operator.reports.data');
     Route::get('/operator/reports/export/pdf', [OReportController::class, 'exportReportPDF'])->name('operator.reports.export.pdf');
     Route::get('/operator/reports/export/excel', [OReportController::class, 'exportReportExcel'])->name('operator.reports.export.excel');
-
-    // Export routes
-    Route::get('/operator/export/pdf', [OperatorController::class, 'exportPDF'])->name('operator.export.pdf');
-    Route::get('/operator/export/excel', [OperatorController::class, 'exportExcel'])->name('operator.export.excel');
 });
 
 // Admin Routes - Directly in web.php (no separate file needed)

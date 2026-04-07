@@ -495,41 +495,7 @@
             <!-- Windows 1-6 will be populated dynamically via JavaScript -->
         </div>
 
-        <!-- PRIORITY BREAKDOWN Card -->
-        <div class="card" style="margin-bottom: 1.5rem;">
-            <div class="card-header">
-                <h3>
-                    <svg viewBox="0 0 20 20" fill="currentColor">
-                        <path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z" />
-                    </svg>
-                    Priority Breakdown
-                </h3>
-            </div>
-            <div class="card-body">
-                <div class="priority-stats">
-                    <div class="priority-stat-item">
-                        <div class="priority-stat-label">Senior Citizens</div>
-                        <div class="priority-stat-number senior" id="seniorCount">{{ $seniorCount ?? 0 }}</div>
-                    </div>
-                    <div class="priority-stat-item">
-                        <div class="priority-stat-label">Infant</div>
-                        <div class="priority-stat-number infant" id="infantCount">{{ $infantCount ?? 0 }}</div>
-                    </div>
-                    <div class="priority-stat-item">
-                        <div class="priority-stat-label">PWD</div>
-                        <div class="priority-stat-number pwd" id="pwdCount">{{ $pwdCount ?? 0 }}</div>
-                    </div>
-                    <div class="priority-stat-item">
-                        <div class="priority-stat-label">Pregnant</div>
-                        <div class="priority-stat-number pregnant" id="pregnantCount">{{ $pregnantCount ?? 0 }}</div>
-                    </div>
-                    <div class="priority-stat-item">
-                        <div class="priority-stat-label">Regular</div>
-                        <div class="priority-stat-number regular" id="regularCount">{{ $regularCount ?? 0 }}</div>
-                    </div>
-                </div>
-            </div>
-        </div>
+        
 
         <!-- Today's Appointments Card -->
         <div class="card">

@@ -722,7 +722,7 @@
             confirmButtonText: 'Yes, Export!'
         }).then((result) => {
             if (result.isConfirmed) {
-                window.location.href = '{{ route('operator.export.pdf') }}';
+                window.location.href = '{{ route('operator.reports.export.pdf') }}';
 
                 const Toast = Swal.mixin({
                     toast: true,
@@ -754,7 +754,7 @@
             confirmButtonText: 'Yes, Export!'
         }).then((result) => {
             if (result.isConfirmed) {
-                window.location.href = '{{ route('operator.export.excel') }}';
+                window.location.href = '{{ route('operator.reports.export.excel') }}';
 
                 const Toast = Swal.mixin({
                     toast: true,

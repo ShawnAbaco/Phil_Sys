@@ -31,96 +31,114 @@
         }
 
         .breadcrumb {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    font-size: 14px;
-}
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+        }
 
-.breadcrumb a {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    color: #1e293b;
-    text-decoration: none;
-    padding: 6px 10px;
-    border-radius: var(--radius);
-    background: var(--gray-100);
-    transition: all 0.2s ease;
-}
+        .breadcrumb a {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            color: #1e293b;
+            text-decoration: none;
+            padding: 6px 10px;
+            border-radius: var(--radius);
+            background: var(--gray-100);
+            transition: all 0.2s ease;
+        }
 
-.breadcrumb a:hover {
-    background: var(--primary);
-    color: #fff;
-    transform: translateY(-1px);
-    box-shadow: 0 2px 4px rgba(37, 99, 235, 0.2);
-}
+        .breadcrumb a:hover {
+            background: var(--primary);
+            color: #fff;
+            transform: translateY(-1px);
+            box-shadow: 0 2px 4px rgba(37, 99, 235, 0.2);
+        }
 
-.breadcrumb a svg {
-    color: var(--primary);
-    transition: color 0.2s ease;
-}
+        .breadcrumb a svg {
+            color: var(--primary);
+            transition: color 0.2s ease;
+        }
 
-.breadcrumb a:hover svg {
-    color: #fff;
-}
+        .breadcrumb a:hover svg {
+            color: #fff;
+        }
 
-.breadcrumb span {
-    color: #676e79;
-}
+        .breadcrumb span {
+            color: #676e79;
+        }
 
-.breadcrumb .current {
-    color: var(--gray-800);
-    font-weight: 500;
-    padding: 6px 10px;
-    background: var(--gray-100);
-    border-radius: var(--radius);
-}
+        .breadcrumb .current {
+            color: var(--gray-800);
+            font-weight: 500;
+            padding: 6px 10px;
+            background: var(--gray-100);
+            border-radius: var(--radius);
+        }
 
-        /* Welcome Section */
-        .welcome-section {
+        /* Welcome Banner Styles */
+        .welcome-banner {
             background: linear-gradient(135deg, #2563eb, #1d4ed8);
             border-radius: 24px;
             padding: 32px;
             margin-bottom: 32px;
-            color: white;
             position: relative;
             overflow: hidden;
+            color: white;
         }
 
-        .welcome-section::before {
+        .welcome-banner::before {
             content: '';
             position: absolute;
-            top: 0;
-            right: 0;
-            width: 400px;
-            height: 100%;
-            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="40" fill="rgba(255,255,255,0.03)"/></svg>') repeat;
-            opacity: 0.3;
+            top: -50%;
+            right: -10%;
+            width: 300px;
+            height: 300px;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0) 70%);
+            border-radius: 50%;
         }
 
-        .welcome-section h1 {
-            font-size: 28px;
+        .welcome-banner::after {
+            content: '';
+            position: absolute;
+            bottom: -30%;
+            left: -5%;
+            width: 200px;
+            height: 200px;
+            background: radial-gradient(circle, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0) 70%);
+            border-radius: 50%;
+        }
+
+        .welcome-content {
+            position: relative;
+            z-index: 1;
+        }
+
+        .welcome-greeting {
+            font-size: 0.875rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            opacity: 0.8;
+            margin-bottom: 0.5rem;
+        }
+
+        .welcome-title {
+            font-size: 2rem;
             font-weight: 700;
-            margin-bottom: 8px;
+            margin-bottom: 0.5rem;
         }
 
-        .welcome-section p {
-            font-size: 16px;
+        .welcome-date {
+            font-size: 0.875rem;
             opacity: 0.9;
-            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
         }
 
-        .window-badge-large {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            background: rgba(255, 255, 255, 0.2);
-            backdrop-filter: blur(10px);
-            padding: 8px 16px;
-            border-radius: 40px;
-            font-size: 14px;
-        }
+       
 
         /* Stats Grid */
         .stats-grid {
@@ -208,6 +226,7 @@
 
         .trend-up { color: #10b981; }
         .trend-down { color: #ef4444; }
+        .trend-neutral { color: #f59e0b; }
 
         /* Quick Stats Row */
         .quick-stats {
@@ -452,9 +471,7 @@
     </style>
 
     <main class="main-content">
-        <!-- Welcome Section -->
-        
-<!-- Page Header with Breadcrumb -->
+        <!-- Page Header with Breadcrumb -->
         <div class="page-header">
             <div class="page-title1">
                 <svg viewBox="0 0 20 20" fill="currentColor">
@@ -469,25 +486,36 @@
             </div>
         </div>
 
-        <!-- Stats Cards -->
+        <!-- Welcome Banner -->
+        <div class="welcome-banner">
+            <div class="welcome-content">
+                <div class="welcome-greeting">Welcome Back, Operator!</div>
+                <div class="welcome-title">{{ Auth::user()->name ?? 'Operator' }}</div>
+                <div class="welcome-date">
+                    <svg viewBox="0 0 20 20" fill="currentColor" width="16" height="16">
+                        <path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clip-rule="evenodd" />
+                    </svg>
+                    {{ \Carbon\Carbon::now('Asia/Manila')->format('l, F j, Y') }}
+                </div>
+                
+            </div>
+        </div>
+
+        <!-- Main Stats Cards -->
         <div class="stats-grid">
             <div class="stat-card">
                 <div class="stat-header">
                     <span class="stat-title">Total Queue Today</span>
                     <div class="stat-icon blue">
-                        <svg viewBox="0 0 20 20" fill="currentColor" width="20" height="20">
+                        <svg viewBox="0 0 20 20" fill="currentColor">
                             <path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z" />
                         </svg>
                     </div>
                 </div>
                 <div class="stat-value">{{ $queueCount ?? 0 }}</div>
                 <div class="stat-trend">
-                    @if(($trends['total'] ?? 0) > 0)
-                        <span class="trend-up">↑ {{ $trends['total'] ?? 0 }}%</span>
-                    @else
-                        <span class="trend-down">→ 0%</span>
-                    @endif
-                    <span>from yesterday</span>
+                    <span class="trend-neutral">→ 0%</span>
+                    <span>vs yesterday</span>
                 </div>
             </div>
 
@@ -495,70 +523,52 @@
                 <div class="stat-header">
                     <span class="stat-title">Pending</span>
                     <div class="stat-icon orange">
-                        <svg viewBox="0 0 20 20" fill="currentColor" width="20" height="20">
+                        <svg viewBox="0 0 20 20" fill="currentColor">
                             <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd" />
                         </svg>
                     </div>
                 </div>
                 <div class="stat-value">{{ $pendingCount ?? 0 }}</div>
                 <div class="stat-trend">
-                    @if(($trends['pending'] ?? 0) > 0)
-                        <span class="trend-up">↑ {{ $trends['pending'] ?? 0 }}%</span>
-                    @elseif(($trends['pending'] ?? 0) < 0)
-                        <span class="trend-down">↓ {{ abs($trends['pending']) }}%</span>
-                    @else
-                        <span class="trend-down">→ 0%</span>
-                    @endif
-                    <span>from yesterday</span>
+                    <span class="trend-neutral">→ 0%</span>
+                    <span>vs yesterday</span>
                 </div>
             </div>
 
             <div class="stat-card">
                 <div class="stat-header">
-                    <span class="stat-title">Completed</span>
+                    <span class="stat-title">My Completed</span>
                     <div class="stat-icon green">
-                        <svg viewBox="0 0 20 20" fill="currentColor" width="20" height="20">
+                        <svg viewBox="0 0 20 20" fill="currentColor">
                             <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
                         </svg>
                     </div>
                 </div>
                 <div class="stat-value">{{ $completedCount ?? 0 }}</div>
                 <div class="stat-trend">
-                    @if(($trends['completed'] ?? 0) > 0)
-                        <span class="trend-up">↑ {{ $trends['completed'] ?? 0 }}%</span>
-                    @elseif(($trends['completed'] ?? 0) < 0)
-                        <span class="trend-down">↓ {{ abs($trends['completed']) }}%</span>
-                    @else
-                        <span class="trend-down">→ 0%</span>
-                    @endif
-                    <span>from yesterday</span>
+                    <span class="trend-neutral">→ 0%</span>
+                    <span>vs yesterday</span>
                 </div>
             </div>
 
             <div class="stat-card">
                 <div class="stat-header">
-                    <span class="stat-title">Cancelled</span>
+                    <span class="stat-title">My Cancelled</span>
                     <div class="stat-icon red">
-                        <svg viewBox="0 0 20 20" fill="currentColor" width="20" height="20">
+                        <svg viewBox="0 0 20 20" fill="currentColor">
                             <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" />
                         </svg>
                     </div>
                 </div>
                 <div class="stat-value">{{ $cancelledCount ?? 0 }}</div>
                 <div class="stat-trend">
-                    @if(($trends['cancelled'] ?? 0) > 0)
-                        <span class="trend-up">↑ {{ $trends['cancelled'] ?? 0 }}%</span>
-                    @elseif(($trends['cancelled'] ?? 0) < 0)
-                        <span class="trend-down">↓ {{ abs($trends['cancelled']) }}%</span>
-                    @else
-                        <span class="trend-down">→ 0%</span>
-                    @endif
-                    <span>from yesterday</span>
+                    <span class="trend-neutral">→ 0%</span>
+                    <span>vs yesterday</span>
                 </div>
             </div>
         </div>
 
-        <!-- Quick Stats -->
+        <!-- Quick Stats Row -->
         <div class="quick-stats">
             <div class="quick-stat-card">
                 <div class="quick-stat-value">{{ $servingCount ?? 0 }}</div>
@@ -570,15 +580,15 @@
             </div>
             <div class="quick-stat-card">
                 <div class="quick-stat-value">{{ $allCompletedToday ?? 0 }}</div>
-                <div class="quick-stat-label">All Completed Today</div>
+                <div class="quick-stat-label">All Completed</div>
             </div>
             <div class="quick-stat-card">
                 <div class="quick-stat-value">{{ $allCancelledToday ?? 0 }}</div>
-                <div class="quick-stat-label">All Cancelled Today</div>
+                <div class="quick-stat-label">All Cancelled</div>
             </div>
             <div class="quick-stat-card">
                 <div class="quick-stat-value">{{ $pendingCount ?? 0 }}</div>
-                <div class="quick-stat-label">Waiting in Queue</div>
+                <div class="quick-stat-label">Waiting</div>
             </div>
         </div>
 
@@ -647,7 +657,7 @@
         <div class="recent-section">
             <div class="recent-header">
                 <h3>Recent Activity</h3>
-                <a href="{{ route('operator.transactions') }}" class="view-all">View All →</a>
+                <a href="{{ route('operator.reports') }}" class="view-all">View All →</a>
             </div>
             <div class="activity-list">
                 @forelse($recentActivities ?? [] as $activity)
@@ -704,7 +714,12 @@
                     borderColor: '#2563eb',
                     backgroundColor: 'rgba(37, 99, 235, 0.1)',
                     tension: 0.4,
-                    fill: true
+                    fill: true,
+                    pointBackgroundColor: '#2563eb',
+                    pointBorderColor: '#fff',
+                    pointBorderWidth: 2,
+                    pointRadius: 4,
+                    pointHoverRadius: 6
                 },
                 {
                     label: 'Completed',
@@ -712,7 +727,12 @@
                     borderColor: '#10b981',
                     backgroundColor: 'rgba(16, 185, 129, 0.1)',
                     tension: 0.4,
-                    fill: true
+                    fill: true,
+                    pointBackgroundColor: '#10b981',
+                    pointBorderColor: '#fff',
+                    pointBorderWidth: 2,
+                    pointRadius: 4,
+                    pointHoverRadius: 6
                 }
             ]
         },
@@ -722,13 +742,30 @@
             plugins: {
                 legend: {
                     position: 'top',
+                    labels: {
+                        usePointStyle: true,
+                        boxWidth: 10
+                    }
+                },
+                tooltip: {
+                    mode: 'index',
+                    intersect: false
                 }
             },
             scales: {
                 y: {
                     beginAtZero: true,
                     ticks: {
-                        stepSize: 1
+                        stepSize: 1,
+                        precision: 0
+                    },
+                    grid: {
+                        color: '#e2e8f0'
+                    }
+                },
+                x: {
+                    grid: {
+                        display: false
                     }
                 }
             }
@@ -750,7 +787,8 @@
                     {{ $statusData['no_show'] ?? 0 }}
                 ],
                 backgroundColor: ['#f59e0b', '#3b82f6', '#10b981', '#ef4444', '#6b7280'],
-                borderWidth: 0
+                borderWidth: 0,
+                hoverOffset: 10
             }]
         },
         options: {
@@ -759,8 +797,25 @@
             plugins: {
                 legend: {
                     position: 'bottom',
+                    labels: {
+                        usePointStyle: true,
+                        boxWidth: 10,
+                        padding: 15
+                    }
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            const label = context.label || '';
+                            const value = context.raw || 0;
+                            const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                            const percentage = total > 0 ? Math.round((value / total) * 100) : 0;
+                            return `${label}: ${value} (${percentage}%)`;
+                        }
+                    }
                 }
-            }
+            },
+            cutout: '60%'
         }
     });
 </script>
