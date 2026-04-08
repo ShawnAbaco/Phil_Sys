@@ -237,9 +237,15 @@ Route::prefix('screener')->name('screener.')->middleware(['auth'])->group(functi
     Route::get('/appointments', [AAppointmentController::class, 'appointments'])->name('appointments');
     Route::get('/transactions', [ATransactionsController::class, 'transactions'])->name('transactions');
     Route::get('/reports', [AReportController::class, 'reports'])->name('reports');
-    Route::get('/reports/data', [ADashboardController::class, 'getReportData'])->name('reports.data');
-    Route::get('/reports/export/pdf', [ADashboardController::class, 'exportReportPDF'])->name('reports.export.pdf');
-    Route::get('/reports/export/excel', [ADashboardController::class, 'exportReportExcel'])->name('reports.export.excel');
+   
+
+    // BAG O NI
+    Route::get('/reports/data', [AReportController::class, 'getReportData'])
+     ->name('reports.data');
+     Route::get('/reports/export/pdf', [AReportController::class, 'exportReportPDF'])
+     ->name('reports.export.pdf');
+     Route::get('/reports/export/excel', [AReportController::class, 'exportReportExcel'])
+     ->name('reports.export.excel');
     
     // ========== ADD THESE MISSING APPOINTMENT UPDATE ROUTES ==========
     Route::put('/appointment/update/{id}', [AAppointmentController::class, 'update'])->name('appointment.update');
