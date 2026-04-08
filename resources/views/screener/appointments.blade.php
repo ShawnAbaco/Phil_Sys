@@ -427,47 +427,6 @@
                         </svg>
                         Today's Appointments
                     </h3>
-                    <div class="stats-grid">
-                        <div class="stat-card">
-                            <div class="stat-icon" style="background: linear-gradient(135deg, #2563eb, #1d4ed8)">
-                                <svg viewBox="0 0 20 20" fill="currentColor" width="20" height="20">
-                                    <path
-                                        d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z" />
-                                </svg>
-                            </div>
-                            <div class="stat-content">
-                                <span class="stat-label">Total Queue Today</span>
-                                <span class="stat-value" id="totalQueue">{{ $queueCount ?? 0 }}</span>
-                            </div>
-                        </div>
-                        <div class="stat-card">
-                            <div class="stat-icon" style="background: linear-gradient(135deg, #f59e0b, #d97706)">
-                                <svg viewBox="0 0 20 20" fill="currentColor" width="20" height="20">
-                                    <path fill-rule="evenodd"
-                                        d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z"
-                                        clip-rule="evenodd" />
-                                </svg>
-                            </div>
-                            <div class="stat-content">
-                                <span class="stat-label">Pending</span>
-                                <span class="stat-value pending" id="pendingCount">{{ $pendingCount ?? 0 }}</span>
-                            </div>
-                        </div>
-                        <div class="stat-card">
-                            <div class="stat-icon" style="background: linear-gradient(135deg, #10b981, #059669)">
-                                <svg viewBox="0 0 20 20" fill="currentColor" width="20" height="20">
-                                    <path fill-rule="evenodd"
-                                        d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                                        clip-rule="evenodd" />
-                                </svg>
-                            </div>
-                            <div class="stat-content">
-                                <span class="stat-label">Completed</span>
-                                <span class="stat-value completed"
-                                    id="completedCount">{{ $completedCount ?? 0 }}</span>
-                            </div>
-                        </div>
-                    </div>
                 </div>
 
                 <div class="service-tabs">
