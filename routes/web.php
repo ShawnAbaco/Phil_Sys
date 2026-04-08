@@ -231,7 +231,6 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/appointment/store-category', [ADashboardController::class, 'storeCategory'])->name('appointment.store-category');
     Route::post('/appointment/store-priority', [ADashboardController::class, 'storePriority'])->name('appointment.store-priority');
 
-    // Screener routes
 // Screener routes
 Route::prefix('screener')->name('screener.')->middleware(['auth'])->group(function () {
     Route::get('/dashboard', [ADashboardController::class, 'dashboard'])->name('dashboard');
@@ -241,6 +240,12 @@ Route::prefix('screener')->name('screener.')->middleware(['auth'])->group(functi
     Route::get('/reports/data', [ADashboardController::class, 'getReportData'])->name('reports.data');
     Route::get('/reports/export/pdf', [ADashboardController::class, 'exportReportPDF'])->name('reports.export.pdf');
     Route::get('/reports/export/excel', [ADashboardController::class, 'exportReportExcel'])->name('reports.export.excel');
+    
+    // ========== ADD THESE MISSING APPOINTMENT UPDATE ROUTES ==========
+    Route::put('/appointment/update/{id}', [AAppointmentController::class, 'update'])->name('appointment.update');
+    Route::post('/appointment/update-status/{id}', [AAppointmentController::class, 'updateStatus'])->name('appointment.update-status');
+    Route::get('/appointment/today', [AAppointmentController::class, 'getTodayAppointments'])->name('appointment.today');
+    // ================================================================
 });
     
 

@@ -2057,3 +2057,521 @@ body {
 .age-btn.active {
     animation: ageSelectPulse 0.3s ease;
 }
+/* ===== ACTION BUTTONS CONTAINER ===== */
+.action-buttons {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    flex-wrap: nowrap;
+}
+
+/* ===== PRINT SLIP BUTTON STYLES ===== */
+.btn-action.print-slip-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 14px;
+    border: 1px solid #bfdbfe;
+    border-radius: 8px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    cursor: pointer;
+    background: linear-gradient(135deg, #dbeafe, #bfdbfe);
+    color: #1e40af;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+}
+
+.btn-action.print-slip-btn:hover {
+    background: linear-gradient(135deg, #bfdbfe, #93c5fd);
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(37, 99, 235, 0.2);
+    border-color: #60a5fa;
+}
+
+.btn-action.print-slip-btn:active {
+    transform: translateY(0);
+}
+
+.btn-action.print-slip-btn svg {
+    width: 14px;
+    height: 14px;
+}
+
+/* ===== CANCEL BUTTON STYLES ===== */
+.btn-action.cancel-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 14px;
+    border: 1px solid #fecaca;
+    border-radius: 8px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    cursor: pointer;
+    background: linear-gradient(135deg, #fee2e2, #fecaca);
+    color: #991b1b;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+}
+
+.btn-action.cancel-btn:hover {
+    background: linear-gradient(135deg, #fecaca, #fca5a5);
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(220, 38, 38, 0.2);
+    border-color: #f87171;
+}
+
+.btn-action.cancel-btn:active {
+    transform: translateY(0);
+}
+
+.btn-action.cancel-btn svg {
+    width: 14px;
+    height: 14px;
+}
+
+/* ===== TODAY'S APPOINTMENTS TABLE ACTION CELL ===== */
+.dashboard-grid .card:last-child .table td:last-child {
+    white-space: nowrap;
+    padding: 0.5rem 0.875rem;
+}
+
+.dashboard-grid .card:last-child .table td:last-child .action-buttons {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    flex-wrap: nowrap;
+}
+
+.dashboard-grid .card:last-child .btn-action {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 14px;
+    border-radius: 8px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .dashboard-grid .card:last-child .btn-action {
+        padding: 6px 10px;
+        font-size: 0.6875rem;
+    }
+    
+    .dashboard-grid .card:last-child .btn-action svg {
+        width: 12px;
+        height: 12px;
+    }
+    
+    .action-buttons {
+        gap: 6px;
+    }
+}
+
+@media (max-width: 640px) {
+    .dashboard-grid .card:last-child .table td:last-child {
+        padding: 0.5rem 0.5rem;
+    }
+    
+    .dashboard-grid .card:last-child .btn-action {
+        padding: 5px 8px;
+        font-size: 0.625rem;
+    }
+}
+
+/* ===== SCAN QR BUTTON STYLES ===== */
+.scan-btn {
+    white-space: nowrap;
+    padding: 8px 16px;
+    min-width: 100px;
+    background: linear-gradient(135deg, #2563eb, #1d4ed8);
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+
+.scan-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+    background: linear-gradient(135deg, #1d4ed8, #1e40af);
+}
+
+/* ===== ISSUE APPOINTMENT BUTTON STYLES ===== */
+.btn-primary {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 10px 24px;
+    border: none;
+    border-radius: 8px;
+    font-size: 0.875rem;
+    font-weight: 600;
+    cursor: pointer;
+    background: linear-gradient(135deg, #2563eb, #1d4ed8);
+    color: white;
+    transition: all 0.2s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.btn-primary:hover {
+    background: linear-gradient(135deg, #1d4ed8, #1e40af);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+}
+
+.btn-primary:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 6px rgba(37, 99, 235, 0.2);
+}
+
+.btn-primary svg {
+    width: 18px;
+    height: 18px;
+}
+
+/* Ripple effect for issue button */
+.btn-primary::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.3);
+    transform: translate(-50%, -50%);
+    transition: width 0.4s ease, height 0.4s ease;
+}
+
+.btn-primary:active::before {
+    width: 200%;
+    height: 200%;
+}
+
+/* Disabled state for issue button */
+.btn-primary.disabled,
+.btn-primary:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+    pointer-events: none;
+}
+
+.btn-action.edit-btn {
+    background: #f59e0b;
+    color: white;
+}
+
+.btn-action.edit-btn:hover {
+    background: #d97706;
+}
+
+    @keyframes spin {
+        from {
+            transform: rotate(0deg);
+        }
+
+        to {
+            transform: rotate(360deg);
+        }
+    }
+
+    .animate-spin {
+        animation: spin 1s linear infinite;
+    }
+
+    /* Dropdown Menu Styles */
+    .dropdown {
+        position: relative;
+        display: inline-block;
+    }
+
+    .dropdown-btn {
+        background: #6b7280;
+        border: none;
+        border-radius: 6px;
+        padding: 6px 8px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .dropdown-btn:hover {
+        background: #4b5563;
+    }
+
+    .dropdown-btn svg {
+        fill: white;
+    }
+
+    .dropdown-content {
+        display: none;
+        position: absolute;
+        right: 0;
+        background-color: white;
+        min-width: 120px;
+        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+        border-radius: 8px;
+        z-index: 1000;
+        overflow: hidden;
+    }
+
+    .dropdown-content.show {
+        display: block;
+    }
+
+    .dropdown-item {
+        width: 100%;
+        padding: 10px 15px;
+        text-align: left;
+        background: none;
+        border: none;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 13px;
+        transition: background 0.2s ease;
+    }
+
+    .dropdown-item:hover {
+        background-color: #f3f4f6;
+    }
+
+    .dropdown-item svg {
+        fill: currentColor;
+    }
+
+    .dropdown-item.edit-item {
+        color: #f59e0b;
+    }
+
+    .dropdown-item.cancel-item {
+        color: #dc2626;
+    }
+
+    /* Dropdown backdrop */
+    .dropdown-backdrop {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: 999;
+        display: none;
+    }
+
+    .dropdown-backdrop.show {
+        display: block;
+    }
+       /* Edit Modal Styles - 2 Columns */
+    .edit-modal {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: 9998;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .edit-modal-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        backdrop-filter: blur(4px);
+    }
+
+    .edit-modal-container {
+        position: relative;
+        background: white;
+        border-radius: 16px;
+        width: 90%;
+        max-width: 800px;
+        max-height: 90vh;
+        overflow-y: auto;
+        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+        animation: modalSlideIn 0.3s ease;
+    }
+
+    @keyframes modalSlideIn {
+        from {
+            opacity: 0;
+            transform: translateY(-30px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .edit-modal-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 20px 24px;
+        border-bottom: 1px solid #e5e7eb;
+        background: linear-gradient(135deg, var(--psa-blue), var(--psa-red));
+        border-radius: 16px 16px 0 0;
+    }
+
+    .edit-modal-title {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin: 0;
+        font-size: 18px;
+        font-weight: 600;
+        color: white;
+    }
+
+    .edit-modal-title svg {
+        fill: white;
+    }
+
+    .edit-modal-close {
+        background: rgba(255, 255, 255, 0.2);
+        border: none;
+        font-size: 28px;
+        cursor: pointer;
+        color: white;
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.2s;
+    }
+
+    .edit-modal-close:hover {
+        background: rgba(255, 255, 255, 0.3);
+        transform: scale(1.05);
+    }
+
+    .edit-modal-body {
+        padding: 24px;
+    }
+
+    .edit-two-columns {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 24px;
+    }
+
+    .edit-column {
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+    }
+
+    .edit-form-group {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+    }
+
+    .edit-form-group label {
+        font-weight: 600;
+        font-size: 13px;
+        color: #374151;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .edit-form-control {
+        padding: 10px 12px;
+        border: 1px solid #d1d5db;
+        border-radius: 8px;
+        font-size: 14px;
+        transition: all 0.2s;
+    }
+
+    .edit-form-control:focus {
+        outline: none;
+        border-color: #2563eb;
+        box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+    }
+
+    .edit-form-control[readonly] {
+        background: #f3f4f6;
+        cursor: not-allowed;
+    }
+
+    .text-danger {
+        color: #dc2626;
+    }
+
+    .edit-modal-footer {
+        display: flex;
+        justify-content: flex-end;
+        gap: 12px;
+        padding: 16px 24px;
+        border-top: 1px solid #e5e7eb;
+        background: #f9fafb;
+        border-radius: 0 0 16px 16px;
+    }
+
+    .edit-btn-cancel {
+        padding: 10px 20px;
+        background: white;
+        border: 1px solid #d1d5db;
+        border-radius: 8px;
+        cursor: pointer;
+        font-weight: 500;
+        transition: all 0.2s;
+    }
+
+    .edit-btn-cancel:hover {
+        background: #f3f4f6;
+    }
+
+    .edit-btn-save {
+        padding: 10px 24px;
+        background: linear-gradient(135deg, #2563eb, #1d4ed8);
+        border: none;
+        border-radius: 8px;
+        color: white;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+
+    .edit-btn-save:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+    }
+
+    @media (max-width: 640px) {
+        .edit-two-columns {
+            grid-template-columns: 1fr;
+            gap: 16px;
+        }
+
+        .edit-modal-container {
+            width: 95%;
+            margin: 20px;
+        }
+    }

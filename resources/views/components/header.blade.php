@@ -21,7 +21,10 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <link rel="stylesheet" href="{{ asset('css/header.css') }}">
-    <link rel="stylesheet" href="{{ asset('css/appointment.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/screener/appointment.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/screener/dashboard.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/screener/reports.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/screener/transactions.css') }}">
     <link rel="stylesheet" href="{{ asset('css/operator.css') }}">
     <link rel="stylesheet" href="{{ asset('css/profile.css') }}">
     <!-- Dark Mode CSS - loaded separately -->
@@ -49,37 +52,37 @@
 
 <body>
     <!-- PSA-themed header with arrow pattern (only for screeners) -->
-    
-        <div class="header-overlay"></div>
-    
+
+    <div class="header-overlay"></div>
+
 
     <header class="main-header">
         <div class="header-content">
 
 
-        
+
             <!-- Logo Section -->
-             
-             <div class="page-header">
-                
-    <div class="page-title">
-        <div class="logo-section">
-                <div class="logo-text">
-                    <h1>Queue Management System</h1>
-                    <span class="badge">{{ $getPortalBadge() }}</span>
+
+            <div class="page-header">
+
+                <div class="page-title">
+                    <div class="logo-section">
+                        <div class="logo-text">
+                            <h1>Queue Management System</h1>
+                            <span class="badge">{{ $getPortalBadge() }}</span>
+                        </div>
+                    </div>
+
                 </div>
+
+
+
+
             </div>
 
-    </div>
-    
-      
-        
-    
-</div>
+            <!-- Overlay for clicking outside -->
+            <div class="dropdown-overlay" id="dropdownOverlay"></div>
 
-    <!-- Overlay for clicking outside -->
-    <div class="dropdown-overlay" id="dropdownOverlay"></div>
-            
             <!-- User Section - Same for Operators and Assistants -->
             <div class="user-section">
                 {{-- WINDOW BADGE - Show for both Operators and Assistants --}}
