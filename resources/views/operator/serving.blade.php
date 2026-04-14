@@ -4,6 +4,89 @@
 <div class="app-container">
     <x-operator.sidebar />    
     <style>
+        /* Status Badge Styles - Uppercase text */
+.status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    padding: 0.25rem 0.75rem;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    transition: all 0.2s ease;
+}
+
+/* PENDING Status */
+.status-badge.status-pending {
+    background: #fef3c7;
+    color: #92400e;
+    border-left: 3px solid #f59e0b;
+}
+
+/* SERVING Status */
+.status-badge.status-serving {
+    background: #dbeafe;
+    color: #1e40af;
+    border-left: 3px solid #3b82f6;
+    animation: pulse-blue 1.5s infinite;
+}
+
+/* COMPLETED Status - For reference (if needed elsewhere) */
+.status-badge.status-completed {
+    background: #d1fae5;
+    color: #065f46;
+    border-left: 3px solid #10b981;
+}
+
+/* CANCELLED Status - For reference (if needed elsewhere) */
+.status-badge.status-cancelled {
+    background: #fee2e2;
+    color: #991b1b;
+    border-left: 3px solid #ef4444;
+}
+
+/* NO SHOW Status - For reference (if needed elsewhere) */
+.status-badge.status-no_show {
+    background: #f3f4f6;
+    color: #4b5563;
+    border-left: 3px solid #6b7280;
+}
+
+/* Status Dot */
+.status-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: currentColor;
+}
+
+/* Pending dot */
+.status-badge.status-pending .status-dot {
+    background-color: #f59e0b;
+}
+
+/* Serving dot */
+.status-badge.status-serving .status-dot {
+    background-color: #3b82f6;
+    animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.6; transform: scale(1.2); }
+}
+
+@keyframes pulse-blue {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.7; background: #bfdbfe; }
+}
+
+/* Hover effect */
+.status-badge:hover {
+    transform: translateY(-1px);
+    filter: brightness(0.98);
+}
     /* Page Header */
     .page-header {
         margin-bottom: 10px;

@@ -97,7 +97,7 @@ public function getReportData(Request $request)
         if ($statusFilter !== 'all') {
             $query->where('status', $statusFilter);
         } else {
-            $query->whereIn('status', ['completed', 'cancelled', 'no_show']);
+            $query->whereIn('status', ['completed', 'cancelled', 'no_show', 'pending', 'serving']);
         }
         
         // Get paginated transactions
