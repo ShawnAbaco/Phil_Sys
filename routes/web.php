@@ -252,6 +252,9 @@ Route::prefix('screener')->name('screener.')->middleware(['auth'])->group(functi
     Route::post('/appointment/update-status/{id}', [AAppointmentController::class, 'updateStatus'])->name('appointment.update-status');
     Route::get('/appointment/today', [AAppointmentController::class, 'getTodayAppointments'])->name('appointment.today');
     // ================================================================
+
+    // Delete route
+    Route::delete('/appointment/delete/{id}', [AAppointmentController::class, 'delete'])->name('appointment.delete');
 });
     
 

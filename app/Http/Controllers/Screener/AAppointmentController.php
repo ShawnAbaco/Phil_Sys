@@ -417,4 +417,38 @@ class AAppointmentController extends Controller
                 return 'O';
         }
     }
+    /**
+ * Delete appointment permanently
+ */
+public function delete($id)
+{
+    try {
+        $appointment = TblAppointment::findOrFail($id);
+        
+        // Store info for response
+        $queueNumber = $appointment->q_id;
+        $clientName = $appointment->lname . ', ' . $appointment->fname;
+        
+        // Delete the appointment
+        $appointment->delete();
+        
+        return response()->json([
+            'success' => true,
+            'message' => "Appointment {$queueNumber} for {$clientName} has been deleted permanently",
+            'queue' => $queueNumber,
+            'name' => $clientName
+        ]);
+        
+    } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Appointment not found'
+        ], 404);
+    } catch (\Exception $e) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Failed to delete appointment: ' . $e->getMessage()
+        ], 500);
+    }
+}
 }

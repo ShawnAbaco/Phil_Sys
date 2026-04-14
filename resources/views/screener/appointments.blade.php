@@ -560,6 +560,20 @@
                                                                 </svg>
                                                                 Cancel
                                                             </button>
+                                                            <!-- NEW DELETE BUTTON -->
+                                                            <button type="button" class="dropdown-item delete-item"
+                                                                data-id="{{ $appointment->n_id }}"
+                                                                data-name="{{ $fullName }}"
+                                                                data-queue="{{ $appointment->q_id }}"
+                                                                onclick="deleteAppointment(this)">
+                                                                <svg viewBox="0 0 20 20" fill="currentColor"
+                                                                    width="14" height="14">
+                                                                    <path fill-rule="evenodd"
+                                                                        d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z"
+                                                                        clip-rule="evenodd" />
+                                                                </svg>
+                                                                Delete
+                                                            </button>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -639,14 +653,9 @@
                                 <div class="edit-form-group">
                                     <label for="edit_priority">Priority Type <span
                                             class="text-danger">*</span></label>
-                                    <select id="edit_priority" name="priority_type" class="edit-form-control"
-                                        required>
-                                        <option value="regular">Regular</option>
-                                        <option value="senior">Senior</option>
-                                        <option value="infant">Infant</option>
-                                        <option value="pwd">PWD</option>
-                                        <option value="pregnant">Pregnant</option>
-                                    </select>
+                                    <input type="text" id="edit_priority" name="priority_type"
+                                        class="edit-form-control" readonly style="background:#f3f4f6;">
+                                    <input type="hidden" id="edit_priority_hidden" name="priority_type">
                                 </div>
                                 <div class="edit-form-group">
                                     <label for="edit_birthdate">Birthdate <span class="text-danger">*</span></label>
@@ -712,6 +721,62 @@
     let lastAppointmentsData = null;
     let lastStatsData = null;
 
+    // DELETE FUNCTION
+    function deleteAppointment(button) {
+        const appointmentId = button.getAttribute('data-id');
+        const clientName = button.getAttribute('data-name');
+        const queueNumber = button.getAttribute('data-queue');
+        const row = button.closest('tr');
+
+        // Close dropdown
+        const dropdown = button.closest('.dropdown');
+        if (dropdown) {
+            dropdown.querySelector('.dropdown-content')?.classList.remove('show');
+        }
+
+        Swal.fire({
+            title: 'Delete Appointment?',
+            html: `Permanently delete <strong>${queueNumber}</strong> for <strong>${clientName}</strong>?<br><small style="color: #dc2626;">This action cannot be undone!</small>`,
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#dc2626',
+            confirmButtonText: 'Yes, Delete',
+            cancelButtonText: 'Cancel',
+            preConfirm: () => fetch(`/screener/appointment/delete/${appointmentId}`, { // ← FIXED URL
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            }).then(res => res.json())
+        }).then(result => {
+            if (result.isConfirmed && result.value.success) {
+                // Remove the row from the table
+                row.remove();
+
+                // Check if table is empty and show empty state
+                if (document.querySelector('#appointmentsTableBody tr:not(.empty-state)') === null) {
+                    document.getElementById('appointmentsTableBody').innerHTML =
+                        '<tr><td colspan="6" class="empty-state"><svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd" /></svg><p>No pending appointments for today</p></td></tr>';
+                }
+
+                Swal.fire({
+                    title: 'Deleted!',
+                    text: `${queueNumber} has been permanently deleted.`,
+                    icon: 'success',
+                    timer: 2000,
+                    showConfirmButton: false
+                });
+
+                // Refresh the appointments data
+                fetchAppointments();
+            } else if (result.isConfirmed && !result.value.success) {
+                Swal.fire('Error!', result.value.message || 'Failed to delete appointment', 'error');
+            }
+        });
+    }
+
     // Update the openEditModal function - change this line:
     function openEditModal(button) {
         const appointment = {
@@ -736,7 +801,33 @@
         document.getElementById('edit_mname').value = appointment.mname || '';
         document.getElementById('edit_lname').value = appointment.lname;
         document.getElementById('edit_suffix').value = appointment.suffix || '';
-        document.getElementById('edit_priority').value = appointment.priority || 'regular';
+
+        // Handle Priority Type - display as text and store in hidden field
+        const priorityDisplay = document.getElementById('edit_priority');
+        const priorityHidden = document.getElementById('edit_priority_hidden');
+        const priorityValue = appointment.priority || 'regular';
+
+        // Format priority for display
+        let priorityText = '';
+        switch (priorityValue) {
+            case 'senior':
+                priorityText = 'Senior';
+                break;
+            case 'infant':
+                priorityText = 'Infant';
+                break;
+            case 'pwd':
+                priorityText = 'PWD';
+                break;
+            case 'pregnant':
+                priorityText = 'Pregnant';
+                break;
+            default:
+                priorityText = 'Regular';
+        }
+
+        priorityDisplay.value = priorityText;
+        priorityHidden.value = priorityValue;
 
         // Fix the birthdate format - handle invalid dates
         let birthdateValue = appointment.birthdate;
@@ -768,10 +859,9 @@
             trnGroup.style.display = 'none';
         }
 
-        // ========== FIXED: Use the correct route URL with screener prefix ==========
+        // Use the correct route URL with screener prefix
         const form = document.getElementById('editAppointmentForm');
         form.action = `/screener/appointment/update/${appointment.id}`;
-        // =========================================================================
 
         // Show modal
         document.getElementById('editAppointmentModal').style.display = 'flex';
@@ -1278,7 +1368,7 @@
                 row.remove();
                 if (document.querySelector('#appointmentsTableBody tr:not(.empty-state)') === null) {
                     document.getElementById('appointmentsTableBody').innerHTML =
-                        '<tr><td colspan="6" class="empty-state"><svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd" /></svg><p>No pending appointments for today</p></td></tr>';
+                        '<td><td colspan="6" class="empty-state"><svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd" /></svg><p>No pending appointments for today</p></td></tr>';
                 }
                 Swal.fire({
                     title: 'Cancelled!',
@@ -1353,11 +1443,20 @@
                                         <svg viewBox="0 0 20 20" fill="currentColor" width="14" height="14"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" /></svg>
                                         Cancel
                                     </button>
+                                    <button type="button" class="dropdown-item delete-item"
+                                        data-id="${app.n_id}" data-name="${fullName}" data-queue="${app.q_id}"
+                                        onclick="deleteAppointment(this)">
+                                        <svg viewBox="0 0 20 20" fill="currentColor" width="14" height="14"><path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd" /></svg>
+                                        Delete
+                                    </button>
                                 </div>
                             </div>
                         </div>
-                     </td>
-                 </tr>`;
+                      </div>
+                  </div>
+              </div>
+          </div>
+      </div>`;
             }
         });
         tbody.innerHTML = html || '<tr><td colspan="6" class="empty-state"><p>No pending appointments</p></td></tr>';

@@ -118,9 +118,9 @@ return new class extends Migration
                 'pregnant'
             ])->default('regular');
 
-            $table->string('trn', 29);
+            $table->string('trn', 29)->nullable();
             $table->date('birthdate');
-            $table->string('PCN', 16);
+            $table->string('PCN', 16)->nullable();
 
             $table->string('window_num', 9)->nullable();
             $table->dateTime('time_catered')->nullable();
