@@ -253,7 +253,6 @@ public function getReportData(Request $request)
         ], 500);
     }
 }
-
 /**
  * Export report as PDF with filters
  */
@@ -275,7 +274,7 @@ public function exportReportPDF(Request $request)
         $start = Carbon::parse($startDate)->startOfDay();
         $end = Carbon::parse($endDate)->endOfDay();
         
-        // Build query
+        // Build query - FILTER BY USER ID (operator only sees their own transactions)
         $query = TblAppointment::where('user_id', $userId)
                                ->whereBetween('date', [$start, $end]);
         
@@ -286,7 +285,7 @@ public function exportReportPDF(Request $request)
         if ($statusFilter !== 'all') {
             $query->where('status', $statusFilter);
         } else {
-            $query->whereIn('status', ['completed', 'cancelled', 'no_show']);
+            $query->whereIn('status', ['completed', 'cancelled', 'no_show', 'pending', 'serving']);
         }
         
         $completedAppointments = $query->orderBy('updated_at', 'desc')->get();
@@ -298,15 +297,23 @@ public function exportReportPDF(Request $request)
             ], 404);
         }
         
+        // Add row numbers
         $completedAppointments = $completedAppointments->map(function($appointment, $index) {
             $appointment->row_number = $index + 1;
             return $appointment;
         });
         
-        $totalCompleted = $completedAppointments->count();
+        $totalRecords = $completedAppointments->count();
         $dateToday = Carbon::now('Asia/Manila')->format('F j, Y');
         $timeGenerated = Carbon::now('Asia/Manila')->format('h:i A');
         $windowNum = Auth::user()->window_num ?? '1';
+        
+        // Calculate statistics
+        $completedCount = $completedAppointments->where('status', 'completed')->count();
+        $cancelledCount = $completedAppointments->where('status', 'cancelled')->count();
+        $noShowCount = $completedAppointments->where('status', 'no_show')->count();
+        $pendingCount = $completedAppointments->where('status', 'pending')->count();
+        $servingCount = $completedAppointments->where('status', 'serving')->count();
         
         // Format date range for display
         $dateRangeDisplay = Carbon::parse($startDate)->format('M d, Y') . ' - ' . Carbon::parse($endDate)->format('M d, Y');
@@ -315,9 +322,10 @@ public function exportReportPDF(Request $request)
         $serviceDisplay = $serviceType === 'all' ? 'All Services' : $serviceType;
         $statusDisplay = $statusFilter === 'all' ? 'All Status' : ucfirst(str_replace('_', ' ', $statusFilter));
         
+        // Load the PDF view
         $pdf = Pdf::loadView('operator.exports.report-pdf', compact(
             'completedAppointments',
-            'totalCompleted',
+            'totalRecords',
             'dateToday',
             'timeGenerated',
             'windowNum',
@@ -325,36 +333,37 @@ public function exportReportPDF(Request $request)
             'dateRangeDisplay',
             'serviceDisplay',
             'statusDisplay',
-            'startDate',
-            'endDate'
+            'completedCount',
+            'cancelledCount',
+            'noShowCount',
+            'pendingCount',
+            'servingCount'
         ));
         
-        $pdf->setPaper('A4', 'landscape');
+        // Use portrait orientation like screener
+        $pdf->setPaper('A4', 'portrait');
         
-        $filename = 'REPORT-' . Carbon::now('Asia/Manila')->format('Y-m-d-His') . '.pdf';
+        $pdf->setOptions([
+            'defaultFont' => 'sans-serif',
+            'isHtml5ParserEnabled' => true,
+            'isRemoteEnabled' => false,
+            'isPhpEnabled' => false,
+        ]);
+        
+        $filename = 'OPERATOR-REPORT-' . Carbon::now('Asia/Manila')->format('Y-m-d-His') . '.pdf';
         
         if (ob_get_level()) {
             ob_end_clean();
         }
         
-        return response($pdf->output(), 200, [
-            'Content-Type' => 'application/pdf',
-            'Content-Disposition' => 'attachment; filename="' . $filename . '"',
-            'Content-Length' => strlen($pdf->output()),
-            'Content-Transfer-Encoding' => 'binary',
-            'Accept-Ranges' => 'bytes',
-            'Cache-Control' => 'private, max-age=0, must-revalidate, no-transform',
-            'Pragma' => 'public',
-            'Expires' => '0',
-            'X-Content-Type-Options' => 'nosniff'
-        ]);
+        return $pdf->download($filename);
         
     } catch (\Exception $e) {
-        \Log::error('Report PDF Export Error: ' . $e->getMessage());
+        \Log::error('Operator Report PDF Export Error: ' . $e->getMessage());
         
         return response()->json([
             'success' => false,
-            'message' => 'Failed to generate PDF. Please try again.'
+            'message' => 'Failed to generate PDF. Please try again. Error: ' . $e->getMessage()
         ], 500);
     }
 }

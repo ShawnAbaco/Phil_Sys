@@ -315,6 +315,7 @@ public function exportReportPDF(Request $request)
             ], 404);
         }
         
+        // Add row numbers
         $appointments = $appointments->map(function($appointment, $index) {
             $appointment->row_number = $index + 1;
             return $appointment;
@@ -324,6 +325,13 @@ public function exportReportPDF(Request $request)
         $dateToday = Carbon::now('Asia/Manila')->format('F j, Y');
         $timeGenerated = Carbon::now('Asia/Manila')->format('h:i A');
         
+        // Calculate statistics
+        $completedCount = $appointments->where('status', 'completed')->count();
+        $cancelledCount = $appointments->where('status', 'cancelled')->count();
+        $noShowCount = $appointments->where('status', 'no_show')->count();
+        $pendingCount = $appointments->where('status', 'pending')->count();
+        $servingCount = $appointments->where('status', 'serving')->count();
+        
         // Format date range for display
         $dateRangeDisplay = Carbon::parse($startDate)->format('M d, Y') . ' - ' . Carbon::parse($endDate)->format('M d, Y');
         
@@ -331,6 +339,7 @@ public function exportReportPDF(Request $request)
         $serviceDisplay = $serviceType === 'all' ? 'All Services' : $serviceType;
         $statusDisplay = $statusFilter === 'all' ? 'All Status' : ucfirst(str_replace('_', ' ', $statusFilter));
         
+        // Use a simpler PDF view
         $pdf = Pdf::loadView('screener.exports.report-pdf', compact(
             'appointments',
             'totalRecords',
@@ -339,11 +348,22 @@ public function exportReportPDF(Request $request)
             'dateRangeDisplay',
             'serviceDisplay',
             'statusDisplay',
-            'startDate',
-            'endDate'
+            'completedCount',
+            'cancelledCount',
+            'noShowCount',
+            'pendingCount',
+            'servingCount'
         ));
         
-        $pdf->setPaper('A4', 'landscape');
+        // CHANGE THIS LINE FROM 'landscape' TO 'portrait'
+        $pdf->setPaper('portrait');
+        
+        $pdf->setOptions([
+            'defaultFont' => 'sans-serif',
+            'isHtml5ParserEnabled' => true,
+            'isRemoteEnabled' => false,
+            'isPhpEnabled' => false,
+        ]);
         
         $filename = 'SCREENER-REPORT-' . Carbon::now('Asia/Manila')->format('Y-m-d-His') . '.pdf';
         
@@ -351,28 +371,17 @@ public function exportReportPDF(Request $request)
             ob_end_clean();
         }
         
-        return response($pdf->output(), 200, [
-            'Content-Type' => 'application/pdf',
-            'Content-Disposition' => 'attachment; filename="' . $filename . '"',
-            'Content-Length' => strlen($pdf->output()),
-            'Content-Transfer-Encoding' => 'binary',
-            'Accept-Ranges' => 'bytes',
-            'Cache-Control' => 'private, max-age=0, must-revalidate, no-transform',
-            'Pragma' => 'public',
-            'Expires' => '0',
-            'X-Content-Type-Options' => 'nosniff'
-        ]);
+        return $pdf->download($filename);
         
     } catch (\Exception $e) {
         \Log::error('Screener Report PDF Export Error: ' . $e->getMessage());
         
         return response()->json([
             'success' => false,
-            'message' => 'Failed to generate PDF. Please try again.'
+            'message' => 'Failed to generate PDF. Please try again. Error: ' . $e->getMessage()
         ], 500);
     }
 }
-
 /**
  * Export report as Excel with filters - NO user_id filter
  */

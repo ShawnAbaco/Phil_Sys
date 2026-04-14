@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -13,410 +12,364 @@
         }
 
         body {
-            font-family: 'Times New Roman', Times, serif;
-            margin: 0.75in;
-            color: #000000;
-            background: #ffffff;
+            font-family: 'DejaVu Sans', 'Arial', sans-serif;
+            font-size: 9pt;
             line-height: 1.3;
+            color: #000000;
+            background: white;
+            margin: 0.5in;
+        }
+
+        /* Header Section */
+        .header {
+            text-align: center;
+            margin-bottom: 12px;
+            padding-bottom: 8px;
+        }
+
+        .header .republika {
+            font-size: 8pt;
+            letter-spacing: 1px;
+        }
+
+        .header h2 {
+            font-size: 13pt;
+            margin: 3px 0;
+            letter-spacing: 1px;
+        }
+
+        .header h3 {
             font-size: 11pt;
-            position: relative;
+            margin: 2px 0;
         }
 
-        .page-break {
-            page-break-after: always;
-        }
-
-        .official-header {
-            text-align: center;
-            margin-bottom: 25px;
-            position: relative;
-        }
-
-        .republika {
-            font-size: 10pt;
-            font-weight: normal;
-            letter-spacing: 1px;
-            text-transform: uppercase;
-        }
-
-        .psa-title {
-            font-size: 18pt;
+        .header .report-title {
+            font-size: 13pt;
             font-weight: bold;
-            letter-spacing: 2px;
-            text-transform: uppercase;
-            margin: 5px 0 2px;
+            margin: 5px 0;
+            padding: 3px 0;
         }
 
-        .philsys-title {
-            font-size: 12pt;
-            font-weight: normal;
-            margin-bottom: 15px;
-        }
-
-        .report-title {
-            font-size: 16pt;
-            font-weight: bold;
-            text-transform: uppercase;
-            border-top: 2px solid #000000;
-            border-bottom: 2px solid #000000;
-            padding: 8px 0;
-            margin: 10px 0;
-            letter-spacing: 1px;
-        }
-
-        .page-number {
-            position: absolute;
-            top: 0;
-            right: 0;
-            font-size: 10pt;
-            color: #333333;
-            font-weight: normal;
-        }
-
-        .reference-line {
-            text-align: center;
-            font-size: 10pt;
-            margin-bottom: 20px;
-            border-bottom: 1px solid #cccccc;
-            padding: 8px 0;
-            letter-spacing: 0.3px;
-        }
-
-        .reference-line span {
-            margin: 0 10px;
-            white-space: nowrap;
-        }
-
-        .reference-line .separator {
-            color: #999999;
-            font-weight: normal;
-            margin: 0 5px;
-        }
-
-        .reference-line strong {
-            font-weight: 600;
-            margin-right: 5px;
-        }
-
-        .filter-info-line {
-            text-align: left;
-            font-size: 10pt;
-            margin: 10px 0 15px;
-            padding: 8px 0;
+        /* Report Info */
+        .report-info {
+            margin-bottom: 10px;
+            padding: 6px;
             background: #f5f5f5;
             border-left: 3px solid #0038A8;
-            padding-left: 10px;
+            font-size: 8pt;
         }
 
-        .filter-info-line strong {
-            font-weight: 600;
-            color: #0038A8;
+        .report-info p {
+            margin: 2px 0;
         }
 
-        .summary-line {
-            text-align: left;
-            font-size: 11pt;
-            margin: 15px 0 10px;
-            padding-bottom: 5px;
-            border-bottom: 1px solid #000000;
+        /* Summary Section */
+        .summary {
+            margin-bottom: 12px;
+            padding: 6px;
+            background: #e8f5e9;
+            border: 1px solid #a5d6a7;
+            font-size: 8pt;
         }
 
-        .summary-line strong {
-            font-weight: 600;
+        .summary strong {
             color: #2e7d32;
-            font-size: 13pt;
-            margin-left: 10px;
         }
 
-        .table-container {
-            margin-bottom: 30px;
-            width: 100%;
-        }
-
-        table {
+        /* Table Styles */
+        .data-table {
             width: 100%;
             border-collapse: collapse;
-            font-size: 9pt;
-            border: 1px solid #000000;
+            font-size: 7.5pt;
+            margin-bottom: 12px;
         }
 
-        th {
-            background-color: #ffffff;
-            color: #000000;
-            font-weight: 600;
-            padding: 6px 4px;
+        .data-table th {
+            background: #f0f0f0;
+            border: 1px solid #000;
+            padding: 5px 3px;
             text-align: left;
-            border-bottom: 2px solid #000000;
-            border-right: 1px solid #cccccc;
-            font-size: 9pt;
-            text-transform: uppercase;
-            letter-spacing: 0.3px;
+            font-weight: bold;
+            font-size: 7.5pt;
         }
 
-        th:last-child {
-            border-right: none;
-        }
-
-        td {
-            padding: 5px 4px;
-            border-bottom: 1px solid #cccccc;
-            border-right: 1px solid #cccccc;
+        .data-table td {
+            border: 1px solid #ccc;
+            padding: 4px 3px;
             vertical-align: top;
         }
 
-        td:last-child {
-            border-right: none;
+        /* Column Widths for Portrait */
+        .col-sn { width: 4%; text-align: center; }
+        .col-queue { width: 8%; }
+        .col-name { width: 22%; }
+        .col-priority { width: 8%; }
+        .col-service { width: 14%; }
+        .col-window { width: 6%; text-align: center; }
+        .col-time { width: 9%; text-align: center; }
+        .col-status { width: 9%; text-align: center; }
+
+        /* Status Colors */
+        .status-completed { color: #2e7d32; font-weight: bold; }
+        .status-cancelled { color: #c62828; font-weight: bold; }
+        .status-no_show { color: #ef6c00; font-weight: bold; }
+        .status-pending { color: #f9a825; font-weight: bold; }
+        .status-serving { color: #1565c0; font-weight: bold; }
+
+        /* Priority Badges */
+        .priority-senior { 
+            background: #8b5cf6; 
+            color: white; 
+            padding: 2px 4px; 
+            border-radius: 3px; 
+            font-size: 6.5pt;
+            display: inline-block;
+        }
+        .priority-infant { 
+            background: #f59e0b; 
+            color: white; 
+            padding: 2px 4px; 
+            border-radius: 3px; 
+            font-size: 6.5pt;
+            display: inline-block;
+        }
+        .priority-pwd { 
+            background: #10b981; 
+            color: white; 
+            padding: 2px 4px; 
+            border-radius: 3px; 
+            font-size: 6.5pt;
+            display: inline-block;
+        }
+        .priority-pregnant { 
+            background: #ec4899; 
+            color: white; 
+            padding: 2px 4px; 
+            border-radius: 3px; 
+            font-size: 6.5pt;
+            display: inline-block;
+        }
+        .priority-regular { 
+            background: #6b7280; 
+            color: white; 
+            padding: 2px 4px; 
+            border-radius: 3px; 
+            font-size: 6.5pt;
+            display: inline-block;
         }
 
-        tr:last-child td {
-            border-bottom: none;
-        }
-
-        .number-cell {
-            text-align: center;
-            font-weight: normal;
-        }
-
+        /* Queue Number */
         .queue-number {
             font-family: 'Courier New', monospace;
-            font-weight: 600;
-            font-size: 9pt;
+            font-weight: bold;
         }
 
-        .time-cell {
-            font-family: 'Courier New', monospace;
-            font-size: 8.5pt;
-            text-align: center;
-        }
-
-        .remarks-cell {
-            text-align: center;
-            font-weight: 500;
-            text-transform: capitalize;
-        }
-
-        .status-completed { color: #2e7d32; font-weight: 600; }
-        .status-cancelled { color: #b71c1c; font-weight: 600; }
-        .status-no_show { color: #f57c00; font-weight: 600; }
-        .status-pending { color: #f59e0b; font-weight: 600; }
-        .status-serving { color: #2563eb; font-weight: 600; }
-
-        .priority-badge {
-            display: inline-block;
-            padding: 2px 6px;
-            border-radius: 4px;
-            font-size: 8pt;
-            font-weight: 600;
-            color: white;
-        }
-
-        .priority-senior { background: #8b5cf6; }
-        .priority-infant { background: #f59e0b; }
-        .priority-pwd { background: #10b981; }
-        .priority-pregnant { background: #ec4899; }
-        .priority-regular { background: #6b7280; }
-
-        .col-sn { width: 3%; }
-        .col-queue { width: 6%; }
-        .col-name { width: 18%; }
-        .col-priority { width: 6%; }
-        .col-service { width: 10%; }
-        .col-window { width: 5%; }
-        .col-time { width: 8%; }
-        .col-status { width: 8%; }
-
+        /* Footer */
         .footer {
             text-align: center;
-            font-size: 9pt;
-            padding: 8px 0;
-            border-top: 1px solid #cccccc;
-            color: #555555;
-            font-style: italic;
-            margin-top: 20px;
+            font-size: 7pt;
+            padding-top: 8px;
+            margin-top: 15px;
+            border-top: 1px solid #ccc;
+            color: #666;
+        }
+        
+        /* Page Number at Bottom Right */
+        .page-number-container {
+            text-align: right;
+            font-size: 8pt;
+            margin-top: 10px;
+            padding-top: 5px;
+            color: #333;
         }
 
+        /* Page Break */
+        .page-break {
+            page-break-before: always;
+        }
+
+        /* Text Alignment */
+        .text-center { text-align: center; }
+        
+        /* Signature Section */
         .signature-section {
-            margin-top: 40px;
+            margin-top: 30px;
             display: flex;
             justify-content: flex-end;
         }
-
+        
         .signature-box {
-            width: 250px;
+            width: 220px;
             text-align: center;
         }
-
+        
         .signature-line {
             margin: 5px 0 3px;
             border-bottom: 1px solid #000000;
-            padding-top: 20px;
+            padding-top: 15px;
         }
-
+        
         .signature-text {
-            font-size: 10pt;
+            font-size: 8pt;
             font-style: italic;
         }
-
-        .empty-state {
-            text-align: center;
-            padding: 40px;
-            color: #666666;
-            font-style: italic;
-            border: 1px solid #cccccc;
+        
+        /* Content wrapper */
+        .content-wrapper {
+            min-height: 90vh;
+            position: relative;
         }
     </style>
 </head>
-
 <body>
-    @php
-        $rowsPerPage = 18;
-        $totalRows = $appointments->count();
-        $totalPages = ceil($totalRows / $rowsPerPage);
-        $currentPageNum = 1;
-        
-        $completedCount = $appointments->where('status', 'completed')->count();
-        $cancelledCount = $appointments->where('status', 'cancelled')->count();
-        $noShowCount = $appointments->where('status', 'no_show')->count();
-        $pendingCount = $appointments->where('status', 'pending')->count();
-        $servingCount = $appointments->where('status', 'serving')->count();
-    @endphp
 
-    @foreach ($appointments->chunk($rowsPerPage) as $chunk)
-        <div class="official-header">
+@php
+    $rowsPerPage = 18;
+    $totalRows = $appointments->count();
+    $totalPages = ceil($totalRows / $rowsPerPage);
+    $currentPage = 1;
+    $chunks = $appointments->chunk($rowsPerPage);
+@endphp
+
+@foreach ($chunks as $chunk)
+    <div class="content-wrapper">
+        {{-- Header Section --}}
+        <div class="header">
             <div class="republika">Republic of the Philippines</div>
-            <div class="psa-title">PHILIPPINE STATISTICS AUTHORITY</div>
-            <div class="philsys-title">Philippine Identification System (PhilSys)</div>
+            <h2>PHILIPPINE STATISTICS AUTHORITY</h2>
+            <h3>Philippine Identification System (PhilSys)</h3>
             <div class="report-title">SCREENER TRANSACTIONS REPORT</div>
-            <div class="page-number">page {{ $currentPageNum }} of {{ $totalPages }}</div>
         </div>
 
-        <div class="reference-line">
-            <span><strong>Report No.:</strong> SCR-{{ date('YmdHis') }}</span>
-            <span class="separator">|</span>
-            <span><strong>Date:</strong> {{ $dateToday }}</span>
-            <span class="separator">|</span>
-            <span><strong>Time:</strong> {{ $timeGenerated }}</span>
+        {{-- Report Information --}}
+        <div class="report-info">
+            <p><strong>Report No.:</strong> SCR-{{ date('YmdHis') }} | <strong>Date:</strong> {{ $dateToday }} | <strong>Time:</strong> {{ $timeGenerated }}</p>
+            <p><strong>Date Range:</strong> {{ $dateRangeDisplay }} | <strong>Service:</strong> {{ $serviceDisplay }} | <strong>Status:</strong> {{ $statusDisplay }}</p>
         </div>
 
-        <div class="filter-info-line">
-            <strong>Date Range:</strong> {{ $dateRangeDisplay }} &nbsp;&nbsp;|&nbsp;&nbsp;
-            <strong>Service:</strong> {{ $serviceDisplay }} &nbsp;&nbsp;|&nbsp;&nbsp;
-            <strong>Status:</strong> {{ $statusDisplay }}
+        {{-- Summary - Only on first page --}}
+        @if ($currentPage == 1)
+        <div class="summary">
+            <strong>Total Transactions:</strong> {{ $totalRecords }} 
+            (Completed: {{ $completedCount }} | Cancelled: {{ $cancelledCount }} | No Show: {{ $noShowCount }} | Pending: {{ $pendingCount }} | Serving: {{ $servingCount }})
         </div>
-
-        @if ($currentPageNum == 1)
-            <div class="summary-line">
-                <strong>Total Transactions:</strong> {{ $totalRows }} 
-                (Completed: {{ $completedCount }} | Cancelled: {{ $cancelledCount }} | No Show: {{ $noShowCount }} | Pending: {{ $pendingCount }} | Serving: {{ $servingCount }})
-            </div>
         @endif
 
-        <div class="table-container">
-            <table>
-                <thead>
+        {{-- Data Table --}}
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th class="col-sn">#</th>
+                    <th class="col-queue">Queue</th>
+                    <th class="col-name">Client Name</th>
+                    <th class="col-priority">Priority</th>
+                    <th class="col-service">Service</th>
+                    <th class="col-window">Win</th>
+                    <th class="col-time">Time</th>
+                    <th class="col-status">Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach ($chunk as $app)
+                    @php
+                        // Format full name
+                        $lastName = strtoupper($app->lname ?? '');
+                        $firstName = ucwords(strtolower($app->fname ?? ''));
+                        $middleName = $app->mname ? ' ' . ucwords(strtolower($app->mname)) : '';
+                        $suffix = $app->suffix ? ' ' . strtoupper($app->suffix) : '';
+                        $fullName = $lastName . ', ' . $firstName . $middleName . $suffix;
+                        
+                        // Truncate long names
+                        if (strlen($fullName) > 30) {
+                            $fullName = substr($fullName, 0, 28) . '...';
+                        }
+                        
+                        // Format time
+                        $servedTime = $app->time_catered
+                            ? \Carbon\Carbon::parse($app->time_catered)->setTimezone('Asia/Manila')->format('h:i A')
+                            : ($app->updated_at
+                                ? \Carbon\Carbon::parse($app->updated_at)->setTimezone('Asia/Manila')->format('h:i A')
+                                : \Carbon\Carbon::parse($app->created_at)->setTimezone('Asia/Manila')->format('h:i A'));
+                        
+                        $status = $app->status ?? 'pending';
+                        $statusDisplay = ucfirst(str_replace('_', ' ', $status));
+                        $priorityType = $app->priority_type ?? 'regular';
+                        $priorityDisplay = ucfirst($priorityType);
+                    @endphp
                     <tr>
-                        <th class="col-sn">#</th>
-                        <th class="col-queue">Queue</th>
-                        <th class="col-name">Client Name</th>
-                        <th class="col-priority">Priority</th>
-                        <th class="col-service">Service</th>
-                        <th class="col-window">Window</th>
-                        <th class="col-time">Time</th>
-                        <th class="col-status">Status</th>
+                        <td class="col-sn">{{ $app->row_number }}</td>
+                        <td class="col-queue"><span class="queue-number">{{ $app->q_id }}</span></td>
+                        <td class="col-name">{{ $fullName }}</td>
+                        <td class="col-priority"><span class="priority-{{ $priorityType }}">{{ $priorityDisplay }}</span></td>
+                        <td class="col-service">{{ $app->queue_for }}</td>
+                        <td class="col-window">{{ $app->window_num ?? '—' }}</td>
+                        <td class="col-time">{{ $servedTime }}</td>
+                        <td class="col-status status-{{ $status }}">{{ $statusDisplay }}</td>
                     </tr>
-                </thead>
-                <tbody>
-                    @foreach ($chunk as $app)
-                        @php
-                            $lastName = strtoupper($app->lname ?? '');
-                            $firstName = ucwords(strtolower($app->fname ?? ''));
-                            $middleName = $app->mname ? ucwords(strtolower($app->mname)) : '';
-                            $suffix = $app->suffix ? strtoupper($app->suffix) : '';
-                            
-                            $fullName = $lastName . ', ' . $firstName;
-                            if ($middleName) $fullName .= ' ' . $middleName;
-                            if ($suffix) $fullName .= ' ' . $suffix;
-                            
-                            $servedTime = $app->time_catered
-                                ? \Carbon\Carbon::parse($app->time_catered)->setTimezone('Asia/Manila')->format('h:i A')
-                                : ($app->updated_at
-                                    ? \Carbon\Carbon::parse($app->updated_at)->setTimezone('Asia/Manila')->format('h:i A')
-                                    : \Carbon\Carbon::parse($app->created_at)->setTimezone('Asia/Manila')->format('h:i A'));
-                            
-                            $status = $app->status ?? 'pending';
-                            $statusDisplay = ucfirst(str_replace('_', ' ', $status));
-                            $statusClass = 'status-' . str_replace('_', '-', $status);
-                            
-                            $priorityType = $app->priority_type ?? 'regular';
-                            $priorityDisplay = ucfirst($priorityType);
-                        @endphp
-                        <tr>
-                            <td class="number-cell">{{ $app->row_number }}</td>
-                            <td><span class="queue-number">{{ $app->q_id }}</span></td>
-                            <td>{{ $fullName }}</td>
-                            <td><span class="priority-badge priority-{{ $priorityType }}">{{ $priorityDisplay }}</span></td>
-                            <td>{{ $app->queue_for }}</td>
-                            <td>{{ $app->window_num ?? '—' }}</td>
-                            <td class="time-cell">{{ $servedTime }}</td>
-                            <td class="remarks-cell {{ $statusClass }}">{{ $statusDisplay }}</td>
-                        </tr>
-                    @endforeach
-                </tbody>
-            </table>
-        </div>
+                @endforeach
+            </tbody>
+        </table>
 
-        @if ($currentPageNum == $totalPages)
-            <div class="signature-section">
-                <div class="signature-box">
-                    <div class="signature-line"></div>
-                    <div class="signature-text">(Signature Over Printed Name)</div>
-                </div>
+        {{-- Signature on last page only --}}
+        @if ($currentPage == $totalPages && $totalRows > 0)
+        <div class="signature-section">
+            <div class="signature-box">
+                <div class="signature-line"></div>
+                <div class="signature-text">(Signature Over Printed Name)</div>
             </div>
+        </div>
         @endif
 
-        @if (!$loop->last)
-            <div class="page-break"></div>
-        @endif
-
-        @php $currentPageNum++; @endphp
-    @endforeach
-
-    @if ($totalRows == 0)
-        <div class="official-header">
-            <div class="republika">Republic of the Philippines</div>
-            <div class="psa-title">PHILIPPINE STATISTICS AUTHORITY</div>
-            <div class="philsys-title">Philippine Identification System (PhilSys)</div>
-            <div class="report-title">SCREENER TRANSACTIONS REPORT</div>
-            <div class="page-number">page 1 of 1</div>
-        </div>
-
-        <div class="reference-line">
-            <span><strong>Report No.:</strong> SCR-{{ date('YmdHis') }}</span>
-            <span class="separator">|</span>
-            <span><strong>Date:</strong> {{ $dateToday }}</span>
-            <span class="separator">|</span>
-            <span><strong>Time:</strong> {{ $timeGenerated }}</span>
-        </div>
-
-        <div class="filter-info-line">
-            <strong>Date Range:</strong> {{ $dateRangeDisplay }} &nbsp;&nbsp;|&nbsp;&nbsp;
-            <strong>Service:</strong> {{ $serviceDisplay }} &nbsp;&nbsp;|&nbsp;&nbsp;
-            <strong>Status:</strong> {{ $statusDisplay }}
-        </div>
-
-        <div class="summary-line">
-            <strong>Total Transactions:</strong> 0
-        </div>
-
-        <div class="empty-state">
-            No transactions recorded for this period.
-        </div>
-    @endif
-
-    @if ($totalRows > 0)
+        {{-- Footer --}}
         <div class="footer">
             PSA PhilSys - Official Document | Generated by Screener Portal
         </div>
+        
+        {{-- Page Number at Bottom Right --}}
+        <div class="page-number-container">
+            Page {{ $currentPage }} of {{ $totalPages }}
+        </div>
+    </div>
+
+    @if (!$loop->last)
+        <div class="page-break"></div>
     @endif
+
+    @php $currentPage++; @endphp
+@endforeach
+
+{{-- Empty state if no records --}}
+@if ($totalRows == 0)
+    <div class="content-wrapper">
+        <div class="header">
+            <div class="republika">Republic of the Philippines</div>
+            <h2>PHILIPPINE STATISTICS AUTHORITY</h2>
+            <h3>Philippine Identification System (PhilSys)</h3>
+            <div class="report-title">SCREENER TRANSACTIONS REPORT</div>
+        </div>
+
+        <div class="report-info">
+            <p><strong>Report No.:</strong> SCR-{{ date('YmdHis') }} | <strong>Date:</strong> {{ $dateToday }} | <strong>Time:</strong> {{ $timeGenerated }}</p>
+            <p><strong>Date Range:</strong> {{ $dateRangeDisplay }} | <strong>Service:</strong> {{ $serviceDisplay }} | <strong>Status:</strong> {{ $statusDisplay }}</p>
+        </div>
+
+        <div class="summary">
+            <strong>Total Transactions:</strong> 0
+        </div>
+
+        <div style="padding: 50px; text-align: center;">
+            <p>No transactions recorded for this period.</p>
+        </div>
+
+        <div class="footer">
+            PSA PhilSys - Official Document | Generated by Screener Portal
+        </div>
+        
+        <div class="page-number-container">
+            Page 1 of 1
+        </div>
+    </div>
+@endif
+
 </body>
 </html>
