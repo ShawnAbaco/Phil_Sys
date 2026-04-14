@@ -18,129 +18,6 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <link rel="stylesheet" href="{{ asset('css/client.css') }}">
 
-    <style>
-        /* Additional styles for change indicators and visual feedback */
-        .queue-item.changed {
-            animation: queueHighlight 0.6s ease-out;
-        }
-
-        .window-card .queue-number.changed {
-            animation: numberPop 0.5s cubic-bezier(0.34, 1.2, 0.64, 1);
-        }
-
-        @keyframes queueHighlight {
-            0% {
-                background-color: rgba(46, 125, 50, 0);
-                transform: scale(1);
-            }
-
-            30% {
-                background-color: rgba(46, 125, 50, 0.3);
-                transform: scale(1.02);
-            }
-
-            100% {
-                background-color: rgba(46, 125, 50, 0);
-                transform: scale(1);
-            }
-        }
-
-        @keyframes numberPop {
-            0% {
-                transform: scale(1);
-                color: inherit;
-            }
-
-            50% {
-                transform: scale(1.15);
-                color: #2e7d32;
-            }
-
-            100% {
-                transform: scale(1);
-                color: inherit;
-            }
-        }
-
-        /* Connection status indicator */
-        .connection-status {
-            position: fixed;
-            bottom: 15px;
-            right: 15px;
-            background: rgba(0, 0, 0, 0.75);
-            color: white;
-            padding: 6px 12px;
-            border-radius: 20px;
-            font-size: 12px;
-            font-weight: 500;
-            z-index: 1000;
-            backdrop-filter: blur(5px);
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            font-family: 'Inter', sans-serif;
-        }
-
-        .status-dot {
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            background-color: #4caf50;
-            box-shadow: 0 0 6px rgba(76, 175, 80, 0.6);
-            animation: pulse 1.5s infinite;
-        }
-
-        .status-dot.disconnected {
-            background-color: #f44336;
-            animation: none;
-        }
-
-        @keyframes pulse {
-
-            0%,
-            100% {
-                opacity: 1;
-            }
-
-            50% {
-                opacity: 0.5;
-            }
-        }
-
-        /* Refresh indicator */
-        .refresh-indicator {
-            position: fixed;
-            bottom: 15px;
-            left: 15px;
-            background: rgba(0, 0, 0, 0.6);
-            color: #ccc;
-            padding: 4px 10px;
-            border-radius: 20px;
-            font-size: 10px;
-            font-family: monospace;
-            backdrop-filter: blur(4px);
-            pointer-events: none;
-            z-index: 1000;
-        }
-
-        /* Loading overlay for updates */
-        .updating-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0, 0, 0, 0.3);
-            z-index: 999;
-            pointer-events: none;
-            opacity: 0;
-            transition: opacity 0.2s;
-        }
-
-        .updating-overlay.active {
-            opacity: 1;
-        }
-    </style>
 </head>
 
 <body>
@@ -338,223 +215,298 @@
             </div>
         </div>
 
-        <!-- Connection and refresh status indicators -->
-        <div class="connection-status" id="connectionStatus">
-            <span class="status-dot" id="statusDot"></span>
-            <span id="statusText">Connected</span>
-        </div>
-        <div class="updating-overlay" id="updatingOverlay"></div>
-
         <script>
-            // Video playlist
+            // Video playlist configuration
             const videos = [
                 '{{ asset('videos/2. National ID Check .mp4') }}',
                 '{{ asset('videos/3. National ID eVerify .mp4') }}',
             ];
 
             let currentVideoIndex = 0;
-            let isLooping = true;
+            let isLooping = true; // Set to true for continuous looping
             const videoPlayer = document.getElementById('tutorialVideo');
             const backgroundVideo = document.getElementById('backgroundVideo');
 
-            // Data state management
-            let currentDataState = {
-                calledQueues: {},
-                nextQueues: {
-                    statusInquiry: [],
-                    registration: [],
-                    updating: []
-                }
-            };
+            // Function to play next video or loop to beginning
+            function playNextVideo() {
+                if (isLooping) {
+                    // Move to next video or loop back to first
+                    currentVideoIndex = (currentVideoIndex + 1) % videos.length;
+                    const newVideoSrc = videos[currentVideoIndex];
 
-            let lastCalledQueuesForSpeech = {};
-            let refreshTimer = null;
-            let isRefreshing = false;
-            let consecutiveErrors = 0;
-            let dynamicInterval = 5000; // Start with 5 seconds, can adapt
+                    // Update both foreground and background videos
+                    videoPlayer.src = newVideoSrc;
+                    backgroundVideo.src = newVideoSrc;
 
-            // Initialize with server data from Blade (if any)
-            function initializeDataFromServer() {
-                const initialCalled = {!! json_encode($calledQueues) !!} || {};
-                const initialNext = {!! json_encode($nextQueues) !!} || {};
+                    // Load and play the new video
+                    videoPlayer.load();
+                    backgroundVideo.load();
 
-                for (let i = 1; i <= 6; i++) {
-                    if (!initialCalled[i]) {
-                        initialCalled[i] = {
-                            q_id: '-',
-                            priority_type: ''
-                        };
+                    // Attempt to play both videos
+                    const playPromise = videoPlayer.play();
+                    const bgPlayPromise = backgroundVideo.play();
+
+                    if (playPromise !== undefined) {
+                        playPromise.catch(error => {
+                            console.log('Video autoplay prevented. User interaction needed.');
+                            // Add a play button or handle user interaction
+                        });
                     }
+
+                    if (bgPlayPromise !== undefined) {
+                        bgPlayPromise.catch(error => {
+                            console.log('Background video autoplay prevented.');
+                        });
+                    }
+                } else {
+                    // If not looping, just replay the current video
+                    videoPlayer.currentTime = 0;
+                    backgroundVideo.currentTime = 0;
+                    videoPlayer.play().catch(e => console.log('Playback prevented:', e));
+                    backgroundVideo.play().catch(e => console.log('Background playback prevented:', e));
+                }
+            }
+
+            // Alternative: Use the 'ended' event for continuous looping
+            videoPlayer.addEventListener('ended', function() {
+                console.log('Video ended, playing next in playlist...');
+                playNextVideo();
+            });
+
+            // Sync background video with foreground
+            videoPlayer.addEventListener('play', function() {
+                backgroundVideo.play().catch(e => console.log('Background play error:', e));
+            });
+
+            videoPlayer.addEventListener('pause', function() {
+                backgroundVideo.pause();
+            });
+
+            videoPlayer.addEventListener('seeked', function() {
+                backgroundVideo.currentTime = videoPlayer.currentTime;
+            });
+
+            // Handle video errors
+            videoPlayer.addEventListener('error', function(e) {
+                console.error('Video error:', e);
+                // Skip to next video on error
+                playNextVideo();
+            });
+
+            // Ensure videos start playing and continue looping
+            function initializeVideoPlayback() {
+                // Set both videos to loop individually as backup
+                videoPlayer.loop = false; // We'll handle looping manually
+                backgroundVideo.loop = true; // Background can loop independently
+
+                // Start playing
+                const playPromise = videoPlayer.play();
+                if (playPromise !== undefined) {
+                    playPromise.then(() => {
+                        console.log('Video playback started successfully');
+                        backgroundVideo.play().catch(e => console.log('Background play error:', e));
+                    }).catch(error => {
+                        console.log('Autoplay prevented. Waiting for user interaction...');
+                        // Add click handler to start videos
+                        document.body.addEventListener('click', function startVideos() {
+                            videoPlayer.play();
+                            backgroundVideo.play();
+                            document.body.removeEventListener('click', startVideos);
+                        }, {
+                            once: true
+                        });
+                    });
+                }
+            }
+
+            // Update date and time
+            function updateDateTime() {
+                const now = new Date();
+
+                const timeStr = now.toLocaleTimeString('en-US', {
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    second: '2-digit',
+                    hour12: true
+                });
+
+                const dateStr = now.toLocaleDateString('en-US', {
+                    weekday: 'long',
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric'
+                });
+
+                document.getElementById('time').textContent = timeStr;
+                document.getElementById('date').textContent = dateStr;
+            }
+
+            setInterval(updateDateTime, 1000);
+
+            // Speech synthesis
+            function speakMessage(text) {
+                console.log('Attempting to speak:', text);
+
+                if (!('speechSynthesis' in window)) {
+                    console.error('Speech synthesis not supported');
+                    return;
                 }
 
-                currentDataState.calledQueues = initialCalled;
-                currentDataState.nextQueues = {
-                    statusInquiry: initialNext.statusInquiry || [],
-                    registration: initialNext.registration || [],
-                    updating: initialNext.updating || []
+                // Cancel any ongoing speech
+                window.speechSynthesis.cancel();
+
+                // First announcement
+                const utterance1 = new SpeechSynthesisUtterance(text);
+                utterance1.rate = 0.9;
+                utterance1.pitch = 1;
+                utterance1.volume = 1;
+                utterance1.lang = 'en-US';
+
+                utterance1.onstart = function() {
+                    console.log('First announcement started');
                 };
 
-                lastCalledQueuesForSpeech = JSON.parse(JSON.stringify(initialCalled));
+                utterance1.onerror = function(event) {
+                    console.error('Speech error:', event.error);
+                };
 
-                // Initial render
-                renderWindowsFromState();
-                renderQueueListsFromState();
+                window.speechSynthesis.speak(utterance1);
+
+                // Second announcement with "Please proceed to" prefix
+                setTimeout(() => {
+                    // Extract window and queue number from the text
+                    const matches = text.match(/Window (\d+), now serving (.+)/);
+                    if (matches) {
+                        const windowNum = matches[1];
+                        const queueInfo = matches[2];
+                        const secondText = `Please proceed to window ${windowNum}, ${queueInfo}`;
+
+                        const utterance2 = new SpeechSynthesisUtterance(secondText);
+                        utterance2.rate = 0.9;
+                        utterance2.pitch = 1;
+                        utterance2.volume = 1;
+                        utterance2.lang = 'en-US';
+
+                        utterance2.onstart = function() {
+                            console.log('Second announcement started');
+                        };
+
+                        window.speechSynthesis.speak(utterance2);
+                    }
+                }, 2000);
             }
 
-            // Deep comparison functions for detecting actual changes
-            function areQueuesEqual(queue1, queue2) {
-                if (!queue1 && !queue2) return true;
-                if (!queue1 || !queue2) return false;
-                return queue1.q_id === queue2.q_id && queue1.priority_type === queue2.priority_type;
-            }
-
-            function areCalledQueuesChanged(newCalled, oldCalled) {
-                for (let i = 1; i <= 6; i++) {
-                    const newQ = newCalled[i] || {
+            let lastCalledQueues = JSON.parse(localStorage.getItem('lastCalledQueues') || '{}');
+            for (let i = 1; i <= 6; i++) {
+                if (!(i in lastCalledQueues)) {
+                    lastCalledQueues[i] = {
                         q_id: '-',
                         priority_type: ''
                     };
-                    const oldQ = oldCalled[i] || {
-                        q_id: '-',
-                        priority_type: ''
-                    };
-                    if (newQ.q_id !== oldQ.q_id || newQ.priority_type !== oldQ.priority_type) {
-                        return true;
-                    }
                 }
-                return false;
             }
 
-            function areNextQueuesChanged(newNext, oldNext) {
-                // Compare each queue type arrays by stringifying (order matters for queue display)
-                const types = ['statusInquiry', 'registration', 'updating'];
-                for (let type of types) {
-                    const newArr = newNext[type] || [];
-                    const oldArr = oldNext[type] || [];
-                    if (newArr.length !== oldArr.length) return true;
+            // Also update the announcement when a new call is detected
+            function updateQueues() {
+                fetch('{{ route('client.queues') }}')
+                    .then(response => response.json())
+                    .then(data => {
+                        const calledQueues = data.calledQueues;
+                        const nextQueues = data.nextQueues;
 
-                    for (let i = 0; i < newArr.length; i++) {
-                        const newItem = newArr[i];
-                        const oldItem = oldArr[i];
-                        if (!newItem || !oldItem) return true;
-                        if (newItem.q_id !== oldItem.q_id) return true;
-                    }
-                }
-                return false;
+                        // Update windows
+                        for (let w = 1; w <= 6; w++) {
+                            const windowCard = document.getElementById(`window-${w}`);
+                            if (windowCard && calledQueues[w]) {
+                                const queueNum = windowCard.querySelector('.queue-number');
+                                const clientNameDiv = windowCard.querySelector('.client-name');
+
+                                if (queueNum) queueNum.textContent = calledQueues[w].q_id || '-';
+
+                                // Update priority text
+                                if (clientNameDiv) {
+                                    clientNameDiv.textContent = calledQueues[w].priority_type || '';
+                                }
+
+                                // Add serving indicator class
+                                if (calledQueues[w].q_id !== '-') {
+                                    windowCard.classList.add('active-serving');
+                                } else {
+                                    windowCard.classList.remove('active-serving');
+                                }
+
+                                // Check if this is a new call
+                                if (lastCalledQueues[w] && lastCalledQueues[w].q_id !== calledQueues[w].q_id &&
+                                    calledQueues[w].q_id !== '-') {
+                                    windowCard.classList.add('new-call');
+                                    setTimeout(() => windowCard.classList.remove('new-call'), 3000);
+
+                                    console.log(`New call detected: Window ${w}, Queue ${calledQueues[w].q_id}`);
+
+                                    // Announce the new call
+                                    speakMessage(`Window ${w}, now serving ${calledQueues[w].q_id}`);
+                                }
+                            }
+                        }
+
+                        // Update queue lists
+                        updateQueueList('status-queue', nextQueues.statusInquiry || []);
+                        updateQueueList('registration-queue', nextQueues.registration || []);
+                        updateQueueList('updating-queue', nextQueues.updating || []);
+
+                        localStorage.setItem('lastCalledQueues', JSON.stringify(calledQueues));
+                        lastCalledQueues = calledQueues;
+                    })
+                    .catch(err => console.error('Error:', err));
             }
 
-            // DOM update functions with change detection per element
-            function updateWindowUI(windowNum, newData, oldData) {
-                const windowCard = document.getElementById(`window-${windowNum}`);
-                if (!windowCard) return false;
+            // Check for triggered announcements from operator
+            function checkForAnnouncements() {
+                fetch('{{ route('client.check-announcement') }}')
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error('Network response was not ok');
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        console.log('Announcement check response:', data);
+                        if (data.announcement) {
+                            const ann = data.announcement;
+                            console.log('Received announcement:', ann);
 
-                const queueNumDiv = windowCard.querySelector('.queue-number');
-                const clientNameDiv = windowCard.querySelector('.client-name');
+                            // Format the message with queue number and name
+                            let message;
+                            if (ann.name && ann.name !== 'undefined' && ann.name.trim() !== '') {
+                                // If name is available, use it
+                                message = `Window ${ann.window}, now serving ${ann.queue}, ${ann.name}`;
+                            } else {
+                                // Fallback to queue number only
+                                message = `Window ${ann.window}, now serving ${ann.queue}`;
+                            }
 
-                let changed = false;
+                            console.log('Speaking message:', message);
 
-                // Update queue number with animation if changed
-                const newQueueId = newData.q_id || '-';
-                const oldQueueId = oldData ? oldData.q_id : '-';
-                if (queueNumDiv && newQueueId !== oldQueueId) {
-                    queueNumDiv.textContent = newQueueId;
-                    queueNumDiv.classList.add('changed');
-                    setTimeout(() => queueNumDiv.classList.remove('changed'), 500);
-                    changed = true;
-                } else if (queueNumDiv) {
-                    queueNumDiv.textContent = newQueueId;
-                }
-
-                // Update priority text
-                const newPriority = newData.priority_type || '';
-                const oldPriority = oldData ? oldData.priority_type : '';
-                if (clientNameDiv && newPriority !== oldPriority) {
-                    clientNameDiv.textContent = newPriority;
-                    changed = true;
-                } else if (clientNameDiv) {
-                    clientNameDiv.textContent = newPriority;
-                }
-
-                // Update active class
-                const isActive = newQueueId !== '-';
-                const wasActive = oldQueueId !== '-';
-                if (isActive !== wasActive) {
-                    if (isActive) {
-                        windowCard.classList.add('active-serving');
-                    } else {
-                        windowCard.classList.remove('active-serving');
-                    }
-                    changed = true;
-                }
-
-                return changed;
+                            // Trigger the speech
+                            speakMessage(message);
+                        }
+                    })
+                    .catch(err => console.error('Error checking announcements:', err));
             }
 
-            function renderWindowsFromState() {
-                for (let w = 1; w <= 6; w++) {
-                    const newData = currentDataState.calledQueues[w] || {
-                        q_id: '-',
-                        priority_type: ''
-                    };
-                    const oldData = window._prevWindowStates ? window._prevWindowStates[w] : null;
-                    const hasChanged = updateWindowUI(w, newData, oldData);
-
-                    // Speech announcement for new calls (only when queue number changes to a non-dash)
-                    if (oldData && newData.q_id !== '-' && newData.q_id !== oldData.q_id) {
-                        console.log(`New call detected at Window ${w}: ${newData.q_id}`);
-                        const priorityText = newData.priority_type ? ` (${newData.priority_type})` : '';
-                        speakMessage(`Window ${w}, now serving ${newData.q_id}${priorityText}`);
-                    }
-                }
-                // Store current states for next comparison
-                window._prevWindowStates = JSON.parse(JSON.stringify(currentDataState.calledQueues));
-            }
-
-            function renderQueueListsFromState() {
-                updateQueueListWithChangeDetection('status-queue', currentDataState.nextQueues.statusInquiry || [], 'status');
-                updateQueueListWithChangeDetection('registration-queue', currentDataState.nextQueues.registration || [],
-                    'registration');
-                updateQueueListWithChangeDetection('updating-queue', currentDataState.nextQueues.updating || [], 'updating');
-            }
-
-            // Store previous queue list states for change detection
-            let prevQueueStates = {
-                status: [],
-                registration: [],
-                updating: []
-            };
-
-            function updateQueueListWithChangeDetection(elementId, queueArray, queueType) {
+            function updateQueueList(elementId, queueArray) {
                 const ul = document.getElementById(elementId);
                 if (!ul) return;
 
-                const prevQueues = prevQueueStates[queueType] || [];
-                const hasChanged = queueArray.length !== prevQueues.length ||
-                    queueArray.some((item, idx) => {
-                        const prevItem = prevQueues[idx];
-                        return !prevItem || item.q_id !== prevItem.q_id;
-                    });
-
-                if (!hasChanged && queueArray.length === prevQueues.length) {
-                    return; // No change, skip DOM update
-                }
-
-                // Update DOM with visual feedback for changed items
                 ul.innerHTML = '';
 
                 if (queueArray && queueArray.length > 0) {
                     queueArray.forEach((item, index) => {
                         const li = document.createElement('li');
-                        li.className = 'queue-item';
-                        li.innerHTML = `<span class="queue-item-number">${escapeHtml(item.q_id)}</span>`;
-
-                        // Add animation if this specific queue number is new compared to previous
-                        const prevItem = prevQueues[index];
-                        if (!prevItem || prevItem.q_id !== item.q_id) {
-                            li.classList.add('changed');
-                            setTimeout(() => li.classList.remove('changed'), 600);
-                        }
-
+                        li.className = 'queue-item' + (index < 3 ? ' new' : '');
+                        li.innerHTML = `
+                            <span class="queue-item-number">${escapeHtml(item.q_id)}</span>
+                        `;
                         ul.appendChild(li);
                     });
                 } else {
@@ -568,186 +520,8 @@
                     `;
                     ul.appendChild(li);
                 }
-
-                // Store new state
-                prevQueueStates[queueType] = JSON.parse(JSON.stringify(queueArray));
             }
 
-            // Core fetch with intelligent refresh - only updates state if data changed
-            async function fetchQueuesWithConditionalRefresh() {
-                if (isRefreshing) return;
-                isRefreshing = true;
-
-                const startTime = performance.now();
-                let connectionOk = true;
-
-                try {
-                    const response = await fetch('{{ route('client.queues') }}', {
-                        headers: {
-                            'X-Requested-With': 'XMLHttpRequest',
-                            'Cache-Control': 'no-cache'
-                        }
-                    });
-
-                    if (!response.ok) throw new Error(`HTTP ${response.status}`);
-
-                    const data = await response.json();
-                    consecutiveErrors = 0;
-                    connectionOk = true;
-                    updateConnectionStatus(true);
-
-                    const newCalledQueues = data.calledQueues || {};
-                    const newNextQueues = data.nextQueues || {
-                        statusInquiry: [],
-                        registration: [],
-                        updating: []
-                    };
-
-                    // Ensure all windows have data
-                    for (let i = 1; i <= 6; i++) {
-                        if (!newCalledQueues[i]) {
-                            newCalledQueues[i] = {
-                                q_id: '-',
-                                priority_type: ''
-                            };
-                        }
-                    }
-
-                    // Detect actual changes
-                    const calledChanged = areCalledQueuesChanged(newCalledQueues, currentDataState.calledQueues);
-                    const nextChanged = areNextQueuesChanged(newNextQueues, currentDataState.nextQueues);
-
-                    if (calledChanged || nextChanged) {
-                        console.log('Data changes detected - updating display');
-
-                        // Update state only when real changes exist
-                        const oldCalled = {
-                            ...currentDataState.calledQueues
-                        };
-                        currentDataState.calledQueues = newCalledQueues;
-                        currentDataState.nextQueues = {
-                            statusInquiry: newNextQueues.statusInquiry || [],
-                            registration: newNextQueues.registration || [],
-                            updating: newNextQueues.updating || []
-                        };
-
-                        // Re-render only changed sections
-                        if (calledChanged) {
-                            renderWindowsFromState();
-                        }
-                        if (nextChanged) {
-                            renderQueueListsFromState();
-                        }
-
-                        // Brief visual feedback on refresh indicator
-                        const refreshSpan = document.getElementById('lastRefreshTime');
-                        if (refreshSpan) {
-                            const now = new Date();
-                            refreshSpan.textContent = now.toLocaleTimeString();
-                            refreshSpan.style.color = '#4caf50';
-                            setTimeout(() => {
-                                if (refreshSpan) refreshSpan.style.color = '#ccc';
-                            }, 500);
-                        }
-                    } else {
-                        console.log('No data changes, skipping DOM update');
-                        // Still update timestamp but no visual refresh
-                        const refreshSpan = document.getElementById('lastRefreshTime');
-                        if (refreshSpan) {
-                            const now = new Date();
-                            refreshSpan.textContent = now.toLocaleTimeString();
-                        }
-                    }
-
-                    // Adjust dynamic interval based on activity (optional: if changes frequent, keep faster)
-                    if (calledChanged || nextChanged) {
-                        dynamicInterval = Math.max(3000, dynamicInterval - 200);
-                    } else {
-                        dynamicInterval = Math.min(8000, dynamicInterval + 300);
-                    }
-
-                    // Reset and schedule next refresh with dynamic timing
-                    if (refreshTimer) clearTimeout(refreshTimer);
-                    refreshTimer = setTimeout(() => fetchQueuesWithConditionalRefresh(), dynamicInterval);
-
-                } catch (error) {
-                    console.error('Fetch error:', error);
-                    consecutiveErrors++;
-                    connectionOk = false;
-                    updateConnectionStatus(false);
-
-                    // Exponential backoff on errors (max 30 seconds)
-                    const backoffTime = Math.min(30000, 5000 * Math.pow(1.5, consecutiveErrors));
-                    if (refreshTimer) clearTimeout(refreshTimer);
-                    refreshTimer = setTimeout(() => fetchQueuesWithConditionalRefresh(), backoffTime);
-                } finally {
-                    isRefreshing = false;
-                    const elapsed = performance.now() - startTime;
-                    if (elapsed > 1000) {
-                        console.warn(`Slow refresh: ${elapsed.toFixed(0)}ms`);
-                    }
-                }
-            }
-
-            // Connection status UI
-            function updateConnectionStatus(isConnected) {
-                const statusDot = document.getElementById('statusDot');
-                const statusTextSpan = document.getElementById('statusText');
-                if (!statusDot || !statusTextSpan) return;
-
-                if (isConnected) {
-                    statusDot.className = 'status-dot';
-                    statusTextSpan.textContent = 'Connected';
-                } else {
-                    statusDot.className = 'status-dot disconnected';
-                    statusTextSpan.textContent = 'Reconnecting...';
-                }
-            }
-
-            // Speech synthesis (improved)
-            function speakMessage(text) {
-                if (!('speechSynthesis' in window)) return;
-                window.speechSynthesis.cancel();
-
-                const utterance1 = new SpeechSynthesisUtterance(text);
-                utterance1.rate = 0.9;
-                utterance1.pitch = 1;
-                utterance1.volume = 1;
-                utterance1.lang = 'en-US';
-                window.speechSynthesis.speak(utterance1);
-
-                setTimeout(() => {
-                    const matches = text.match(/Window (\d+), now serving (.+)/);
-                    if (matches) {
-                        const secondText = `Please proceed to window ${matches[1]}, ${matches[2]}`;
-                        const utterance2 = new SpeechSynthesisUtterance(secondText);
-                        utterance2.rate = 0.9;
-                        window.speechSynthesis.speak(utterance2);
-                    }
-                }, 1800);
-            }
-
-            // Check for operator announcements (unchanged but optimized)
-            let lastAnnouncementId = null;
-            async function checkForAnnouncements() {
-                try {
-                    const response = await fetch('{{ route('client.check-announcement') }}');
-                    if (!response.ok) return;
-                    const data = await response.json();
-                    if (data.announcement && data.announcement.id !== lastAnnouncementId) {
-                        lastAnnouncementId = data.announcement.id;
-                        const ann = data.announcement;
-                        let message = ann.name && ann.name.trim() ?
-                            `Window ${ann.window}, now serving ${ann.queue}, ${ann.name}` :
-                            `Window ${ann.window}, now serving ${ann.queue}`;
-                        speakMessage(message);
-                    }
-                } catch (err) {
-                    console.error('Announcement check error:', err);
-                }
-            }
-
-            // Helper functions
             function escapeHtml(text) {
                 if (!text) return '';
                 return String(text).replace(/[&<>"']/g, function(m) {
@@ -761,63 +535,12 @@
                 });
             }
 
-            function updateDateTime() {
-                const now = new Date();
-                document.getElementById('time').textContent = now.toLocaleTimeString('en-US', {
-                    hour: '2-digit',
-                    minute: '2-digit',
-                    second: '2-digit',
-                    hour12: true
-                });
-                document.getElementById('date').textContent = now.toLocaleDateString('en-US', {
-                    weekday: 'long',
-                    year: 'numeric',
-                    month: 'long',
-                    day: 'numeric'
-                });
-            }
-
-            // Video functions (unchanged)
-            function playNextVideo() {
-                if (isLooping) {
-                    currentVideoIndex = (currentVideoIndex + 1) % videos.length;
-                    const newSrc = videos[currentVideoIndex];
-                    videoPlayer.src = newSrc;
-                    backgroundVideo.src = newSrc;
-                    videoPlayer.load();
-                    backgroundVideo.load();
-                    videoPlayer.play().catch(e => console.log('Play error:', e));
-                    backgroundVideo.play().catch(e => console.log('BG error:', e));
-                }
-            }
-
-            function initializeVideoPlayback() {
-                videoPlayer.addEventListener('ended', () => playNextVideo());
-                videoPlayer.play().catch(() => {
-                    document.body.addEventListener('click', function startVideos() {
-                        videoPlayer.play();
-                        backgroundVideo.play();
-                        document.body.removeEventListener('click', startVideos);
-                    }, {
-                        once: true
-                    });
-                });
-            }
-
             // Initialize everything
-            initializeDataFromServer();
             updateDateTime();
-            setInterval(updateDateTime, 1000);
+            updateQueues();
             initializeVideoPlayback();
-
-            // Start intelligent refresh system
-            fetchQueuesWithConditionalRefresh();
-
-            // Check announcements separately (every 3 seconds)
-            setInterval(checkForAnnouncements, 3000);
-
-            // Store initial window states for change detection
-            window._prevWindowStates = JSON.parse(JSON.stringify(currentDataState.calledQueues));
+            setInterval(updateQueues, 5000);
+            setInterval(checkForAnnouncements, 2000);
         </script>
 </body>
 
