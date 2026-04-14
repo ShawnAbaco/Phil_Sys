@@ -880,64 +880,67 @@
         }
     });
 
-    // Handle edit form submission via AJAX with SweetAlert
-    document.getElementById('editAppointmentForm').addEventListener('submit', function(e) {
-        e.preventDefault();
+    // Handle edit form submission via AJAX with SweetAlert and redirect
+document.getElementById('editAppointmentForm').addEventListener('submit', function(e) {
+    e.preventDefault();
 
-        const form = this;
-        const formData = new FormData(form);
-        const actionUrl = form.action;
+    const form = this;
+    const formData = new FormData(form);
+    const actionUrl = form.action;
 
-        Swal.fire({
-            title: 'Saving Changes...',
-            text: 'Please wait while we update the appointment.',
-            allowOutsideClick: false,
-            allowEscapeKey: false,
-            showConfirmButton: false,
-            didOpen: () => {
-                Swal.showLoading();
-            }
-        });
+    Swal.fire({
+        title: 'Saving Changes...',
+        text: 'Please wait while we update the appointment.',
+        allowOutsideClick: false,
+        allowEscapeKey: false,
+        showConfirmButton: false,
+        didOpen: () => {
+            Swal.showLoading();
+        }
+    });
 
-        fetch(actionUrl, {
-                method: 'POST',
-                headers: {
-                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                    'X-Requested-With': 'XMLHttpRequest'
-                },
-                body: formData
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    Swal.fire({
-                        title: 'Success!',
-                        text: 'Appointment updated successfully',
-                        icon: 'success',
-                        confirmButtonColor: '#2563eb',
-                        timer: 2000
-                    });
-                    closeEditModal();
-                    fetchAppointments(); // Refresh the table
-                } else {
-                    Swal.fire({
-                        title: 'Error!',
-                        text: data.message || 'Failed to update appointment',
-                        icon: 'error',
-                        confirmButtonColor: '#dc2626'
-                    });
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
+    fetch(actionUrl, {
+            method: 'POST',
+            headers: {
+                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                'X-Requested-With': 'XMLHttpRequest',
+                'Accept': 'application/json'
+            },
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                Swal.fire({
+                    title: 'Success!',
+                    text: 'Appointment updated successfully',
+                    icon: 'success',
+                    confirmButtonColor: '#2563eb',
+                    timer: 1500
+                }).then(() => {
+                    // Redirect to appointments page to refresh
+                    window.location.href = data.redirect || '{{ route("screener.appointments") }}';
+                });
+                closeEditModal();
+            } else {
                 Swal.fire({
                     title: 'Error!',
-                    text: 'An unexpected error occurred',
+                    text: data.message || 'Failed to update appointment',
                     icon: 'error',
                     confirmButtonColor: '#dc2626'
                 });
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            Swal.fire({
+                title: 'Error!',
+                text: 'An unexpected error occurred',
+                icon: 'error',
+                confirmButtonColor: '#dc2626'
             });
-    });
+        });
+});
 
     // ========== PREVENT DUPLICATE SUBMISSIONS ==========
     let isSubmitting = false;

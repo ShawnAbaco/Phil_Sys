@@ -51,79 +51,100 @@ class AAppointmentController extends Controller
             'completedCount'
         ));
     }
-
-    /**
-     * Update appointment (EDIT FUNCTIONALITY)
-     */
-    public function update(Request $request, $id)
-    {
-        try {
-            // Find the appointment
-            $appointment = TblAppointment::findOrFail($id);
-            
-            // Validate the request
-            $validated = $request->validate([
-                'fname' => 'required|string|max:99|regex:/^[A-Za-zÑñ\s\-]+$/',
-                'mname' => 'nullable|string|max:99|regex:/^[A-Za-zÑñ\s\-]*$/',
-                'lname' => 'required|string|max:99|regex:/^[A-Za-zÑñ\s\-]+$/',
-                'suffix' => 'nullable|string|max:3|regex:/^[A-Za-zÑñ\s\-\.]*$/',
-                'priority_type' => 'required|string|in:regular,senior,infant,pwd,pregnant',
-                'birthdate' => 'required|date',
-                'age_category' => 'nullable|string',
-                'PCN' => 'nullable|string|max:16',
-                'trn' => 'nullable|string|max:29',
-            ], [
-                'fname.regex' => 'First name may only contain letters, spaces, and hyphens.',
-                'mname.regex' => 'Middle name may only contain letters, spaces, and hyphens.',
-                'lname.regex' => 'Last name may only contain letters, spaces, and hyphens.',
-                'suffix.regex' => 'Suffix may only contain letters, spaces, and hyphens.',
-            ]);
-            
-            // Update appointment fields
-            $appointment->fname = $request->fname;
-            $appointment->mname = $request->mname ?? '';
-            $appointment->lname = $request->lname;
-            $appointment->suffix = $request->suffix ?? '';
-            $appointment->priority_type = $request->priority_type;
-            $appointment->birthdate = $request->birthdate;
-            $appointment->age_category = $request->age_category;
-            
-            // Update service-specific fields
-            if ($appointment->queue_for === 'Updating') {
-                $appointment->PCN = $request->PCN ?? '';
-            }
-            
-            if ($appointment->queue_for === 'Status Inquiry') {
-                $appointment->trn = $request->trn ?? '';
-            }
-            
-            $appointment->save();
-            
+/**
+ * Update appointment (EDIT FUNCTIONALITY)
+ */
+public function update(Request $request, $id)
+{
+    try {
+        // Find the appointment
+        $appointment = TblAppointment::findOrFail($id);
+        
+        // Validate the request
+        $validated = $request->validate([
+            'fname' => 'required|string|max:99|regex:/^[A-Za-zÑñ\s\-]+$/',
+            'mname' => 'nullable|string|max:99|regex:/^[A-Za-zÑñ\s\-]*$/',
+            'lname' => 'required|string|max:99|regex:/^[A-Za-zÑñ\s\-]+$/',
+            'suffix' => 'nullable|string|max:3|regex:/^[A-Za-zÑñ\s\-\.]*$/',
+            'priority_type' => 'required|string|in:regular,senior,infant,pwd,pregnant',
+            'birthdate' => 'required|date',
+            'age_category' => 'nullable|string',
+            'PCN' => 'nullable|string|max:16',
+            'trn' => 'nullable|string|max:29',
+        ], [
+            'fname.regex' => 'First name may only contain letters, spaces, and hyphens.',
+            'mname.regex' => 'Middle name may only contain letters, spaces, and hyphens.',
+            'lname.regex' => 'Last name may only contain letters, spaces, and hyphens.',
+            'suffix.regex' => 'Suffix may only contain letters, spaces, and hyphens.',
+        ]);
+        
+        // Update appointment fields
+        $appointment->fname = $request->fname;
+        $appointment->mname = $request->mname ?? '';
+        $appointment->lname = $request->lname;
+        $appointment->suffix = $request->suffix ?? '';
+        $appointment->priority_type = $request->priority_type;
+        $appointment->birthdate = $request->birthdate;
+        $appointment->age_category = $request->age_category;
+        
+        // Update service-specific fields
+        if ($appointment->queue_for === 'Updating') {
+            $appointment->PCN = $request->PCN ?? '';
+        }
+        
+        if ($appointment->queue_for === 'Status Inquiry') {
+            $appointment->trn = $request->trn ?? '';
+        }
+        
+        $appointment->save();
+        
+        // Check if request expects JSON (AJAX) or is a regular form submission
+        if ($request->ajax() || $request->wantsJson()) {
             return response()->json([
                 'success' => true,
                 'message' => 'Appointment updated successfully',
-                'appointment' => $appointment
+                'appointment' => $appointment,
+                'redirect' => route('screener.appointments') // Add redirect URL
             ]);
-            
-        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+        }
+        
+        // For non-AJAX requests, redirect back with success message
+        return redirect()->route('screener.appointments')
+                        ->with('success', 'Appointment updated successfully!');
+        
+    } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+        if ($request->ajax() || $request->wantsJson()) {
             return response()->json([
                 'success' => false,
                 'message' => 'Appointment not found'
             ], 404);
-        } catch (\Illuminate\Validation\ValidationException $e) {
+        }
+        return redirect()->route('screener.appointments')
+                        ->with('error', 'Appointment not found');
+                        
+    } catch (\Illuminate\Validation\ValidationException $e) {
+        if ($request->ajax() || $request->wantsJson()) {
             return response()->json([
                 'success' => false,
                 'message' => 'Validation failed',
                 'errors' => $e->errors()
             ], 422);
-        } catch (\Exception $e) {
+        }
+        return redirect()->back()
+                        ->withErrors($e->errors())
+                        ->withInput();
+                        
+    } catch (\Exception $e) {
+        if ($request->ajax() || $request->wantsJson()) {
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to update appointment: ' . $e->getMessage()
             ], 500);
         }
+        return redirect()->route('screener.appointments')
+                        ->with('error', 'Failed to update appointment: ' . $e->getMessage());
     }
-
+}
     /**
      * Update appointment status (for cancel)
      */
