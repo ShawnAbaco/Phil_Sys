@@ -1,43 +1,99 @@
 <x-header title="Profile Settings" />
+    <x-screener.sidebar />
+
+
 
 <main class="main-content">
-    {{-- Breadcrumb Navigation --}}
-    <div class="breadcrumb-container">
-        <div class="breadcrumb">
-            <a href="{{ $isOperator() ? route('operator.dashboard') : route('appointment.issuance') }}" class="breadcrumb-link">
-                <svg viewBox="0 0 20 20" fill="currentColor" width="18" height="18">
-                    <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z" />
-                </svg>
-                Home
-            </a>
-            <svg class="breadcrumb-separator" viewBox="0 0 20 20" fill="currentColor" width="16" height="16">
-                <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
-            </svg>
-            <span class="breadcrumb-current">Profile Settings</span>
-        </div>
-        
-        {{-- Back to Home Button --}}
-        <a href="{{ $isOperator() ? route('operator.dashboard') : route('appointment.issuance') }}" class="back-button">
-            <svg viewBox="0 0 20 20" fill="currentColor" width="18" height="18">
-                <path fill-rule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z" clip-rule="evenodd" />
-            </svg>
-            Back to Home
-        </a>
-    </div>
+    <STYLE>
+          /* Page Header */
+        .page-header {
+            margin-bottom: 32px;
+        }
+
+        .page-title {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+
+        .page-title svg {
+            width: 32px;
+            height: 32px;
+            color: #2563eb;
+        }
+
+        .page-title h1 {
+            font-size: 28px;
+            font-weight: 700;
+            color: #1e293b;
+            margin: 0;
+        }
+
+      .breadcrumb {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+}
+
+.breadcrumb a {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: #1e293b;
+    text-decoration: none;
+    padding: 6px 10px;
+    border-radius: var(--radius);
+    background: var(--gray-100);
+    transition: all 0.2s ease;
+}
+
+.breadcrumb a:hover {
+    background: var(--primary);
+    color: #fff;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(37, 99, 235, 0.2);
+}
+
+.breadcrumb a svg {
+    color: var(--primary);
+    transition: color 0.2s ease;
+}
+
+.breadcrumb a:hover svg {
+    color: #fff;
+}
+
+.breadcrumb span {
+    color: #676e79;
+}
+
+.breadcrumb .current {
+    color: var(--gray-800);
+    font-weight: 500;
+    padding: 6px 10px;
+    background: var(--gray-100);
+    border-radius: var(--radius);
+}
+
+    </STYLE>
 
     <div class="profile-container">
-        {{-- Profile Header --}}
-        <div class="profile-header">
-            <div class="profile-header-content">
-                <div class="profile-avatar-large">
-                    {{ $displayName ? substr($displayName, 0, 1) : 'U' }}
-                </div>
-                <div class="profile-title">
-                    <h1>Profile Settings</h1>
-                    <p>Manage your account information and preferences</p>
-                </div>
+<div class="page-header">
+            <div class="page-title">
+                 <svg viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd" />
+                        </svg>
+                <h1>Profile Settings</h1>
+            </div>
+            <div class="breadcrumb">
+                <a href="{{ route('screener.dashboard') }}">Home</a>
+                <span>/</span>
+                <span>Profile Settings</span>
             </div>
         </div>
+
 
         <div class="profile-grid">
             {{-- Left Column - Profile Information --}}

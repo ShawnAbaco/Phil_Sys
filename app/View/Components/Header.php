@@ -68,10 +68,30 @@ class Header extends Component
         } elseif (str_contains($designation, 'assistant')) {
             return 'ASSISTANT PORTAL';
         } elseif ($this->isScreener()) {
-            return 'SCREENER DASHBOARD';
+            return 'SCREENER PORTAL';
         }
         
         return 'PORTAL';
+    }
+
+    /**
+     * Get user role greeting text
+     */
+    public function getUserRoleGreeting()
+    {
+        $designation = strtolower($this->userDesignation ?? '');
+        
+        if (str_contains($designation, 'operator')) {
+            return 'Operator';
+        } elseif (str_contains($designation, 'assistant')) {
+            return 'Assistant';
+        } elseif ($this->isScreener()) {
+            return 'Screener';
+        } elseif ($this->userRole === 'admin') {
+            return 'Administrator';
+        }
+        
+        return 'User';
     }
 
     /**

@@ -1,3 +1,4 @@
+{{-- resources/views/components/header.blade.php --}}
 @props(['title' => 'PSA - Queue Management System'])
 
 <!DOCTYPE html>
@@ -20,12 +21,16 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <link rel="stylesheet" href="{{ asset('css/header.css') }}">
-    <link rel="stylesheet" href="{{ asset('css/appointment.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/screener/appointment.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/screener/dashboard.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/screener/reports.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/screener/transactions.css') }}">
     <link rel="stylesheet" href="{{ asset('css/operator.css') }}">
     <link rel="stylesheet" href="{{ asset('css/profile.css') }}">
     <!-- Dark Mode CSS - loaded separately -->
     <link rel="stylesheet" href="{{ asset('css/dark-mode.css') }}">
     <link rel="stylesheet" href="{{ asset('css/mobile-responsive.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/stat-grid.css') }}">
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
     <!-- Dark Mode Script -->
@@ -48,20 +53,36 @@
 
 <body>
     <!-- PSA-themed header with arrow pattern (only for screeners) -->
-    @if ($isScreener())
-        <div class="header-overlay"></div>
-    @endif
+
+    <div class="header-overlay"></div>
+
 
     <header class="main-header">
         <div class="header-content">
+
+
+
             <!-- Logo Section -->
-            <div class="logo-section {{ $isScreener() ? 'logo-area' : '' }}">
-                <img src="{{ asset('images/logo.png') }}" alt="National ID Logo" class="header-logo">
-                <div class="logo-text">
-                    <h1>Queue Management System</h1>
-                    <span class="badge">{{ $getPortalBadge() }}</span>
+
+            <div class="page-header">
+
+                <div class="page-title">
+                    <div class="logo-section">
+                        <div class="logo-text">
+                            <h1>Queue Management System</h1>
+                            <span class="badge">{{ $getPortalBadge() }}</span>
+                        </div>
+                    </div>
+
                 </div>
+
+
+
+
             </div>
+
+            <!-- Overlay for clicking outside -->
+            <div class="dropdown-overlay" id="dropdownOverlay"></div>
 
             <!-- User Section - Same for Operators and Assistants -->
             <div class="user-section">
@@ -140,8 +161,8 @@
         </div>
     </header>
 
-    <!-- Overlay for clicking outside -->
-    <div class="dropdown-overlay" id="dropdownOverlay"></div>
+    <!-- Page Header with Title and Welcome Message -->
+
 
     @if ($isOperator())
         <script>

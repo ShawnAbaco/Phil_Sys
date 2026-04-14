@@ -2,9 +2,13 @@
 // routes/web.php
 
 use App\Http\Controllers\Auth\LoginController;
-use App\Http\Controllers\Appointment\AppointmentController;
+use App\Http\Controllers\Screener\AAppointmentController;
+use App\Http\Controllers\Screener\ADashboardController;
+use App\Http\Controllers\Screener\ATransactionsController;
+use App\Http\Controllers\Screener\AReportController;
 use App\Http\Controllers\Client\ClientController;
 use App\Http\Controllers\Operator\OperatorController;
+use App\Http\Controllers\Operator\OReportController;
 use App\Http\Controllers\Profile\ProfileController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
@@ -203,27 +207,55 @@ Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 // Protected Routes - Require authentication using Laravel's 'auth' middleware
 Route::middleware(['auth'])->group(function () {
     // Screener routes
-    Route::get('/appointment-issuance', [AppointmentController::class, 'issuance'])
-         ->name('appointment.issuance');
-    Route::post('/appointment-issue', [AppointmentController::class, 'issue'])
+    // Route::get('/appointment-issuance', [ADashboardController::class, 'dashboard'])
+    //      ->name('appointment.issuance');
+    Route::post('/appointment-issue', [AAppointmentController::class, 'issue'])
          ->name('appointment.issue');
-    Route::post('/appointment/serve/{id}', [AppointmentController::class, 'serve'])
+    Route::post('/appointment/serve/{id}', [ADashboardController::class, 'serve'])
          ->name('appointment.serve');
-    Route::get('/appointment/today', [AppointmentController::class, 'getTodayAppointments'])
+    Route::get('/appointment/today', [ADashboardController::class, 'getTodayAppointments'])
          ->name('appointment.today');
-    Route::get('/appointments/transactions-page', [AppointmentController::class, 'getTransactionsPage'])->name('appointment.transactions-page');
+    Route::get('/appointments/transactions-page', [ADashboardController::class, 'getTransactionsPage'])->name('appointment.transactions-page');
     // Export routes
-    Route::get('/appointment/export/pdf', [AppointmentController::class, 'exportPDF'])->name('appointment.export.pdf');
-    Route::get('/appointment/export/excel', [AppointmentController::class, 'exportExcel'])->name('appointment.export.excel');
-    Route::post('/appointment/update-status/{id}', [AppointmentController::class, 'updateStatus'])->name('appointment.update-status');
+    Route::get('/appointment/export/pdf', [ADashboardController::class, 'exportPDF'])->name('appointment.export.pdf');
+    Route::get('/appointment/export/excel', [ADashboardController::class, 'exportExcel'])->name('appointment.export.excel');
+    Route::post('/appointment/update-status/{id}', [ADashboardController::class, 'updateStatus'])->name('appointment.update-status');
+
+
 
     //profile routes
     Route::get('/profile/settings', [ProfileController::class, 'settings'])->name('profile.settings');
     Route::put('/profile/update', [ProfileController::class, 'update'])->name('profile.update');
     Route::put('/profile/password', [ProfileController::class, 'password'])->name('profile.password');
 
-    Route::post('/appointment/store-category', [AppointmentController::class, 'storeCategory'])->name('appointment.store-category');
-    Route::post('/appointment/store-priority', [AppointmentController::class, 'storePriority'])->name('appointment.store-priority');
+    Route::post('/appointment/store-category', [ADashboardController::class, 'storeCategory'])->name('appointment.store-category');
+    Route::post('/appointment/store-priority', [ADashboardController::class, 'storePriority'])->name('appointment.store-priority');
+
+// Screener routes
+Route::prefix('screener')->name('screener.')->middleware(['auth'])->group(function () {
+    Route::get('/dashboard', [ADashboardController::class, 'dashboard'])->name('dashboard');
+    Route::get('/appointments', [AAppointmentController::class, 'appointments'])->name('appointments');
+    Route::get('/transactions', [ATransactionsController::class, 'transactions'])->name('transactions');
+    Route::get('/reports', [AReportController::class, 'reports'])->name('reports');
+   
+
+    // BAG O NI
+    Route::get('/reports/data', [AReportController::class, 'getReportData'])
+     ->name('reports.data');
+     Route::get('/reports/export/pdf', [AReportController::class, 'exportReportPDF'])
+     ->name('reports.export.pdf');
+     Route::get('/reports/export/excel', [AReportController::class, 'exportReportExcel'])
+     ->name('reports.export.excel');
+    
+    // ========== ADD THESE MISSING APPOINTMENT UPDATE ROUTES ==========
+    Route::put('/appointment/update/{id}', [AAppointmentController::class, 'update'])->name('appointment.update');
+    Route::post('/appointment/update-status/{id}', [AAppointmentController::class, 'updateStatus'])->name('appointment.update-status');
+    Route::get('/appointment/today', [AAppointmentController::class, 'getTodayAppointments'])->name('appointment.today');
+    // ================================================================
+
+    // Delete route
+    Route::delete('/appointment/delete/{id}', [AAppointmentController::class, 'delete'])->name('appointment.delete');
+});
     
 
     // Operator routes
@@ -239,9 +271,16 @@ Route::middleware(['auth'])->group(function () {
          ->name('operator.recent-transactions');
     Route::get('/operator/transactions-page', [OperatorController::class, 'getTransactionsPage'])
          ->name('operator.transactions-page');
-    // Export routes
-    Route::get('/operator/export/pdf', [OperatorController::class, 'exportPDF'])->name('operator.export.pdf');
-    Route::get('/operator/export/excel', [OperatorController::class, 'exportExcel'])->name('operator.export.excel');
+
+    // Serving for Operator
+    Route::get('/operator/serving', [OperatorController::class, 'serving'])->name('operator.serving');
+    Route::get('/operator/fetch-windows-status', [OperatorController::class, 'fetchWindowsStatus'])->name('operator.fetch-windows-status');
+    Route::get('/operator/transactions', [OperatorController::class, 'transactions'])->name('operator.transactions');
+    // Add these inside the auth middleware group
+    Route::get('/operator/reports', [OReportController::class, 'reports'])->name('operator.reports');
+    Route::get('/operator/reports/data', [OReportController::class, 'getReportData'])->name('operator.reports.data');
+    Route::get('/operator/reports/export/pdf', [OReportController::class, 'exportReportPDF'])->name('operator.reports.export.pdf');
+    Route::get('/operator/reports/export/excel', [OReportController::class, 'exportReportExcel'])->name('operator.reports.export.excel');
 });
 
 // Admin Routes - Directly in web.php (no separate file needed)

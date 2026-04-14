@@ -2,3 +2,5 @@ composer install --ignore-platform-reqs
 
 composer require maatwebsite/excel
 composer require barryvdh/laravel-dompdf
+
+

@@ -1,0 +1,106 @@
+        
+        .report-cards-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1.5rem; margin-bottom: 2rem; }
+        .report-stat-card { background: white; border-radius: 1rem; padding: 1.25rem; border: 1px solid #e2e8f0; transition: all 0.3s ease; }
+        .report-stat-card:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(0,0,0,0.1); }
+        .report-stat-value { font-size: 2rem; font-weight: 700; color: #0f172a; }
+        .report-stat-label { font-size: 0.75rem; font-weight: 500; color: #64748b; text-transform: uppercase; }
+        
+        .filter-section { background: white; border-radius: 1rem; padding: 1.5rem; margin-bottom: 2rem; border: 1px solid #e2e8f0; }
+        .filter-row { display: flex; gap: 1rem; flex-wrap: wrap; align-items: flex-end; }
+        .filter-group { flex: 1; min-width: 150px; }
+        .filter-group label { display: block; font-size: 0.75rem; font-weight: 500; color: #64748b; margin-bottom: 0.5rem; text-transform: uppercase; }
+        .filter-group input, .filter-group select { width: 100%; padding: 0.625rem 0.875rem; border: 1px solid #cbd5e1; border-radius: 0.5rem; }
+        .btn-filter { background: linear-gradient(135deg, #2563eb, #1d4ed8); color: white; border: none; padding: 0.625rem 1.5rem; border-radius: 0.5rem; cursor: pointer; }
+        .btn-reset { background: #f1f5f9; color: #475569; border: 1px solid #cbd5e1; padding: 0.625rem 1.5rem; border-radius: 0.5rem; cursor: pointer; }
+        
+        .charts-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1.5rem; margin-bottom: 2rem; }
+        .chart-card { background: white; border-radius: 1rem; padding: 1.5rem; border: 1px solid #e2e8f0; }
+        .chart-container { height: 300px; position: relative; }
+        
+        .report-table-container { background: white; border-radius: 1rem; border: 1px solid #e2e8f0; overflow: hidden; }
+        .report-table-header { padding: 1.25rem 1.5rem; border-bottom: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center; background: #f8fafc; }
+        .btn-export { padding: 0.5rem 1rem; border-radius: 0.5rem; font-size: 0.75rem; cursor: pointer; display: inline-flex; align-items: center; gap: 0.5rem; border: none; }
+        .btn-export-pdf { background: #dc2626; color: white; }
+        .btn-export-excel { background: #059669; color: white; }
+        .btn-export-print { background: #6b7280; color: white; }
+        
+        .report-table { width: 100%; border-collapse: collapse; }
+        .report-table th { text-align: left; padding: 0.875rem 1rem; background: #f8fafc; font-weight: 600; font-size: 0.75rem; border-bottom: 1px solid #e2e8f0; }
+        .report-table td { padding: 0.75rem 1rem; border-bottom: 1px solid #e2e8f0; font-size: 0.875rem; }
+        
+        @media (max-width: 1024px) { .report-cards-grid { grid-template-columns: repeat(2, 1fr); } .charts-grid { grid-template-columns: 1fr; } }
+        @media print { .sidebar, .filter-section, .btn-export { display: none !important; } }
+
+
+
+/* Page Header */
+        .page-header {
+            margin-bottom: 10px;
+        }
+
+        .page-title1 {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+
+        .page-title1 svg {
+            width: 32px;
+            height: 32px;
+            color: #2563eb;
+        }
+
+        .page-title1 h1 {
+            font-size: 28px;
+            font-weight: 700;
+            color: #1e293b;
+            margin: 0;
+        }
+
+      .breadcrumb {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+}
+
+.breadcrumb a {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: #1e293b;
+    text-decoration: none;
+    padding: 6px 10px;
+    border-radius: var(--radius);
+    background: var(--gray-100);
+    transition: all 0.2s ease;
+}
+
+.breadcrumb a:hover {
+    background: var(--primary);
+    color: #fff;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(37, 99, 235, 0.2);
+}
+
+.breadcrumb a svg {
+    color: var(--primary);
+    transition: color 0.2s ease;
+}
+
+.breadcrumb a:hover svg {
+    color: #fff;
+}
+
+.breadcrumb span {
+    color: #676e79;
+}
+
+.breadcrumb .current {
+    color: var(--gray-800);
+    font-weight: 500;
+    padding: 6px 10px;
+    background: var(--gray-100);
+    border-radius: var(--radius);
+}

@@ -1,0 +1,193 @@
+      
+
+        .filter-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .filter-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .service-filter, .per-page-dropdown {
+            padding: 8px 16px;
+            border: 2px solid #e5e7eb;
+            border-radius: 30px;
+            font-size: 0.875rem;
+            background: white;
+            cursor: pointer;
+        }
+
+        .btn-export {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 6px;
+            font-size: 0.875rem;
+            font-weight: 500;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn-export-pdf { background-color: #dc2626; color: white; }
+        .btn-export-excel { background-color: #059669; color: white; }
+
+        .table-responsive {
+            overflow-x: auto;
+            border-radius: 0.5rem;
+            border: 1px solid #e2e8f0;
+        }
+
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.8125rem;
+            min-width: 1000px;
+        }
+
+        .table th {
+            text-align: left;
+            padding: 0.875rem 1rem;
+            background: #f8fafc;
+            font-weight: 600;
+            font-size: 0.75rem;
+            border-bottom: 2px solid #e2e8f0;
+        }
+
+        .table td {
+            padding: 0.75rem 1rem;
+            border-bottom: 1px solid #e2e8f0;
+            vertical-align: middle;
+        }
+
+        .row-number {
+            display: inline-block;
+            width: 28px;
+            height: 28px;
+            line-height: 28px;
+            text-align: center;
+            background: #f1f5f9;
+            border-radius: 50%;
+            font-weight: 600;
+            font-size: 0.75rem;
+        }
+
+        .queue-number.small {
+            display: inline-block;
+            padding: 0.25rem 0.5rem;
+            background: #f1f5f9;
+            border-radius: 0.25rem;
+            font-weight: 600;
+            font-family: monospace;
+        }
+
+        .time-badge {
+            display: inline-block;
+            padding: 0.25rem 0.5rem;
+            background: #f1f5f9;
+            border-radius: 0.25rem;
+            font-size: 0.6875rem;
+            white-space: nowrap;
+        }
+
+        .window-indicator {
+            display: inline-block;
+            padding: 0.25rem 0.5rem;
+            background: #e0f2fe;
+            color: #0369a1;
+            border-radius: 0.25rem;
+            font-size: 0.6875rem;
+        }
+
+        .enhanced-pagination {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 2px solid #e2e8f0;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+
+
+
+
+        /* Page Header */
+        .page-header {
+            margin-bottom: 10px;
+        }
+
+        .page-title1 {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+
+        .page-title1 svg {
+            width: 32px;
+            height: 32px;
+            color: #2563eb;
+        }
+
+        .page-title1 h1 {
+            font-size: 28px;
+            font-weight: 700;
+            color: #1e293b;
+            margin: 0;
+        }
+      .breadcrumb {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+}
+
+.breadcrumb a {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: #1e293b;
+    text-decoration: none;
+    padding: 6px 10px;
+    border-radius: var(--radius);
+    background: var(--gray-100);
+    transition: all 0.2s ease;
+}
+
+.breadcrumb a:hover {
+    background: var(--primary);
+    color: #fff;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(37, 99, 235, 0.2);
+}
+
+.breadcrumb a svg {
+    color: var(--primary);
+    transition: color 0.2s ease;
+}
+
+.breadcrumb a:hover svg {
+    color: #fff;
+}
+
+.breadcrumb span {
+    color: #676e79;
+}
+
+.breadcrumb .current {
+    color: var(--gray-800);
+    font-weight: 500;
+    padding: 6px 10px;
+    background: var(--gray-100);
+    border-radius: var(--radius);
+}

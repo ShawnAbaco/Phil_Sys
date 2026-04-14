@@ -1,1536 +1,390 @@
+{{-- resources/views/operator/dashboard.blade.php --}}
 <x-header title="Operator Dashboard" />
 
-<!-- Main Content -->
-<main class="main-content">
-    <!-- Message Container -->
-    <div class="message-container" id="messageContainer"></div>
+<div class="app-container">
+    <x-operator.sidebar />
 
-    {{-- Today's Appointments Card --}}
-    <div class="card">
-        <div class="card-header">
-            <h3>
+    <main class="main-content">
+        <!-- Page Header with Breadcrumb -->
+        <div class="page-header">
+            <div class="page-title1">
                 <svg viewBox="0 0 20 20" fill="currentColor">
                     <path
-                        d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z" />
+                        d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z" />
                 </svg>
-                Today's Appointments
-            </h3>
-            <div class="stats-grid">
-                <div class="stat-card">
-                    <div class="stat-icon" style="background: linear-gradient(135deg, var(--psa-blue), var(--psa-red))">
+                <h1>Dashboard</h1>
+            </div>
+            <div class="breadcrumb">
+                <a href="{{ route('operator.dashboard') }}">Home</a>
+                <span>/</span>
+                <span>Dashboard</span>
+            </div>
+        </div>
+
+        <!-- Welcome Banner -->
+        <div class="welcome-banner">
+            <div class="welcome-content">
+                <div class="welcome-greeting">Welcome Back, Operator!</div>
+                <div class="welcome-title">{{ Auth::user()->name ?? 'Operator' }}</div>
+                <div class="welcome-date">
+                    <svg viewBox="0 0 20 20" fill="currentColor" width="16" height="16">
+                        <path fill-rule="evenodd"
+                            d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z"
+                            clip-rule="evenodd" />
+                    </svg>
+                    {{ \Carbon\Carbon::now('Asia/Manila')->format('l, F j, Y') }}
+                </div>
+
+            </div>
+        </div>
+
+        <!-- Main Stats Cards -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-header">
+                    <span class="stat-title">Total Queue Today</span>
+                    <div class="stat-icon blue">
                         <svg viewBox="0 0 20 20" fill="currentColor">
                             <path
                                 d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z" />
                         </svg>
                     </div>
-                    <div class="stat-content">
-                        <span class="stat-label">Total Queue Today</span>
-                        <span class="stat-value" id="totalQueue">{{ $queueCount ?? 0 }}</span>
-                    </div>
                 </div>
+                <div class="stat-value">{{ $queueCount ?? 0 }}</div>
+                <div class="stat-trend">
+                    <span class="trend-neutral">→ 0%</span>
+                    <span>vs yesterday</span>
+                </div>
+            </div>
 
-                <div class="stat-card">
-                    <div class="stat-icon" style="background: linear-gradient(135deg, #F59E0B, #FBBF24)">
+            <div class="stat-card">
+                <div class="stat-header">
+                    <span class="stat-title">Pending</span>
+                    <div class="stat-icon orange">
                         <svg viewBox="0 0 20 20" fill="currentColor">
                             <path fill-rule="evenodd"
                                 d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z"
                                 clip-rule="evenodd" />
                         </svg>
                     </div>
-                    <div class="stat-content">
-                        <span class="stat-label">Pending</span>
-                        <span class="stat-value pending" id="pendingCount">{{ $pendingCount ?? 0 }}</span>
-                    </div>
                 </div>
+                <div class="stat-value">{{ $pendingCount ?? 0 }}</div>
+                <div class="stat-trend">
+                    <span class="trend-neutral">→ 0%</span>
+                    <span>vs yesterday</span>
+                </div>
+            </div>
 
-                <div class="stat-card">
-                    <div class="stat-icon" style="background: linear-gradient(135deg, #10B981, #34D399)">
+            <div class="stat-card">
+                <div class="stat-header">
+                    <span class="stat-title">My Completed</span>
+                    <div class="stat-icon green">
                         <svg viewBox="0 0 20 20" fill="currentColor">
                             <path fill-rule="evenodd"
                                 d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
                                 clip-rule="evenodd" />
                         </svg>
                     </div>
-                    <div class="stat-content">
-                        <span class="stat-label">Completed</span>
-                        <span class="stat-value completed" id="completedCount">{{ $completedCount ?? 0 }}</span>
-                    </div>
+                </div>
+                <div class="stat-value">{{ $completedCount ?? 0 }}</div>
+                <div class="stat-trend">
+                    <span class="trend-neutral">→ 0%</span>
+                    <span>vs yesterday</span>
                 </div>
             </div>
-        </div>
 
-        {{-- Service Type Tabs --}}
-        <div class="service-tabs">
-            <button class="service-tab active" data-service="all">All Services</button>
-            <button class="service-tab" data-service="NID Registration">NID Registration</button>
-            <button class="service-tab" data-service="Status Inquiry">Status Inquiry</button>
-            <button class="service-tab" data-service="Updating">NID Updating</button>
-        </div>
-
-        <div class="card-body">
-            {{-- Search and Selection Bar --}}
-            <div class="search-and-selection-bar">
-
-                {{-- Selection Controls for All Services --}}
-                <div class="selection-controls" id="selection-controls-all">
-                    <div class="selection-info">
-                        <label class="select-all-container">
-                            <input type="checkbox" class="select-all-checkbox" data-table="all">
-                            <span>Select All</span>
-                        </label>
-                        <span class="selected-count" id="selected-count-all">0 selected</span>
-                    </div>
-                    <div class="bulk-actions" style="display: none;" id="bulk-actions-all">
-                        <button type="button" class="btn-status bulk-complete" data-table="all"
-                            data-status="completed">
-                            <svg viewBox="0 0 20 20" fill="currentColor" width="16" height="16">
-                                <path fill-rule="evenodd"
-                                    d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                                    clip-rule="evenodd" />
-                            </svg>
-                            Complete
-                        </button>
-                        <button type="button" class="btn-status bulk-no-show" data-table="all" data-status="no_show">
-                            <svg viewBox="0 0 20 20" fill="currentColor" width="16" height="16">
-                                <path fill-rule="evenodd"
-                                    d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
-                                    clip-rule="evenodd" />
-                            </svg>
-                            No Show
-                        </button>
-                        <button type="button" class="btn-status bulk-cancel" data-table="all" data-status="cancelled">
-                            <svg viewBox="0 0 20 20" fill="currentColor" width="16" height="16">
-                                <path fill-rule="evenodd"
-                                    d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
-                                    clip-rule="evenodd" />
-                            </svg>
-                            Cancel
-                        </button>
-                    </div>
-                </div>
-
-                {{-- Selection Controls for NID Registration --}}
-                <div class="selection-controls" id="selection-controls-nid-registration" style="display: none;">
-                    <div class="selection-info">
-                        <label class="select-all-container">
-                            <input type="checkbox" class="select-all-checkbox" data-table="nid-registration">
-                            <span>Select All</span>
-                        </label>
-                        <span class="selected-count" id="selected-count-nid-registration">0 selected</span>
-                    </div>
-                    <div class="bulk-actions" style="display: none;" id="bulk-actions-nid-registration">
-                        <button type="button" class="btn-status bulk-complete" data-table="nid-registration"
-                            data-status="completed">
-                            <svg viewBox="0 0 20 20" fill="currentColor" width="16" height="16">
-                                <path fill-rule="evenodd"
-                                    d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                                    clip-rule="evenodd" />
-                            </svg>
-                            Complete
-                        </button>
-                        <button type="button" class="btn-status bulk-no-show" data-table="nid-registration"
-                            data-status="no_show">
-                            <svg viewBox="0 0 20 20" fill="currentColor" width="16" height="16">
-                                <path fill-rule="evenodd"
-                                    d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
-                                    clip-rule="evenodd" />
-                            </svg>
-                            No Show
-                        </button>
-                        <button type="button" class="btn-status bulk-cancel" data-table="nid-registration"
-                            data-status="cancelled">
-                            <svg viewBox="0 0 20 20" fill="currentColor" width="16" height="16">
-                                <path fill-rule="evenodd"
-                                    d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
-                                    clip-rule="evenodd" />
-                            </svg>
-                            Cancel
-                        </button>
-                    </div>
-                </div>
-
-                {{-- Selection Controls for Status Inquiry --}}
-                <div class="selection-controls" id="selection-controls-status-inquiry" style="display: none;">
-                    <div class="selection-info">
-                        <label class="select-all-container">
-                            <input type="checkbox" class="select-all-checkbox" data-table="status-inquiry">
-                            <span>Select All</span>
-                        </label>
-                        <span class="selected-count" id="selected-count-status-inquiry">0 selected</span>
-                    </div>
-                    <div class="bulk-actions" style="display: none;" id="bulk-actions-status-inquiry">
-                        <button type="button" class="btn-status bulk-complete" data-table="status-inquiry"
-                            data-status="completed">
-                            <svg viewBox="0 0 20 20" fill="currentColor" width="16" height="16">
-                                <path fill-rule="evenodd"
-                                    d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                                    clip-rule="evenodd" />
-                            </svg>
-                            Complete
-                        </button>
-                        <button type="button" class="btn-status bulk-no-show" data-table="status-inquiry"
-                            data-status="no_show">
-                            <svg viewBox="0 0 20 20" fill="currentColor" width="16" height="16">
-                                <path fill-rule="evenodd"
-                                    d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
-                                    clip-rule="evenodd" />
-                            </svg>
-                            No Show
-                        </button>
-                        <button type="button" class="btn-status bulk-cancel" data-table="status-inquiry"
-                            data-status="cancelled">
-                            <svg viewBox="0 0 20 20" fill="currentColor" width="16" height="16">
-                                <path fill-rule="evenodd"
-                                    d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
-                                    clip-rule="evenodd" />
-                            </svg>
-                            Cancel
-                        </button>
-                    </div>
-                </div>
-
-                {{-- Selection Controls for NID Updating --}}
-                <div class="selection-controls" id="selection-controls-updating" style="display: none;">
-                    <div class="selection-info">
-                        <label class="select-all-container">
-                            <input type="checkbox" class="select-all-checkbox" data-table="updating">
-                            <span>Select All</span>
-                        </label>
-                        <span class="selected-count" id="selected-count-updating">0 selected</span>
-                    </div>
-                    <div class="bulk-actions" style="display: none;" id="bulk-actions-updating">
-                        <button type="button" class="btn-status bulk-complete" data-table="updating"
-                            data-status="completed">
-                            <svg viewBox="0 0 20 20" fill="currentColor" width="16" height="16">
-                                <path fill-rule="evenodd"
-                                    d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                                    clip-rule="evenodd" />
-                            </svg>
-                            Complete
-                        </button>
-                        <button type="button" class="btn-status bulk-no-show" data-table="updating"
-                            data-status="no_show">
-                            <svg viewBox="0 0 20 20" fill="currentColor" width="16" height="16">
-                                <path fill-rule="evenodd"
-                                    d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
-                                    clip-rule="evenodd" />
-                            </svg>
-                            No Show
-                        </button>
-                        <button type="button" class="btn-status bulk-cancel" data-table="updating"
-                            data-status="cancelled">
-                            <svg viewBox="0 0 20 20" fill="currentColor" width="16" height="16">
-                                <path fill-rule="evenodd"
-                                    d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
-                                    clip-rule="evenodd" />
-                            </svg>
-                            Cancel
-                        </button>
-                    </div>
-                </div>
-
-                <div class="search-box-wrapper">
-                    <div class="search-box">
-                        <svg class="search-icon" viewBox="0 0 20 20" fill="currentColor">
+            <div class="stat-card">
+                <div class="stat-header">
+                    <span class="stat-title">My Cancelled</span>
+                    <div class="stat-icon red">
+                        <svg viewBox="0 0 20 20" fill="currentColor">
                             <path fill-rule="evenodd"
-                                d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z"
+                                d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
                                 clip-rule="evenodd" />
                         </svg>
-                        <input type="text" id="searchAppointments" placeholder="Search by name or TRN...">
                     </div>
+                </div>
+                <div class="stat-value">{{ $cancelledCount ?? 0 }}</div>
+                <div class="stat-trend">
+                    <span class="trend-neutral">→ 0%</span>
+                    <span>vs yesterday</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Stats Row -->
+        <div class="quick-stats">
+            <div class="quick-stat-card">
+                <div class="quick-stat-value">{{ $servingCount ?? 0 }}</div>
+                <div class="quick-stat-label">Currently Serving</div>
+            </div>
+            <div class="quick-stat-card">
+                <div class="quick-stat-value">{{ $noShowCount ?? 0 }}</div>
+                <div class="quick-stat-label">No Show</div>
+            </div>
+            <div class="quick-stat-card">
+                <div class="quick-stat-value">{{ $allCompletedToday ?? 0 }}</div>
+                <div class="quick-stat-label">All Completed</div>
+            </div>
+            <div class="quick-stat-card">
+                <div class="quick-stat-value">{{ $allCancelledToday ?? 0 }}</div>
+                <div class="quick-stat-label">All Cancelled</div>
+            </div>
+            <div class="quick-stat-card">
+                <div class="quick-stat-value">{{ $pendingCount ?? 0 }}</div>
+                <div class="quick-stat-label">Waiting</div>
+            </div>
+        </div>
+
+        <!-- Charts Section -->
+        <div class="charts-grid">
+            <div class="chart-card">
+                <div class="chart-header">
+                    <h3>Daily Activity (Last 7 Days)</h3>
+                    <svg viewBox="0 0 20 20" fill="currentColor" width="18" height="18" style="color: #94a3b8;">
+                        <path fill-rule="evenodd"
+                            d="M3 3a1 1 0 000 2v8a2 2 0 002 2h2.586l-1.293 1.293a1 1 0 101.414 1.414L10 15.414l2.293 2.293a1 1 0 001.414-1.414L12.414 15H15a2 2 0 002-2V5a1 1 0 100-2H3zm11 4a1 1 0 10-2 0v4a1 1 0 102 0V7zm-3 1a1 1 0 10-2 0v3a1 1 0 102 0V8zM8 9a1 1 0 00-2 0v2a1 1 0 102 0V9z"
+                            clip-rule="evenodd" />
+                    </svg>
+                </div>
+                <div class="chart-container">
+                    <canvas id="dailyChart"></canvas>
                 </div>
             </div>
 
-            {{-- All Services Table --}}
-            <div class="service-table-container" id="table-all">
-                @include('operator.partials.appointments-table', [
-                    'appointments' => $appointments,
-                    'showAll' => true,
-                    'tableId' => 'all',
-                ])
-            </div>
-
-            {{-- NID Registration Table --}}
-            <div class="service-table-container" id="table-nid-registration" style="display: none;">
-                @include('operator.partials.appointments-table', [
-                    'appointments' => $nidRegistrationAppointments,
-                    'serviceType' => 'NID Registration',
-                    'tableId' => 'nid-registration',
-                ])
-            </div>
-
-            {{-- Status Inquiry Table --}}
-            <div class="service-table-container" id="table-status-inquiry" style="display: none;">
-                @include('operator.partials.appointments-table', [
-                    'appointments' => $statusInquiryAppointments,
-                    'serviceType' => 'Status Inquiry',
-                    'tableId' => 'status-inquiry',
-                ])
-            </div>
-
-            {{-- NID Updating Table --}}
-            <div class="service-table-container" id="table-updating" style="display: none;">
-                @include('operator.partials.appointments-table', [
-                    'appointments' => $nidUpdatingAppointments,
-                    'serviceType' => 'Updating',
-                    'tableId' => 'updating',
-                ])
-            </div>
-        </div>
-    </div>
-
-    {{-- Recent Transactions with Smooth AJAX Pagination --}}
-    <div class="card full-width" id="recentTransactionsCard">
-        <div class="card-header">
-            <h3>
-                <svg viewBox="0 0 20 20" fill="currentColor">
-                    <path fill-rule="evenodd"
-                        d="M4 4a2 2 0 00-2 2v8a2 2 0 002 2h12a2 2 0 002-2V8a2 2 0 00-2-2h-5L9 4H4zm7 4a1 1 0 10-2 0v3.586l-.293-.293a1 1 0 10-1.414 1.414l2 2a1 1 0 001.414 0l2-2a1 1 0 10-1.414-1.414l-.293.293V8z"
-                        clip-rule="evenodd" />
-                </svg>
-                Recent Transactions
-            </h3>
-            <div class="card-actions" style="display: flex; gap: 10px; align-items: center;">
-                <span class="badge" id="showingInfo">Showing
-                    {{ $completedTransactions->firstItem() }}-{{ $completedTransactions->lastItem() }} of
-                    {{ $completedTransactions->total() }}</span>
-
-                {{-- EXPORT PDF BUTTON --}}
-                <button type="button" class="btn btn-danger" id="operatorExportPdfBtn"
-                    style="padding: 6px 12px; background-color: #dc2626; color: white; border: none; border-radius: 4px; cursor: pointer; display: inline-flex; align-items: center; gap: 5px;">
-                    <svg viewBox="0 0 20 20" fill="currentColor" width="16" height="16">
-                        <path fill-rule="evenodd"
-                            d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm2 6a1 1 0 011-1h6a1 1 0 110 2H7a1 1 0 01-1-1zm1 3a1 1 0 100 2h6a1 1 0 100-2H7z"
-                            clip-rule="evenodd" />
+            <div class="chart-card">
+                <div class="chart-header">
+                    <h3>Status Distribution</h3>
+                    <svg viewBox="0 0 20 20" fill="currentColor" width="18" height="18" style="color: #94a3b8;">
+                        <path d="M2 10a8 8 0 018-8v8h8a8 8 0 11-16 0z" />
+                        <path d="M12 2.252A8.014 8.014 0 0117.748 8H12V2.252z" />
                     </svg>
-                    Export PDF
-                </button>
-                <button type="button" class="btn btn-success" id="operatorExportExcelBtn"
-                    style="padding: 6px 12px; background-color: #059669; color: white; border: none; border-radius: 4px; cursor: pointer; display: inline-flex; align-items: center; gap: 5px;">
-                    <svg viewBox="0 0 20 20" fill="currentColor" width="16" height="16">
-                        <path fill-rule="evenodd"
-                            d="M4 4a2 2 0 012-2h8a2 2 0 012 2v12a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm2 2v2h2V6H6zm6 0v2h2V6h-2zm-6 4v2h2v-2H6zm6 0v2h2v-2h-2zm-6 4v2h2v-2H6zm6 0v2h2v-2h-2z"
-                            clip-rule="evenodd" />
-                    </svg>
-                    Export Excel
-                </button>
+                </div>
+                <div class="chart-container">
+                    <canvas id="statusChart"></canvas>
+                </div>
             </div>
         </div>
-        <div class="card-body">
-            <div class="table-responsive">
-                <table class="table">
-                    <thead>
-                        <tr>
-                            <th>#</th>
-                            <th>Queue #</th>
-                            <th>Client</th>
-                            <th>Priority</th>
-                            <th>Service</th>
-                            <th>Served Time</th>
-                            <th>Status</th>
-                        </tr>
-                    </thead>
-                    <tbody id="transactionsTableContainer">
-                        {{-- This will be populated by AJAX --}}
-                        @include('operator.partials.transactions-table', [
-                            'completedTransactions' => $completedTransactions,
-                        ])
-                    </tbody>
-                </table>
-            </div>
 
-            {{-- Enhanced Pagination with Strict 5-Page Blocks --}}
-            <div class="enhanced-pagination" id="paginationContainer">
-                @include('operator.partials.pagination-links', [
-                    'completedTransactions' => $completedTransactions,
-                ])
+        <!-- Priority Distribution -->
+        <div class="priority-section">
+            <div class="priority-header">
+                <h3>Priority Distribution</h3>
+            </div>
+            <div class="priority-list">
+                @php
+                    $priorities = [
+                        'senior' => [
+                            'name' => 'Senior Citizen',
+                            'color' => '#8b5cf6',
+                            'count' => $priorityCounts['senior'] ?? 0,
+                        ],
+                        'infant' => [
+                            'name' => 'Infant',
+                            'color' => '#f59e0b',
+                            'count' => $priorityCounts['infant'] ?? 0,
+                        ],
+                        'pwd' => ['name' => 'PWD', 'color' => '#10b981', 'count' => $priorityCounts['pwd'] ?? 0],
+                        'pregnant' => [
+                            'name' => 'Pregnant',
+                            'color' => '#ec4899',
+                            'count' => $priorityCounts['pregnant'] ?? 0,
+                        ],
+                        'regular' => [
+                            'name' => 'Regular',
+                            'color' => '#64748b',
+                            'count' => $priorityCounts['regular'] ?? 0,
+                        ],
+                    ];
+                    $maxCount = max(array_column($priorities, 'count')) ?: 1;
+                @endphp
+                @foreach ($priorities as $key => $priority)
+                    <div class="priority-item">
+                        <div class="priority-info">
+                            <div class="priority-color {{ $key }}"></div>
+                            <span class="priority-name">{{ $priority['name'] }}</span>
+                        </div>
+                        <div style="flex: 1; margin: 0 20px;">
+                            <div class="priority-bar">
+                                <div class="priority-bar-fill"
+                                    style="width: {{ ($priority['count'] / $maxCount) * 100 }}%; background: {{ $priority['color'] }};">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="priority-count">{{ $priority['count'] }}</div>
+                    </div>
+                @endforeach
             </div>
         </div>
-    </div>
-</main>
 
+        <!-- Recent Activity -->
+        <div class="recent-section">
+            <div class="recent-header">
+                <h3>Recent Activity</h3>
+                <a href="{{ route('operator.reports') }}" class="view-all">View All →</a>
+            </div>
+            <div class="activity-list">
+                @forelse($recentActivities ?? [] as $activity)
+                    <div class="activity-item">
+                        <div class="activity-info">
+                            <div class="activity-icon {{ $activity['type'] }}">
+                                @if ($activity['type'] == 'completed')
+                                    <svg viewBox="0 0 20 20" fill="currentColor" width="20" height="20">
+                                        <path fill-rule="evenodd"
+                                            d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                                            clip-rule="evenodd" />
+                                    </svg>
+                                @elseif($activity['type'] == 'cancelled')
+                                    <svg viewBox="0 0 20 20" fill="currentColor" width="20" height="20">
+                                        <path fill-rule="evenodd"
+                                            d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                                            clip-rule="evenodd" />
+                                    </svg>
+                                @else
+                                    <svg viewBox="0 0 20 20" fill="currentColor" width="20" height="20">
+                                        <path fill-rule="evenodd"
+                                            d="M11.3 1.046A1 1 0 0112 2v5h4a1 1 0 01.82 1.573l-7 10A1 1 0 018 18v-5H4a1 1 0 01-.82-1.573l7-10a1 1 0 011.12-.38z"
+                                            clip-rule="evenodd" />
+                                    </svg>
+                                @endif
+                            </div>
+                            <div class="activity-details">
+                                <h4>{{ $activity['title'] }}</h4>
+                                <p>{{ $activity['description'] }}</p>
+                            </div>
+                        </div>
+                        <div class="activity-time">{{ $activity['time'] }}</div>
+                    </div>
+                @empty
+                    <div class="activity-item">
+                        <div class="activity-info">
+                            <div class="activity-details">
+                                <p style="color: #94a3b8;">No recent activity</p>
+                            </div>
+                        </div>
+                    </div>
+                @endforelse
+            </div>
+        </div>
+    </main>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-    // Configuration - Ensure windowNum is a string
-    const windowNum = String({{ Js::from(session('window_num') ?? ($windowNum ?? '1')) }});
-    const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
-
-    // DOM Elements
-    const messageContainer = document.getElementById('messageContainer');
-    const searchInput = document.getElementById('searchAppointments');
-    const showingInfo = document.getElementById('showingInfo');
-    const transactionsTableContainer = document.getElementById('transactionsTableContainer');
-    const paginationContainer = document.getElementById('paginationContainer');
-
-    // Store current search term and active service
-    let currentSearchTerm = '';
-    let activeService = 'all';
-    let isLoading = false;
-    let refreshInterval;
-    // Global variable to track if currently serving
-    let isCurrentlyServing = false;
-    // Processing flags to prevent multiple popups
-    let isProcessing = false;
-    let isBulkProcessing = false;
-    // Flag to track if any checkboxes are selected
-    let hasSelectedCheckboxes = false;
-
-    // ========== REMEMBER ACTIVE TAB ON PAGE REFRESH ==========
-    const savedService = localStorage.getItem('activeServiceTab');
-    if (savedService) {
-        activeService = savedService;
-    }
-
-  
-
-// Handle Serve Button Click - Trigger announcement on client display
-function handleServeClick(e) {
-    const button = e.currentTarget;
-
-    if (isCurrentlyServing) {
-        Swal.fire({
-            title: 'Cannot Serve',
-            text: 'You are currently serving another appointment. Please complete or cancel it first.',
-            icon: 'warning',
-            confirmButtonColor: '#2563eb'
-        });
-        return;
-    }
-
-    const n_id = button.getAttribute('data-id');
-    const name = button.getAttribute('data-name');
-    const queueNumber = button.getAttribute('data-queue');
-    const originalStatus = button.getAttribute('data-status');
-    const row = button.closest('tr');
-
-    Swal.fire({
-        title: originalStatus === 'no_show' ? 'Serve No-Show Appointment?' : 'Start Serving?',
-        html: `Call <strong>${name}</strong> (${queueNumber}) to window <strong>#${windowNum}</strong>?`,
-        icon: 'question',
-        showCancelButton: true,
-        confirmButtonColor: '#2563eb',
-        cancelButtonColor: '#dc2626',
-        confirmButtonText: 'Yes, Start Serving'
-    }).then((result) => {
-        if (!result.isConfirmed) return;
-
-        button.disabled = true;
-        const originalHtml = button.innerHTML;
-        button.innerHTML = '<span class="spinner"></span> Processing...';
-
-        fetch('{{ route('operator.update-window') }}', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': csrfToken,
-                    'Accept': 'application/json'
+    // Daily Chart
+    const dailyCtx = document.getElementById('dailyChart').getContext('2d');
+    new Chart(dailyCtx, {
+        type: 'line',
+        data: {
+            labels: {!! json_encode($dailyLabels ?? []) !!},
+            datasets: [{
+                    label: 'Served',
+                    data: {!! json_encode($dailyServed ?? []) !!},
+                    borderColor: '#2563eb',
+                    backgroundColor: 'rgba(37, 99, 235, 0.1)',
+                    tension: 0.4,
+                    fill: true,
+                    pointBackgroundColor: '#2563eb',
+                    pointBorderColor: '#fff',
+                    pointBorderWidth: 2,
+                    pointRadius: 4,
+                    pointHoverRadius: 6
                 },
-                body: JSON.stringify({
-                    n_id: n_id,
-                    window_num: windowNum,
-                    status: 'serving'
-                })
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    // Trigger announcement on client display
-                    fetch('{{ route('operator.trigger-announcement') }}', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'X-CSRF-TOKEN': csrfToken,
-                            'Accept': 'application/json'
-                        },
-                        body: JSON.stringify({
-                            window_num: windowNum,
-                            queue_number: queueNumber,
-                            client_name: name
-                        })
-                    })
-                    .then(response => response.json())
-                    .then(announceData => {
-                        if (!announceData.success) {
-                            console.error('Failed to trigger announcement');
-                        }
-                    })
-                    .catch(err => console.error('Error triggering announcement:', err));
-                    
-                    updateRowForServing(row, n_id, name);
-                    isCurrentlyServing = true;
-
-                    document.querySelectorAll('.serve-btn').forEach(btn => {
-                        if (btn !== button) {
-                            btn.disabled = true;
-                            btn.title = 'Cannot serve while another appointment is being served';
-                        }
-                    });
-
-                    const Toast = Swal.mixin({
-                        toast: true,
-                        position: 'top-end',
-                        showConfirmButton: false,
-                        timer: 3000,
-                        timerProgressBar: true
-                    });
-
-                    Toast.fire({
-                        icon: 'success',
-                        title: `Now serving ${queueNumber} - ${name}`
-                    });
-
-                    updatePendingCount();
-                    fetchDashboardData();
-                } else {
-                    showMessage('Failed to update.', 'error');
-                    button.disabled = false;
-                    button.innerHTML = originalHtml;
-                    checkServingStatus();
+                {
+                    label: 'Completed',
+                    data: {!! json_encode($dailyCompleted ?? []) !!},
+                    borderColor: '#10b981',
+                    backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                    tension: 0.4,
+                    fill: true,
+                    pointBackgroundColor: '#10b981',
+                    pointBorderColor: '#fff',
+                    pointBorderWidth: 2,
+                    pointRadius: 4,
+                    pointHoverRadius: 6
                 }
-            })
-            .catch(err => {
-                console.error('Error:', err);
-                showMessage('Error connecting to server.', 'error');
-                button.disabled = false;
-                button.innerHTML = originalHtml;
-                checkServingStatus();
-            });
-    });
-}
-
-// Handle Volume/Speaker Button Click - Trigger announcement on client display
-function handleVolumeClick(e) {
-    const button = e.currentTarget;
-    const queueNumber = button.getAttribute('data-queue');
-    const clientName = button.getAttribute('data-name');
-    const windowNum = String({{ Js::from(session('window_num') ?? ($windowNum ?? '1')) }});
-    
-    // Show loading state on button
-    const originalHtml = button.innerHTML;
-    button.disabled = true;
-    button.innerHTML = '<span class="spinner"></span>';
-    
-    // Call the server to trigger announcement on client display
-    fetch('{{ route('operator.trigger-announcement') }}', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'X-CSRF-TOKEN': csrfToken,
-            'Accept': 'application/json'
+            ]
         },
-        body: JSON.stringify({
-            window_num: windowNum,
-            queue_number: queueNumber,
-            client_name: clientName
-        })
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            // Show success toast
-            const Toast = Swal.mixin({
-                toast: true,
-                position: 'top-end',
-                showConfirmButton: false,
-                timer: 2000,
-                timerProgressBar: true
-            });
-
-            Toast.fire({
-                icon: 'success',
-                title: `Announcement triggered for ${queueNumber}`
-            });
-        } else {
-            showMessage('Failed to trigger announcement', 'error');
-        }
-    })
-    .catch(err => {
-        console.error('Error:', err);
-        showMessage('Error connecting to server', 'error');
-    })
-    .finally(() => {
-        // Restore button
-        button.disabled = false;
-        button.innerHTML = originalHtml;
-    });
-}
-
-    // Check if there's any serving appointment
-    function checkServingStatus() {
-        const servingRow = document.querySelector('.status-badge.serving');
-        isCurrentlyServing = !!servingRow;
-
-        document.querySelectorAll('.serve-btn').forEach(btn => {
-            const row = btn.closest('tr');
-            const rowStatus = row?.querySelector('.status-badge')?.textContent.trim().toLowerCase();
-
-            if (rowStatus?.includes('serving')) {
-                return;
-            }
-
-            if (isCurrentlyServing) {
-                btn.disabled = true;
-                btn.title = 'Cannot serve while another appointment is being served';
-            } else {
-                btn.disabled = false;
-                btn.title = btn.getAttribute('data-status') === 'no_show' ?
-                    'Call this no-show appointment to your window' :
-                    'Call this appointment to your window';
-            }
-        });
-    }
-
-
-
-    // Handle Complete Button Click
-    function handleCompleteClick(e) {
-        const button = e.currentTarget;
-        const n_id = button.getAttribute('data-id');
-        const name = button.getAttribute('data-name');
-        const row = button.closest('tr');
-
-        Swal.fire({
-            title: 'Complete Appointment?',
-            text: `Mark ${name} as completed?`,
-            icon: 'question',
-            showCancelButton: true,
-            confirmButtonColor: '#10b981',
-            cancelButtonColor: '#dc2626',
-            confirmButtonText: 'Yes, Complete'
-        }).then((result) => {
-            if (result.isConfirmed) {
-                updateAppointmentStatus(n_id, 'completed', row, 'completed');
-            }
-        });
-    }
-
-    // Handle No Show Button Click
-    function handleNoShowClick(e) {
-        const button = e.currentTarget;
-        const n_id = button.getAttribute('data-id');
-        const name = button.getAttribute('data-name');
-        const row = button.closest('tr');
-
-        Swal.fire({
-            title: 'Mark as No Show?',
-            text: `Mark ${name} as no show?`,
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonColor: '#6b7280',
-            cancelButtonColor: '#dc2626',
-            confirmButtonText: 'Yes, No Show'
-        }).then((result) => {
-            if (result.isConfirmed) {
-                updateAppointmentStatus(n_id, 'no_show', row, 'no-show');
-            }
-        });
-    }
-
-    // Handle Cancel Button Click
-    function handleCancelClick(e) {
-        const button = e.currentTarget;
-        const n_id = button.getAttribute('data-id');
-        const name = button.getAttribute('data-name');
-        const row = button.closest('tr');
-
-        Swal.fire({
-            title: 'Cancel Appointment?',
-            text: `Cancel appointment for ${name}?`,
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonColor: '#ef4444',
-            cancelButtonColor: '#6b7280',
-            confirmButtonText: 'Yes, Cancel'
-        }).then((result) => {
-            if (result.isConfirmed) {
-                updateAppointmentStatus(n_id, 'cancelled', row, 'cancelled');
-            }
-        });
-    }
-
-    // Update appointment status - for individual row actions
-    function updateAppointmentStatus(n_id, status, row, statusClass) {
-        if (isProcessing) return;
-        isProcessing = true;
-
-        const buttons = row.querySelectorAll('button');
-        buttons.forEach(btn => btn.disabled = true);
-
-        Swal.fire({
-            title: 'Processing...',
-            allowOutsideClick: false,
-            didOpen: () => Swal.showLoading()
-        });
-
-        fetch('{{ route('operator.update-window') }}', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': csrfToken,
-                    'Accept': 'application/json'
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'top',
+                    labels: {
+                        usePointStyle: true,
+                        boxWidth: 10
+                    }
                 },
-                body: JSON.stringify({
-                    n_id: n_id,
-                    window_num: windowNum,
-                    status: status
-                })
-            })
-            .then(response => response.json())
-            .then(data => {
-                Swal.close();
-                isProcessing = false;
-
-                if (data.success) {
-                    updateRowAfterStatusChange(row, status, statusClass, n_id);
-
-                    const Toast = Swal.mixin({
-                        toast: true,
-                        position: 'top-end',
-                        showConfirmButton: false,
-                        timer: 2000,
-                        timerProgressBar: true
-                    });
-
-                    Toast.fire({
-                        icon: 'success',
-                        title: `Marked as ${status.replace('_', ' ')}`
-                    });
-
-                    fetchDashboardData();
-                    fetchRecentTransactionsPage(1);
-                } else {
-                    showMessage('Failed to update.', 'error');
-                    buttons.forEach(btn => btn.disabled = false);
+                tooltip: {
+                    mode: 'index',
+                    intersect: false
                 }
-            })
-            .catch(err => {
-                console.error('Error:', err);
-                Swal.close();
-                isProcessing = false;
-                showMessage('Error connecting to server.', 'error');
-                buttons.forEach(btn => btn.disabled = false);
-            });
-    }
-
-    // Update row after status change - for individual row actions
-    function updateRowAfterStatusChange(row, status, statusClass, n_id) {
-        const statusBadge = row.querySelector('.status-badge');
-        if (statusBadge) {
-            statusBadge.className = `status-badge ${statusClass}`;
-            statusBadge.innerHTML = `<span class="status-dot"></span> ${status.replace('_', ' ')}`;
-        }
-
-        const name = row.querySelector('.complete-btn, .no-show-btn, .cancel-btn')?.getAttribute('data-name');
-
-        const actionCell = row.querySelector('td:last-child');
-        if (actionCell) {
-            if (status === 'no_show') {
-                actionCell.innerHTML = `
-                <button class="btn-action serve-btn" 
-                        data-id="${n_id}"
-                        data-name="${name}"
-                        data-status="no_show">
-                    <svg viewBox="0 0 20 20" fill="currentColor">
-                        <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
-                    </svg>
-                    Serve Again
-                </button>
-            `;
-            } else if (status === 'completed' || status === 'cancelled') {
-                actionCell.innerHTML = `<span class="status-text">${status.replace('_', ' ')}</span>`;
-            }
-        }
-
-        const checkbox = row.querySelector('.row-checkbox');
-        if (checkbox) {
-            checkbox.disabled = true;
-            checkbox.checked = false;
-        }
-
-        row.classList.remove('selected');
-
-        if (status === 'completed' || status === 'no_show' || status === 'cancelled') {
-            isCurrentlyServing = false;
-
-            document.querySelectorAll('.serve-btn').forEach(btn => {
-                btn.disabled = false;
-                btn.title = btn.getAttribute('data-status') === 'no_show' ?
-                    'Call this no-show appointment to your window' :
-                    'Call this appointment to your window';
-            });
-        }
-
-        attachServeButtonListeners();
-    }
-
-    // Update row for serving status
-    function updateRowForServing(row, n_id, name) {
-        const statusBadge = row.querySelector('.status-badge');
-        if (statusBadge) {
-            statusBadge.className = 'status-badge serving';
-            statusBadge.innerHTML = '<span class="status-dot"></span> Serving';
-        }
-
-        const actionCell = row.querySelector('td:last-child');
-        if (actionCell) {
-            actionCell.innerHTML = `
-            <div class="action-button-group">
-                <button class="btn-action complete-btn" 
-                        data-id="${n_id}" 
-                        data-name="${name}">
-                    <svg viewBox="0 0 20 20" fill="currentColor">
-                        <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
-                    </svg>
-                    Done
-                </button>
-                <button class="btn-action secondary no-show-btn" 
-                        data-id="${n_id}" 
-                        data-name="${name}">
-                    No Show
-                </button>
-                <button class="btn-action secondary cancel-btn" 
-                        data-id="${n_id}" 
-                        data-name="${name}">
-                    Cancel
-                </button>
-            </div>
-        `;
-        }
-
-        attachActionButtonListeners(row);
-        checkServingStatus();
-    }
-
-    // Attach event listeners to action buttons
-    function attachActionButtonListeners(row) {
-        const completeBtn = row.querySelector('.complete-btn');
-        const noShowBtn = row.querySelector('.no-show-btn');
-        const cancelBtn = row.querySelector('.cancel-btn');
-
-        if (completeBtn) {
-            completeBtn.removeEventListener('click', handleCompleteClick);
-            completeBtn.addEventListener('click', handleCompleteClick);
-        }
-
-        if (noShowBtn) {
-            noShowBtn.removeEventListener('click', handleNoShowClick);
-            noShowBtn.addEventListener('click', handleNoShowClick);
-        }
-
-        if (cancelBtn) {
-            cancelBtn.removeEventListener('click', handleCancelClick);
-            cancelBtn.addEventListener('click', handleCancelClick);
-        }
-    }
-
-    // ========== ATTACH ALL LISTENERS ==========
-    function attachServeButtonListeners() {
-        document.querySelectorAll('.serve-btn').forEach(button => {
-            button.removeEventListener('click', handleServeClick);
-            button.addEventListener('click', handleServeClick);
-        });
-
-        document.querySelectorAll('.complete-btn').forEach(button => {
-            button.removeEventListener('click', handleCompleteClick);
-            button.addEventListener('click', handleCompleteClick);
-        });
-
-        document.querySelectorAll('.no-show-btn').forEach(button => {
-            button.removeEventListener('click', handleNoShowClick);
-            button.addEventListener('click', handleNoShowClick);
-        });
-
-        document.querySelectorAll('.cancel-btn').forEach(button => {
-            button.removeEventListener('click', handleCancelClick);
-            button.addEventListener('click', handleCancelClick);
-        });
-
-        // Add volume button listeners
-        document.querySelectorAll('.volume-btn').forEach(button => {
-            button.removeEventListener('click', handleVolumeClick);
-            button.addEventListener('click', handleVolumeClick);
-        });
-
-        checkServingStatus();
-        initializeAllTableCheckboxes();
-    }
-
-    // Show Message
-    function showMessage(text, type = 'success') {
-        if (!messageContainer) return;
-
-        const messageDiv = document.createElement('div');
-        messageDiv.className = `message message-${type}`;
-        messageDiv.innerHTML = `
-        <svg class="message-icon" viewBox="0 0 20 20" fill="currentColor">
-            ${type === 'success'
-                ? '<path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>'
-                : '<path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>'
-            }
-        </svg>
-        <span>${text}</span>
-    `;
-
-        messageContainer.innerHTML = '';
-        messageContainer.appendChild(messageDiv);
-
-        setTimeout(() => messageDiv.remove(), 5000);
-    }
-
-    // Service Tab Switching with localStorage
-    document.querySelectorAll('.service-tab').forEach(tab => {
-        if (tab.dataset.service === activeService) {
-            tab.classList.add('active');
-        } else {
-            tab.classList.remove('active');
-        }
-
-        tab.addEventListener('click', function() {
-            document.querySelectorAll('.service-tab').forEach(t => t.classList.remove('active'));
-            this.classList.add('active');
-
-            activeService = this.dataset.service;
-            localStorage.setItem('activeServiceTab', activeService);
-
-            document.querySelectorAll('.service-table-container').forEach(table => {
-                table.style.display = 'none';
-            });
-
-            document.querySelectorAll('[id^="selection-controls-"]').forEach(controls => {
-                controls.style.display = 'none';
-            });
-
-            if (activeService === 'all') {
-                document.getElementById('table-all').style.display = 'block';
-                document.getElementById('selection-controls-all').style.display = 'flex';
-            } else {
-                const tableId = 'table-' + activeService.toLowerCase().replace(/\s+/g, '-');
-                const controlsId = 'selection-controls-' + activeService.toLowerCase().replace(/\s+/g,
-                    '-');
-                document.getElementById(tableId).style.display = 'block';
-                document.getElementById(controlsId).style.display = 'flex';
-            }
-
-            filterTableRows();
-        });
-    });
-
-    // On page load, show the saved tab
-    document.addEventListener('DOMContentLoaded', function() {
-        const savedTab = Array.from(document.querySelectorAll('.service-tab')).find(
-            tab => tab.dataset.service === activeService
-        );
-
-        if (savedTab) {
-            document.querySelectorAll('.service-table-container').forEach(table => {
-                table.style.display = 'none';
-            });
-            document.querySelectorAll('[id^="selection-controls-"]').forEach(controls => {
-                controls.style.display = 'none';
-            });
-
-            if (activeService === 'all') {
-                document.getElementById('table-all').style.display = 'block';
-                document.getElementById('selection-controls-all').style.display = 'flex';
-            } else {
-                const tableId = 'table-' + activeService.toLowerCase().replace(/\s+/g, '-');
-                const controlsId = 'selection-controls-' + activeService.toLowerCase().replace(/\s+/g, '-');
-                document.getElementById(tableId).style.display = 'block';
-                document.getElementById(controlsId).style.display = 'flex';
-            }
-        }
-    });
-
-    // Search Functionality
-    if (searchInput) {
-        searchInput.addEventListener('keyup', function() {
-            currentSearchTerm = this.value.toLowerCase();
-            filterTableRows();
-        });
-    }
-
-    function filterTableRows() {
-        let visibleTable;
-        if (activeService === 'all') {
-            visibleTable = document.getElementById('table-all');
-        } else {
-            const tableId = 'table-' + activeService.toLowerCase().replace(/\s+/g, '-');
-            visibleTable = document.getElementById(tableId);
-        }
-
-        if (!visibleTable) return;
-
-        const rows = visibleTable.querySelectorAll('tbody tr');
-
-        rows.forEach(row => {
-            if (row.classList.contains('empty-state')) return;
-
-            const searchData = row.getAttribute('data-search') || row.textContent.toLowerCase();
-            row.style.display = searchData.includes(currentSearchTerm) ? '' : 'none';
-        });
-    }
-
-    // Helper function to update pending count
-    function updatePendingCount() {
-        const visibleTable = document.querySelector('.service-table-container[style*="display: block"]');
-        if (visibleTable) {
-            const pendingCount = visibleTable.querySelectorAll('tbody tr:not(.empty-state)').length;
-            document.getElementById('pendingCount').textContent = pendingCount;
-        }
-    }
-
-    // Fetch dashboard data
-    function fetchDashboardData() {
-        fetch('{{ route('operator.fetch-appointments') }}', {
-                method: 'GET',
-                headers: {
-                    'Accept': 'application/json',
-                    'X-Requested-With': 'XMLHttpRequest'
-                }
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    updateAppointmentsTables(data);
-                    updateStatistics(data.stats);
-                }
-            })
-            .catch(error => console.error('Error fetching dashboard data:', error));
-    }
-
-    // Update all appointments tables
-    function updateAppointmentsTables(data) {
-        if (document.getElementById('table-all')) {
-            document.getElementById('table-all').innerHTML = data.tableAll || '';
-        }
-
-        if (document.getElementById('table-nid-registration')) {
-            document.getElementById('table-nid-registration').innerHTML = data.tableNidRegistration || '';
-        }
-
-        if (document.getElementById('table-status-inquiry')) {
-            document.getElementById('table-status-inquiry').innerHTML = data.tableStatusInquiry || '';
-        }
-
-        if (document.getElementById('table-updating')) {
-            document.getElementById('table-updating').innerHTML = data.tableNidUpdating || '';
-        }
-
-        attachServeButtonListeners();
-        initializeAllTableCheckboxes();
-
-        if (currentSearchTerm) {
-            filterTableRows();
-        }
-    }
-
-    // Update statistics
-    function updateStatistics(stats) {
-        if (!stats) return;
-
-        if (stats.total !== undefined) document.getElementById('totalQueue').textContent = stats.total;
-        if (stats.pending !== undefined) document.getElementById('pendingCount').textContent = stats.pending;
-        if (stats.completed !== undefined) document.getElementById('completedCount').textContent = stats.completed;
-    }
-
-    // Service filter for recent transactions
-    document.getElementById('transactionServiceFilter')?.addEventListener('change', function() {
-        const selectedService = this.value;
-        const rows = document.querySelectorAll('#transactionsTableContainer tr');
-
-        rows.forEach(row => {
-            if (row.classList.contains('empty-state')) return;
-
-            const service = row.getAttribute('data-service');
-            row.style.display = (selectedService === 'all' || service === selectedService) ? '' :
-            'none';
-        });
-    });
-
-    // Smooth AJAX Pagination for Recent Transactions
-    function loadTransactionsPage(url) {
-        if (isLoading) return;
-        isLoading = true;
-
-        const tableContainer = document.getElementById('transactionsTableContainer');
-        const paginationContainer = document.getElementById('paginationContainer');
-        const showingInfo = document.getElementById('showingInfo');
-
-        if (!tableContainer || !paginationContainer) {
-            isLoading = false;
-            return;
-        }
-
-        const separator = url.includes('?') ? '&' : '?';
-        const fetchUrl = url + separator + '_=' + new Date().getTime();
-
-        fetch(fetchUrl, {
-                headers: {
-                    'X-Requested-With': 'XMLHttpRequest',
-                    'Accept': 'application/json',
-                    'X-CSRF-TOKEN': csrfToken
-                }
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (!data.success) throw new Error(data.message || 'Unknown error occurred');
-
-                tableContainer.style.opacity = '0';
-                paginationContainer.style.opacity = '0';
-
-                setTimeout(() => {
-                    if (data.table) tableContainer.innerHTML = data.table;
-                    if (data.pagination) paginationContainer.innerHTML = data.pagination;
-                    if (data.showing && showingInfo) showingInfo.textContent = data.showing;
-
-                    tableContainer.style.opacity = '1';
-                    paginationContainer.style.opacity = '1';
-
-                    attachPaginationListeners();
-
-                    const filter = document.getElementById('transactionServiceFilter');
-                    if (filter) filter.dispatchEvent(new Event('change'));
-
-                    isLoading = false;
-                }, 150);
-            })
-            .catch(error => {
-                console.error('Error loading page:', error);
-                isLoading = false;
-            });
-    }
-
-    // Fetch recent transactions page
-    function fetchRecentTransactionsPage(page = null) {
-        if (isLoading) return;
-
-        let url = '{{ route('operator.transactions-page') }}';
-        const params = new URLSearchParams();
-
-        if (page) params.append('page', page);
-
-        const queryString = params.toString();
-        if (queryString) url += '?' + queryString;
-        url += (url.includes('?') ? '&' : '?') + '_=' + new Date().getTime();
-
-        fetch(url, {
-                headers: {
-                    'X-Requested-With': 'XMLHttpRequest',
-                    'Accept': 'application/json',
-                    'X-CSRF-TOKEN': csrfToken
-                }
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    if (data.table) transactionsTableContainer.innerHTML = data.table;
-                    if (data.pagination) paginationContainer.innerHTML = data.pagination;
-                    if (data.showing && showingInfo) showingInfo.textContent = data.showing;
-                }
-                attachPaginationListeners();
-                const filter = document.getElementById('transactionServiceFilter');
-                if (filter) filter.dispatchEvent(new Event('change'));
-            })
-            .catch(error => console.error('Error fetching recent transactions:', error));
-    }
-
-    function attachPaginationListeners() {
-        document.querySelectorAll(
-            '.pagination-nav-btn:not(.disabled), .pagination-arrow:not(.disabled), .page-number:not(.active)'
-        ).forEach(link => {
-            link.removeEventListener('click', handlePaginationClick);
-            link.addEventListener('click', handlePaginationClick);
-        });
-    }
-
-    function handlePaginationClick(e) {
-        e.preventDefault();
-        if (!isLoading) loadTransactionsPage(this.href);
-    }
-
-    // Export PDF with confirmation
-    document.getElementById('operatorExportPdfBtn')?.addEventListener('click', function(e) {
-        e.preventDefault();
-
-        Swal.fire({
-            title: 'Export PDF',
-            text: 'Export your completed transactions report?',
-            icon: 'question',
-            showCancelButton: true,
-            confirmButtonColor: '#2563eb',
-            cancelButtonColor: '#dc2626',
-            confirmButtonText: 'Yes, Export!'
-        }).then((result) => {
-            if (result.isConfirmed) {
-                window.location.href = '{{ route('operator.export.pdf') }}';
-
-                const Toast = Swal.mixin({
-                    toast: true,
-                    position: 'top-end',
-                    showConfirmButton: false,
-                    timer: 2000,
-                    timerProgressBar: true
-                });
-
-                Toast.fire({
-                    icon: 'success',
-                    title: 'PDF Exported Successfully'
-                });
-            }
-        });
-    });
-
-    // Export Excel with confirmation
-    document.getElementById('operatorExportExcelBtn')?.addEventListener('click', function(e) {
-        e.preventDefault();
-
-        Swal.fire({
-            title: 'Export to Excel',
-            text: 'Export your completed transactions report?',
-            icon: 'question',
-            showCancelButton: true,
-            confirmButtonColor: '#059669',
-            cancelButtonColor: '#dc2626',
-            confirmButtonText: 'Yes, Export!'
-        }).then((result) => {
-            if (result.isConfirmed) {
-                window.location.href = '{{ route('operator.export.excel') }}';
-
-                const Toast = Swal.mixin({
-                    toast: true,
-                    position: 'top-end',
-                    showConfirmButton: false,
-                    timer: 2000,
-                    timerProgressBar: true
-                });
-
-                Toast.fire({
-                    icon: 'success',
-                    title: 'Excel Exported Successfully'
-                });
-            }
-        });
-    });
-
-    // ========== CHECKBOX SELECTION FUNCTIONALITY ==========
-    function initializeCheckboxSelection(tableId) {
-        const tableContainer = document.getElementById(`table-${tableId}`);
-        if (!tableContainer) return;
-
-        const selectAllHeader = tableContainer.querySelector(`.select-all-checkbox-header[data-table="${tableId}"]`);
-        const selectAllFooter = document.querySelector(`.select-all-checkbox[data-table="${tableId}"]`);
-        const rowCheckboxes = tableContainer.querySelectorAll(`.row-checkbox[data-table="${tableId}"]:not([disabled])`);
-        const allRowCheckboxes = tableContainer.querySelectorAll(`.row-checkbox[data-table="${tableId}"]`);
-        const selectedCountSpan = document.getElementById(`selected-count-${tableId}`);
-        const bulkActionsDiv = document.getElementById(`bulk-actions-${tableId}`);
-
-        if (!rowCheckboxes.length) return;
-
-        function updateSelection() {
-            const checkedCount = Array.from(rowCheckboxes).filter(cb => cb.checked).length;
-
-            // Update the global flag
-            hasSelectedCheckboxes = checkedCount > 0;
-
-            if (selectedCountSpan) {
-                selectedCountSpan.textContent = `${checkedCount} selected`;
-            }
-
-            if (bulkActionsDiv) {
-                bulkActionsDiv.style.display = checkedCount > 0 ? 'flex' : 'none';
-            }
-
-            allRowCheckboxes.forEach(cb => {
-                const row = cb.closest('tr');
-                if (row) {
-                    if (cb.checked && !cb.disabled) {
-                        row.classList.add('selected');
-                    } else {
-                        row.classList.remove('selected');
-                    }
-                }
-            });
-
-            const allChecked = rowCheckboxes.length > 0 && Array.from(rowCheckboxes).every(cb => cb.checked);
-            const someChecked = Array.from(rowCheckboxes).some(cb => cb.checked);
-
-            if (selectAllHeader) {
-                selectAllHeader.checked = allChecked;
-                selectAllHeader.indeterminate = someChecked && !allChecked;
-            }
-
-            if (selectAllFooter) {
-                selectAllFooter.checked = allChecked;
-                selectAllFooter.indeterminate = someChecked && !allChecked;
-            }
-        }
-
-        // Add change listeners
-        rowCheckboxes.forEach(cb => {
-            cb.removeEventListener('change', updateSelection);
-            cb.addEventListener('change', updateSelection);
-        });
-
-        if (selectAllHeader) {
-            selectAllHeader.removeEventListener('change', handleSelectAll);
-            selectAllHeader.addEventListener('change', handleSelectAll);
-        }
-
-        if (selectAllFooter) {
-            selectAllFooter.removeEventListener('change', handleSelectAll);
-            selectAllFooter.addEventListener('change', handleSelectAll);
-        }
-
-        function handleSelectAll(e) {
-            rowCheckboxes.forEach(cb => cb.checked = e.target.checked);
-            updateSelection();
-        }
-
-        // Bulk status buttons
-        if (bulkActionsDiv) {
-            const completeBtn = bulkActionsDiv.querySelector('.bulk-complete');
-            if (completeBtn) {
-                completeBtn.removeEventListener('click', handleBulkComplete);
-                completeBtn.addEventListener('click', handleBulkComplete);
-            }
-
-            const noShowBtn = bulkActionsDiv.querySelector('.bulk-no-show');
-            if (noShowBtn) {
-                noShowBtn.removeEventListener('click', handleBulkNoShow);
-                noShowBtn.addEventListener('click', handleBulkNoShow);
-            }
-
-            const cancelBtn = bulkActionsDiv.querySelector('.bulk-cancel');
-            if (cancelBtn) {
-                cancelBtn.removeEventListener('click', handleBulkCancel);
-                cancelBtn.addEventListener('click', handleBulkCancel);
-            }
-        }
-
-        function handleBulkComplete(e) {
-            const selectedIds = Array.from(rowCheckboxes)
-                .filter(cb => cb.checked)
-                .map(cb => cb.dataset.id);
-
-            if (selectedIds.length === 0) return;
-
-            Swal.fire({
-                title: 'Bulk Complete',
-                text: `Mark ${selectedIds.length} selected appointment(s) as completed?`,
-                icon: 'question',
-                showCancelButton: true,
-                confirmButtonColor: '#10b981',
-                cancelButtonColor: '#dc2626',
-                confirmButtonText: 'Yes, Complete All'
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    bulkUpdateStatus(selectedIds, 'completed', tableId);
-                }
-            });
-        }
-
-        function handleBulkNoShow(e) {
-            const selectedIds = Array.from(rowCheckboxes)
-                .filter(cb => cb.checked)
-                .map(cb => cb.dataset.id);
-
-            if (selectedIds.length === 0) return;
-
-            Swal.fire({
-                title: 'Bulk No Show',
-                text: `Mark ${selectedIds.length} selected appointment(s) as no show?`,
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#6b7280',
-                cancelButtonColor: '#dc2626',
-                confirmButtonText: 'Yes, Mark All'
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    bulkUpdateStatus(selectedIds, 'no_show', tableId);
-                }
-            });
-        }
-
-        function handleBulkCancel(e) {
-            const selectedIds = Array.from(rowCheckboxes)
-                .filter(cb => cb.checked)
-                .map(cb => cb.dataset.id);
-
-            if (selectedIds.length === 0) return;
-
-            Swal.fire({
-                title: 'Bulk Cancel',
-                text: `Cancel ${selectedIds.length} selected appointment(s)?`,
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#ef4444',
-                cancelButtonColor: '#6b7280',
-                confirmButtonText: 'Yes, Cancel All'
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    bulkUpdateStatus(selectedIds, 'cancelled', tableId);
-                }
-            });
-        }
-
-        // Initial update
-        updateSelection();
-    }
-
-    // Bulk update status - for bulk actions
-    function bulkUpdateStatus(ids, status, tableId) {
-        if (isBulkProcessing) return;
-        isBulkProcessing = true;
-
-        // Reset the selected flag since we're processing them
-        hasSelectedCheckboxes = false;
-
-        // Disable all bulk buttons to prevent double-clicking
-        document.querySelectorAll(`#bulk-actions-${tableId} .btn-status`).forEach(btn => {
-            btn.disabled = true;
-        });
-
-        Swal.fire({
-            title: 'Processing...',
-            html: `Updating ${ids.length} appointment(s) to ${status.replace('_', ' ')}`,
-            allowOutsideClick: false,
-            didOpen: () => Swal.showLoading()
-        });
-
-        let success = 0,
-            fail = 0;
-        const failedIds = [];
-
-        function next(i) {
-            if (i >= ids.length) {
-                Swal.close();
-                isBulkProcessing = false;
-
-                // Re-enable bulk buttons
-                document.querySelectorAll(`#bulk-actions-${tableId} .btn-status`).forEach(btn => {
-                    btn.disabled = false;
-                });
-
-                let message = `${success} updated, ${fail} failed.`;
-                let icon = fail > 0 ? 'warning' : 'success';
-                let title = fail > 0 ? 'Completed with Errors' : 'Success!';
-
-                Swal.fire({
-                    title: title,
-                    text: message,
-                    icon: icon,
-                    timer: 3000,
-                    showConfirmButton: false
-                });
-
-                fetchDashboardData();
-                fetchRecentTransactionsPage(1);
-                return;
-            }
-
-            fetch('{{ route('operator.update-window') }}', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': csrfToken,
-                        'Accept': 'application/json'
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        stepSize: 1,
+                        precision: 0
                     },
-                    body: JSON.stringify({
-                        n_id: ids[i],
-                        window_num: windowNum,
-                        status: status
-                    })
-                })
-                .then(res => res.json())
-                .then(data => {
-                    if (data.success) {
-                        success++;
-                        // Remove the row from UI immediately
-                        const row = document.querySelector(`.row-checkbox[data-id="${ids[i]}"]`)?.closest('tr');
-                        if (row) row.remove();
-                    } else {
-                        fail++;
-                        failedIds.push(ids[i]);
+                    grid: {
+                        color: '#e2e8f0'
                     }
-                })
-                .catch(() => {
-                    fail++;
-                    failedIds.push(ids[i]);
-                })
-                .finally(() => next(i + 1));
-        }
-
-        next(0);
-    }
-
-    // Initialize checkboxes when tables are loaded/updated
-    function initializeAllTableCheckboxes() {
-        const tableIds = ['all', 'nid-registration', 'status-inquiry', 'updating'];
-        tableIds.forEach(tableId => {
-            initializeCheckboxSelection(tableId);
-        });
-    }
-
-    // ========== CLICKABLE ROWS FUNCTIONALITY ==========
-    function initializeClickableRows() {
-        document.querySelectorAll('.clickable-row').forEach(row => {
-            row.removeEventListener('click', handleRowClick);
-            row.addEventListener('click', handleRowClick);
-        });
-    }
-
-    function handleRowClick(e) {
-        // Don't toggle if clicking on button or action elements
-        if (e.target.closest('button') ||
-            e.target.closest('.btn-action') ||
-            e.target.closest('.action-button-group') ||
-            e.target.closest('.status-text') ||
-            e.target.closest('input[type="checkbox"]')) {
-            return;
-        }
-
-        const checkbox = this.querySelector('.row-checkbox');
-        if (checkbox && !checkbox.disabled) {
-            checkbox.checked = !checkbox.checked;
-
-            // Trigger change event to update selection
-            const event = new Event('change', {
-                bubbles: true
-            });
-            checkbox.dispatchEvent(event);
-        }
-    }
-
-    // Listen for clickable rows update event
-    document.addEventListener('clickableRowsUpdate', function() {
-        initializeClickableRows();
-    });
-
-    // Auto-refresh dashboard every 10 seconds - BUT ONLY IF NO CHECKBOXES SELECTED
-    refreshInterval = setInterval(function() {
-        if (!hasSelectedCheckboxes && !document.querySelector('.serve-btn[disabled]') && !isLoading) {
-            fetchDashboardData();
-        }
-    }, 10000);
-
-    // Refresh when user returns to the tab - BUT ONLY IF NO CHECKBOXES SELECTED
-    document.addEventListener('visibilitychange', function() {
-        if (!document.hidden && !hasSelectedCheckboxes && !document.querySelector('.serve-btn[disabled]') && !
-            isLoading) {
-            fetchDashboardData();
+                },
+                x: {
+                    grid: {
+                        display: false
+                    }
+                }
+            }
         }
     });
 
-    // Initialize on page load
-    document.addEventListener('DOMContentLoaded', function() {
-        attachServeButtonListeners();
-        attachPaginationListeners();
-        initializeAllTableCheckboxes();
-        checkServingStatus();
-        initializeClickableRows();
+    // Status Chart
+    const statusCtx = document.getElementById('statusChart').getContext('2d');
+    new Chart(statusCtx, {
+        type: 'doughnut',
+        data: {
+            labels: ['Pending', 'Serving', 'Completed', 'Cancelled', 'No Show'],
+            datasets: [{
+                data: [
+                    {{ $statusData['pending'] ?? 0 }},
+                    {{ $statusData['serving'] ?? 0 }},
+                    {{ $statusData['completed'] ?? 0 }},
+                    {{ $statusData['cancelled'] ?? 0 }},
+                    {{ $statusData['no_show'] ?? 0 }}
+                ],
+                backgroundColor: ['#f59e0b', '#3b82f6', '#10b981', '#ef4444', '#6b7280'],
+                borderWidth: 0,
+                hoverOffset: 10
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                    labels: {
+                        usePointStyle: true,
+                        boxWidth: 10,
+                        padding: 15
+                    }
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            const label = context.label || '';
+                            const value = context.raw || 0;
+                            const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                            const percentage = total > 0 ? Math.round((value / total) * 100) : 0;
+                            return `${label}: ${value} (${percentage}%)`;
+                        }
+                    }
+                }
+            },
+            cutout: '60%'
+        }
     });
-
-    // Initial fetch after 2 seconds
-    // setTimeout(function() {
-    //     fetchDashboardData();
-    // }, 2000);
 </script>
