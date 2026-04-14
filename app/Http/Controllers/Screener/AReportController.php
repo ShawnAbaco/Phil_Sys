@@ -220,32 +220,33 @@ public function getReportData(Request $request)
         ];
         
         // Format transactions for table
-        $formattedTransactions = $transactionsPaginated->map(function($transaction) {
-            $fullName = $transaction->lname . ', ' . $transaction->fname;
-            if ($transaction->mname && trim($transaction->mname) !== '') {
-                $fullName .= ' ' . $transaction->mname;
-            }
-            if ($transaction->suffix && trim($transaction->suffix) !== '') {
-                $fullName .= ' ' . $transaction->suffix;
-            }
-            
-            $servedTime = $transaction->time_catered 
-                ? Carbon::parse($transaction->time_catered)->setTimezone('Asia/Manila')
-                : ($transaction->updated_at 
-                    ? Carbon::parse($transaction->updated_at)->setTimezone('Asia/Manila')
-                    : Carbon::parse($transaction->created_at)->setTimezone('Asia/Manila'));
-            
-            return [
-                'date' => $servedTime->format('M d, Y'),
-                'q_id' => $transaction->q_id,
-                'client_name' => $fullName,
-                'service' => $transaction->queue_for,
-                'priority_type' => $transaction->priority_type ?? 'regular',
-                'status' => $transaction->status,
-                'window_num' => $transaction->window_num ?? '—',
-                'served_time' => $servedTime->format('h:i A'),
-            ];
-        });
+        // In getReportData method, update the formatted transactions section
+$formattedTransactions = $transactionsPaginated->map(function($transaction) {
+    $fullName = $transaction->lname . ', ' . $transaction->fname;
+    if ($transaction->mname && trim($transaction->mname) !== '') {
+        $fullName .= ' ' . $transaction->mname;
+    }
+    if ($transaction->suffix && trim($transaction->suffix) !== '') {
+        $fullName .= ' ' . $transaction->suffix;
+    }
+    
+    $servedTime = $transaction->time_catered 
+        ? Carbon::parse($transaction->time_catered)->setTimezone('Asia/Manila')
+        : ($transaction->updated_at 
+            ? Carbon::parse($transaction->updated_at)->setTimezone('Asia/Manila')
+            : Carbon::parse($transaction->created_at)->setTimezone('Asia/Manila'));
+    
+    return [
+        'date' => $servedTime->format('M d, Y'),
+        'q_id' => $transaction->q_id,
+        'client_name' => $fullName,
+        'service' => $transaction->queue_for,
+        'priority_type' => $transaction->priority_type ?? 'regular',
+        'status' => $transaction->status,
+        'window_num' => $transaction->window_num ?? '—',
+        'served_time' => $servedTime->format('h:i A'),
+    ];
+});
         
         return response()->json([
             'success' => true,

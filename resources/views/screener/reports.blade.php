@@ -4,6 +4,22 @@
 <div class="app-container">
     <x-screener.sidebar />    
     <style>
+        /* Add to your existing styles */
+.data-table td:first-child,
+.data-table th:first-child {
+    width: 60px;
+    text-align: center;
+    background-color: #f9fafb;
+    font-weight: 600;
+    color: #4b5563;
+}
+
+.data-table td:first-child {
+    background-color: transparent;
+    font-weight: 600;
+    color: #6b7280;
+}
+
         /* Page Header */
         .page-header {
             margin-bottom: 1.5rem;
@@ -536,37 +552,81 @@
         .priority-pregnant { background: linear-gradient(135deg, #ec4899, #db2777); }
         .priority-regular { background: linear-gradient(135deg, #6b7280, #4b5563); }
 
-        .status-badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 0.375rem;
-            padding: 0.25rem 0.75rem;
-            border-radius: 20px;
-            font-size: 0.75rem;
-            font-weight: 500;
-        }
+/* Status Badge Styles */
+.status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    padding: 0.25rem 0.75rem;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
 
-        .status-badge.completed {
-            background: #d1fae5;
-            color: #065f46;
-        }
+/* Pending Status - Yellow/Orange */
+.status-badge.pending {
+    background: #fef3c7;
+    color: #92400e;
+    border-left: 3px solid #f59e0b;
+}
 
-        .status-badge.cancelled {
-            background: #fee2e2;
-            color: #991b1b;
-        }
+/* Serving Status - Blue */
+.status-badge.serving {
+    background: #dbeafe;
+    color: #1e40af;
+    border-left: 3px solid #3b82f6;
+}
 
-        .status-badge.no_show {
-            background: #f3f4f6;
-            color: #4b5563;
-        }
+/* Completed Status - Green */
+.status-badge.completed {
+    background: #d1fae5;
+    color: #065f46;
+    border-left: 3px solid #10b981;
+}
 
-        .status-dot {
-            width: 6px;
-            height: 6px;
-            border-radius: 50%;
-            background: currentColor;
-        }
+/* Cancelled Status - Red */
+.status-badge.cancelled {
+    background: #fee2e2;
+    color: #991b1b;
+    border-left: 3px solid #ef4444;
+}
+
+/* No Show Status - Gray */
+.status-badge.no_show {
+    background: #f3f4f6;
+    color: #4b5563;
+    border-left: 3px solid #6b7280;
+}
+
+/* Status Dot */
+.status-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: currentColor;
+}
+
+/* Hover effect */
+.status-badge:hover {
+    transform: translateY(-1px);
+    filter: brightness(0.98);
+}
+/* Pulse animation for pending/serving status */
+@keyframes pulse {
+    0% {
+        opacity: 1;
+        transform: scale(1);
+    }
+    50% {
+        opacity: 0.6;
+        transform: scale(1.2);
+    }
+    100% {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
 
         .empty-state {
             text-align: center;
@@ -874,6 +934,7 @@
                     <label>Status</label>
                     <select id="statusFilter">
                         <option value="all">All Status</option>
+                        <option value="pending">Pending</option>
                         <option value="completed">Completed</option>
                         <option value="cancelled">Cancelled</option>
                         <option value="no_show">No Show</option>
@@ -984,6 +1045,7 @@
                 <table class="data-table">
                     <thead>
                         <tr>
+                            <th>#</th>
                             <th>📅 Date</th>
                             <th>🔢 Queue #</th>
                             <th>👤 Client Name</th>
@@ -995,7 +1057,7 @@
                         </tr>
                     </thead>
                     <tbody id="reportTableBody">
-                        <tr><td colspan="8" class="empty-state">Loading data...</td></tr>
+                        <tr><td colspan="9" class="empty-state">Loading data...</td></tr>
                     </tbody>
                 </table>
             </div>
@@ -1250,45 +1312,51 @@
     }
 
     // Update table with pagination data
-    function updateTableWithPagination(data) {
-        const tbody = document.getElementById('reportTableBody');
-        const paginationContainer = document.getElementById('reportPaginationContainer');
+    // Update table with pagination data
+function updateTableWithPagination(data) {
+    const tbody = document.getElementById('reportTableBody');
+    const paginationContainer = document.getElementById('reportPaginationContainer');
+    
+    if (!tbody) return;
+    
+    if (data.transactions && data.transactions.data && data.transactions.data.length > 0) {
+        let html = '';
+        // Calculate starting index based on current page and per page
+        const startIndex = (data.transactions.current_page - 1) * data.transactions.per_page;
         
-        if (!tbody) return;
-        
-        if (data.transactions && data.transactions.data && data.transactions.data.length > 0) {
-            let html = '';
-            data.transactions.data.forEach(t => {
-                const priorityClass = t.priority_type || 'regular';
-                const statusClass = t.status;
-                const statusDisplay = t.status.replace('_', ' ').toUpperCase();
-                
-                html += `
-                    <tr>
-                        <td>${t.date}</td>
-                        <td><span class="queue-badge">${t.q_id}</span></td>
-                        <td>${t.client_name}</td>
-                        <td>${t.service}</td>
-                        <td><span class="priority-badge priority-${priorityClass}">${priorityClass.toUpperCase()}</span></td>
-                        <td><span class="status-badge ${statusClass}"><span class="status-dot"></span>${statusDisplay}</span></td>
-                        <td>${t.window_num || 'N/A'}</td>
-                        <td>${t.served_time}</td>
-                    </tr>
-                `;
-            });
-            tbody.innerHTML = html;
-        } else {
-            tbody.innerHTML = '<tr><td colspan="8" class="empty-state">No transactions found</td></tr>';
-        }
-        
-        tbody.style.opacity = '1';
-        
-        if (paginationContainer && data.transactions) {
-            paginationContainer.innerHTML = renderPagination(data.transactions);
-            paginationContainer.style.opacity = '1';
-            attachPaginationListeners();
-        }
+        data.transactions.data.forEach((t, idx) => {
+            const indexNumber = startIndex + idx + 1;
+            const priorityClass = t.priority_type || 'regular';
+            const statusClass = t.status;
+            const statusDisplay = t.status.replace('_', ' ').toUpperCase();
+            
+            html += `
+                <tr>
+                    <td style="text-align: center; font-weight: 600; color: #6b7280;">${indexNumber}</td>
+                    <td>${t.date}</td>
+                    <td><span class="queue-badge">${t.q_id}</span></td>
+                    <td>${t.client_name}</td>
+                    <td>${t.service}</td>
+                    <td><span class="priority-badge priority-${priorityClass}">${priorityClass.toUpperCase()}</span></td>
+                    <td><span class="status-badge ${statusClass}"><span class="status-dot"></span>${statusDisplay}</span></td>
+                    <td>${t.window_num || 'N/A'}</td>
+                    <td>${t.served_time}</td>
+                </tr>
+            `;
+        });
+        tbody.innerHTML = html;
+    } else {
+        tbody.innerHTML = '<tr><td colspan="9" class="empty-state">No transactions found</td></tr>';
     }
+    
+    tbody.style.opacity = '1';
+    
+    if (paginationContainer && data.transactions) {
+        paginationContainer.innerHTML = renderPagination(data.transactions);
+        paginationContainer.style.opacity = '1';
+        attachPaginationListeners();
+    }
+}
 
     // Render pagination HTML
     function renderPagination(paginationData) {

@@ -46,6 +46,14 @@ class ADashboardController extends Controller
         'cancelled' => $cancelledCount,
         'no_show' => TblAppointment::whereDate('date', $today)->where('status', 'no_show')->count(),
     ];
+    // Priority counts
+        $priorityCounts = [
+            'senior' => TblAppointment::whereDate('date', $today)->where('priority_type', 'senior')->count(),
+            'infant' => TblAppointment::whereDate('date', $today)->where('priority_type', 'infant')->count(),
+            'pwd' => TblAppointment::whereDate('date', $today)->where('priority_type', 'pwd')->count(),
+            'pregnant' => TblAppointment::whereDate('date', $today)->where('priority_type', 'pregnant')->count(),
+            'regular' => TblAppointment::whereDate('date', $today)->where('priority_type', 'regular')->count(),
+        ];
     
     // Recent activities
     $recentActivities = TblAppointment::whereDate('date', $today)
@@ -64,7 +72,7 @@ class ADashboardController extends Controller
     
     return view('screener.dashboard', compact(
         'totalToday', 'pendingCount', 'completedCount', 'cancelledCount',
-        'dailyLabels', 'dailyIssued', 'dailyCompleted', 'statusData', 'recentActivities'
+        'dailyLabels', 'dailyIssued', 'dailyCompleted', 'statusData','priorityCounts', 'recentActivities'
     ));
 }
 

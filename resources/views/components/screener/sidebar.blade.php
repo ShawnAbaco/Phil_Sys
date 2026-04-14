@@ -66,14 +66,14 @@
                 @endif
             </a>
 
-            <a href="{{ route('screener.transactions') }}" class="sidebar-link {{ request()->routeIs('screener.transactions*') ? 'active' : '' }}">
+            <!-- <a href="{{ route('screener.transactions') }}" class="sidebar-link {{ request()->routeIs('screener.transactions*') ? 'active' : '' }}">
                 <svg viewBox="0 0 20 20" fill="currentColor">
                     <path fill-rule="evenodd"
                         d="M4 4a2 2 0 00-2 2v8a2 2 0 002 2h12a2 2 0 002-2V8a2 2 0 00-2-2h-5L9 4H4zm7 4a1 1 0 10-2 0v3.586l-.293-.293a1 1 0 10-1.414 1.414l2 2a1 1 0 001.414 0l2-2a1 1 0 10-1.414-1.414l-.293.293V8z"
                         clip-rule="evenodd" />
                 </svg>
                 <span>Recent Transactions</span>
-            </a>
+            </a> -->
 
             <a href="{{ route('screener.reports') }}" class="sidebar-link {{ request()->routeIs('screener.reports*') ? 'active' : '' }}">
                 <svg viewBox="0 0 20 20" fill="currentColor">
@@ -107,14 +107,14 @@
                 @endif
             </a>
 
-            <a href="{{ route('screener.transactions') }}" class="sidebar-link {{ request()->routeIs('screener.transactions*') ? 'active' : '' }}">
+            <!-- <a href="{{ route('screener.transactions') }}" class="sidebar-link {{ request()->routeIs('screener.transactions*') ? 'active' : '' }}">
                 <svg viewBox="0 0 20 20" fill="currentColor">
                     <path fill-rule="evenodd"
                         d="M4 4a2 2 0 00-2 2v8a2 2 0 002 2h12a2 2 0 002-2V8a2 2 0 00-2-2h-5L9 4H4zm7 4a1 1 0 10-2 0v3.586l-.293-.293a1 1 0 10-1.414 1.414l2 2a1 1 0 001.414 0l2-2a1 1 0 10-1.414-1.414l-.293.293V8z"
                         clip-rule="evenodd" />
                 </svg>
                 <span>Recent Transactions</span>
-            </a>
+            </a> -->
 
             <a href="{{ route('screener.reports') }}" class="sidebar-link {{ request()->routeIs('screener.reports*') ? 'active' : '' }}">
                 <svg viewBox="0 0 20 20" fill="currentColor">

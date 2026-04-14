@@ -543,6 +543,56 @@
                 </div>
             </div>
         </div>
+         <!-- Priority Distribution -->
+        <div class="priority-section">
+            <div class="priority-header">
+                <h3>Priority Distribution</h3>
+            </div>
+            <div class="priority-list">
+                @php
+                    $priorities = [
+                        'senior' => [
+                            'name' => 'Senior Citizen',
+                            'color' => '#8b5cf6',
+                            'count' => $priorityCounts['senior'] ?? 0,
+                        ],
+                        'infant' => [
+                            'name' => 'Infant',
+                            'color' => '#f59e0b',
+                            'count' => $priorityCounts['infant'] ?? 0,
+                        ],
+                        'pwd' => ['name' => 'PWD', 'color' => '#10b981', 'count' => $priorityCounts['pwd'] ?? 0],
+                        'pregnant' => [
+                            'name' => 'Pregnant',
+                            'color' => '#ec4899',
+                            'count' => $priorityCounts['pregnant'] ?? 0,
+                        ],
+                        'regular' => [
+                            'name' => 'Regular',
+                            'color' => '#64748b',
+                            'count' => $priorityCounts['regular'] ?? 0,
+                        ],
+                    ];
+                    $maxCount = max(array_column($priorities, 'count')) ?: 1;
+                @endphp
+                @foreach ($priorities as $key => $priority)
+                    <div class="priority-item">
+                        <div class="priority-info">
+                            <div class="priority-color {{ $key }}"></div>
+                            <span class="priority-name">{{ $priority['name'] }}</span>
+                        </div>
+                        <div style="flex: 1; margin: 0 20px;">
+                            <div class="priority-bar">
+                                <div class="priority-bar-fill"
+                                    style="width: {{ ($priority['count'] / $maxCount) * 100 }}%; background: {{ $priority['color'] }};">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="priority-count">{{ $priority['count'] }}</div>
+                    </div>
+                @endforeach
+            </div>
+        </div>
 
         <!-- Recent Activity Section -->
         <div class="recent-section">
