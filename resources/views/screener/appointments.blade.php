@@ -457,6 +457,7 @@
                                     <th>Service</th>
                                     <th>Time</th>
                                     <th>Action</th>
+                                </tr>
                             </thead>
                             <tbody id="appointmentsTableBody">
                                 @forelse($appointments as $appointment)
@@ -496,14 +497,14 @@
                                             <td>{{ $createdTime->format('h:i A') }}</td>
                                             <td>
                                                 <div class="action-buttons">
-                                                    <!-- Print Button (always visible) -->
+                                                    <!-- Print Button -->
                                                     <button type="button" class="btn-action print-slip-btn"
-                                                        onclick="printAppointmentSlip(this)"
                                                         data-id="{{ $appointment->n_id }}"
                                                         data-queue="{{ $appointment->q_id }}"
                                                         data-name="{{ $fullName }}"
                                                         data-service="{{ $appointment->queue_for }}"
-                                                        data-time="{{ $createdTime->format('h:i A') }}">
+                                                        data-time="{{ $createdTime->format('h:i A') }}"
+                                                        onclick="printAppointmentSlip(this)">
                                                         <svg viewBox="0 0 20 20" fill="currentColor" width="14"
                                                             height="14">
                                                             <path fill-rule="evenodd"
@@ -560,7 +561,6 @@
                                                                 </svg>
                                                                 Cancel
                                                             </button>
-                                                            <!-- NEW DELETE BUTTON -->
                                                             <button type="button" class="dropdown-item delete-item"
                                                                 data-id="{{ $appointment->n_id }}"
                                                                 data-name="{{ $fullName }}"
@@ -599,7 +599,7 @@
             </div>
         </div>
 
-        {{-- Edit Appointment Modal - PHP/Modal based with 2 columns --}}
+        {{-- Edit Appointment Modal --}}
         <div id="editAppointmentModal" class="edit-modal" style="display: none;">
             <div class="edit-modal-overlay"></div>
             <div class="edit-modal-container">
@@ -620,7 +620,6 @@
 
                     <div class="edit-modal-body">
                         <div class="edit-two-columns">
-                            <!-- Left Column -->
                             <div class="edit-column">
                                 <div class="edit-form-group">
                                     <label for="edit_queue">Queue Number</label>
@@ -648,7 +647,6 @@
                                 </div>
                             </div>
 
-                            <!-- Right Column -->
                             <div class="edit-column">
                                 <div class="edit-form-group">
                                     <label for="edit_priority">Priority Type <span
@@ -706,6 +704,23 @@
                 </div>
             </div>
         </div>
+
+        {{-- Print Slip Modal (Hidden by default) --}}
+        @if (session('printSlip'))
+            <div id="printSlipModal" style="display: none;">
+                <div id="printContent">
+                    <div style="text-align: center; font-family: 'Courier New', monospace; padding: 20px;">
+                        <h1 style="font-size: 16pt; margin: 0 0 10px 0;">{{ session('printSlip')['header'] }}</h1>
+                        <div style="font-size: 10pt; margin-bottom: 5px;">{{ session('printSlip')['name'] }}</div>
+                        <div style="font-size: 10pt; margin-bottom: 5px;">{{ session('printSlip')['service'] }}</div>
+                        <div style="font-size: 10pt; margin-bottom: 15px;">{{ session('printSlip')['dateTime'] }}
+                        </div>
+                        <div style="font-size: 28pt; font-weight: bold; letter-spacing: 4px;">
+                            {{ session('printSlip')['queueNumber'] }}</div>
+                    </div>
+                </div>
+            </div>
+        @endif
     </main>
 </div>
 
@@ -721,14 +736,301 @@
     let lastAppointmentsData = null;
     let lastStatsData = null;
 
-    // DELETE FUNCTION
+    // ========== PRINT APPOINTMENT SLIP FUNCTION ==========
+    // ========== PRINT APPOINTMENT SLIP FUNCTION ==========
+    function printAppointmentSlip(button) {
+        const appointmentId = button.getAttribute('data-id');
+        const queueNumber = button.getAttribute('data-queue');
+
+        // Show loading indicator
+        Swal.fire({
+            title: 'Loading...',
+            text: 'Preparing print slip',
+            allowOutsideClick: false,
+            showConfirmButton: false,
+            didOpen: () => {
+                Swal.showLoading();
+            }
+        });
+
+        // Use the full URL with base URL
+        const printUrl = `/screener/appointment/print/${appointmentId}`;
+
+        // Fetch the appointment data for printing
+        fetch(printUrl, {
+                headers: {
+                    'Accept': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') ||
+                        '{{ csrf_token() }}'
+                }
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+                return response.json();
+            })
+            .then(data => {
+                Swal.close();
+
+                if (data.success) {
+                    const printData = data.printData;
+
+                    // Create print content with the same format as controller's issue method
+                    const printContent = `
+                <div style="text-align: center; font-weight: bold; font-family: 'Courier New', 'Lucida Console', 'Monaco', monospace; padding: 15px;">
+                    <h1 style="font-size: 16pt; margin: 0 0 10px 0;">${printData.header}</h1>
+                    <div style="font-size: 10pt; font-weight: bold; margin-bottom: 5px;">${printData.name}</div>
+                    <div style="font-size: 10pt; font-weight: bold; margin-bottom: 5px;">${printData.service}</div>
+                    <div style="font-size: 10pt; font-weight: bold; margin-bottom: 15px;">${printData.dateTime}</div>
+                    <div style="font-size: 30pt; font-weight: bold; letter-spacing: 4px;">${printData.queueNumber}</div>
+                </div>
+            `;
+
+                    // Open print window
+                    const printWindow = window.open('', '_blank', 'width=400,height=350,left=200,top=200');
+                    if (!printWindow) {
+                        Swal.fire({
+                            title: 'Error!',
+                            text: 'Pop-up blocked! Please allow pop-ups for this site.',
+                            icon: 'error',
+                            confirmButtonColor: '#dc2626'
+                        });
+                        return;
+                    }
+
+                    printWindow.document.write(`
+                <!DOCTYPE html>
+                <html>
+                    <head>
+                        <title>Appointment Slip - ${queueNumber}</title>
+                        <style>
+                            @media print {
+                                @page { 
+                                    size: 3in 2.5in; 
+                                    margin: 0;
+                                }
+                                body {
+                                    margin: 0;
+                                    padding: 20px;
+                                    width: 2.5in;
+                                    font-weight: bold;
+                                    height: 2in;
+                                    font-family: "Courier New", Courier, monospace;
+                                    font-size: 10pt;
+                                    color: #000;
+                                    box-sizing: border-box;
+                                    text-align: center;
+                                }
+                                h1 { 
+                                    font-size: 14pt; 
+                                    margin: 0 0 10px 0; 
+                                    font-weight: bold;
+                                }
+                                .queue-number { 
+                                    font-size: 28pt; 
+                                    font-weight: bold; 
+                                    letter-spacing: 4px; 
+                                    margin: 0;
+                                }
+                            }
+                            @media screen {
+                                body {
+                                    font-family: "Courier New", Courier, monospace;
+                                    padding: 20px;
+                                    background: #f9fafb;
+                                    display: flex;
+                                    justify-content: center;
+                                    align-items: center;
+                                    min-height: 100vh;
+                                    margin: 0;
+                                    font-weight: bold;
+                                }
+                                .print-container {
+                                    background: white;
+                                    border-radius: 8px;
+                                    box-shadow: 0 10px 25px -5px rgba(0,0,0,0.1);
+                                    padding: 20px;
+                                    font-weight: bold;
+                                    max-width: 300px;
+                                    margin: auto;
+                                }
+                            }
+                        </style>
+                    </head>
+                    <body>
+                        <div class="print-container">
+                            ${printContent}
+                        </div>
+                        <script>
+                            window.onload = function() {
+                                setTimeout(() => {
+                                    window.print();
+                                    window.onafterprint = function() {
+                                        window.close();
+                                    };
+                                }, 500);
+                            };
+                        <\/script>
+                    </body>
+                </html>
+            `);
+                    printWindow.document.close();
+                    printWindow.focus();
+
+                    // Show success message
+                    Swal.fire({
+                        title: 'Success!',
+                        text: 'Print window opened',
+                        icon: 'success',
+                        timer: 1500,
+                        showConfirmButton: false,
+                        toast: true,
+                        position: 'top-end'
+                    });
+                } else {
+                    Swal.fire({
+                        title: 'Error!',
+                        text: data.message || 'Failed to print appointment',
+                        icon: 'error',
+                        confirmButtonColor: '#dc2626'
+                    });
+                }
+            })
+            .catch(error => {
+                Swal.close();
+                console.error('Error:', error);
+                Swal.fire({
+                    title: 'Error!',
+                    text: 'An unexpected error occurred while preparing print: ' + error.message,
+                    icon: 'error',
+                    confirmButtonColor: '#dc2626'
+                });
+            });
+    }
+
+    // ========== SUCCESS POPUP FUNCTION WITH SILENT AUTO PRINT ==========
+    function showSuccessPopup(message, queueNumber = null) {
+        let html = `<div style="text-align: center;">${message}</div>`;
+        if (queueNumber) {
+            html = `
+            <div style="text-align: center;">
+                <div style="font-size: 18px; margin-bottom: 10px;">${message}</div>
+                <div style="font-size: 32px; font-weight: bold; color: #059669; background: #ecfdf5; padding: 15px; border-radius: 10px; margin: 10px 0;">
+                    ${queueNumber}
+                </div>
+                <div style="margin-top: 10px; font-size: 14px; color: #6b7280;">Slip printed successfully!</div>
+            </div>
+        `;
+        }
+
+        Swal.fire({
+            title: 'Success!',
+            html: html,
+            icon: 'success',
+            showConfirmButton: true,
+            confirmButtonText: 'OK',
+            confirmButtonColor: '#2563eb',
+            timer: 3000,
+            timerProgressBar: true,
+            didOpen: () => {
+                if (queueNumber) {
+                    const printContent = document.getElementById('printContent');
+                    if (printContent) {
+                        // Create an iframe for printing
+                        const iframe = document.createElement('iframe');
+                        iframe.style.position = 'absolute';
+                        iframe.style.width = '0';
+                        iframe.style.height = '0';
+                        iframe.style.border = 'none';
+                        document.body.appendChild(iframe);
+
+                        const iframeDoc = iframe.contentWindow.document;
+                        iframeDoc.open();
+                        iframeDoc.write(`
+                        <!DOCTYPE html>
+                        <html>
+                            <head>
+                                <title>Print Slip</title>
+                                <style>
+                                    @media print {
+                                        @page { size: 3in 2.5in; margin: 0; }
+                                        body {
+                                            margin: 0;
+                                            padding: 20px;
+                                            font-family: "Courier New", Courier, monospace;
+                                            font-size: 10pt;
+                                            text-align: center;
+                                            font-weight: bold;
+                                        }
+                                        h1 { font-size: 14pt; margin: 0 0 10px 0; }
+                                        .queue-number { font-size: 30pt; font-weight: bold; letter-spacing: 4px; }
+                                    }
+                                </style>
+                            </head>
+                            <body>
+                                ${printContent.innerHTML}
+                                <script>
+                                    window.onload = function() {
+                                        window.print();
+                                        window.parent.document.body.removeChild(window.frameElement);
+                                    };
+                                <\/script>
+                            </body>
+                        </html>
+                    `);
+                        iframeDoc.close();
+                    }
+                }
+            }
+        }).then(() => {
+            // Reset form after popup closes
+            formSubmitted = false;
+            const submitBtn = document.getElementById('submitBtn');
+            if (submitBtn) {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = `
+                <svg viewBox="0 0 20 20" fill="currentColor" width="20" height="20">
+                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+                </svg>
+                Issue Appointment
+            `;
+                submitBtn.style.opacity = '1';
+                submitBtn.style.cursor = 'pointer';
+            }
+
+            // Reset form
+            const form = document.getElementById('appointmentForm');
+            const currentCategory = document.getElementById('selectedCategory').value;
+            if (form) form.reset();
+
+            document.querySelectorAll('.age-btn').forEach(btn => {
+                btn.classList.remove('active');
+                btn.style.backgroundColor = 'white';
+                btn.style.color = '#374151';
+            });
+            document.querySelectorAll('[id^="age_category_"]').forEach(input => input.value = '');
+
+            if (currentCategory === 'NID Registration') {
+                selectPriorityType('nid', 'regular');
+            } else if (currentCategory === 'Status Inquiry') {
+                selectPriorityType('status', 'regular');
+            } else if (currentCategory === 'Updating') {
+                selectPriorityType('update', 'regular');
+            }
+
+            selectCategory(currentCategory);
+        });
+    }
+
+    // ========== DELETE FUNCTION ==========
     function deleteAppointment(button) {
         const appointmentId = button.getAttribute('data-id');
         const clientName = button.getAttribute('data-name');
         const queueNumber = button.getAttribute('data-queue');
         const row = button.closest('tr');
 
-        // Close dropdown
         const dropdown = button.closest('.dropdown');
         if (dropdown) {
             dropdown.querySelector('.dropdown-content')?.classList.remove('show');
@@ -742,7 +1044,7 @@
             confirmButtonColor: '#dc2626',
             confirmButtonText: 'Yes, Delete',
             cancelButtonText: 'Cancel',
-            preConfirm: () => fetch(`/screener/appointment/delete/${appointmentId}`, { // ← FIXED URL
+            preConfirm: () => fetch(`/screener/appointment/delete/${appointmentId}`, {
                 method: 'DELETE',
                 headers: {
                     'Content-Type': 'application/json',
@@ -752,15 +1054,11 @@
             }).then(res => res.json())
         }).then(result => {
             if (result.isConfirmed && result.value.success) {
-                // Remove the row from the table
                 row.remove();
-
-                // Check if table is empty and show empty state
                 if (document.querySelector('#appointmentsTableBody tr:not(.empty-state)') === null) {
                     document.getElementById('appointmentsTableBody').innerHTML =
-                        '<tr><td colspan="6" class="empty-state"><svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd" /></svg><p>No pending appointments for today</p></td></tr>';
+                        '<tr><td colspan="6" class="empty-state"><svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd" /></svg><p>No pending appointments for today</p></td></table>';
                 }
-
                 Swal.fire({
                     title: 'Deleted!',
                     text: `${queueNumber} has been permanently deleted.`,
@@ -768,8 +1066,6 @@
                     timer: 2000,
                     showConfirmButton: false
                 });
-
-                // Refresh the appointments data
                 fetchAppointments();
             } else if (result.isConfirmed && !result.value.success) {
                 Swal.fire('Error!', result.value.message || 'Failed to delete appointment', 'error');
@@ -777,7 +1073,7 @@
         });
     }
 
-    // Update the openEditModal function - change this line:
+    // ========== EDIT MODAL FUNCTIONS ==========
     function openEditModal(button) {
         const appointment = {
             id: button.getAttribute('data-id'),
@@ -794,7 +1090,6 @@
             trn: button.getAttribute('data-trn') || ''
         };
 
-        // Populate modal fields
         document.getElementById('edit_id').value = appointment.id;
         document.getElementById('edit_queue').value = appointment.queue;
         document.getElementById('edit_fname').value = appointment.fname;
@@ -802,12 +1097,10 @@
         document.getElementById('edit_lname').value = appointment.lname;
         document.getElementById('edit_suffix').value = appointment.suffix || '';
 
-        // Handle Priority Type - display as text and store in hidden field
         const priorityDisplay = document.getElementById('edit_priority');
         const priorityHidden = document.getElementById('edit_priority_hidden');
         const priorityValue = appointment.priority || 'regular';
 
-        // Format priority for display
         let priorityText = '';
         switch (priorityValue) {
             case 'senior':
@@ -829,7 +1122,6 @@
         priorityDisplay.value = priorityText;
         priorityHidden.value = priorityValue;
 
-        // Fix the birthdate format - handle invalid dates
         let birthdateValue = appointment.birthdate;
         if (birthdateValue && birthdateValue.includes(' ')) {
             birthdateValue = birthdateValue.split(' ')[0];
@@ -842,7 +1134,6 @@
 
         document.getElementById('edit_age_category').value = appointment.ageCategory || '';
 
-        // Handle service-specific fields
         const pcnGroup = document.getElementById('edit_pcn_group');
         const trnGroup = document.getElementById('edit_trn_group');
 
@@ -859,11 +1150,9 @@
             trnGroup.style.display = 'none';
         }
 
-        // Use the correct route URL with screener prefix
         const form = document.getElementById('editAppointmentForm');
         form.action = `/screener/appointment/update/${appointment.id}`;
 
-        // Show modal
         document.getElementById('editAppointmentModal').style.display = 'flex';
     }
 
@@ -872,7 +1161,6 @@
         document.getElementById('editAppointmentForm').reset();
     }
 
-    // Close modal when clicking overlay
     document.addEventListener('click', function(e) {
         const modal = document.getElementById('editAppointmentModal');
         if (e.target.classList.contains('edit-modal-overlay')) {
@@ -880,72 +1168,67 @@
         }
     });
 
-    // Handle edit form submission via AJAX with SweetAlert and redirect
-document.getElementById('editAppointmentForm').addEventListener('submit', function(e) {
-    e.preventDefault();
+    document.getElementById('editAppointmentForm').addEventListener('submit', function(e) {
+        e.preventDefault();
 
-    const form = this;
-    const formData = new FormData(form);
-    const actionUrl = form.action;
+        const form = this;
+        const formData = new FormData(form);
+        const actionUrl = form.action;
 
-    Swal.fire({
-        title: 'Saving Changes...',
-        text: 'Please wait while we update the appointment.',
-        allowOutsideClick: false,
-        allowEscapeKey: false,
-        showConfirmButton: false,
-        didOpen: () => {
-            Swal.showLoading();
-        }
-    });
+        Swal.fire({
+            title: 'Saving Changes...',
+            text: 'Please wait while we update the appointment.',
+            allowOutsideClick: false,
+            allowEscapeKey: false,
+            showConfirmButton: false,
+            didOpen: () => {
+                Swal.showLoading();
+            }
+        });
 
-    fetch(actionUrl, {
-            method: 'POST',
-            headers: {
-                'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                'X-Requested-With': 'XMLHttpRequest',
-                'Accept': 'application/json'
-            },
-            body: formData
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                Swal.fire({
-                    title: 'Success!',
-                    text: 'Appointment updated successfully',
-                    icon: 'success',
-                    confirmButtonColor: '#2563eb',
-                    timer: 1500
-                }).then(() => {
-                    // Redirect to appointments page to refresh
-                    window.location.href = data.redirect || '{{ route("screener.appointments") }}';
-                });
-                closeEditModal();
-            } else {
+        fetch(actionUrl, {
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    Swal.fire({
+                        title: 'Success!',
+                        text: 'Appointment updated successfully',
+                        icon: 'success',
+                        confirmButtonColor: '#2563eb',
+                        timer: 2000
+                    });
+                    closeEditModal();
+                    fetchAppointments();
+                } else {
+                    Swal.fire({
+                        title: 'Error!',
+                        text: data.message || 'Failed to update appointment',
+                        icon: 'error',
+                        confirmButtonColor: '#dc2626'
+                    });
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
                 Swal.fire({
                     title: 'Error!',
-                    text: data.message || 'Failed to update appointment',
+                    text: 'An unexpected error occurred',
                     icon: 'error',
                     confirmButtonColor: '#dc2626'
                 });
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            Swal.fire({
-                title: 'Error!',
-                text: 'An unexpected error occurred',
-                icon: 'error',
-                confirmButtonColor: '#dc2626'
             });
-        });
-});
+    });
 
-    // ========== PREVENT DUPLICATE SUBMISSIONS ==========
+    // ========== FORM VALIDATION ==========
     let isSubmitting = false;
 
-    // ========== CUSTOM FORM VALIDATION ==========
     function validateCurrentForm() {
         const category = document.getElementById('selectedCategory').value;
         let isValid = true;
@@ -1100,70 +1383,7 @@ document.getElementById('editAppointmentForm').addEventListener('submit', functi
         }
     });
 
-    // ========== PRINT SLIP FUNCTION ==========
-    function printAppointmentSlip(button) {
-        const queueNumber = button.getAttribute('data-queue');
-        const clientName = button.getAttribute('data-name');
-        const service = button.getAttribute('data-service');
-        const time = button.getAttribute('data-time');
-        const currentDate = new Date().toLocaleDateString('en-US', {
-            year: 'numeric',
-            month: 'long',
-            day: 'numeric'
-        });
-
-        const printContent = `
-            <div style="text-align: center; font-family: 'Courier New', monospace; padding: 20px;">
-                <h1 style="font-size: 16pt; margin: 0 0 10px 0;">PHILIPPINE STATISTICS AUTHORITY</h1>
-                <div style="font-size: 10pt; margin-bottom: 5px;">Appointment Slip</div>
-                <div style="border-top: 1px dashed #000; margin: 10px 0;"></div>
-                <div style="font-size: 10pt; margin-bottom: 5px;"><strong>Name:</strong> ${clientName}</div>
-                <div style="font-size: 10pt; margin-bottom: 5px;"><strong>Service:</strong> ${service}</div>
-                <div style="font-size: 10pt; margin-bottom: 15px;"><strong>Date:</strong> ${currentDate}</div>
-                <div style="font-size: 10pt; margin-bottom: 15px;"><strong>Time Issued:</strong> ${time}</div>
-                <div style="border-top: 1px dashed #000; margin: 10px 0;"></div>
-                <div style="font-size: 28pt; font-weight: bold; letter-spacing: 4px; margin: 20px 0;">
-                    ${queueNumber}
-                </div>
-                <div style="border-top: 1px dashed #000; margin: 10px 0;"></div>
-                <div style="font-size: 8pt; margin-top: 10px;">Please present this slip when called</div>
-                <div style="font-size: 8pt;">Thank you for choosing PSA!</div>
-            </div>
-        `;
-
-        const printWindow = window.open('', '_blank', 'width=400,height=500');
-        printWindow.document.write(`
-            <html>
-                <head>
-                    <title>Appointment Slip - ${queueNumber}</title>
-                    <style>
-                        @media print {
-                            @page { size: 80mm auto; margin: 0; }
-                            body { margin: 0; padding: 10px; font-family: "Courier New", Courier, monospace; }
-                        }
-                        body { margin: 0; padding: 20px; }
-                    </style>
-                </head>
-                <body>${printContent}</body>
-            </html>
-        `);
-        printWindow.document.close();
-        printWindow.focus();
-        printWindow.print();
-        printWindow.onafterprint = () => printWindow.close();
-
-        Swal.fire({
-            title: 'Printing...',
-            text: 'Appointment slip is being printed.',
-            icon: 'info',
-            timer: 1500,
-            showConfirmButton: false,
-            toast: true,
-            position: 'top-end'
-        });
-    }
-
-    // ========== CHECK IF DATA HAS CHANGED ==========
+    // ========== DATA CHANGE DETECTION ==========
     function hasDataChanged(newAppointments, newStats) {
         if (lastStatsData) {
             if (lastStatsData.total !== newStats.total ||
@@ -1188,6 +1408,7 @@ document.getElementById('editAppointmentForm').addEventListener('submit', functi
         return false;
     }
 
+    // ========== CATEGORY & FORM FUNCTIONS ==========
     function selectCategory(category) {
         document.getElementById('selectedCategory').value = category;
         document.querySelectorAll('.category-btn').forEach(btn => {
@@ -1281,6 +1502,7 @@ document.getElementById('editAppointmentForm').addEventListener('submit', functi
         else if (category === 'Updating') document.getElementById('updatingForm').style.display = 'block';
     }
 
+    // ========== QR SCANNER FUNCTIONS ==========
     async function startQRScanner() {
         const trnInput = document.getElementById('trn');
         try {
@@ -1338,6 +1560,7 @@ document.getElementById('editAppointmentForm').addEventListener('submit', functi
         });
     }
 
+    // ========== CANCEL APPOINTMENT ==========
     function cancelAppointment(button) {
         const appointmentId = button.getAttribute('data-id');
         const clientName = button.getAttribute('data-name');
@@ -1371,7 +1594,7 @@ document.getElementById('editAppointmentForm').addEventListener('submit', functi
                 row.remove();
                 if (document.querySelector('#appointmentsTableBody tr:not(.empty-state)') === null) {
                     document.getElementById('appointmentsTableBody').innerHTML =
-                        '<td><td colspan="6" class="empty-state"><svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd" /></svg><p>No pending appointments for today</p></td></tr>';
+                        '<tr><td colspan="6" class="empty-state"><svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd" /></svg><p>No pending appointments for today</p></td></tr>';
                 }
                 Swal.fire({
                     title: 'Cancelled!',
@@ -1387,6 +1610,7 @@ document.getElementById('editAppointmentForm').addEventListener('submit', functi
         });
     }
 
+    // ========== UPDATE APPOINTMENTS TABLE ==========
     function updateAppointmentsTable(appointments) {
         const tbody = document.getElementById('appointmentsTableBody');
         if (!appointments || appointments.length === 0) {
@@ -1420,8 +1644,13 @@ document.getElementById('editAppointmentForm').addEventListener('submit', functi
                     <td>${createdTime}</td>
                     <td>
                         <div class="action-buttons">
-                            <button class="btn-action print-slip-btn" onclick="printAppointmentSlip(this)" data-id="${app.n_id}" data-queue="${app.q_id}" data-name="${fullName}" data-service="${app.queue_for}" data-time="${createdTime}">
-                                <svg viewBox="0 0 20 20" fill="currentColor" width="14" height="14"><path fill-rule="evenodd" d="M5 4v3H4a2 2 0 00-2 2v3a2 2 0 002 2h1v2a2 2 0 002 2h6a2 2 0 002-2v-2h1a2 2 0 002-2V9a2 2 0 00-2-2h-1V4a2 2 0 00-2-2H7a2 2 0 00-2 2zm8 0H7v3h6V4zm0 8h-2v2h2v-2zm-4-2a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd" /></svg>
+                            <button type="button" class="btn-action print-slip-btn" 
+                                data-id="${app.n_id}" data-queue="${app.q_id}" 
+                                data-name="${fullName}" data-service="${app.queue_for}" 
+                                data-time="${createdTime}" onclick="printAppointmentSlip(this)">
+                                <svg viewBox="0 0 20 20" fill="currentColor" width="14" height="14">
+                                    <path fill-rule="evenodd" d="M5 4v3H4a2 2 0 00-2 2v3a2 2 0 002 2h1v2a2 2 0 002 2h6a2 2 0 002-2v-2h1a2 2 0 002-2V9a2 2 0 00-2-2h-1V4a2 2 0 00-2-2H7a2 2 0 00-2 2zm8 0H7v3h6V4zm0 8h-2v2h2v-2zm-4-2a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd" />
+                                </svg>
                                 Print
                             </button>
                             <div class="dropdown">
@@ -1455,11 +1684,8 @@ document.getElementById('editAppointmentForm').addEventListener('submit', functi
                                 </div>
                             </div>
                         </div>
-                      </div>
-                  </div>
-              </div>
-          </div>
-      </div>`;
+                    </td>
+                </tr>`;
             }
         });
         tbody.innerHTML = html || '<tr><td colspan="6" class="empty-state"><p>No pending appointments</p></td></tr>';
@@ -1509,6 +1735,7 @@ document.getElementById('editAppointmentForm').addEventListener('submit', functi
         });
     }
 
+    // ========== DOM CONTENT LOADED ==========
     document.addEventListener('DOMContentLoaded', function() {
         const savedCategory = document.getElementById('selectedCategory').value;
         selectCategory(savedCategory);
@@ -1554,8 +1781,10 @@ document.getElementById('editAppointmentForm').addEventListener('submit', functi
             }
             showScannerModal();
         });
+
         document.getElementById('closeModalBtn')?.addEventListener('click', closeScannerModal);
         document.getElementById('cancelScannerBtn')?.addEventListener('click', closeScannerModal);
+
         document.querySelectorAll('.service-tab').forEach(tab => {
             tab.addEventListener('click', function() {
                 document.querySelectorAll('.service-tab').forEach(t => t.classList.remove(
@@ -1572,6 +1801,7 @@ document.getElementById('editAppointmentForm').addEventListener('submit', functi
                 });
             });
         });
+
         document.getElementById('searchAppointments')?.addEventListener('keyup', function() {
             currentSearchTerm = this.value.toLowerCase();
             filterTableRows();
@@ -1579,23 +1809,15 @@ document.getElementById('editAppointmentForm').addEventListener('submit', functi
 
         startSmartAutoRefresh();
 
-        @if (session('printSlip'))
-            setTimeout(function() {
-                const queueNumber = '{{ session('printSlip')['queueNumber'] }}';
-                const clientName = '{{ session('printSlip')['name'] }}';
-                const service = '{{ session('printSlip')['service'] }}';
-                const dateTime = '{{ session('printSlip')['dateTime'] }}';
-                const printContent =
-                    `<div style="text-align: center; font-family: 'Courier New', monospace; padding: 20px;"><h1 style="font-size: 16pt;">PHILIPPINE STATISTICS AUTHORITY</h1><div>Appointment Slip</div><div style="border-top:1px dashed #000;margin:10px 0;"></div><div><strong>Name:</strong> ${clientName}</div><div><strong>Service:</strong> ${service}</div><div><strong>Date & Time:</strong> ${dateTime}</div><div style="border-top:1px dashed #000;margin:10px 0;"></div><div style="font-size:28pt;font-weight:bold;">${queueNumber}</div><div style="border-top:1px dashed #000;margin:10px 0;"></div><div>Please present this slip when called</div><div>Thank you for choosing PSA!</div></div>`;
-                const printWindow = window.open('', '_blank', 'width=400,height=500');
-                printWindow.document.write(
-                    `<html><head><title>Appointment Slip - ${queueNumber}</title><style>@media print{@page{size:80mm auto;margin:0;}body{margin:0;padding:10px;}}</style></head><body>${printContent}</body></html>`
-                );
-                printWindow.document.close();
-                printWindow.focus();
-                printWindow.print();
-                printWindow.onafterprint = () => printWindow.close();
-            }, 500);
+        @if (session('success'))
+            showSuccessPopup(
+                '{{ session('success') }}',
+                @if (session('printSlip'))
+                    '{{ session('printSlip')['queueNumber'] }}'
+                @else
+                    null
+                @endif
+            );
         @endif
     });
 </script>

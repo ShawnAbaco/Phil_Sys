@@ -251,6 +251,8 @@ Route::prefix('screener')->name('screener.')->middleware(['auth'])->group(functi
     Route::put('/appointment/update/{id}', [AAppointmentController::class, 'update'])->name('appointment.update');
     Route::post('/appointment/update-status/{id}', [AAppointmentController::class, 'updateStatus'])->name('appointment.update-status');
     Route::get('/appointment/today', [AAppointmentController::class, 'getTodayAppointments'])->name('appointment.today');
+        Route::get('/appointment/print/{id}', [AAppointmentController::class, 'printAppointment'])->name('appointment.print');
+
     // ================================================================
 
     // Delete route
