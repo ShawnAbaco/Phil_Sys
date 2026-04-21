@@ -1080,30 +1080,53 @@ function handleVolumeClick(e) {
         button.innerHTML = originalHtml;
     });
 }
-
-// Check if there's any serving appointment
+// Check if there's any serving appointment - FIXED VERSION
 function checkServingStatus() {
-    const servingRow = document.querySelector('.status-badge.status-serving');
-    isCurrentlyServing = !!servingRow;
-
-    document.querySelectorAll('.serve-btn').forEach(btn => {
-        const row = btn.closest('tr');
-        const rowStatus = row?.querySelector('.status-badge')?.textContent.trim().toLowerCase();
-
-        if (rowStatus?.includes('serving')) {
+    // Wait a bit for DOM to be ready
+    setTimeout(() => {
+        // Try multiple selectors to find serving appointment
+        const servingRow = document.querySelector('.status-badge.status-serving');
+        const servingRow2 = document.querySelector('.status-badge.serving');
+        const servingRow3 = document.querySelector('tr:has(.status-serving)');
+        
+        isCurrentlyServing = !!(servingRow || servingRow2 || servingRow3);
+        
+        console.log('checkServingStatus - isCurrentlyServing:', isCurrentlyServing); // Debug log
+        
+        // Get all serve buttons
+        const serveButtons = document.querySelectorAll('.serve-btn');
+        
+        if (serveButtons.length === 0) {
+            console.log('No serve buttons found');
             return;
         }
-
-        if (isCurrentlyServing) {
-            btn.disabled = true;
-            btn.title = 'Cannot serve while another appointment is being served';
-        } else {
-            btn.disabled = false;
-            btn.title = btn.getAttribute('data-status') === 'no_show' ?
-                'Call this no-show appointment to your window' :
-                'Call this appointment to your window';
-        }
-    });
+        
+        serveButtons.forEach(btn => {
+            const row = btn.closest('tr');
+            if (!row) return;
+            
+            const statusBadge = row.querySelector('.status-badge');
+            const rowStatus = statusBadge ? statusBadge.textContent.trim().toLowerCase() : '';
+            
+            // If this row is the one being served, keep its button disabled
+            if (rowStatus.includes('serving')) {
+                btn.disabled = true;
+                btn.title = 'Currently serving this appointment';
+                return;
+            }
+            
+            // For all other rows, disable if there's any serving appointment
+            if (isCurrentlyServing) {
+                btn.disabled = true;
+                btn.title = 'Cannot serve while another appointment is being served';
+            } else {
+                btn.disabled = false;
+                btn.title = btn.getAttribute('data-status') === 'no_show' ?
+                    'Call this no-show appointment to your window' :
+                    'Call this appointment to your window';
+            }
+        });
+    }, 100); // Small delay to ensure DOM is updated
 }
 
 // Handle Complete Button Click
@@ -1239,32 +1262,32 @@ function updateAppointmentStatus(n_id, status, row, statusClass, queueNumber, na
     });
 }
 
-// Update row after status change
+// Update updateRowAfterStatusChange to reset the serving flag
 function updateRowAfterStatusChange(row, status, statusClass, n_id) {
     const statusBadge = row.querySelector('.status-badge');
     if (statusBadge) {
         statusBadge.className = `status-badge status-${statusClass}`;
-        statusBadge.innerHTML = `<span class="status-dot"></span> ${status.replace('_', ' ')}`;
+        statusBadge.innerHTML = `<span class="status-dot"></span> ${status.replace('_', ' ').toUpperCase()}`;
     }
-
-    const name = row.querySelector('.complete-btn, .no-show-btn, .cancel-btn')?.getAttribute('data-name');
 
     const actionCell = row.querySelector('td:last-child');
     if (actionCell) {
         if (status === 'no_show') {
+            const name = row.querySelector('.complete-btn, .no-show-btn, .cancel-btn')?.getAttribute('data-name') || '';
             actionCell.innerHTML = `
                 <button class="btn-action serve-btn" 
                         data-id="${n_id}"
                         data-name="${name}"
-                        data-status="no_show">
-                    <svg viewBox="0 0 20 20" fill="currentColor">
+                        data-status="no_show"
+                        data-queue="${row.querySelector('.queue-number')?.textContent || ''}">
+                    <svg viewBox="0 0 20 20" fill="currentColor" width="14" height="14">
                         <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
                     </svg>
                     Serve Again
                 </button>
             `;
         } else if (status === 'completed' || status === 'cancelled') {
-            actionCell.innerHTML = `<span class="status-text">${status.replace('_', ' ')}</span>`;
+            actionCell.innerHTML = `<span class="status-text">${status.replace('_', ' ').toUpperCase()}</span>`;
         }
     }
 
@@ -1276,26 +1299,28 @@ function updateRowAfterStatusChange(row, status, statusClass, n_id) {
 
     row.classList.remove('selected');
 
-    if (status === 'completed' || status === 'no_show' || status === 'cancelled') {
-        isCurrentlyServing = false;
-
-        document.querySelectorAll('.serve-btn').forEach(btn => {
-            btn.disabled = false;
-            btn.title = btn.getAttribute('data-status') === 'no_show' ?
-                'Call this no-show appointment to your window' :
-                'Call this appointment to your window';
-        });
-    }
+    // Reset serving flag since this appointment is no longer being served
+    isCurrentlyServing = false;
+    
+    // Re-enable all serve buttons
+    document.querySelectorAll('.serve-btn').forEach(btn => {
+        btn.disabled = false;
+        btn.title = btn.getAttribute('data-status') === 'no_show' ?
+            'Call this no-show appointment to your window' :
+            'Call this appointment to your window';
+    });
 
     attachServeButtonListeners();
+    
+    // Call checkServingStatus again to verify
+    setTimeout(() => checkServingStatus(), 50);
 }
-
-// Update row for serving status
+// Also update the updateRowForServing function to ensure checkServingStatus is called after DOM update
 function updateRowForServing(row, n_id, name) {
     const statusBadge = row.querySelector('.status-badge');
     if (statusBadge) {
         statusBadge.className = 'status-badge status-serving';
-        statusBadge.innerHTML = '<span class="status-dot"></span> Serving';
+        statusBadge.innerHTML = '<span class="status-dot"></span> SERVING';
     }
 
     const actionCell = row.querySelector('td:last-child');
@@ -1303,15 +1328,21 @@ function updateRowForServing(row, n_id, name) {
         actionCell.innerHTML = `
             <div class="action-button-group">
                 <button class="btn-action complete-btn" data-id="${n_id}" data-name="${name}">
-                    <svg viewBox="0 0 20 20" fill="currentColor">
+                    <svg viewBox="0 0 20 20" fill="currentColor" width="16" height="16">
                         <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
                     </svg>
-                    Done
+                    Complete
                 </button>
                 <button class="btn-action no-show-btn" data-id="${n_id}" data-name="${name}">
+                    <svg viewBox="0 0 20 20" fill="currentColor" width="16" height="16">
+                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
+                    </svg>
                     No Show
                 </button>
                 <button class="btn-action cancel-btn" data-id="${n_id}" data-name="${name}">
+                    <svg viewBox="0 0 20 20" fill="currentColor" width="16" height="16">
+                        <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" />
+                    </svg>
                     Cancel
                 </button>
             </div>
@@ -1319,8 +1350,22 @@ function updateRowForServing(row, n_id, name) {
     }
 
     attachActionButtonListeners(row);
-    checkServingStatus();
+    
+    // Set global flag
+    isCurrentlyServing = true;
+    
+    // Immediately disable all other serve buttons
+    document.querySelectorAll('.serve-btn').forEach(btn => {
+        if (btn.closest('tr') !== row) {
+            btn.disabled = true;
+            btn.title = 'Cannot serve while another appointment is being served';
+        }
+    });
+    
+    // Call checkServingStatus again after a short delay to ensure all buttons are updated
+    setTimeout(() => checkServingStatus(), 50);
 }
+
 
 // Attach event listeners to action buttons
 function attachActionButtonListeners(row) {
