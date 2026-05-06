@@ -29,7 +29,6 @@ public function reports(Request $request)
     $userId = Auth::id();
     $today = Carbon::now('Asia/Manila')->toDateString();
     
-    // Get totals for the current month
     $totalCompleted = TblAppointment::where('user_id', $userId)
                                     ->where('status', 'completed')
                                     ->whereMonth('date', Carbon::now()->month)
@@ -50,7 +49,6 @@ public function reports(Request $request)
                                  ->whereDate('date', $today)
                                  ->count();
     
-    // Get transactions for the current month
     $transactions = TblAppointment::where('user_id', $userId)
                                   ->whereIn('status', ['completed', 'cancelled'])
                                   ->whereMonth('date', Carbon::now()->month)
@@ -67,7 +65,7 @@ public function reports(Request $request)
 }
 
 /**
- * Get report data via AJAX with pagination - UPDATED with No Show in daily trends
+ * Get report data via AJAX with pagination - UPDATED with hourly data for daily view
  */
 public function getReportData(Request $request)
 {
@@ -80,13 +78,13 @@ public function getReportData(Request $request)
         $page = $request->get('page', 1);
         $perPage = $request->get('per_page', 10);
         
-        // Validate per page
         $perPage = in_array($perPage, [10, 20, 50, 100]) ? $perPage : 10;
         
         $start = Carbon::parse($startDate)->startOfDay();
         $end = Carbon::parse($endDate)->endOfDay();
         
-        // Build query for transactions (with pagination)
+        $isDailyReport = $startDate === $endDate;
+        
         $query = TblAppointment::where('user_id', $userId)
                                ->whereBetween('date', [$start, $end]);
         
@@ -100,11 +98,9 @@ public function getReportData(Request $request)
             $query->whereIn('status', ['completed', 'cancelled', 'no_show', 'pending', 'serving']);
         }
         
-        // Get paginated transactions
         $transactionsPaginated = $query->orderBy('updated_at', 'desc')
                                        ->paginate($perPage, ['*'], 'page', $page);
         
-        // Get all transactions for stats and charts (without pagination)
         $allQuery = TblAppointment::where('user_id', $userId)
                                   ->whereBetween('date', [$start, $end]);
         
@@ -120,7 +116,6 @@ public function getReportData(Request $request)
         
         $allTransactions = $allQuery->get();
         
-        // Calculate stats
         $stats = [
             'completed' => $allTransactions->where('status', 'completed')->count(),
             'cancelled' => $allTransactions->where('status', 'cancelled')->count(),
@@ -133,7 +128,6 @@ public function getReportData(Request $request)
             'regular' => $allTransactions->where('priority_type', 'regular')->count(),
         ];
         
-        // Quick stats (today, week, month, year)
         $today = Carbon::now('Asia/Manila')->toDateString();
         $quickStats = [
             'today' => TblAppointment::where('user_id', $userId)->whereDate('date', $today)->count(),
@@ -141,48 +135,31 @@ public function getReportData(Request $request)
             'month' => TblAppointment::where('user_id', $userId)->whereMonth('date', Carbon::now()->month)->count(),
             'year' => TblAppointment::where('user_id', $userId)->whereYear('date', Carbon::now()->year)->count(),
             'avgDaily' => round(TblAppointment::where('user_id', $userId)->whereMonth('date', Carbon::now()->month)->count() / Carbon::now()->daysInMonth, 1),
-            'completionRate' => $stats['completed'] > 0 ? round(($stats['completed'] / ($stats['completed'] + $stats['cancelled'])) * 100) : 0,
+            'completionRate' => $stats['completed'] > 0 ? round(($stats['completed'] / max(($stats['completed'] + $stats['cancelled']), 1)) * 100) : 0,
         ];
         
-        // Prepare chart data - UPDATED to include no_show
-        $dailyData = [];
-        $period = Carbon::parse($start);
-        while ($period <= $end) {
-            $date = $period->format('Y-m-d');
-            $dailyData[$date] = ['completed' => 0, 'cancelled' => 0, 'no_show' => 0];
-            $period->addDay();
+        $charts = [];
+        
+        if ($isDailyReport) {
+            $hourlyData = $this->getHourlyData($allTransactions, $startDate);
+            $charts['hourly'] = $hourlyData;
+            $charts['chart_type'] = 'hourly';
+            $charts['daily'] = null;
+        } else {
+            $dailyData = $this->getDailyData($allTransactions, $start, $end);
+            $charts['daily'] = $dailyData;
+            $charts['chart_type'] = 'daily';
+            $charts['hourly'] = null;
         }
         
-        foreach ($allTransactions as $transaction) {
-            $date = Carbon::parse($transaction->date)->format('Y-m-d');
-            if (isset($dailyData[$date])) {
-                if ($transaction->status === 'completed') {
-                    $dailyData[$date]['completed']++;
-                } elseif ($transaction->status === 'cancelled') {
-                    $dailyData[$date]['cancelled']++;
-                } elseif ($transaction->status === 'no_show') {
-                    $dailyData[$date]['no_show']++;
-                }
-            }
-        }
-        
-        $charts = [
-            'daily' => [
-                'labels' => array_keys($dailyData),
-                'completed' => array_column($dailyData, 'completed'),
-                'cancelled' => array_column($dailyData, 'cancelled'),
-                'no_show' => array_column($dailyData, 'no_show'),
-            ],
-            'status' => [$stats['completed'], $stats['cancelled'], $stats['no_show']],
-            'priority' => [$stats['senior'], $stats['infant'], $stats['pwd'], $stats['pregnant'], $stats['regular']],
-            'services' => [
-                $allTransactions->where('queue_for', 'NID Registration')->count(),
-                $allTransactions->where('queue_for', 'Status Inquiry')->count(),
-                $allTransactions->where('queue_for', 'Updating')->count(),
-            ]
+        $charts['status'] = [$stats['completed'], $stats['cancelled'], $stats['no_show']];
+        $charts['priority'] = [$stats['senior'], $stats['infant'], $stats['pwd'], $stats['pregnant'], $stats['regular']];
+        $charts['services'] = [
+            $allTransactions->where('queue_for', 'NID Registration')->count(),
+            $allTransactions->where('queue_for', 'Status Inquiry')->count(),
+            $allTransactions->where('queue_for', 'Updating')->count(),
         ];
         
-        // Calculate trends
         $previousStart = Carbon::parse($start)->subDays($start->diffInDays($end) + 1);
         $previousEnd = Carbon::parse($start)->subDay();
         
@@ -203,7 +180,6 @@ public function getReportData(Request $request)
             'served' => '↑ 0%',
         ];
         
-        // Format transactions for table
         $formattedTransactions = $transactionsPaginated->map(function($transaction) {
             $fullName = $transaction->lname . ', ' . $transaction->fname;
             if ($transaction->mname && trim($transaction->mname) !== '') {
@@ -244,6 +220,7 @@ public function getReportData(Request $request)
                 'to' => $transactionsPaginated->lastItem(),
             ],
             'trends' => $trends,
+            'is_daily_report' => $isDailyReport,
         ]);
         
     } catch (\Exception $e) {
@@ -253,6 +230,92 @@ public function getReportData(Request $request)
         ], 500);
     }
 }
+
+/**
+ * Get hourly breakdown for a specific day
+ */
+private function getHourlyData($transactions, $date)
+{
+    $hourlyData = [];
+    for ($hour = 0; $hour < 24; $hour++) {
+        $hourlyData[$hour] = [
+            'hour' => $hour,
+            'hour_display' => date('g A', mktime($hour, 0, 0)),
+            'completed' => 0,
+            'cancelled' => 0,
+            'no_show' => 0,
+            'total' => 0,
+        ];
+    }
+    
+    foreach ($transactions as $transaction) {
+        $servedTime = $transaction->time_catered 
+            ? Carbon::parse($transaction->time_catered)
+            : Carbon::parse($transaction->updated_at);
+        $hour = (int)$servedTime->format('H');
+        
+        if (isset($hourlyData[$hour])) {
+            if ($transaction->status === 'completed') {
+                $hourlyData[$hour]['completed']++;
+            } elseif ($transaction->status === 'cancelled') {
+                $hourlyData[$hour]['cancelled']++;
+            } elseif ($transaction->status === 'no_show') {
+                $hourlyData[$hour]['no_show']++;
+            }
+            $hourlyData[$hour]['total']++;
+        }
+    }
+    
+    return [
+        'labels' => array_column($hourlyData, 'hour_display'),
+        'completed' => array_column($hourlyData, 'completed'),
+        'cancelled' => array_column($hourlyData, 'cancelled'),
+        'no_show' => array_column($hourlyData, 'no_show'),
+        'total' => array_column($hourlyData, 'total'),
+    ];
+}
+
+/**
+ * Get daily breakdown for a date range
+ */
+private function getDailyData($transactions, $start, $end)
+{
+    $dailyData = [];
+    $period = Carbon::parse($start);
+    
+    while ($period <= $end) {
+        $date = $period->format('Y-m-d');
+        $dailyData[$date] = [
+            'date' => $date,
+            'date_display' => $period->format('M d'),
+            'completed' => 0,
+            'cancelled' => 0,
+            'no_show' => 0,
+        ];
+        $period->addDay();
+    }
+    
+    foreach ($transactions as $transaction) {
+        $date = Carbon::parse($transaction->date)->format('Y-m-d');
+        if (isset($dailyData[$date])) {
+            if ($transaction->status === 'completed') {
+                $dailyData[$date]['completed']++;
+            } elseif ($transaction->status === 'cancelled') {
+                $dailyData[$date]['cancelled']++;
+            } elseif ($transaction->status === 'no_show') {
+                $dailyData[$date]['no_show']++;
+            }
+        }
+    }
+    
+    return [
+        'labels' => array_column($dailyData, 'date_display'),
+        'completed' => array_column($dailyData, 'completed'),
+        'cancelled' => array_column($dailyData, 'cancelled'),
+        'no_show' => array_column($dailyData, 'no_show'),
+    ];
+}
+
 /**
  * Export report as PDF with filters
  */
@@ -265,7 +328,6 @@ public function exportReportPDF(Request $request)
         $serviceType = $request->get('service_type', 'all');
         $statusFilter = $request->get('status', 'all');
         
-        // If no dates provided, use current month
         if (!$startDate || !$endDate) {
             $startDate = Carbon::now('Asia/Manila')->startOfMonth()->toDateString();
             $endDate = Carbon::now('Asia/Manila')->endOfMonth()->toDateString();
@@ -274,7 +336,8 @@ public function exportReportPDF(Request $request)
         $start = Carbon::parse($startDate)->startOfDay();
         $end = Carbon::parse($endDate)->endOfDay();
         
-        // Build query - FILTER BY USER ID (operator only sees their own transactions)
+        $isDailyReport = $startDate === $endDate;
+        
         $query = TblAppointment::where('user_id', $userId)
                                ->whereBetween('date', [$start, $end]);
         
@@ -297,32 +360,38 @@ public function exportReportPDF(Request $request)
             ], 404);
         }
         
-        // Add row numbers
-        $completedAppointments = $completedAppointments->map(function($appointment, $index) {
+        $completedAppointments = $completedAppointments->map(function($appointment, $index) use ($isDailyReport) {
             $appointment->row_number = $index + 1;
+            if ($isDailyReport) {
+                $servedTime = $appointment->time_catered 
+                    ? Carbon::parse($appointment->time_catered)
+                    : Carbon::parse($appointment->updated_at);
+                $appointment->hour_display = $servedTime->format('g A');
+            }
             return $appointment;
         });
+        
+        $hourlyStats = null;
+        if ($isDailyReport) {
+            $hourlyStats = $this->getHourlyData($completedAppointments, $startDate);
+        }
         
         $totalRecords = $completedAppointments->count();
         $dateToday = Carbon::now('Asia/Manila')->format('F j, Y');
         $timeGenerated = Carbon::now('Asia/Manila')->format('h:i A');
         $windowNum = Auth::user()->window_num ?? '1';
         
-        // Calculate statistics
         $completedCount = $completedAppointments->where('status', 'completed')->count();
         $cancelledCount = $completedAppointments->where('status', 'cancelled')->count();
         $noShowCount = $completedAppointments->where('status', 'no_show')->count();
         $pendingCount = $completedAppointments->where('status', 'pending')->count();
         $servingCount = $completedAppointments->where('status', 'serving')->count();
         
-        // Format date range for display
         $dateRangeDisplay = Carbon::parse($startDate)->format('M d, Y') . ' - ' . Carbon::parse($endDate)->format('M d, Y');
         
-        // Get service and status display names
         $serviceDisplay = $serviceType === 'all' ? 'All Services' : $serviceType;
         $statusDisplay = $statusFilter === 'all' ? 'All Status' : ucfirst(str_replace('_', ' ', $statusFilter));
         
-        // Load the PDF view
         $pdf = Pdf::loadView('operator.exports.report-pdf', compact(
             'completedAppointments',
             'totalRecords',
@@ -337,10 +406,11 @@ public function exportReportPDF(Request $request)
             'cancelledCount',
             'noShowCount',
             'pendingCount',
-            'servingCount'
+            'servingCount',
+            'isDailyReport',
+            'hourlyStats'
         ));
         
-        // Use portrait orientation like screener
         $pdf->setPaper('A4', 'portrait');
         
         $pdf->setOptions([
@@ -380,7 +450,6 @@ public function exportReportExcel(Request $request)
         $serviceType = $request->get('service_type', 'all');
         $statusFilter = $request->get('status', 'all');
         
-        // If no dates provided, use current month
         if (!$startDate || !$endDate) {
             $startDate = Carbon::now('Asia/Manila')->startOfMonth()->toDateString();
             $endDate = Carbon::now('Asia/Manila')->endOfMonth()->toDateString();
@@ -389,7 +458,8 @@ public function exportReportExcel(Request $request)
         $start = Carbon::parse($startDate)->startOfDay();
         $end = Carbon::parse($endDate)->endOfDay();
         
-        // Build query
+        $isDailyReport = $startDate === $endDate;
+        
         $query = TblAppointment::where('user_id', $userId)
                                ->whereBetween('date', [$start, $end]);
         
@@ -412,8 +482,14 @@ public function exportReportExcel(Request $request)
             ], 404);
         }
         
-        $completedAppointments = $completedAppointments->map(function($appointment, $index) {
+        $completedAppointments = $completedAppointments->map(function($appointment, $index) use ($isDailyReport) {
             $appointment->row_number = $index + 1;
+            if ($isDailyReport) {
+                $servedTime = $appointment->time_catered 
+                    ? Carbon::parse($appointment->time_catered)
+                    : Carbon::parse($appointment->updated_at);
+                $appointment->hour_display = $servedTime->format('g A');
+            }
             return $appointment;
         });
         
@@ -422,10 +498,8 @@ public function exportReportExcel(Request $request)
         $timeGenerated = Carbon::now('Asia/Manila')->format('h:i A');
         $windowNum = Auth::user()->window_num ?? '1';
         
-        // Format date range for display
         $dateRangeDisplay = Carbon::parse($startDate)->format('M d, Y') . ' - ' . Carbon::parse($endDate)->format('M d, Y');
         
-        // Get service and status display names
         $serviceDisplay = $serviceType === 'all' ? 'All Services' : $serviceType;
         $statusDisplay = $statusFilter === 'all' ? 'All Status' : ucfirst(str_replace('_', ' ', $statusFilter));
         
@@ -440,7 +514,8 @@ public function exportReportExcel(Request $request)
             $serviceDisplay,
             $statusDisplay,
             $startDate,
-            $endDate
+            $endDate,
+            $isDailyReport
         );
         
         $filename = 'REPORT-' . Carbon::now('Asia/Manila')->format('Y-m-d-His') . '.xlsx';

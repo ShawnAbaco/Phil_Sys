@@ -892,9 +892,9 @@
                         </svg>
                     </div>
                 </div>
-                <div class="stat-value" id="totalServed">0</div>
-                <div class="stat-label">Total Served</div>
-                <div class="stat-trend" id="servedTrend"><span class="trend-up">↑ 0%</span></div>
+                <div class="stat-value" id="totalIssued">0</div>
+                <div class="stat-label">Total Issued</div>
+                <div class="stat-trend" id="issuedTrend"><span class="trend-up">↑ 0%</span></div>
             </div>
         </div>
 
@@ -967,7 +967,7 @@
                         <path d="M2 10a8 8 0 018-8v8h8a8 8 0 11-16 0z" />
                         <path d="M12 2.252A8.014 8.014 0 0117.748 8H12V2.252z" />
                     </svg>
-                    Daily Transaction Trends
+                    Transaction Trends
                 </div>
                 <div class="chart-container"><canvas id="trendChart"></canvas></div>
             </div>
@@ -1057,7 +1057,7 @@
                         </tr>
                     </thead>
                     <tbody id="reportTableBody">
-                        <tr><td colspan="9" class="empty-state">Loading data...</td></tr>
+                        <tr><td colspan="9" class="empty-state">Loading data......</td></tr>
                     </tbody>
                 </table>
             </div>
@@ -1084,14 +1084,16 @@
     let currentPerPage = 10;
     let isLoading = false;
 
-    // Get date range based on period
+    // Get date range based on period - FIXED for daily to show ONLY today
     function getDateRange(period) {
         const now = new Date();
         let start, end;
         
         if (period === 'daily') {
-            start = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-            end = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59);
+            // For daily: ONLY today's date, not a range
+            const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+            start = today;
+            end = today;
         } else if (period === 'weekly') {
             const day = now.getDay();
             const diff = day === 0 ? -6 : 1 - day;
@@ -1165,6 +1167,20 @@
                         pointBorderWidth: 2,
                         pointRadius: 4,
                         pointHoverRadius: 6
+                    },
+                    { 
+                        label: '📋 Total Issued', 
+                        data: [], 
+                        borderColor: '#8b5cf6', 
+                        backgroundColor: 'rgba(139,92,246,0.1)', 
+                        fill: true, 
+                        tension: 0.4,
+                        pointBackgroundColor: '#8b5cf6',
+                        pointBorderColor: '#fff',
+                        pointBorderWidth: 2,
+                        pointRadius: 4,
+                        pointHoverRadius: 6,
+                        borderDash: [5, 5]
                     }
                 ]
             },
@@ -1175,17 +1191,30 @@
                     legend: { position: 'top' },
                     tooltip: { mode: 'index', intersect: false }
                 }, 
-                scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } } 
+                scales: { 
+                    y: { 
+                        beginAtZero: true, 
+                        ticks: { stepSize: 1 },
+                        title: { display: true, text: 'Number of Transactions' }
+                    },
+                    x: { 
+                        title: { display: true, text: '' },
+                        ticks: { 
+                            maxRotation: 45,
+                            minRotation: 45
+                        }
+                    }
+                } 
             }
         });
         
         statusChart = new Chart(statusCtx, {
             type: 'doughnut',
             data: { 
-                labels: ['Completed', 'Cancelled', 'No Show'], 
+                labels: ['Pending', 'Serving', 'Completed', 'Cancelled', 'No Show'], 
                 datasets: [{ 
-                    data: [0,0,0], 
-                    backgroundColor: ['#10b981','#ef4444','#f59e0b'], 
+                    data: [0,0,0,0,0], 
+                    backgroundColor: ['#f59e0b','#3b82f6','#10b981','#ef4444','#6b7280'], 
                     borderWidth: 0,
                     hoverOffset: 10
                 }] 
@@ -1300,6 +1329,9 @@
                     currentPage = data.transactions.current_page;
                     currentPerPage = data.transactions.per_page;
                 }
+                
+                // Update chart title based on report type
+                updateChartTitle(data.is_daily_report);
             } else {
                 console.error('Error fetching data:', data.message);
             }
@@ -1310,53 +1342,74 @@
             isLoading = false;
         });
     }
+    
+    // Update chart title based on report type
+    function updateChartTitle(isDailyReport) {
+        const chartTitleElement = document.querySelector('.chart-card:first-child .chart-title');
+        if (chartTitleElement) {
+            const existingBadge = chartTitleElement.querySelector('.report-type-badge');
+            if (existingBadge) {
+                existingBadge.remove();
+            }
+            
+            const badge = document.createElement('span');
+            badge.className = 'report-type-badge';
+            badge.style.marginLeft = '8px';
+            badge.style.fontSize = '0.75rem';
+            badge.style.padding = '2px 8px';
+            badge.style.borderRadius = '12px';
+            badge.style.backgroundColor = isDailyReport ? '#dbeafe' : '#f3f4f6';
+            badge.style.color = isDailyReport ? '#1e40af' : '#4b5563';
+            badge.style.fontWeight = '500';
+            badge.textContent = isDailyReport ? '(Hourly Breakdown)' : '(Daily Breakdown)';
+            chartTitleElement.appendChild(badge);
+        }
+    }
 
     // Update table with pagination data
-    // Update table with pagination data
-function updateTableWithPagination(data) {
-    const tbody = document.getElementById('reportTableBody');
-    const paginationContainer = document.getElementById('reportPaginationContainer');
-    
-    if (!tbody) return;
-    
-    if (data.transactions && data.transactions.data && data.transactions.data.length > 0) {
-        let html = '';
-        // Calculate starting index based on current page and per page
-        const startIndex = (data.transactions.current_page - 1) * data.transactions.per_page;
+    function updateTableWithPagination(data) {
+        const tbody = document.getElementById('reportTableBody');
+        const paginationContainer = document.getElementById('reportPaginationContainer');
         
-        data.transactions.data.forEach((t, idx) => {
-            const indexNumber = startIndex + idx + 1;
-            const priorityClass = t.priority_type || 'regular';
-            const statusClass = t.status;
-            const statusDisplay = t.status.replace('_', ' ').toUpperCase();
+        if (!tbody) return;
+        
+        if (data.transactions && data.transactions.data && data.transactions.data.length > 0) {
+            let html = '';
+            const startIndex = (data.transactions.current_page - 1) * data.transactions.per_page;
             
-            html += `
-                <tr>
-                    <td style="text-align: center; font-weight: 600; color: #6b7280;">${indexNumber}</td>
-                    <td>${t.date}</td>
-                    <td><span class="queue-badge">${t.q_id}</span></td>
-                    <td>${t.client_name}</td>
-                    <td>${t.service}</td>
-                    <td><span class="priority-badge priority-${priorityClass}">${priorityClass.toUpperCase()}</span></td>
-                    <td><span class="status-badge ${statusClass}"><span class="status-dot"></span>${statusDisplay}</span></td>
-                    <td>${t.window_num || 'N/A'}</td>
-                    <td>${t.served_time}</td>
-                </tr>
-            `;
-        });
-        tbody.innerHTML = html;
-    } else {
-        tbody.innerHTML = '<tr><td colspan="9" class="empty-state">No transactions found</td></tr>';
+            data.transactions.data.forEach((t, idx) => {
+                const indexNumber = startIndex + idx + 1;
+                const priorityClass = t.priority_type || 'regular';
+                const statusClass = t.status;
+                const statusDisplay = t.status.replace('_', ' ').toUpperCase();
+                
+                html += `
+                    <tr>
+                        <td style="text-align: center; font-weight: 600; color: #6b7280;">${indexNumber}</td>
+                        <td>${t.date}</td>
+                        <td><span class="queue-badge">${t.q_id}</span></td>
+                        <td>${t.client_name}</td>
+                        <td>${t.service}</td>
+                        <td><span class="priority-badge priority-${priorityClass}">${priorityClass.toUpperCase()}</span></td>
+                        <td><span class="status-badge ${statusClass}"><span class="status-dot"></span>${statusDisplay}</span></td>
+                        <td>${t.window_num || '—'}</td>
+                        <td>${t.served_time}</td>
+                    </tr>
+                `;
+            });
+            tbody.innerHTML = html;
+        } else {
+            tbody.innerHTML = '<tr><td colspan="9" class="empty-state">No transactions found</td></tr>';
+        }
+        
+        tbody.style.opacity = '1';
+        
+        if (paginationContainer && data.transactions) {
+            paginationContainer.innerHTML = renderPagination(data.transactions);
+            paginationContainer.style.opacity = '1';
+            attachPaginationListeners();
+        }
     }
-    
-    tbody.style.opacity = '1';
-    
-    if (paginationContainer && data.transactions) {
-        paginationContainer.innerHTML = renderPagination(data.transactions);
-        paginationContainer.style.opacity = '1';
-        attachPaginationListeners();
-    }
-}
 
     // Render pagination HTML
     function renderPagination(paginationData) {
@@ -1455,7 +1508,7 @@ function updateTableWithPagination(data) {
         document.getElementById('totalCompleted').textContent = stats.completed || 0;
         document.getElementById('totalCancelled').textContent = stats.cancelled || 0;
         document.getElementById('totalNoShow').textContent = stats.no_show || 0;
-        document.getElementById('totalServed').textContent = stats.served || 0;
+        document.getElementById('totalIssued').textContent = stats.total_issued || 0;
     }
 
     // Update quick stats
@@ -1476,22 +1529,43 @@ function updateTableWithPagination(data) {
             const completedSpan = document.querySelector('#completedTrend span:first-child');
             const cancelledSpan = document.querySelector('#cancelledTrend span:first-child');
             const noShowSpan = document.querySelector('#noShowTrend span:first-child');
-            const servedSpan = document.querySelector('#servedTrend span:first-child');
+            const issuedSpan = document.querySelector('#issuedTrend span:first-child');
             
             if (completedSpan) completedSpan.innerHTML = trends.completed || '↑ 0%';
             if (cancelledSpan) cancelledSpan.innerHTML = trends.cancelled || '↓ 0%';
             if (noShowSpan) noShowSpan.innerHTML = trends.no_show || '→ 0%';
-            if (servedSpan) servedSpan.innerHTML = trends.served || '↑ 0%';
+            if (issuedSpan) issuedSpan.innerHTML = trends.issued || '↑ 0%';
         }
     }
 
     // Update charts
     function updateCharts(charts) {
-        if (trendChart && charts.daily) {
-            trendChart.data.labels = charts.daily.labels;
-            trendChart.data.datasets[0].data = charts.daily.completed;
-            trendChart.data.datasets[1].data = charts.daily.cancelled;
-            trendChart.data.datasets[2].data = charts.daily.no_show || [];
+        if (trendChart) {
+            if (charts.chart_type === 'hourly' && charts.hourly) {
+                // Show hourly data for daily reports
+                trendChart.data.labels = charts.hourly.labels;
+                trendChart.data.datasets[0].data = charts.hourly.completed;
+                trendChart.data.datasets[1].data = charts.hourly.cancelled;
+                trendChart.data.datasets[2].data = charts.hourly.no_show;
+                trendChart.data.datasets[3].data = charts.hourly.total;
+                
+                // Update x-axis title for hourly view
+                if (trendChart.options.scales.x.title) {
+                    trendChart.options.scales.x.title.text = 'Hour of the Day (24-hour format)';
+                }
+            } else if (charts.daily) {
+                // Show daily data for weekly/monthly/custom reports
+                trendChart.data.labels = charts.daily.labels;
+                trendChart.data.datasets[0].data = charts.daily.completed;
+                trendChart.data.datasets[1].data = charts.daily.cancelled;
+                trendChart.data.datasets[2].data = charts.daily.no_show || [];
+                trendChart.data.datasets[3].data = charts.daily.issued || [];
+                
+                // Update x-axis title for daily view
+                if (trendChart.options.scales.x.title) {
+                    trendChart.options.scales.x.title.text = 'Date';
+                }
+            }
             trendChart.update();
         }
         
@@ -1524,8 +1598,11 @@ function updateTableWithPagination(data) {
     // Apply filters
     function applyFilters() {
         if (currentPeriod === 'custom') {
-            currentFilters.startDate = document.getElementById('startDate').value;
-            currentFilters.endDate = document.getElementById('endDate').value;
+            const startDateInput = document.getElementById('startDate');
+            const endDateInput = document.getElementById('endDate');
+            
+            currentFilters.startDate = startDateInput.value;
+            currentFilters.endDate = endDateInput.value;
             
             if (!currentFilters.startDate || !currentFilters.endDate) {
                 Swal.fire({
@@ -1658,6 +1735,10 @@ function updateTableWithPagination(data) {
             
             if (currentPeriod !== 'custom') {
                 fetchReportData(1, currentPerPage);
+            } else {
+                const today = new Date().toISOString().split('T')[0];
+                document.getElementById('startDate').value = today;
+                document.getElementById('endDate').value = today;
             }
         });
     });
