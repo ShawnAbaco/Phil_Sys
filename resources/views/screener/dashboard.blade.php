@@ -430,14 +430,6 @@
                     </div>
                 </div>
                 <div class="stat-value">{{ $totalToday ?? 0 }}</div>
-                <div class="stat-trend">
-                    @if (($trends['total'] ?? 0) > 0)
-                        <span class="trend-up">↑ {{ $trends['total'] ?? 0 }}%</span>
-                    @else
-                        <span class="trend-neutral">→ 0%</span>
-                    @endif
-                    <span>vs yesterday</span>
-                </div>
             </div>
 
             <div class="stat-card">
@@ -452,16 +444,6 @@
                     </div>
                 </div>
                 <div class="stat-value">{{ $pendingCount ?? 0 }}</div>
-                <div class="stat-trend">
-                    @if (($trends['pending'] ?? 0) > 0)
-                        <span class="trend-up">↑ {{ $trends['pending'] }}%</span>
-                    @elseif(($trends['pending'] ?? 0) < 0)
-                        <span class="trend-down">↓ {{ abs($trends['pending']) }}%</span>
-                    @else
-                        <span class="trend-neutral">→ 0%</span>
-                    @endif
-                    <span>vs yesterday</span>
-                </div>
             </div>
 
             <div class="stat-card">
@@ -476,16 +458,6 @@
                     </div>
                 </div>
                 <div class="stat-value">{{ $completedCount ?? 0 }}</div>
-                <div class="stat-trend">
-                    @if (($trends['completed'] ?? 0) > 0)
-                        <span class="trend-up">↑ {{ $trends['completed'] }}%</span>
-                    @elseif(($trends['completed'] ?? 0) < 0)
-                        <span class="trend-down">↓ {{ abs($trends['completed']) }}%</span>
-                    @else
-                        <span class="trend-neutral">→ 0%</span>
-                    @endif
-                    <span>vs yesterday</span>
-                </div>
             </div>
 
             <div class="stat-card">
@@ -500,16 +472,6 @@
                     </div>
                 </div>
                 <div class="stat-value">{{ $cancelledCount ?? 0 }}</div>
-                <div class="stat-trend">
-                    @if (($trends['cancelled'] ?? 0) > 0)
-                        <span class="trend-up">↑ {{ $trends['cancelled'] }}%</span>
-                    @elseif(($trends['cancelled'] ?? 0) < 0)
-                        <span class="trend-down">↓ {{ abs($trends['cancelled']) }}%</span>
-                    @else
-                        <span class="trend-neutral">→ 0%</span>
-                    @endif
-                    <span>vs yesterday</span>
-                </div>
             </div>
         </div>
 
