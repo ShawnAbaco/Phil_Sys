@@ -52,8 +52,6 @@
                 </div>
                 <div class="stat-value">{{ $queueCount ?? 0 }}</div>
                 <div class="stat-trend">
-                    <span class="trend-neutral">→ 0%</span>
-                    <span>vs yesterday</span>
                 </div>
             </div>
 
@@ -70,8 +68,6 @@
                 </div>
                 <div class="stat-value">{{ $pendingCount ?? 0 }}</div>
                 <div class="stat-trend">
-                    <span class="trend-neutral">→ 0%</span>
-                    <span>vs yesterday</span>
                 </div>
             </div>
 
@@ -88,8 +84,6 @@
                 </div>
                 <div class="stat-value">{{ $completedCount ?? 0 }}</div>
                 <div class="stat-trend">
-                    <span class="trend-neutral">→ 0%</span>
-                    <span>vs yesterday</span>
                 </div>
             </div>
 
@@ -106,8 +100,6 @@
                 </div>
                 <div class="stat-value">{{ $cancelledCount ?? 0 }}</div>
                 <div class="stat-trend">
-                    <span class="trend-neutral">→ 0%</span>
-                    <span>vs yesterday</span>
                 </div>
             </div>
         </div>
